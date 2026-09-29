@@ -49,7 +49,7 @@
   - [Diagram — In case of ambiguities, the origin base class should be specified]
 
 ```cpp
-// Examples/02_CPP_OOP/08_inheritance/21_inheritance.cpp
+// Trimmed excerpt — full runnable example: Examples/02_CPP_OOP/08_inheritance/21_inheritance.cpp
 #include <iostream>
 #include <string>
 
@@ -79,6 +79,7 @@ protected:
     int m_age;
 };
 
+// private inheritance: Person's public/protected members become private in Student
 class Student : private Person
 {
 public:
@@ -94,20 +95,6 @@ public:
     virtual ~Student()
     {
         std::cout << "Student destructor" << std::endl;
-    }
-};
-
-class HighSchoolStudent : public Student
-{
-public:
-    HighSchoolStudent()
-    {
-        // m_name for example is not accesible here
-        std::cout << "HighSchoolStudent default constructor" << std::endl;
-    }
-    virtual ~HighSchoolStudent()
-    {
-        std::cout << "HighSchoolStudent destructor" << std::endl;
     }
 };
 
@@ -155,11 +142,11 @@ int main()
         Student student("Joe");
     }
     {
+        // multiple inheritance: qualify the ambiguous member with its base class
         Engineer engineer("Alex", 1, 28);
         std::cout << "Get engineer name from Employee " << engineer.Employee::getName() 
             << " from person " << engineer.Person::getName() << std::endl;
     }
-    HighSchoolStudent st;
 
     return 0;
 }

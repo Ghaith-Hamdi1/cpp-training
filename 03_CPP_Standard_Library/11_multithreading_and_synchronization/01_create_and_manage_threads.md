@@ -8,26 +8,88 @@
 - Important: a thread must be joined by calling `join()` (blocking until processing is finished) OR detached using `detach()` so that the thread remains running separately until self destruction (thread function exits)
 - If a thread is detached, the thread handle is no longer valid
 
+## Why join-or-detach is mandatory
+
+- `std::thread` owns a real OS resource — a running thread of execution
+- If its `std::thread` object is destroyed while still joinable (neither `join()` nor `detach()` called), the destructor calls `std::terminate()` and the program aborts — a deliberate hard failure, not a silent leak
+- The decision doesn't have to happen immediately — the thread can finish long before you actually call `join()` — but it must have *happened* before the `std::thread` object's own destructor runs
+- `detach()` hands the thread to the C++ runtime as a background ("daemon") thread: no more waiting on it, observing completion, or joining it later — `joinable()` becomes `false` right after
+
+## The dangling-reference trap with detached threads
+
+- A detached thread capturing a reference/pointer to a local variable is dangerous if the enclosing function can return first:
+
 ```cpp
-// Source: Examples/03_CPP_Standard_Library/11_multithreading_and_synchronization/53_multithreading.cpp
+void oops() {
+    int some_local_state = 0;
+    std::thread t([&some_local_state]() {
+        // if oops() has already returned by the time this runs,
+        // some_local_state no longer exists: undefined behavior
+        do_something(some_local_state);
+    });
+    t.detach();
+} // some_local_state is destroyed here, but the thread may still be running
+```
+
+- Same "don't return a reference to a local" rule as single-threaded code — but timing-dependent, so much easier to trigger by accident
+- Avoid it by:
+  - Copying data into the thread instead of referencing it (pass by value, or `std::move` ownership of something like a `std::unique_ptr`)
+  - `join()`-ing before the enclosing scope exits, instead of `detach()`-ing, if the thread must reference local state
+
+## RAII thread guard: never forget to join
+
+- An exception thrown between starting a thread and its planned `join()` skips the `join()` → `std::terminate()`
+- Common fix: wrap the thread in a small RAII guard that joins in its destructor, same idea as `std::lock_guard` for mutexes:
+
+```cpp
+class thread_guard {
+    std::thread& t;
+public:
+    explicit thread_guard(std::thread& t_) : t(t_) {}
+    ~thread_guard() {
+        if (t.joinable()) t.join();
+    }
+    thread_guard(const thread_guard&) = delete;
+    thread_guard& operator=(const thread_guard&) = delete;
+};
+```
+
+- Copying is deleted — a copy could outlive the thread it's meant to join
+- Joins whether the function returns normally or via an exception
+- C++20 standardizes essentially this idea as `std::jthread` (auto-joins, plus cooperative cancellation)
+
+## Passing arguments: values are copied, not referenced, by default
+
+- `std::thread` arguments are copied into internal storage and passed to the callable as temporaries — even if the target expects a reference
+- That's why the code below wraps `a` in `std::ref(a)`:
+  - Without it, `operator()(const A&)` would still compile (a const ref can bind to the copy), but silently operate on a *copy*
+  - A non-const reference parameter meant to mutate the caller's object simply wouldn't compile without `std::ref`
+- Same reason `std::ref(x)` is used for `ths1`/`ths2` below — it's what makes both threads see and decrement the *same* `x` rather than independent copies
+- Still need a mutex/atomic on top of that if more than one thread can mutate the same shared variable concurrently
+
+## Choosing how many threads to use
+
+- `std::thread::hardware_concurrency()` hints at how many threads can truly run in parallel (often the core count); may return `0` if unknown — fall back to a sensible default (e.g. `2`)
+- Running far more threads than this ("oversubscription") adds context-switching overhead, not real parallelism
+- Use it as an upper bound when splitting work, not as "one thread per data item"
+
+## Identifying threads
+
+- `std::thread::id`: from `get_id()` on the thread object, or `std::this_thread::get_id()` from inside the running thread
+- Comparable, orderable, hashable — usable as map keys, or to let a thread recognize "am I the one that started this work?"
+- The value itself has no meaning beyond equality/ordering — don't treat it as an index or count
+
+```cpp
+// Trimmed excerpt — full runnable example: Examples/03_CPP_Standard_Library/11_multithreading_and_synchronization/53_multithreading.cpp
 #include <iostream>
 #include <thread>
 #include <chrono>
-#include <exception>
-#include <csignal>
 
 /// !!! Need to be executed using compile flag -lpthread (to link threads library of linux)
 
 using namespace std::chrono_literals;
 
-void signalHandler( int signum ) {
-   std::cout << "Interrupt signal (" << signum << ") received.\n";
-
-   // terminate program  
-   std::exit(signum);  
-}
-
-class A 
+class A
 {
 public:
     explicit A(int x) : m_x{x} {}
@@ -37,7 +99,7 @@ public:
         std::cout << "Copy Constructor" << std::endl;
     }
     virtual ~A() = default;
-    int getX() const 
+    int getX() const
     {
         return m_x;
     }
@@ -52,10 +114,6 @@ public:
     {
         std::cout << "Run thread from class member function" << std::endl;
     }
-    void operator()()
-    {
-        std::cout << "Thread with void function" << std::endl;
-    }
 
     void operator()(int x)
     {
@@ -65,7 +123,6 @@ public:
             x--;
             std::this_thread::sleep_for(100ms);
         }
-        
     }
     void operator()(int &x, int id)
     {
@@ -75,7 +132,6 @@ public:
             x--;
             std::this_thread::sleep_for(100ms);
         }
-        
     }
 
     void operator()(const A& a)
@@ -97,22 +153,19 @@ int main()
     std::cout << "th1 is " << (th1.joinable() ? "joinable" : "not joinable") << std::endl;
     th1 = std::thread([&capture]() { // use lambda and move assignment operator
         std::cout << "Running thread from lambda with capture value " << capture << std::endl;
-        // modify capture should be handled by mutex since it may be shared by another task
-        // here we won't use mutexes since it is not shared
         capture = 20;
     });
     std::cout << "th1 is now " << (th1.joinable() ? "joinable" : "not joinable") << " with id=0x" << std::hex << th1.get_id() << std::dec << std::endl;
-    if (th1.joinable() == true)
+    if (th1.joinable())
     {
-        capture = 30;
         th1.join();
     }
-    std::cout << "Capture " << capture << std::endl;
-    std::thread th2(ThreadHandler(), 20); // thread created and launched argument passed by value
-    A a(10);
-    std::thread th3(ThreadHandler(), std::ref(a)); // pass a by reference to the thread
 
-    // execute and see disorder in log display
+    std::thread th2(ThreadHandler(), 3); // thread created and launched, argument passed by value
+    A a(10);
+    // std::ref(a) is required: thread arguments are copied by default, and operator()(const A&)
+    // would otherwise silently run on a COPY of a (no "Copy Constructor" print without std::ref)
+    std::thread th3(ThreadHandler(), std::ref(a));
     if (th2.joinable())
     {
         th2.join();
@@ -121,13 +174,13 @@ int main()
     {
         th3.join();
     }
-    ThreadHandler threadHandler;
-    std::thread th4(&ThreadHandler::run, &threadHandler); // we have to run thread on an object of ThreadHandler class
-    th4.detach(); // no problem since run will exit (no infinite loop)
-    std::cout << "th4 is " << (th1.joinable() ? "joinable" : "not joinable") << " after detach" << std::endl;
 
-    // creating two threads from same function
-    int x = 8;
+    ThreadHandler threadHandler;
+    std::thread th4(&ThreadHandler::run, &threadHandler); // running a thread on a member function
+    th4.detach(); // no problem since run will exit (no infinite loop)
+
+    // two threads sharing the same variable via std::ref, so both see/decrement the same x
+    int x = 3;
     std::thread ths1(ThreadHandler(), std::ref(x), 1);
     std::thread ths2(ThreadHandler(), std::ref(x), 2);
     if (ths1.joinable())
@@ -139,11 +192,7 @@ int main()
         ths2.join();
     }
 
-    // register signals 
-    signal(SIGTERM, signalHandler); 
-    signal(SIGABRT, signalHandler); 
-
-    // create a thread and throw exception
+    // an uncaught exception inside a thread function calls std::terminate
     std::thread thex([]() { throw std::runtime_error("RUNTIME ERROR!");});
     if (thex.joinable())
     {

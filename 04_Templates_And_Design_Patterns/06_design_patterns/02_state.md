@@ -18,9 +18,44 @@ class Context // state machine class
         Context& m_context;
     };
 
-    class StateOff : public CarState { /* ... handleState() transitions to StateStandBy ... */ };
-    class StateStandBy : public CarState { /* ... handleState() transitions to StateOn ... */ };
-    class StateOn : public CarState { /* ... handleState() transitions to StateOff ... */ };
+    class StateOff : public CarState
+    {
+    public:
+        StateOff(Context& context) : CarState(context), m_cycles{0} {}
+        virtual void handleState() override
+        {
+            std::cout << "Called state StateOff" << std::endl;
+            if (m_cycles < 2)
+            {
+                m_cycles++;
+                m_context.trantionTo(m_context.m_stateSandBy);
+            }
+        }
+    private:
+        int m_cycles;
+    };
+
+    class StateStandBy : public CarState
+    {
+    public:
+        StateStandBy(Context& context) : CarState(context) {}
+        virtual void handleState() override
+        {
+            std::cout << "Called state StateStandBy" << std::endl;
+            m_context.trantionTo(m_context.m_stateOn);
+        }
+    };
+
+    class StateOn : public CarState
+    {
+    public:
+        StateOn(Context& context) : CarState(context) {}
+        virtual void handleState() override
+        {
+            std::cout << "Called state StateOn" << std::endl;
+            m_context.trantionTo(m_context.m_stateOff);
+        }
+    };
 
     StateOff m_stateOff;
     StateStandBy m_stateSandBy;
@@ -41,4 +76,10 @@ public:
         new_state.handleState();
     }
 };
+
+int main()
+{
+    Context fsm;
+    return 0;
+}
 ```

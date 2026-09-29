@@ -23,26 +23,15 @@
   - Move operation should leave the moved object in valid state. Since moved object is a temporary object (r-value), it will be deleted anyway and if we have pointers they will be deleted (and memory that it is pointing to will be lost)
 
 ```cpp
-// Examples/02_CPP_OOP/12_operators_overloading/26_assignment_move_operators.cpp
+// Trimmed excerpt — full runnable example: Examples/02_CPP_OOP/12_operators_overloading/26_assignment_move_operators.cpp
 #include <iostream>
 
 class A {
 public:
-    A() : m_ptr{nullptr}
-    {
-    }
-    void createPtr() {
-        removePtr();
-        m_ptr = new int;
-    }
-    void removePtr() 
-    {
-        if (m_ptr != nullptr)
-        {
-            delete m_ptr;
-            m_ptr = nullptr;
-        }
-    }
+    A() : m_ptr{nullptr} {}
+    void createPtr() { removePtr(); m_ptr = new int; }
+    void removePtr() { if (m_ptr != nullptr) { delete m_ptr; m_ptr = nullptr; } }
+
     // copy constructor
     A(const A& a)
     {
@@ -82,10 +71,7 @@ public:
         return *this;
     } 
 
-    virtual ~A()
-    {
-        removePtr();
-    }
+    virtual ~A() { removePtr(); }
 private:
     int * m_ptr;
 };
@@ -93,9 +79,7 @@ private:
 A generateA()
 {
     A a;
-
-    return a; // rule in C++, l-value returned 
-              // by value will favorize move than copy
+    return a; // rule in C++: l-value returned by value favors move over copy
 }
 
 int main()
@@ -141,13 +125,13 @@ int main()
 - Overloading operators examples: see examples source code for operators
   - Unary: negation `-`
   - Binary:
-    - Comparison: `==`, `>=`, `<=`
+    - Comparison: e.g. `>=` (full source also overloads `==`, `<=`)
     - Subscript: `[]`
     - Parentheses (functor) `()` with arbitrary parameter number
     - Typecast samples
 
 ```cpp
-// Examples/02_CPP_OOP/12_operators_overloading/27_operators_overloading.cpp
+// Trimmed excerpt — full runnable example: Examples/02_CPP_OOP/12_operators_overloading/27_operators_overloading.cpp
 #include <string>
 #include <iostream>
 
@@ -156,36 +140,22 @@ class A
 public:
      explicit A(const int& value): m_value{value} {}
      int getA() const { return m_value; }
-     A& operator=(A&& a) { m_value = a.m_value; return *this; }
-     A(A&& a) : m_value {a.m_value} {}
-     friend A operator+(const A& a, int);
+
+     // friend function: operator+ for (int, A)
      friend A operator+(int x, const A& a)
      { 
           A aRes(x + a.m_value);
           return aRes;
      }
 
-     // member operator
-     A operator+(std::string& str);
+     // member function: operator+ for (A, std::string)
+     A operator+(std::string& str) { return A(m_value + std::atoi(str.c_str())); }
 private:
      int m_value;
 };
 
-A A::operator+(std::string& str)
-{
-    m_value += std::atoi(str.c_str());
-    return A(m_value);
-}
-
-A operator+(const A& a, int x)
-{
-     return x + a;
-}
-A operator+(const A& a, const A& b)
-{
-     int x = a.getA() + b.getA();
-     return A(x);
-}
+// normal (non-member, non-friend) function: delegates to the friend above
+A operator+(const A& a, int x) { return x + a; }
 ////////////////////////////////////////////
 class Frame
 {
@@ -205,17 +175,11 @@ private:
      Origin m_origin;
 };
 
-std::ostream& operator<<(std::ostream& out, const Frame::Origin& origin)
-{
-    out << (origin == Frame::Origin::Server ? "Server" : "Client");
-    return out;
-}
-
 std::ostream& operator<<(std::ostream& out, const Frame& frame)
 {
      out << "length " << frame.m_length
-               << " data " << frame.m_payload <<  " origin " 
-               << frame.m_origin;
+               << " data " << frame.m_payload <<  " origin "
+               << (frame.m_origin == Frame::Origin::Server ? "Server" : "Client");
      return out;
 }
 
@@ -226,9 +190,7 @@ int main()
      std ::cout << "Result " << a.getA() << std::endl;
      a = 3 + a;
      std ::cout << "Result " << a.getA() << std::endl;
-     A a1(2);
-     std::cout << "Sum " << (a + a1).getA() << std::endl;
-     
+
      std::string str("23");
      a = a + str;
      std ::cout << "Result sum string " << a.getA() << std::endl;
@@ -241,27 +203,15 @@ int main()
 ```
 
 ```cpp
-// Examples/02_CPP_OOP/12_operators_overloading/28_operator_overload_samples.cpp
+// Trimmed excerpt — full runnable example: Examples/02_CPP_OOP/12_operators_overloading/28_operator_overload_samples.cpp
 #include <iostream>
-#include <exception>
 #include <vector>
 
+// typecast target used by Fraction::operator TypeCastFraction() below
 class TypeCastFraction
 {
 public:
-    TypeCastFraction(int numerator, int denominator) : m_tc_numerator{numerator}, m_tc_denominator{denominator}
-    {
-        if (m_tc_denominator == 0)
-        {
-            throw std::runtime_error("Denominator cannot be equal to 0");
-        }
-    }
-    // rule of 5
-    TypeCastFraction(const TypeCastFraction&) = default;
-    TypeCastFraction(TypeCastFraction&&) = default;
-    TypeCastFraction& operator=(const TypeCastFraction&) = default;
-    TypeCastFraction& operator=(TypeCastFraction&&) = default;
-    virtual ~TypeCastFraction() = default;
+    TypeCastFraction(int numerator, int denominator) : m_tc_numerator{numerator}, m_tc_denominator{denominator} {}
     friend std::ostream& operator<<(std::ostream& out, const TypeCastFraction& fraction)
     {
         out << fraction.m_tc_numerator << "/" << fraction.m_tc_denominator;
@@ -275,36 +225,18 @@ private:
 class Fraction
 {
 public:
-    Fraction(int numerator, int denominator) : m_numerator{numerator}, m_denominator{denominator}
-    {
-        if (m_denominator == 0)
-        {
-            throw std::logic_error("Denominator cannot be equal to 0");
-        }
-    }
-    Fraction& test()
-    {
-        std::cout << "Test " << std::endl;
-        return *this;
-    }
-    // rule of 5
-    Fraction(const Fraction&) = default;
-    Fraction(Fraction&&) = default;
-    Fraction& operator=(const Fraction&) = default;
-    Fraction& operator=(Fraction&&) = default;
-    virtual ~Fraction() = default;
+    Fraction(int numerator, int denominator) : m_numerator{numerator}, m_denominator{denominator} {}
 
-    Fraction operator-() const
+    // unary: negation
+    Fraction operator-() const { return Fraction(-m_numerator, m_denominator); }
+
+    // comparison (representative — the full example also has ==, <=)
+    bool operator>=(const Fraction& right)
     {
-        // negative unary operator is built-in for int
-        return Fraction(-m_numerator, m_denominator);
+        return (m_numerator * right.m_denominator >= right.m_numerator * m_denominator);
     }
 
-    bool operator==(const Fraction& right)
-    {
-        return (m_denominator * right.m_numerator == m_numerator * right.m_denominator);
-    }
-
+    // binary arithmetic
     Fraction operator+(const Fraction& right)
     {
         int numerator = m_numerator * right.m_denominator + right.m_numerator * m_denominator;
@@ -316,96 +248,31 @@ public:
         return Fraction(numerator / dividor, denominator / dividor);
     }
 
-    Fraction operator-(const Fraction& right)
-    {
-        return (*this + (-right));
-    }
-
-    bool operator>=(const Fraction& right)
-    {
-        if (m_numerator * right.m_denominator >= right.m_numerator * m_denominator)
-        {
-            return true;
-        }
-        else 
-        {
-            return false;
-        }
-    }
-
-    bool operator<=(const Fraction& right)
-    {
-        if (*this == right || !(*this >= right))
-        {
-            return true;
-        }
-        else
-        {
-            return false;
-        }
-    }
-
-    Fraction& operator++() // prefix increment ++Fraction
-    {
-        m_numerator += m_denominator;
-        return *this;
-    }
-    Fraction& operator--() // prefix decrement --Fraction
-    {
-        m_numerator -= m_denominator;
-        return *this;
-    }
-
-    Fraction operator++(int)  // postfix
+    // prefix/postfix increment (the "int" dummy parameter marks postfix)
+    Fraction& operator++() { m_numerator += m_denominator; return *this; } // prefix ++Fraction
+    Fraction operator++(int) // postfix Fraction++
     {
         Fraction temporary{*this}; // save a copy
         ++(*this); // call prefix increment
         return temporary;
     }
-    Fraction operator--(int)
-    {
-        Fraction temporary{*this}; // save a copy
-        --(*this); // call prefix decrement
-        return temporary;
-    }
 
-    // functor
-    double operator()()
-    {
-        return (static_cast<double>(m_numerator) / static_cast<double>(m_denominator));
-    }
-    double operator()() const
-    {
-        return (static_cast<double>(m_numerator) / static_cast<double>(m_denominator));
-    }
-    double operator()(double d)
-    {
-        return ((*this)() + d);
-    }
+    // functor: object called like a function, overloaded on its parameter
+    double operator()() const { return static_cast<double>(m_numerator) / static_cast<double>(m_denominator); }
+    double operator()(double d) { return (*this)() + d; }
 
+    // stream-insertion via friend function
     friend std::ostream& operator<<(std::ostream& out, const Fraction& fraction)
     {
         out << fraction.m_numerator << "/" << fraction.m_denominator;
         return out;
     }
 
-    // special operator (typecast)
-    operator double() const // no return for typecast operators
-    {
-        std::cout << "Call typecast" << std::endl;
-        return ((*this)()); // call double operator()() const
-    }
-    // typecast to TypeCastFraction
-    operator TypeCastFraction() const 
-    {
-        std::cout << "Tpecast TypeCastFraction" << std::endl;
-        return TypeCastFraction(m_numerator, m_denominator);
-    }
+    // typecast operators: to a built-in type, and to a user-defined type
+    operator double() const { return (*this)(); } // no return type in the declaration
+    operator TypeCastFraction() const { return TypeCastFraction(m_numerator, m_denominator); }
 private:
-    int pgcd(int a, int b)
-    {
-        return b != 0 ? pgcd(b, a % b) : a;
-    }
+    int pgcd(int a, int b) { return b != 0 ? pgcd(b, a % b) : a; }
     int m_numerator;
     int m_denominator;
 };
@@ -413,55 +280,15 @@ private:
 class FractionList
 {
 public:
-    FractionList() {}
-    // rule of 5
-    FractionList(const FractionList&) = default;
-    FractionList(FractionList&&) = default;
-    FractionList& operator=(const FractionList&) = default;
-    FractionList& operator=(FractionList&&) = default;
-    virtual ~FractionList() = default;
-
     void insert(const Fraction& fraction)
     {
         fractions.push_back(fraction);
     }
 
-    Fraction& operator*()
+    // subscript operator, returned by reference so callers can read/write it
+    Fraction& operator[](int index)
     {
-        if (!fractions.empty())
-        {
-            return (*this)[0];
-            // return fractions[0]; // it works as well
-        }
-        else 
-        {
-            throw std::range_error("Index value invalid");
-        }
-    } 
-    Fraction* operator->()
-    {
-        if (fractions.size() > 1)
-        {
-            return &(*this)[1];
-            // return fractions[0]; // it works as well
-        }
-        else 
-        {
-            throw std::range_error("Index value invalid");
-        }
-    } 
-
-    Fraction& operator[](int index) // return by reference to have the real value
-    {
-        if (index >= 0 && index < fractions.size())
-        {
-            return fractions[index];
-        }
-        else
-        {
-            throw std::range_error("Index value invalid");
-        }
-
+        return fractions[index];
     }
 private:
     std::vector<Fraction> fractions;
@@ -478,23 +305,18 @@ int main()
     Fraction b(1, 4); // 1/4
 
     std::cout << "Sum " << (a + b) << std::endl 
-              << "Diff " << (a - b) << std::endl
+              << "-a " << (-a) << std::endl
               << "a >= b " << (a >= b) << std::endl
               << "prefix increment a " << ++a << std::endl
-              << "postfix incrrement b "<< b++ << std::endl
+              << "postfix increment b " << b++ << std::endl
               << "a value " << a() << " add double " << a(1.666667) << std::endl;
-    std::cout << "Check b postfix increment " << b << std::endl;
 
     FractionList list;
     list.insert(a);
     list.insert(b);
-
     std::cout << "List[1]=" << list[1] << std::endl;
-    std::cout << "List[0]=" << *list << std::endl;
-    std::cout << "List[1]=" << list->test() << std::endl;
 
     double d = static_cast<double>(a); // typecast operator
-    
     printClassTypeCast(a);
     return 0;
 }

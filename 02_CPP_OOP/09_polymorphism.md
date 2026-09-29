@@ -22,10 +22,9 @@
   - Do not call virtual method in constructor of destructor
 
 ```cpp
-// Examples/02_CPP_OOP/09_polymorphism/22_polymorphism.cpp
+// Trimmed excerpt — full runnable example: Examples/02_CPP_OOP/09_polymorphism/22_polymorphism.cpp
 #include <iostream>
 #include <vector>
-#include <functional>
 
 class Base
 {
@@ -43,6 +42,7 @@ public:
      void virtualFunc() const { std::cout << "Derived2 class impl" << std::endl; }
 };
 
+// base class passed by reference: the call still dispatches at runtime
 void callVirtual(const Base& base)
 {
     base.virtualFunc();
@@ -50,28 +50,18 @@ void callVirtual(const Base& base)
 
 int main()
 {
-     Derived1 drv11;
-     Derived1 drv12;
-     Derived2 drv21;
-     Derived2 drv22;
-     std::vector<Base* > vect2 {&drv11, &drv21, &drv12, &drv22};
-     for(int i = 0; i < vect2.size(); i++)
+     Derived1 drv1;
+     Derived2 drv2;
+
+     // heterogeneous list: same interface (Base*), different runtime behavior
+     std::vector<Base*> vect {&drv1, &drv2};
+     for (int i = 0; i < vect.size(); i++)
      {
-          vect2[i]->virtualFunc();
-     }
-     
-     std::vector<std::reference_wrapper<Base> > vect;
-     vect.push_back(drv11);
-     vect.push_back(drv21);
-     vect.push_back(drv12);
-     vect.push_back(drv22);
-     for(int i = 0; i < vect.size(); i++)
-     {
-          vect[i].get().virtualFunc();
+          vect[i]->virtualFunc();
      }
 
-     callVirtual(drv11);
-     callVirtual(drv22);
+     callVirtual(drv1);
+     callVirtual(drv2);
 
      return 0;
 }

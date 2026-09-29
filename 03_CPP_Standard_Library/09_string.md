@@ -38,7 +38,7 @@
 - `.substr()` to get a substring from another
 
 ```cpp
-// Source: Examples/03_CPP_Standard_Library/09_string/51_strings.cpp
+// Trimmed excerpt — full runnable example: Examples/03_CPP_Standard_Library/09_string/51_strings.cpp
 #include <iostream>
 #include <string>
 
@@ -52,8 +52,6 @@ int main()
     std::cout << "Moved string " << move_string << " and old one *" << str << "*" << std::endl;
     std::string sub_string (copy_str, 4);
     std::cout << "New string from 4 first character:" << sub_string << std::endl;
-    std::string sub_string2 (copy_str, 5, 2);
-    std::cout << "New string from 5 index 2 characters:" << sub_string2 << "*" << std::endl;
     std::string from_numeric { std::to_string(2.0) };
     std::cout << "From numeric " << from_numeric << std::endl;
 
@@ -74,16 +72,14 @@ int main()
     {
         std::cerr << "Handle exception " << e.what() << std::endl;
     }
-    
+
     std::string assign_str;
     assign_str.assign("CHAR");
-    std::cout << "Assign *" << assign_str << "*-*";
     assign_str.assign(char_str, 0, 4);
-    std::cout << assign_str << "*" << assign_str.assign(4, 'x').append("XXXX").append(char_str, 0, 4);
-    std::cout << std::endl;
+    std::cout << assign_str << "*" << assign_str.assign(4, 'x').append("XXXX").append(char_str, 0, 4) << std::endl;
 
     std::cout << assign_str.insert(0, 3, '/').insert(0, "HELLO") << std::endl;
-    auto it = assign_str.insert(assign_str.begin(), 2, '-');
+    assign_str.insert(assign_str.begin(), 2, '-');
     std::cout << "Final value " << assign_str << std::endl;
 
     std::string substr = assign_str.substr(0, 7);

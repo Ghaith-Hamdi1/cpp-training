@@ -11,7 +11,7 @@
 - See examples provided for more details
 
 ```cpp
-// Source: Examples/03_CPP_Standard_Library/13_files_management/58_file_management.cpp
+// Trimmed excerpt — full runnable example: Examples/03_CPP_Standard_Library/13_files_management/58_file_management.cpp
 #include <iostream>
 #include <fstream>
 #include <vector>
@@ -21,21 +21,17 @@ int main()
     std::ofstream ofile("test.txt", std::ios_base::out);
     ofile << "Hello from main" << std::endl;
     ofile.close(); // close can be called explicitly or automatically in ofile destructor
-    
+
     std::ifstream ifile("test.txt", std::ios_base::in);
     std::string str;
 
     ifile >> str;
-
     std::cout << "String read from file: " << str << std::endl;
 
+    ifile.seekg(0, std::ios_base::beg); // back to start of file
     std::getline(ifile, str);
     std::cout << "Line read from file: " << str << std::endl;
-
     ifile.seekg(0, std::ios_base::beg);
-    std::getline(ifile, str);
-    std::cout << "Line read from file: " << str << std::endl;
-    ifile.seekg(0, std::ios_base::beg); // back to starting of file
 
     std::vector<char> str2(10);
     ifile.read(str2.data(), 10);

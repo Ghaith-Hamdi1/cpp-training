@@ -31,4 +31,11 @@ private:
     };
     int m_val;
 };
+
+int main(){
+    Singleton::instance().print();
+    Singleton::instance().setValue(10);
+    Singleton::instance().print();
+    return 0;
+}
 ```

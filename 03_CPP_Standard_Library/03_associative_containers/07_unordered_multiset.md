@@ -6,7 +6,7 @@
 - Objects that are stored in `unordered_multiset` need to overload `operator==`
 
 ```cpp
-// Source: Examples/03_CPP_Standard_Library/03_associative_containers/43_unordered_multiset.cpp
+// Trimmed excerpt — full runnable example: Examples/03_CPP_Standard_Library/03_associative_containers/43_unordered_multiset.cpp
 #include <iostream>
 #include <unordered_set>
 
@@ -53,29 +53,23 @@ namespace std {
         size_t operator()(const A& a) const
         {
             return hash<int>()(a.getX());
-        } 
+        }
     };
 }
 
 int main()
 {
-    std::unordered_multiset<int> iset1 {6, 2, 10, 5, 1, 1, 1, 1};
-    std::cout << iset1 << std::endl;
-
     std::unordered_multiset<A> aset;
-    aset.insert(A(5));
     aset.emplace(10);
     aset.emplace(A(1));
-    aset.insert({A(6), A(2), A()});
-    aset.insert({A(6), A(2), A()});
-    aset.insert({A(6), A(2), A()});
+    aset.insert({A(6), A(2)}); // duplicates across inserts are kept
     std::cout << aset << std::endl;
 
     aset.emplace(A(1));
     std::cout << "Value 1 is duplicated \n" << aset << std::endl;
 
-    auto it = aset.find(A(5));
-    std::cout << "Find A(5) --> " << *it << std::endl;
+    auto it = aset.find(A(1));
+    std::cout << "Find A(1) --> " << *it << std::endl;
 
     return 0;
 }

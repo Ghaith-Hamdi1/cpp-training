@@ -35,15 +35,11 @@ T create(Args&& ... args){
 }
 
 int main(){
-    // Lvalues
+    // Lvalue
     int five=5;
     int myFive= create<int>(five);
 
-    std::string str{"Lvalue"};
-    std::string str2= create<std::string>(str);
-
-    // Rvalues
-    int myFive2= create<int>(5);
+    // Rvalue
     std::string str3= create<std::string>(std::string("Rvalue"));
     std::string str4= create<std::string>(std::move(str3));
     return 0;

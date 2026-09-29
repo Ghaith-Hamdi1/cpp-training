@@ -43,7 +43,7 @@
   - `std::regex_replace`: attempts to replace matching regex pattern by a given string
 
 ```cpp
-// Source: Examples/03_CPP_Standard_Library/14_regular_expressions/59_regex.cpp
+// Trimmed excerpt — full runnable example: Examples/03_CPP_Standard_Library/14_regular_expressions/59_regex.cpp
 #include <iostream>
 #include <regex>
 #include <string>
@@ -53,31 +53,20 @@ int main()
     std::regex pattern ("(t(e|s)t)+");
     std::string str("This is a tet string tst tst");
 
+    // regex_match: the WHOLE string must match the pattern
     bool match = std::regex_match(str, pattern);
-    if (match)
-    {
-        std::cout << "Matched" << std::endl;
-    }
-    else 
-    {
-        std::cout << "Not matched" << std::endl;
-    }
+    std::cout << (match ? "Matched" : "Not matched") << std::endl;
 
+    // regex_search: a PART of the string may match; smatch captures the match and groups
     std::smatch smatch;
-
     match = std::regex_search(str, smatch, pattern);
     if (match)
     {
         std::cout << "Matched " << smatch[0] << "-" << smatch[1].str() << std::endl;
     }
-    else 
-    {
-        std::cout << "Not matched" << std::endl;
-    }
 
-    std::sregex_iterator itr(str.begin(), str.end(), pattern);
-
-    for (std::sregex_iterator end; itr != end; itr++)
+    // sregex_iterator: iterate over every match in the string
+    for (std::sregex_iterator itr(str.begin(), str.end(), pattern), end; itr != end; itr++)
     {
         std::cout << "With iterator match " << itr->str() << std::endl; 
     }

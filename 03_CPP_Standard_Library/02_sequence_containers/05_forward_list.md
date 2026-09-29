@@ -7,31 +7,25 @@
 - Operations can be done only from front (`push_front`, `pop_front`)
 
 ```cpp
-// Source: Examples/03_CPP_Standard_Library/02_sequence_containers/33_forward_list.cpp
+// Trimmed excerpt — full runnable example: Examples/03_CPP_Standard_Library/02_sequence_containers/33_forward_list.cpp
 #include <iostream>
 #include <forward_list>
+
 class A
 {
 public:
-    explicit A(int x): m_x{x}
-    {
+    explicit A(int x): m_x{x} {}
 
-    }
-
-    int getX() const 
+    int getX() const
     {
         return m_x;
-    }
-    bool operator<(const A& a) const
-    {
-        return m_x < a.m_x;
     }
     friend std::ostream& operator<<(std::ostream& out, const A& a)
     {
         out << "x=" << a.m_x;
         return out;
     }
-    
+
     friend bool Predicate(const A& a);
 private:
     int m_x;

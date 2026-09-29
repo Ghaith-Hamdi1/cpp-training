@@ -15,7 +15,7 @@
 - *(the on-slide code diagram illustrating this was an embedded image, not extractable as text; the equivalent circular-reference pattern is reconstructed below from `Examples/03_CPP_Standard_Library/05_smart_pointers/47_shared_ptr.cpp`'s `X` class)*
 
 ```cpp
-// Source: Examples/03_CPP_Standard_Library/05_smart_pointers/47_shared_ptr.cpp
+// Trimmed excerpt — full runnable example: Examples/03_CPP_Standard_Library/05_smart_pointers/47_shared_ptr.cpp
 #include <iostream>
 #include <memory>
 #include <string>
@@ -25,7 +25,7 @@ class A
 public:
     explicit A(int x) : m_x{x}
     {
-        std::cout << "A Allocated x=" << m_x << std::endl; 
+        std::cout << "A Allocated x=" << m_x << std::endl;
     }
     virtual ~A()
     {
@@ -44,7 +44,7 @@ class B : public A
 public:
     explicit B(int x) : A(x)
     {
-        std::cout << "B Allocated x=" << x << std::endl; 
+        std::cout << "B Allocated x=" << x << std::endl;
     }
     virtual void foo() override
     {
@@ -79,7 +79,7 @@ class X
     std::shared_ptr<X> circular;
     std::string id;
 public:
-    X(const std::string& id) : id{id} 
+    X(const std::string& id) : id{id}
     {
         std::cout << id << " created" << std::endl;
     }
@@ -89,14 +89,7 @@ public:
     }
     void setCircular(std::shared_ptr<X> & c)
     {
-        std:: cout << "Set circular " << id << " use count " << c.use_count();
         circular = c;
-        std:: cout << "Set circular " << id << " use count " << circular.use_count();
-    }
-    void releaseCircular()
-    {
-        std::shared_ptr<X> x(nullptr);
-        circular.swap(x);
     }
 };
 
@@ -106,26 +99,21 @@ int main()
     aPtr->foo(); // polymorphic
     std::cout << "Use count " << aPtr.use_count() << std::endl;
     {
-        std::shared_ptr<A> aPtr2 {aPtr};
-        std::cout << "Use count for second instance " << aPtr2.use_count() 
+        std::shared_ptr<A> aPtr2 {aPtr}; // copy increments the shared counter
+        std::cout << "Use count for second instance " << aPtr2.use_count()
                   << " and for first " << aPtr.use_count() << std::endl;
-        // check that they are pointing to same object
-        std::cout << "First address " << aPtr.get() << " second " << aPtr2.get() << std::endl;
-
-        // still polymorphic
-        aPtr2->foo();
+        aPtr2->foo(); // still polymorphic
     }
-    std::cout << "Use count " << aPtr.use_count() << std::endl;
-    passValue(aPtr);
-    std::cout << "Use count after passValue" << aPtr.use_count() << std::endl;
+    std::cout << "Use count after scope ends " << aPtr.use_count() << std::endl;
+
     aPtr = passValue(aPtr);
-    std::cout << "Use count after passValue with return " << aPtr.use_count() << std::endl;
+    std::cout << "Use count after passValue " << aPtr.use_count() << std::endl;
     aPtr = passValueReference(aPtr);
     std::cout << "Use count after passValueReference " << aPtr.use_count() << std::endl;
     aPtr = passRValue(std::move(aPtr));
     std::cout << "Use count after passRValue with move " << aPtr.use_count() << std::endl;
 
-    // circular reference issue
+    // circular reference issue: destructors of x1 and x2 won't be called!
     auto x1 = std::make_shared<X>("X1");
     auto x2 = std::make_shared<X>("X2");
 
@@ -134,11 +122,6 @@ int main()
 
     std::cout << x1.use_count() << " " << x2.use_count() << std::endl;
 
-    //x1->releaseCircular();
-    //x2->releaseCircular();
-    std::cout << x1.use_count() << " " << x2.use_count() << std::endl;
-
-    // destructors of x1 and x2 won't be called !!
     return 0;
 }
 ```

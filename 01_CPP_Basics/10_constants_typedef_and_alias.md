@@ -50,6 +50,7 @@
 Reference example, `Examples/01_CPP_Basics/10_constants_typedef_and_alias/09_constants.cpp`:
 
 ```cpp
+// Trimmed excerpt — full runnable example: Examples/01_CPP_Basics/10_constants_typedef_and_alias/09_constants.cpp
 #include <iostream>
 
 constexpr int greater(int x, int y)
@@ -61,17 +62,6 @@ constexpr int factorial(int n)
 {
     return n <= 1 ? 1 : (n * factorial(n - 1));
 }
-
-// C++14 constexpr functions may use local variables and loops
-#if __cplusplus >= 201402L
-constexpr int factorial_cxx14(int n)
-{
-    int res = 1;
-    while (n > 1)
-        res *= n--;
-    return res;
-}
-#endif
 
 int main(){
     const int ki { 5 * 3 };
@@ -90,10 +80,7 @@ int main(){
 
     std::cout << "g= " << g << " h= " << h << std::endl;
 
-    const long int fac_10 = factorial(10);
-#if __cplusplus >= 201402L
-    const long int fac_10_cxx14 = factorial_cxx14(10); // faster than without const
-#endif
+    const long int fac_10 = factorial(10); // constexpr function called at runtime here
 
     return 0;
 }

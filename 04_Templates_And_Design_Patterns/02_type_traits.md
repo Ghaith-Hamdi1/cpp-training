@@ -29,8 +29,4 @@ public:
         std::cout << "Print a non integral value " << t << std::endl;
     }
 };
-
-// usage:
-std::cout << "X is polymorphic " << std::boolalpha << std::is_polymorphic<X>::value << std::endl;
-std::cout << "X is" << (std::is_base_of<A, X>::value == true ? " " : " not ") << "a derived from A" << std::endl;
 ```

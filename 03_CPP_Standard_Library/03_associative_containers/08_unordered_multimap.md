@@ -7,7 +7,7 @@
 - The `operator[]` and `at()` function are not available for `unordered_multimap`
 
 ```cpp
-// Source: Examples/03_CPP_Standard_Library/03_associative_containers/44_unordered_multimap.cpp
+// Trimmed excerpt — full runnable example: Examples/03_CPP_Standard_Library/03_associative_containers/44_unordered_multimap.cpp
 #include <iostream>
 #include <unordered_map>
 #include <string>
@@ -55,38 +55,27 @@ namespace std {
         size_t operator()(const A& a) const
         {
             return hash<int>()(a.getX());
-        } 
+        }
     };
 }
 
 int main()
 {
-    std::unordered_multimap<int, int> imap {{6, 2}, {10, 5}, {1, 1}, {1, 1}};
-    std::cout << imap << std::endl;
-
     std::unordered_multimap<A, std::string> amap;
-    amap.insert({{A(6), "A(6)"}, {A(2), "A(2)"}, {A(), "A(0)"}});
-    amap.insert({A(5), "A(5)"});
-    amap.emplace(A(10), "A(10)");
-    amap.emplace(A(1), "A(1)");
-    amap.emplace(A(5), "A(555)");
+    amap.insert({{A(6), "A(6)"}, {A(2), "A(2)"}});
+    amap.emplace(A(5), "A(5)");
+    amap.emplace(A(5), "A(555)"); // duplicate key is kept
     std::cout << amap << std::endl;
 
-    amap.insert({A(1), "A(11)"});
-    amap.insert({A(5), "A(55)"});
-    std::cout << "After inserting the same value \n" << amap << std::endl;
-
     auto nb = amap.count(A(5));
-    std::cout << "Find A(5) --> " << nb << std::endl;
+    std::cout << "Count for key A(5) --> " << nb << std::endl;
 
     auto pair_it = amap.equal_range(A(5));
-    if (pair_it.first != amap.end())
+    for (auto it = pair_it.first; it != pair_it.second; it++)
     {
-        for (auto it = pair_it.first; it != pair_it.second; it++)
-        {
-            std::cout << "Value for " << it->first << " -> " << it->second << std::endl;
-        }
+        std::cout << "Value for " << it->first << " -> " << it->second << std::endl;
     }
+
     return 0;
 }
 ```

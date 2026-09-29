@@ -27,10 +27,8 @@
   - [Diagram — extracted labels: class hierarchy with `Car` at the top, `ElectricCar` and `GasolineCar` both inheriting (virtually) from `Car`, and `HybridCar` at the bottom inheriting from both `ElectricCar` and `GasolineCar` — the classic diamond shape]
 
 ```cpp
-// Examples/02_CPP_OOP/10_overloading_and_overriding/23_overloading.cpp
+// Trimmed excerpt — full runnable example: Examples/02_CPP_OOP/10_overloading_and_overriding/23_overloading.cpp
 #include <iostream>
-#include <vector>
-#include <functional>
 
 class Base
 {
@@ -81,10 +79,8 @@ int main()
 ```
 
 ```cpp
-// Examples/02_CPP_OOP/10_overloading_and_overriding/24_overriding.cpp
+// Trimmed excerpt — full runnable example: Examples/02_CPP_OOP/10_overloading_and_overriding/24_overriding.cpp
 #include <iostream>
-#include <vector>
-#include <functional>
 
 class Base
 {
@@ -98,17 +94,6 @@ public:
      void virtualFunc() const override { std::cout << "Derived1 class impl" << std::endl; }
      // void virtualFunc() override {} // compile error since 
 }; 
-class Derived2 : public Base
-{
-public:
-     void virtualFunc() const override { std::cout << "Derived2 class impl" << std::endl; }
-};
-
-class Derived21 : public Derived2
-{
-public:
-     void virtualFunc() const override { std::cout << "Derived21 class impl" << std::endl; }
-};
 
 // Abstract class
 class Vehicle
@@ -153,9 +138,9 @@ private:
 
 int main()
 {
-    Derived21 drv21;
-    Base& base = drv21;
-    Base * pbase = &drv21;
+    Derived1 drv1;
+    Base& base = drv1;
+    Base * pbase = &drv1;
 
     base.virtualFunc();
     pbase->virtualFunc();

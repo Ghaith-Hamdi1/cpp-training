@@ -35,144 +35,77 @@
   - Different ways to call constructor
 
 ```cpp
-// Examples/02_CPP_OOP/04_special_methods/17_constructors_destructors.cpp
+// Trimmed excerpt — full runnable example: Examples/02_CPP_OOP/04_special_methods/17_constructors_destructors.cpp
 #include <iostream>
 #include <string>
-#include <vector>
 
 class A 
 {
 public:
-    A();
-    A(int x, int y = 1);
-    A(const A& a);
-    A(A&& a);
-    virtual ~A();
+    A() : id("") { std::cout << "A Default constructor" << std::endl; }
 
-    void setId(const std::string& id);
+    A(int x, int y = 1) : id{std::to_string(x)}
+    {
+        std::cout << "A Constructor with int parameters " << x << ", " << y << std::endl;
+    }
 
-    std::string getId() const;    
+    A(const A& a) : id{ a.id } // have to define the copy processing
+    {
+        std::cout << "A Copy constructor " << a.id << std::endl;
+    }
+
+    A(A&& a) // have to define the move processing
+    {
+        std::cout << "A Move constructor " << a.id << std::endl;
+        this->id = std::move(a.id);
+    }
+
+    virtual ~A() { std::cout << "A destructor called" << std::endl; }
+
+    void setId(const std::string& newId) { id = newId; }
+    std::string getId() const { return id; }
 private:
     std::string id;
 };
 
+// B and C are composed inside D to show construction order
 class B
 {
 public:
-    B(int x);
+    B(int x) { std::cout << "B constructor " << x << std::endl; }
 };
-
-B::B(int x)
-{
-    std::cout << "B constructor " << x << std::endl;
-}
 
 class C
 {
 public:
-    C();
+    C() { std::cout << "C default constructor" << std::endl; }
 };
-
-C::C()
-{
-    std::cout << "C default constructor" << std::endl;
-}
-
 
 class D
 {
 public:
-    D();
+    D() : b(1) { std::cout << "D default constructor" << std::endl; } // order: C, then B, then D
 private:
     C c;
     B b;
 };
 
-D::D() : b(1)
-{
-    std::cout << "D default constructor" << std::endl;
-}
-
-A::A() : id("")
-{
-    std::cout << "A Default constructor" << std::endl;
-}
-
-A::A(int x, int y) : id{std::to_string(x)}
-{
-    std::cout << "A Constructor with int parameters " << x << ", " << y << std::endl;
-}
-
-A::A(const A& a) : id{ a.id }
-{
-    // have to define the copy processing
-    std::cout << "A Copy constructor " << a.id << std::endl;
-}
-
-A::A(A&& a)
-{
-    // have to define the move processing
-    std::cout << "A Move constructor " << a.id << std::endl;
-    this->id = std::move(a.id);
-}
-
-A::~A() 
-{
-    std::cout << "A destructor called" << std::endl;
-}
-
-void A::setId(const std::string& id)
-{
-    this->id = id;
-}
-
-std::string A::getId() const 
-{
-    return id;
-}
-
-struct STR
-{
-    int a;
-    int b;
-    float c;
-};
-
 int main()
 {
-
-    // STR str(1, 2, 3.0f); // error no corresponding constructor
-    STR str{1, 2, 3.0f}; // correct, init list
-    std::cout << "STR members " << str.a << ", " << str.b << ", " << str.c << std::endl;
-
     A a1;
-    a1.setId(std::string("a10"));
+    a1.setId("a10");
     std::cout << "a1 " << a1.getId() << std::endl;
-    A a2 = a1;
+
+    A a2 = a1; // copy constructor
     std::cout << "a2 " << a2.getId() << std::endl;
 
-    A a3{a1};
+    A a3(std::move(a1)); // move constructor
     std::cout << "a3 " << a3.getId() << std::endl;
 
-    A a4(std::move(a1));
-    std::cout << "a4 " << a4.getId() << std::endl;
-    
-    a4.setId("a4");
+    A a4{1, 2}; // custom constructor
+    A a5{5};    // custom constructor, default y = 1
 
-    A a5{1, 2};
-    A a6{5};
-
-    A a7 = std::move(a6);
-    a6.setId("30");
-    std::cout << "After move " << a6.getId() << std::endl;
-
-    std::string s1{"Test"};
-    std::string s2{std::move(s1)};
-    // move well managed s1 is invalid after move
-    std::cout << "Move string " << s2 << " old string " << s1 << std::endl;
-    
-    // instantiation order of attributes checking
-    D d;
+    D d; // instantiation order of attributes checking
 
     return 0;
 }
@@ -194,147 +127,75 @@ int main()
   - Can prevent moving an object by deleting move constructor or declaring it as private
 
 ```cpp
-// Examples/02_CPP_OOP/04_special_methods/18_move_copy_semantic.cpp
+// Trimmed excerpt — full runnable example: Examples/02_CPP_OOP/04_special_methods/18_move_copy_semantic.cpp
 #include <iostream>
-#include <string>
 
 class Copy {
 private:
-    // Declaring the raw pointer as
-    // the data member of the class
     int* data;
- 
 public:
-    // Constructor
-    Copy(int d)
+    Copy(int d) : data{new int(d)}
     {
-        // Declare object in the heap
-        data = new int;
-        *data = d;
- 
-        std::cout << "Copy Constructor is called for "
-             << d << std::endl;
-    };
- 
-    // Copy Constructor to delegated
-    // Copy constructor
-    Copy(const Copy& source)
-        : Copy{ *source.data }
-    {
- 
-        // Copying constructor copying
-        // the data by making deep copy
-        std::cout << "Copy Copy Constructor is called - "
-             << "Deep copy for "
-             << *source.data
-             << std::endl;
+        std::cout << "Copy Constructor is called for " << d << std::endl;
     }
- 
-    // Destructor
+
+    // Copy constructor delegates, then makes a deep copy
+    Copy(const Copy& source) : Copy{ *source.data }
+    {
+        std::cout << "Copy Copy Constructor is called - Deep copy for " << *source.data << std::endl;
+    }
+
     ~Copy()
     {
         if (data != nullptr)
- 
-            // If the pointer is not
-            // pointing to nullptr
-            std::cout << "Copy Destructor is called for "
-                 << *data << std::endl;
+            std::cout << "Copy Destructor is called for " << *data << std::endl;
         else
- 
-            // If the pointer is
-            // pointing to nullptr
-            std::cout << "Copy Destructor is called"
-                 << " for nullptr"
-                 << std::endl;
- 
-        // Free the memory assigned to
-        // data member of the object
+            std::cout << "Copy Destructor is called for nullptr" << std::endl;
         delete data;
     }
 };
 
 class Move {
 private:
-    // Declare the raw pointer as
-    // the data member of class
     int* data;
- 
 public:
-   
-    // Constructor
-    Move(int d)
+    Move(int d) : data{new int(d)}
     {
-        // Declare object in the heap
-        data = new int;
-        *data = d;
-        std::cout << "Move Constructor is called for "
-             << d << std::endl;
-    };
- 
-    // Copy Constructor
-    Move(const Move& source)
-        : Move{ *source.data }
-    {
- 
-        // Copying the data by making
-        // deep copy
-        std::cout << "Move Copy Constructor is called -"
-             << "Deep copy for "
-             << *source.data
-             << std::endl;
+        std::cout << "Move Constructor is called for " << d << std::endl;
     }
- 
-    // Move Constructor
-    Move(Move&& source)
-        : data{ source.data }
+
+    Move(const Move& source) : Move{ *source.data }
     {
- 
-        std::cout << "Move Move Constructor for "
-             << *source.data << std::endl;
+        std::cout << "Move Copy Constructor is called - Deep copy for " << *source.data << std::endl;
+    }
+
+    // Move constructor: steal the pointer instead of copying
+    Move(Move&& source) : data{ source.data }
+    {
+        std::cout << "Move Move Constructor for " << *source.data << std::endl;
         source.data = nullptr;
     }
- 
-    // Destructor
+
     ~Move()
     {
         if (data != nullptr)
- 
-            // If pointer is not pointing
-            // to nullptr
-            std::cout << "Move Destructor is called for "
-                 << *data << std::endl;
+            std::cout << "Move Destructor is called for " << *data << std::endl;
         else
- 
-            // If pointer is pointing
-            // to nullptr
-            std::cout << "Move Destructor is called"
-                 << " for nullptr "
-                 << std::endl;
- 
-        // Free up the memory assigned to
-        // The data member of the object
+            std::cout << "Move Destructor is called for nullptr" << std::endl;
         delete data;
     }
 };
 
-void testMove1( Move& a)
+// std::move on a named lvalue reference triggers the move constructor
+void testMove1(Move& a)
 {
     Move mv{std::move(a)};
 }
 
+// a named rvalue-reference PARAMETER is itself an lvalue, so this copies
 void testMove2(Move&& a)
 {
     Move mv{a};
-}
-
-void testCopy1(Copy&& a)
-{
-    Copy mv{std::move(a)};
-}
-
-void testCopy2(Copy&& a)
-{
-    Copy mv{a};
 }
 
 int main()
@@ -343,8 +204,8 @@ int main()
     testMove1(mv);
     testMove2(Move(0));
 
-    testCopy1(Copy(0));
-    testCopy2(Copy(0));
+    Copy c(0);
+    Copy c2{std::move(c)}; // Copy has no move constructor, so this still copies
     // -> std::move is just a cast, we have to implement the
     // move semantics behind
 

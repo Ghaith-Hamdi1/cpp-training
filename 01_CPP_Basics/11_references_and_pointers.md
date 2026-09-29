@@ -56,6 +56,7 @@ int& a = x;
 Reference example, `Examples/01_CPP_Basics/11_references_and_pointers/14_references.cpp`:
 
 ```cpp
+// Trimmed excerpt — full runnable example: Examples/01_CPP_Basics/11_references_and_pointers/14_references.cpp
 #include <iostream>
 
 void func1(int& x)
@@ -74,10 +75,6 @@ void func2(const int& x)
 void printReferenceValue(int&& x)
 {
     std::cout << x << std::endl;
-}
-int test()
-{
-    return 5;
 }
 
 int main(){
@@ -120,7 +117,6 @@ int main(){
     // to the r-value references
     // printReferenceValue(x);
     printReferenceValue(10); // but this works fine
-    printReferenceValue(test()); // but this works fine
 
     return 0;
 }
@@ -198,7 +194,7 @@ int main()
     int* const cptr { &x }; // okay: the const pointer is initialized to the address of x
     // cptr = &y; // error: once initialized, a const pointer can not be changed.
     *cptr = 6; // okay value is changed and not the pointer
-    const int* const ptr { &x1 }; // a const pointer to a const value
+    const int* const cptrc { &x1 }; // a const pointer to a const value
 
     // compile and see
 
@@ -220,6 +216,7 @@ int main()
 Reference example, `Examples/01_CPP_Basics/11_references_and_pointers/15_return_address_reference.cpp`:
 
 ```cpp
+// Trimmed excerpt — full runnable example: Examples/01_CPP_Basics/11_references_and_pointers/15_return_address_reference.cpp
 #include <iostream>
 
 
@@ -266,10 +263,6 @@ int main()
     int b{ 6 };
 
     max(a, b) = 7; // sets the greater of a or b to 7
-    std::cout << "New b value " << b << std::endl;
-
-    int& c = max(a, b);
-    c = 8;
     std::cout << "New b value " << b << std::endl;
 
     /********** Return by address *********/

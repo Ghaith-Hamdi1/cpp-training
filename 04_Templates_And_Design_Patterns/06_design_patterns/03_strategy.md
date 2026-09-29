@@ -25,30 +25,58 @@ public:
         std::cout << "Travel by bicycle algorithm" << std::endl;
     }
 };
-// TravelByTrain (cost 20), TravelByAirplane (cost 150) follow the same pattern
+
+class TravelByTrain : public TransportStrategy
+{
+public:
+    TravelByTrain() { TransportStrategy::m_cost = 20; }
+    virtual void travelAlgorithm() override
+    {
+        std::cout << "Travel by train algorithm" << std::endl;
+    }
+};
+// TravelByAirplane (cost 150) follows the same pattern
 
 class Context
 {
 public:
+    enum class Error { kOk, kNoMoney, kError };
+
+    Context() : m_transportStrategy(nullptr), m_money{0} {}
+
     void setStrategy(std::shared_ptr<TransportStrategy> strategy)
     {
         m_transportStrategy = strategy;
     }
 
+    void setMoney(int money) { m_money = money; }
+
     Error goToDestination()
     {
-        if (m_transportStrategy != nullptr)
+        if (m_transportStrategy == nullptr)
         {
-            if (m_transportStrategy->cost() <= m_money)
-            {
-                m_transportStrategy->travelAlgorithm();
-                return Error::kOk;
-            }
-            // ... else not enough money / strategy not set ...
+            return Error::kError;
         }
+        if (m_transportStrategy->cost() > m_money)
+        {
+            return Error::kNoMoney;
+        }
+        m_transportStrategy->travelAlgorithm();
+        return Error::kOk;
     }
 private:
     std::shared_ptr<TransportStrategy> m_transportStrategy;
     int m_money;
 };
+
+int main()
+{
+    Context context;
+    context.setMoney(50);
+    context.setStrategy(std::make_shared<TravelByBicycle>());
+    context.goToDestination();
+    context.setStrategy(std::make_shared<TravelByTrain>());
+    context.goToDestination();
+    return 0;
+}
 ```

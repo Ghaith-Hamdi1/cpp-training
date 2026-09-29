@@ -31,7 +31,7 @@ int main()
     int* const cptr { &x }; // okay: the const pointer is initialized to the address of x
     // cptr = &y; // error: once initialized, a const pointer can not be changed.
     *cptr = 6; // okay value is changed and not the pointer
-    const int* const ptr { &x1 }; // a const pointer to a const value
+    const int* const cptrc { &x1 }; // a const pointer to a const value
 
     // compile and see
 

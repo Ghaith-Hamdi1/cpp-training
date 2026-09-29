@@ -45,13 +45,14 @@
 `Examples/01_CPP_Basics/08_exceptions/08_exceptions.cpp`:
 
 ```cpp
+// Trimmed excerpt — full runnable example: Examples/01_CPP_Basics/08_exceptions/08_exceptions.cpp
 #include <iostream>
 #include <exception>
 #include <string>
 
 int main() {
 
-    for (int i = 0; i < 5; i++) {
+    for (int i = 0; i < 3; i++) {
         try
         {
             // Statements that may throw exceptions you want to handle here
@@ -60,38 +61,21 @@ int main() {
             case 0:
                 throw 1;
             case 1:
-            {
-                double a{1.0};
-                throw a;
-            }
-            case 2:
-                throw std::string("Exception text");
-            case 3:
                 throw std::runtime_error("Runtime error special exception");
-            case 4:
-                throw 'a';
+            case 2:
+                throw 'a'; // no catch(char) below: falls through to catch(...)
             default:
                 break;
             }
         }
         catch (int x)
         {
-            // Any exceptions of type exception_simple_type1 thrown within the above try block
+            // Any exceptions of type int thrown within the above try block
             std::cerr << "We caught an int exception with value: " << x << std::endl;
-        }
-        catch (double) // no variable name since we don't use the exception itself in the catch block below
-        {
-            // Any exceptions of type double thrown within the above try block
-            std::cerr << "We caught an exception of type double" << std::endl;
-        }
-        catch (const std::string&) // catch classes by const reference
-        {
-            // Any exceptions of type class_name thrown within the above try block
-            std::cerr << "We caught an exception of type std::string" << std::endl;
         }
         catch (const std::runtime_error& name) // catch classes by const reference
         {
-            // Any exceptions of type class_name2 thrown within the above try block
+            // Any exceptions of type runtime_error thrown within the above try block
             std::cerr << "We caught an exception of type runtime_error " << name.what() << std::endl;
         }
         catch (...)

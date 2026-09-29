@@ -7,7 +7,7 @@
 - The `operator[]` and `at()` function are available for `unordered_map`
 
 ```cpp
-// Source: Examples/03_CPP_Standard_Library/03_associative_containers/42_unordered_map.cpp
+// Trimmed excerpt — full runnable example: Examples/03_CPP_Standard_Library/03_associative_containers/42_unordered_map.cpp
 #include <iostream>
 #include <unordered_map>
 #include <string>
@@ -55,27 +55,22 @@ namespace std {
         size_t operator()(const A& a) const
         {
             return hash<int>()(a.getX());
-        } 
+        }
     };
 }
 
 int main()
 {
-    std::unordered_map<int, int> imap {{6, 2}, {10, 5}, {1, 1}, {1, 1}};
-    std::cout << imap << std::endl;
-
     std::unordered_map<A, std::string> amap;
-    amap.insert({{A(6), "A(6)"}, {A(2), "A(2)"}, {A(), "A(0)"}});
-    amap.insert({A(5), "A(5)"});
-    amap.emplace(A(10), "A(10)");
+    amap.insert({{A(6), "A(6)"}, {A(2), "A(2)"}});
     amap.emplace(A(1), "A(1)");
     std::cout << amap << std::endl;
 
-    amap.insert({A(1), "A(11)"});
-    std::cout << "After inserting the same value \n" << amap << std::endl;
+    amap.insert({A(1), "A(11)"}); // key already exists, insert is ignored
+    std::cout << "After inserting the same key \n" << amap << std::endl;
 
-    auto it = amap.find(A(5));
-    std::cout << "Find A(5) --> " << it->second << std::endl;
+    auto it = amap.find(A(1));
+    std::cout << "Find A(1) --> " << it->second << std::endl;
 
     return 0;
 }

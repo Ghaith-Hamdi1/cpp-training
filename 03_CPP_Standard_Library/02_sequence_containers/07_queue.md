@@ -5,7 +5,7 @@
 - Stack cannot be parsed, we can only access element on top
 
 ```cpp
-// Source: Examples/03_CPP_Standard_Library/02_sequence_containers/35_queue.cpp
+// Trimmed excerpt — full runnable example: Examples/03_CPP_Standard_Library/02_sequence_containers/35_queue.cpp
 #include <iostream>
 #include <queue>
 

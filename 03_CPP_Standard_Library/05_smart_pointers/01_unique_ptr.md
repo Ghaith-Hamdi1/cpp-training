@@ -11,51 +11,17 @@
 - Always be careful about object ownership — a moved `unique_ptr` is no longer valid and may go out of scope and be destroyed
 
 ```cpp
-// Source: Examples/03_CPP_Standard_Library/05_smart_pointers/46_unique_ptr.cpp
+// Trimmed excerpt — full runnable example: Examples/03_CPP_Standard_Library/05_smart_pointers/46_unique_ptr.cpp
 #include <iostream>
 #include <memory>
 
 class A
 {
 public:
-    A() : m_x{0}
-    {
-        std::cout << "A default constructor" << std::endl;
-    }
-    A(int x) : m_x{x}
-    {
-        std::cout << "A constructor x=" << m_x << std::endl;
-    }
-    A (const A& a) : m_x{a.m_x}
-    {
-        std::cout << "A copy constructor" << std::endl;
-    }
-    A (A&& a) : m_x{a.m_x}
-    {
-        a.m_x = 0;
-        std::cout << "A move constructor" << std::endl;
-    }
-    A& operator=(const A& a)
-    {
-        std::cout << "A copy assignment" << std::endl;
-        m_x = a.m_x;
-        return *this;
-    }
-    A& operator=(A&& a)
-    {
-        std::cout << "A move assignment" << std::endl;
-        m_x = a.m_x;
-        a.m_x = 0;
-        return *this;
-    }
-    virtual void foo()
-    {
-        std::cout << "foo from A" << std::endl;
-    }
-    virtual ~A()
-    {
-        std::cout << "A destructor" << std::endl;
-    }
+    A() : m_x{0} { std::cout << "A default constructor" << std::endl; }
+    A(int x) : m_x{x} { std::cout << "A constructor x=" << m_x << std::endl; }
+    virtual void foo() { std::cout << "foo from A" << std::endl; }
+    virtual ~A() { std::cout << "A destructor" << std::endl; }
 protected:
     int m_x;
 };
@@ -63,61 +29,27 @@ protected:
 class B : public A
 {
 public:
-    B()
-    {
-        std::cout << "B default constructor" << std::endl;
-    }
-    B(int x) : A(x)
-    {
-        std::cout << "B constructor x=" << m_x << std::endl;
-    }
-    B (const B& b)
-    {
-        std::cout << "B copy constructor" << std::endl;
-    }
-    B (B&& b)
-    {
-        std::cout << "B move constructor" << std::endl;
-    }
-    B& operator=(const B& b)
-    {
-        A::operator=(b);
-        std::cout << "B copy assignment" << std::endl;
-        return *this;
-    }
-    B& operator=(B&& b)
-    {
-        A::operator=(std::move(b));
-        std::cout << "B move assignment" << std::endl;
-        return *this;
-    }
-    virtual void foo()
-    {
-        std::cout << "foo from B" << std::endl;
-    }
-    virtual ~B()
-    {
-        std::cout << "B destructor" << std::endl;
-    }
+    B() { std::cout << "B default constructor" << std::endl; }
+    B(int x) : A(x) { std::cout << "B constructor x=" << m_x << std::endl; }
+    B (const B& b) { std::cout << "B copy constructor" << std::endl; }
+    virtual void foo() { std::cout << "foo from B" << std::endl; }
+    virtual ~B() { std::cout << "B destructor" << std::endl; }
 };
 
 // unique_ptr can be taken by value and returned by moving it back
 std::unique_ptr<A> passValue(std::unique_ptr<A> a)
 {
-    std::cout << "passValue" << std::endl;
     a->foo();
     return a;
 }
 
 std::unique_ptr<A>& passValueReference(std::unique_ptr<A>& a)
 {
-    std::cout << "passValueReference" << std::endl;
     return a;
 }
 
 std::unique_ptr<A> passRValueReference(std::unique_ptr<A>&& a)
 {
-    std::cout << "passRValueReference" << std::endl;
     return std::move(a);
 }
 
@@ -126,12 +58,9 @@ int main()
     std::unique_ptr<A> adPtr = std::make_unique<B>();
     std::unique_ptr<A> asPtr = std::make_unique<B>(5);
 
-    // it won't work without std::move since copy constructor will be
-    // called which is deleted function
-    // if returned value is not assigned like done below, adPtr moved in argument
-    // will go out of scope
-    // when assigned as done below, the move semantic will be employed
-    // to transfert resource from return value (rvalue) to variable adPtr
+    // requires std::move: copy constructor is deleted for unique_ptr,
+    // so ownership must be explicitly transferred; move semantics
+    // then transfer the resource from the returned rvalue back to adPtr
     adPtr = passValue(std::move(adPtr));
     adPtr->foo();
 
@@ -143,8 +72,8 @@ int main()
 
     // other way for allocation
     std::unique_ptr<B> bPtr = std::unique_ptr<B>(new B(60));
-    
-    if (bPtr) // calls type cast operator bool() check if allocation success
+
+    if (bPtr) // calls type cast operator bool() to check allocation success
     {
         bPtr->foo();
         B b = *bPtr; // dereferencing
@@ -153,14 +82,11 @@ int main()
         B * bptr = bPtr.get();
         bptr->foo();
 
-        std::cout << "Address of B " << bptr << std::endl;
-        bPtr.release();
-        std::cout << "Address of B " << bptr << " unique_ptr.get " << bPtr.get() << std::endl;
-        bptr->foo();
+        bPtr.release(); // releases ownership without deleting
+        std::cout << "unique_ptr.get after release " << bPtr.get() << std::endl;
     }
     std::unique_ptr<B> bPtr2 = std::move(bPtr); // move assignment of unique_ptr
     // bPtr is no longer valid, must not be used any more
-    //bPtr2->foo();
 
     return 0;
 }

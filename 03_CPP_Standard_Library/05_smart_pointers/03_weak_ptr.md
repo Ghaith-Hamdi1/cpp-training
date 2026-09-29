@@ -6,7 +6,7 @@
 - To solve the previous circular dependency, the `circular` member is made a `weak_ptr` (it will just monitor and not hold the object), so the destructor is called
 
 ```cpp
-// Source: Examples/03_CPP_Standard_Library/05_smart_pointers/48_weak_ptr.cpp
+// Trimmed excerpt — full runnable example: Examples/03_CPP_Standard_Library/05_smart_pointers/48_weak_ptr.cpp
 #include <iostream>
 #include <memory>
 

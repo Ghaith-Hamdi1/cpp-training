@@ -63,6 +63,7 @@
 ## Reference example: lambdas and functions, `Examples/01_CPP_Basics/06_functions/06_functions_lambda.cpp`
 
 ```cpp
+// Trimmed excerpt — full runnable example: Examples/01_CPP_Basics/06_functions/06_functions_lambda.cpp
 #include <iostream>
 #include <functional>
 
@@ -98,7 +99,7 @@ int main(){
     int a{0};
     float b{2.0f};
 
-    std::cout << "First lambda call " << func([=](int x, float y) -> bool {
+    std::cout << "First lambda call " << func([=](int x, float y) -> bool { // capture by value
         if (x == a || y == b) {
             return true;
         }
@@ -107,7 +108,7 @@ int main(){
         }
     }) << std::endl;
 
-    auto lambda = [&a, b] (int x, float y) -> bool {
+    auto lambda = [&a, b] (int x, float y) -> bool { // capture by reference/value mix
 
         if (x == a || y == b) {
             a++; // a can be modified
@@ -121,19 +122,16 @@ int main(){
     std:: cout << "Second call " << func(lambda) << " new a value " << a << std::endl;
 
     int i{ 0 };
-    // Increments and prints its local copy of @i.
+    // Mutable lambda: increments and prints its own local copy of @i
     auto count{ [i]() mutable {
         std::cout << ++i << '\n';
     } };
 
     myInvoke(std::ref(count));
     myInvoke(std::ref(count));
-    myInvoke(std::ref(count));
 
     auto sayHelloRet{ sayHello("Hello") };
-
-    // Call the lambda function that sayHello returned.
-    sayHelloRet();
+    sayHelloRet(); // dangling reference pitfall: 'i' no longer exists (see sayHello)
 
     return 0;
 }

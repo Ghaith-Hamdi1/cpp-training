@@ -118,11 +118,5 @@ public:
     {
         return std::get<N>(m_tuple);
     }
-
-    void print()
-    {
-        TuplePrinter<decltype(m_tuple), sizeof...(Ts)>::print(m_tuple);
-        std::cout << std::endl;
-    }
 };
 ```
