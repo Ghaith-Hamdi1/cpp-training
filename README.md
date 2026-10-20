@@ -111,4 +111,11 @@ Converted from the 4 source PDFs into per-topic Markdown, with matching source c
 
 ---
 
+## Further reading
+
+- [modern-cpp-tutorial](https://github.com/changkun/modern-cpp-tutorial): book-style tutorial on C++11/14/17/20 that explains why modern features exist.
+- [modern-cpp-features](https://github.com/AnthonyCalandra/modern-cpp-features): cheat sheet with a short snippet per feature, C++11 through C++23.
+
+---
+
 *Each module's `README.md` also has its own local table of contents. This file is the top-level entry point across all four modules. Source PDFs remain at the repo root for reference.*
