@@ -1,0 +1,355 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Object-Oriented Programming in C++</title>
+<script>try{var t=JSON.parse(localStorage.getItem('cpptrain:theme'));if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body data-topic="oop" data-kind="lesson">
+<main>
+<h1>Object-Oriented Programming in C++</h1>
+<p class="lead">Classes, object lifetime, copying, inheritance and polymorphism. This is the lesson interviewers use to find out whether you understand what a C++ object really is. It assumes you know pointers and references from <a href="01-basics.html">C++ Basics</a>.</p>
+
+<section data-title="Classes and encapsulation">
+<h2>Classes and encapsulation</h2>
+<p>A <b>class</b> bundles data (<i>members</i>) with the functions that operate on it (<i>member functions</i>, or methods). The key idea is <b>encapsulation</b>: keep the data private and expose only operations that keep it valid.</p>
+<script type="text/x-cpp">
+class BankAccount {
+public:                                    // the interface other code may use
+    explicit BankAccount(double opening) : balance_(opening) {}
+
+    bool withdraw(double amount) {
+        if (amount <= 0 || amount > balance_) return false;   // invariant protected
+        balance_ -= amount;
+        return true;
+    }
+    double balance() const { return balance_; }
+
+private:                                   // the implementation, hidden
+    double balance_;
+};
+
+BankAccount acc{100.0};
+acc.withdraw(30);          // fine
+// acc.balance_ = 1e9;     // ERROR: private, nobody can break the invariant
+</script>
+<table>
+<tr><th>Specifier</th><th>Who can access</th></tr>
+<tr><td><code>public</code></td><td>everyone</td></tr>
+<tr><td><code>protected</code></td><td>the class itself and classes derived from it</td></tr>
+<tr><td><code>private</code></td><td>only the class itself (and its friends)</td></tr>
+</table>
+<div class="callout tip"><span class="label">struct vs class</span>They are the same thing except for defaults: <code>struct</code> members and inheritance are <b>public</b> by default, <code>class</code> ones are <b>private</b>. By convention, use <code>struct</code> for plain data and <code>class</code> when there are invariants to protect.</div>
+</section>
+
+<section data-title="Constructors and destructors">
+<h2>Constructors and destructors</h2>
+<p>A <b>constructor</b> runs when an object is created and sets it up. A <b>destructor</b> (<code>~Name()</code>) runs automatically when the object's lifetime ends: at the closing brace for locals, or on <code>delete</code> for heap objects. This automatic cleanup is the foundation of RAII (see Core Language).</p>
+<script type="text/x-cpp">
+class Widget {
+    const int id_;
+    std::string name_;
+public:
+    Widget() : Widget(0) {}                           // delegating constructor
+    Widget(int id, std::string n = "none")
+        : id_(id), name_(std::move(n)) {}             // member initializer list
+    ~Widget() { /* release resources here */ }
+};
+</script>
+<ul>
+<li><b>Use the initializer list</b> (after the colon). It <i>initializes</i> members directly. Assigning in the body means the member was default-constructed first and then overwritten. <code>const</code> and reference members <i>can only</i> be set in the list.</li>
+<li><b>Members are initialized in declaration order</b>, not in the order you write the list. Mismatched order is a classic warning (<code>-Wreorder</code>).</li>
+<li><b><code>explicit</code></b> on a one-argument constructor stops the compiler converting an <code>int</code> into your type behind your back.</li>
+</ul>
+
+<h3>Order of construction and destruction</h3>
+<p>Base class first, then members (in declaration order), then the derived constructor body. Destruction is the exact <b>reverse</b>. Step through it:</p>
+<div id="st-order"></div>
+<div class="callout interview"><span class="label">Interview angle</span>"In what order are constructors and destructors called with inheritance?" Construct: base, members, derived body. Destruct: derived body, members (reverse), base. This is also why a derived class can safely use its base while its own body runs.</div>
+</section>
+
+<section data-title="Copying and the Rule of 3, 5 and 0">
+<h2>Copying and the Rule of 3, 5 and 0</h2>
+<p>If you do not write them, the compiler generates a <b>copy constructor</b> and <b>copy assignment operator</b> that copy every member one by one. For an <code>int</code> that is perfect. For a raw pointer it copies only the <i>address</i>, which is called a <b>shallow copy</b>, and that is a bug waiting to happen:</p>
+<div id="st-copy"></div>
+<p>The fix is a <b>deep copy</b>: give the class its own copy operations. This is the <b>Rule of Three</b>: if a class needs a custom destructor, copy constructor <i>or</i> copy assignment, it almost certainly needs all three.</p>
+<script type="text/x-cpp">
+class Buffer {
+    int* data_;
+public:
+    Buffer(int v) : data_(new int(v)) {}
+    ~Buffer() { delete data_; }                                   // 1. destructor
+    Buffer(const Buffer& o) : data_(new int(*o.data_)) {}         // 2. copy constructor (deep)
+    Buffer& operator=(const Buffer& o) {                          // 3. copy assignment (deep)
+        if (this != &o) { *data_ = *o.data_; }                    //    guard against a = a
+        return *this;
+    }
+};
+</script>
+<table>
+<tr><th>Rule</th><th>What you write</th><th>When</th></tr>
+<tr><td><b>Rule of 0</b></td><td>none of them</td><td>The goal. Hold resources in members that manage themselves: <code>std::vector</code>, <code>std::string</code>, <code>std::unique_ptr</code>.</td></tr>
+<tr><td><b>Rule of 3</b></td><td>destructor, copy ctor, copy assign</td><td>The class owns a raw resource and must define copying.</td></tr>
+<tr><td><b>Rule of 5</b></td><td>the 3 plus move ctor and move assign</td><td>Same, and you also want cheap moves (see Core Language).</td></tr>
+</table>
+<script type="text/x-cpp">
+class NoCopy {
+public:
+    NoCopy() = default;
+    NoCopy(const NoCopy&) = delete;             // forbid copying outright
+    NoCopy& operator=(const NoCopy&) = delete;
+};
+</script>
+<div class="callout tip"><span class="label">Best answer in an interview</span>"I follow the Rule of Zero: I use <code>std::vector</code> and smart pointers so the compiler-generated special members are already correct. I only write the Rule of Five when I wrap a raw resource."</div>
+</section>
+
+<section data-title="Member functions: this, const, static, friend">
+<h2>Member functions: <code>this</code>, <code>const</code>, <code>static</code>, <code>friend</code></h2>
+<script type="text/x-cpp">
+class Counter {
+    int n_ = 0;
+    static int instances_;                 // ONE copy shared by all Counter objects
+public:
+    Counter() { ++instances_; }
+    ~Counter() { --instances_; }
+
+    Counter& add(int k) { n_ += k; return *this; }   // `this` is a pointer to the current object
+    int get() const { return n_; }                   // const: promises not to modify the object
+    static int instances() { return instances_; }    // no `this`: callable as Counter::instances()
+
+    friend std::ostream& operator<<(std::ostream&, const Counter&);   // may touch private members
+};
+int Counter::instances_ = 0;               // a static data member must be defined once
+
+Counter c;
+c.add(1).add(2);                           // chaining works because add returns *this
+</script>
+<ul>
+<li>A <b><code>const</code> member function</b> can be called on a <code>const</code> object, and the compiler stops it modifying members (except those marked <code>mutable</code>). Make every getter <code>const</code>.</li>
+<li>A <b>static member function</b> belongs to the class, not an object, so it has no <code>this</code>.</li>
+<li><b><code>friend</code></b> grants a function or class access to private members. Use it sparingly: it weakens encapsulation.</li>
+</ul>
+</section>
+
+<section data-title="Inheritance">
+<h2>Inheritance</h2>
+<p>Public inheritance models <b>"is-a"</b>: a <code>Dog</code> is an <code>Animal</code>, so a <code>Dog</code> can be used anywhere an <code>Animal</code> is expected.</p>
+<script type="text/x-cpp">
+class Animal {
+public:
+    explicit Animal(std::string name) : name_(std::move(name)) {}
+    const std::string& name() const { return name_; }
+protected:
+    std::string name_;                    // visible to Dog, hidden from the outside world
+};
+
+class Dog : public Animal {
+public:
+    explicit Dog(std::string name) : Animal(std::move(name)) {}   // call the base constructor
+    void fetch() const { std::cout << name_ << " fetches\n"; }
+};
+</script>
+<div class="callout warn"><span class="label">Object slicing</span>Copying a derived object into a base <i>value</i> chops off the derived part: <code>Animal a = Dog("Rex");</code> keeps only the <code>Animal</code> bits, and virtual behaviour is lost. Pass and store polymorphic objects by <b>pointer or reference</b>, never by value.</div>
+<p>Mark a class <code>final</code> to forbid deriving from it. Prefer <b>composition</b> (see below) when the relationship is not truly is-a.</p>
+</section>
+
+<section data-title="Polymorphism and virtual functions">
+<h2>Polymorphism and virtual functions</h2>
+<p>Polymorphism lets you call <code>p-&gt;speak()</code> through a base pointer and get the <i>derived</i> class's behaviour. It only works if the base function is <code>virtual</code>. Without <code>virtual</code> the compiler picks the function from the pointer's <b>static type</b> at compile time. With <code>virtual</code> it picks from the object's real <b>dynamic type</b> at runtime. Try it, and watch what changes:</p>
+<div id="w-virtual"></div>
+<h3>How it works: the vtable</h3>
+<p>A class with virtual functions gets a hidden table of function pointers (the <b>vtable</b>), one per class. Each object carries a hidden pointer to it (the <b>vptr</b>), set up by the constructor. A virtual call is: follow the vptr, index the table, jump. The cost is one extra pointer per object and one indirection per call, and the call usually cannot be inlined.</p>
+<table>
+<tr><th>Term</th><th>Meaning</th></tr>
+<tr><td><b>Overloading</b></td><td>same name, different parameters, resolved at compile time</td></tr>
+<tr><td><b>Overriding</b></td><td>a derived class replaces a <i>virtual</i> base function with the same signature, resolved at runtime</td></tr>
+<tr><td><b>Hiding</b></td><td>a derived function with the same name (but not virtual / different signature) hides the base one</td></tr>
+</table>
+<script type="text/x-cpp">
+struct Shape {
+    virtual double area() const = 0;
+    virtual ~Shape() = default;           // ALWAYS virtual in a polymorphic base
+};
+struct Circle : Shape {
+    double r;
+    explicit Circle(double r) : r(r) {}
+    double area() const override { return 3.14159 * r * r; }   // `override`: the compiler checks you really override
+};
+</script>
+<div class="callout warn"><span class="label">Two famous traps</span>
+<p><b>1.</b> Always write <code>override</code>. If you mistype the signature (forget <code>const</code>), without it you silently create a <i>new</i> function instead of overriding.</p>
+<p><b>2.</b> Virtual calls inside a constructor or destructor do <b>not</b> reach the derived class. While <code>Base</code>'s constructor runs, the object's dynamic type is <code>Base</code>, so <code>Base::init()</code> is called even if <code>Derived</code> overrides it.</p></div>
+</section>
+
+<section data-title="Abstract classes and interfaces">
+<h2>Abstract classes and interfaces</h2>
+<p>A function declared <code>= 0</code> is <b>pure virtual</b>. A class with at least one is <b>abstract</b>: you cannot create objects of it, only derive from it. A class with <i>only</i> pure virtual functions (and no data) is an <b>interface</b>.</p>
+<script type="text/x-cpp">
+struct Logger {                                   // interface
+    virtual void log(const std::string& msg) = 0;
+    virtual ~Logger() = default;
+};
+struct ConsoleLogger : Logger {
+    void log(const std::string& msg) override { std::cout << msg << '\n'; }
+};
+
+// Code depends on the abstraction, not the concrete class:
+void run(Logger& out) { out.log("started"); }
+
+// Polymorphic collection: unique_ptr owns the objects, no slicing, no manual delete
+std::vector<std::unique_ptr<Shape>> shapes;
+shapes.push_back(std::make_unique<Circle>(2.0));
+for (const auto& s : shapes) std::cout << s->area() << '\n';
+</script>
+</section>
+
+<section data-title="Operator overloading">
+<h2>Operator overloading</h2>
+<p>You can give operators meaning for your own types so they read naturally. Do it only when the meaning is obvious (<code>+</code> on vectors, <code>==</code> on values, <code>&lt;&lt;</code> for printing).</p>
+<script type="text/x-cpp">
+struct Vec2 {
+    double x{}, y{};
+
+    Vec2& operator+=(const Vec2& o) { x += o.x; y += o.y; return *this; }   // member: modifies *this
+    bool operator==(const Vec2& o) const { return x == o.x && y == o.y; }
+};
+Vec2 operator+(Vec2 a, const Vec2& b) { return a += b; }   // non-member built from +=
+
+std::ostream& operator<<(std::ostream& os, const Vec2& v) {   // MUST be non-member:
+    return os << '(' << v.x << ", " << v.y << ')';             // the left operand is the stream
+}
+</script>
+<ul>
+<li>Binary operators that do not change their operands (<code>+</code>, <code>==</code>) are best as <b>non-member</b> functions so both sides get implicit conversions; compound assignment (<code>+=</code>) is a member.</li>
+<li>Keep the usual semantics: <code>==</code> and <code>!=</code> together, <code>&lt;</code> should be a strict weak ordering. C++20's <code>operator&lt;=&gt;</code> can generate all comparisons from one function.</li>
+<li>You cannot invent new operators or change precedence, and <code>::</code>, <code>.</code>, <code>.*</code>, <code>?:</code> cannot be overloaded.</li>
+</ul>
+</section>
+
+<section data-title="Composition, relationships and design">
+<h2>Composition, relationships and design</h2>
+<p>Ask "is it a, or does it have a?" Inheritance is the <i>strongest</i> coupling in C++; prefer <b>composition</b> unless you truly need polymorphism.</p>
+<table>
+<tr><th>Relationship</th><th>Meaning</th><th>C++ shape</th><th>Lifetime</th></tr>
+<tr><td><b>Inheritance</b> (is-a)</td><td>Dog is an Animal</td><td><code>class Dog : public Animal</code></td><td>one object</td></tr>
+<tr><td><b>Composition</b> (owns)</td><td>Car has an Engine, which dies with the car</td><td>member <code>Engine e;</code></td><td>part dies with whole</td></tr>
+<tr><td><b>Aggregation</b> (uses, shared)</td><td>Team has Players who exist independently</td><td><code>Player*</code> / <code>std::shared_ptr</code> member</td><td>independent</td></tr>
+<tr><td><b>Association</b></td><td>Doctor treats Patients</td><td>reference or pointer parameter</td><td>independent</td></tr>
+</table>
+<div class="callout interview"><span class="label">Liskov Substitution Principle</span>Code that works with a base type must keep working when handed any derived type. If <code>Square : Rectangle</code> breaks because setting the width also changes the height, inheritance was the wrong model. Public inheritance must mean "behaves like", not just "shares code".</div>
+<p>Related notes in your repo: <a href="../docs/02-cpp-oop/README.md">Module 2: C++ OOP</a>, <a href="../docs/02-cpp-oop/13_objects_relationships.md">objects relationships</a>, and the learncpp.com recaps for chapters 14, 15, 21, 23, 24 and 25.</p>
+</section>
+
+<section data-title="Interview cheat sheet">
+<h2>Interview cheat sheet</h2>
+<details class="ex"><summary>Why must a base class destructor be virtual?</summary><div><p>If you <code>delete</code> a derived object through a base pointer and the destructor is not virtual, only the base destructor runs: undefined behavior, and the derived part's resources leak. A virtual destructor makes <code>delete</code> dispatch to the most derived destructor first. Any class meant to be a polymorphic base needs one.</p></div></details>
+<details class="ex"><summary>What is the difference between overloading and overriding?</summary><div><p>Overloading: several functions with the same name and different parameters in the same scope, chosen at compile time. Overriding: a derived class provides its own implementation of a base <i>virtual</i> function with the same signature, chosen at runtime.</p></div></details>
+<details class="ex"><summary>What is a pure virtual function and an abstract class?</summary><div><p>A pure virtual function is declared <code>= 0</code> and has no required implementation. A class with at least one cannot be instantiated; it defines an interface that derived classes must implement.</p></div></details>
+<details class="ex"><summary>What is the Rule of Three / Five / Zero?</summary><div><p>Three: if you define a destructor, copy constructor or copy assignment, define all three. Five: add the move constructor and move assignment. Zero: design classes so none are needed by holding resources in self-managing members like <code>vector</code> and <code>unique_ptr</code>.</p></div></details>
+<details class="ex"><summary>What is object slicing?</summary><div><p>Copying a derived object into a base-class value discards the derived members and virtual behaviour. Avoid it by passing polymorphic objects by reference or pointer.</p></div></details>
+<details class="ex"><summary>What does <code>explicit</code> do?</summary><div><p>It stops a constructor (or conversion operator) from being used for implicit conversions. Without it, <code>void f(Account); f(5);</code> could silently build an <code>Account</code> from 5.</p></div></details>
+<details class="ex"><summary>Can a constructor be virtual? Can a destructor be pure virtual?</summary><div><p>A constructor cannot be virtual: the vptr is set up by the constructor, so there is no dynamic type yet. A destructor <i>can</i> be pure virtual to make a class abstract, but it still needs a body because derived destructors call it.</p></div></details>
+<details class="ex"><summary>Composition or inheritance?</summary><div><p>Prefer composition. Use public inheritance only for a true is-a relationship where you need runtime polymorphism, and make sure it satisfies Liskov substitution.</p></div></details>
+</section>
+</main>
+
+<script src="assets/app.js"></script>
+<script>
+CT.stepper('#st-order', {
+  title: 'Construction and destruction order',
+  code: String.raw`
+struct Car : Vehicle {
+    Engine e;
+    Car()  { /* body */ }
+    ~Car() { /* body */ }
+};
+
+{
+    Car c;    // object created
+}             // c goes out of scope
+`,
+  steps: [
+    { line: 7, mem: [], note: 'We are about to create a <b>Car</b>. Nothing exists yet.' },
+    { line: 1, mem: [{ n: 'c : Vehicle part', v: 'constructed' }], out: 'Vehicle()\n',
+      note: '<b>1. Base class first.</b> The Vehicle constructor runs before anything of Car exists.' },
+    { line: 2, mem: [{ n: 'c : Vehicle part', v: 'constructed' }, { n: 'c.e : Engine member', v: 'constructed' }], out: 'Engine()\n',
+      note: '<b>2. Members next</b>, in the order they are declared in the class.' },
+    { line: 3, mem: [{ n: 'c : Vehicle part', v: 'constructed' }, { n: 'c.e : Engine member', v: 'constructed' }, { n: 'c : Car body', v: 'constructed' }], out: 'Car()\n',
+      note: '<b>3. Finally the constructor body of the most derived class.</b> The object is now fully built.' },
+    { line: 4, mem: [{ n: 'c : Vehicle part', v: 'constructed' }, { n: 'c.e : Engine member', v: 'constructed' }, { n: 'c : Car body', v: 'destroyed', dead: true }], out: '~Car()\n',
+      note: 'The closing brace ends c\'s lifetime. Destruction runs in <b>exact reverse</b>: the Car destructor body first.' },
+    { line: 2, mem: [{ n: 'c : Vehicle part', v: 'constructed' }, { n: 'c.e : Engine member', v: 'destroyed', dead: true }, { n: 'c : Car body', v: 'destroyed', dead: true }], out: '~Engine()\n',
+      note: 'Then the members, in reverse declaration order.' },
+    { line: 1, mem: [{ n: 'c : Vehicle part', v: 'destroyed', dead: true }, { n: 'c.e : Engine member', v: 'destroyed', dead: true }, { n: 'c : Car body', v: 'destroyed', dead: true }], out: '~Vehicle()\n',
+      note: 'Last, the base class. If Vehicle\'s destructor were not virtual and you deleted through a <code>Vehicle*</code>, this chain would break.' }
+  ]
+});
+
+CT.stepper('#st-copy', {
+  title: 'The shallow copy bug',
+  code: String.raw`
+struct Buffer {
+    int* data;
+    Buffer(int v) : data(new int(v)) {}
+    ~Buffer() { delete data; }
+};
+{
+    Buffer a(7);
+    Buffer b = a;   // compiler-made copy
+}                   // b destroyed, then a
+`,
+  steps: [
+    { line: 7, mem: [{ n: 'a.data', t: 'int*', v: '0x5000', p: 'heap int' }, { n: 'heap @0x5000', t: 'int', v: '7', k: 'heap' }],
+      note: '<b>a</b> allocates one int on the heap and stores its address.' },
+    { line: 8, mem: [{ n: 'a.data', t: 'int*', v: '0x5000', p: 'heap int' }, { n: 'b.data', t: 'int*', v: '0x5000', p: 'heap int' }, { n: 'heap @0x5000', t: 'int', v: '7', k: 'heap' }],
+      note: 'The generated copy constructor copies each member. For a pointer that means copying the <b>address</b>, not the int. Now <b>a and b share the same heap memory</b>.' },
+    { line: 9, mem: [{ n: 'a.data', t: 'int*', v: '0x5000', p: 'freed!' }, { n: 'b.data', t: 'int*', v: '0x5000', p: 'freed!' }, { n: 'heap @0x5000', t: 'int', v: '7', k: 'heap', dead: true }],
+      note: '<b>~b runs <code>delete data</code></b>: the heap int is freed. But <b>a.data</b> still holds that address.' },
+    { line: 4, mem: [{ n: 'a.data', t: 'int*', v: '0x5000', p: 'freed!' }, { n: 'b.data', t: 'int*', v: '0x5000', p: 'freed!' }, { n: 'heap @0x5000', t: 'int', v: 'DOUBLE DELETE', k: 'heap', dead: true }],
+      note: '<b>~a runs <code>delete data</code> on the same address again</b>: a double free, which is undefined behavior and usually a crash. The fix is a deep-copy constructor (Rule of Three), or better, hold the value in a <code>std::unique_ptr</code> or plain <code>int</code> and follow the Rule of Zero.' }
+  ]
+});
+
+(function () {
+  const root = document.getElementById('w-virtual');
+  root.className = 'widget';
+  root.innerHTML = '<div class="w-head"><span class="tag">Try it</span>Does <code>virtual</code> matter?</div><div class="w-body">' +
+    '<div class="pickrow"><label>Object created:</label><select id="vo"><option>Animal</option><option selected>Dog</option><option>Cat</option></select>' +
+    '<label><input type="checkbox" id="vv" checked> <code>speak()</code> is virtual</label>' +
+    '<label><input type="checkbox" id="vd"> destructor is virtual</label></div>' +
+    '<figure class="code"><pre><code id="vcode"></code></pre></figure><div class="result" id="vres"></div></div>';
+  const $ = (id) => document.getElementById(id);
+  function update() {
+    const obj = $('vo').value, vs = $('vv').checked, vd = $('vd').checked;
+    const code = 'struct Animal {\n' +
+      '    ' + (vs ? 'virtual ' : '') + 'void speak() { std::cout << "..."; }\n' +
+      '    ' + (vd ? 'virtual ' : '') + '~Animal() { std::cout << "~Animal"; }\n};\n' +
+      'struct Dog : Animal { void speak() { std::cout << "Woof"; }  ~Dog() { std::cout << "~Dog "; } };\n' +
+      'struct Cat : Animal { void speak() { std::cout << "Meow"; }  ~Cat() { std::cout << "~Cat "; } };\n\n' +
+      'Animal* p = new ' + obj + ';\np->speak();\ndelete p;';
+    $('vcode').innerHTML = CT.highlight(code);
+    const says = { Animal: '...', Dog: 'Woof', Cat: 'Meow' };
+    const spoke = vs ? says[obj] : '...';
+    let html = '<b>p-&gt;speak()</b> prints <code>' + spoke + '</code>. ';
+    html += vs ? 'Virtual dispatch: the call goes to the <b>real object\'s</b> class (' + obj + ').'
+               : 'No <code>virtual</code>: the call is bound at compile time to the <b>pointer\'s</b> type, <code>Animal*</code>, so the derived version is ignored' + (obj === 'Animal' ? ' (here it happens to be an Animal anyway).' : '.');
+    let bad = false;
+    html += '<br><b>delete p</b> runs: ';
+    if (obj === 'Animal' || vd) {
+      html += '<code>' + (obj === 'Animal' ? '~Animal' : '~' + obj + ' ~Animal') + '</code>. ' + (obj !== 'Animal' ? 'Correct: derived destructor first, then the base.' : '');
+    } else {
+      bad = true;
+      html += '<code>~Animal</code> only. <b>Undefined behavior:</b> deleting a ' + obj + ' through an <code>Animal*</code> whose destructor is not virtual. <code>~' + obj + '</code> never ran, so anything it owned leaks.';
+    }
+    const r = $('vres');
+    r.innerHTML = html;
+    r.className = 'result ' + (bad || (!vs && obj !== 'Animal') ? 'bad' : 'good');
+  }
+  ['vo', 'vv', 'vd'].forEach((id) => $(id).addEventListener('change', update));
+  update();
+})();
+</script>
+</body>
+</html>
