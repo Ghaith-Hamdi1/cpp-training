@@ -2,7 +2,36 @@
 
 Embedded Team Academy · Presented by Mahdi SAKKA · Doc ref TR0014_G
 
-Converted from the 4 source PDFs into per-topic Markdown, with matching source code under [`examples/`](examples/). Pick a topic below to jump straight to it.
+This repo holds two separate C++ courses that cover much of the same ground:
+
+| Course | Where | What it is |
+|---|---|---|
+| **Company training** (this index) | [`docs/`](docs/) + [`examples/`](examples/) | The 4 source PDFs converted into per-topic Markdown, with matching source code. Concise, slide-style, and includes embedded topics such as multithreading, design patterns and AUTOSAR coding rules. |
+| **learncpp.com recaps** | [`LearnCPP/`](LearnCPP/) | Personal chapter-by-chapter recaps of [learncpp.com](https://www.learncpp.com/) ([index](LearnCPP/Recaps/README.md)), with solved exercises under [`LearnCPP/Recaps/solutions/`](LearnCPP/Recaps/solutions/). Slower and more thorough, aimed at fundamentals. |
+
+Use the training notes for a quick pass or the embedded-specific topics, and the recaps when you want a topic explained in depth. The table below shows where each topic appears in both.
+
+## Where each topic is covered
+
+| Topic | Company training | learncpp.com recap |
+|---|---|---|
+| Intro, variables, types, operators | [Module 1](docs/01-cpp-basics/README.md) | [Ch 0](<LearnCPP/Recaps/1) Intro + Basics/Chapter 0 - Introduction and Getting Started.md>), [Ch 1](<LearnCPP/Recaps/1) Intro + Basics/Chapter 1 - C++ Basics.md>), [Ch 4](<LearnCPP/Recaps/2) Fundamentals 1/Chapter 4 - Fundamental Data Types.md>), [Ch 6](<LearnCPP/Recaps/2) Fundamentals 1/Chapter 6 - Operators.md>) |
+| Namespaces and scope | [Namespace and scope](docs/01-cpp-basics/05_namespace_and_scope.md) | [Ch 7](<LearnCPP/Recaps/2) Fundamentals 1/Chapter 7 - Scope, Duration, and Linkage.md>) |
+| Functions | [Functions](docs/01-cpp-basics/06_functions.md) | [Ch 2](<LearnCPP/Recaps/1) Intro + Basics/Chapter 2 - C++ Basics Functions and Files.md>), [Ch 20](<LearnCPP/Recaps/7) Advanced 1/Chapter 20 - Functions.md>) |
+| Flow control and error handling | [Flow control](docs/01-cpp-basics/07_flow_control_and_error_handling.md) | [Ch 8](<LearnCPP/Recaps/3) Fundamentals 2/Chapter 8 - Control Flow.md>), [Ch 9](<LearnCPP/Recaps/3) Fundamentals 2/Chapter 9 - Error Detection and Handling.md>) |
+| Exceptions | [Exceptions](docs/01-cpp-basics/08_exceptions.md) | [Ch 27](<LearnCPP/Recaps/9) Advanced 2/Chapter 27 - Exceptions.md>) |
+| Constants, typedef, type conversion | [Constants](docs/01-cpp-basics/10_constants_typedef_and_alias.md), [Type conversion](docs/01-cpp-basics/12_type_conversion.md) | [Ch 5](<LearnCPP/Recaps/2) Fundamentals 1/Chapter 5 - Constants and Strings.md>), [Ch 10](<LearnCPP/Recaps/3) Fundamentals 2/Chapter 10 - Type Conversion, Type Aliases, and Type Deduction.md>) |
+| References and pointers | [References and pointers](docs/01-cpp-basics/11_references_and_pointers.md) | [Ch 12](<LearnCPP/Recaps/4) Fundamentals 3/Chapter 12 - Compound Types References and Pointers.md>) |
+| Memory allocation | [Memory allocation](docs/01-cpp-basics/13_memory_allocation.md) | [Ch 19](<LearnCPP/Recaps/7) Advanced 1/Chapter 19 - Dynamic Allocation.md>) |
+| Classes, OOP | [Module 2](docs/02-cpp-oop/README.md) | [Ch 14](<LearnCPP/Recaps/5) Classes/Chapter 14 - Introduction to Classes.md>), [Ch 15](<LearnCPP/Recaps/5) Classes/Chapter 15 - More on Classes.md>) |
+| Operator overloading | [Operators overloading](docs/02-cpp-oop/12_operators_overloading.md) | [Ch 21](<LearnCPP/Recaps/7) Advanced 1/Chapter 21 - Operator Overloading.md>) |
+| Inheritance and polymorphism | [Inheritance](docs/02-cpp-oop/08_inheritance.md), [Polymorphism](docs/02-cpp-oop/09_polymorphism.md) | [Ch 24](<LearnCPP/Recaps/8) Classes 2/Chapter 24 - Inheritance.md>), [Ch 25](<LearnCPP/Recaps/8) Classes 2/Chapter 25 - Virtual Functions.md>) |
+| Object relationships | [Objects relationships](docs/02-cpp-oop/13_objects_relationships.md) | [Ch 23](<LearnCPP/Recaps/7) Advanced 1/Chapter 23 - Object Relationships.md>) |
+| Containers, iterators, algorithms | [Module 3](docs/03-cpp-standard-library/README.md) | [Ch 16](<LearnCPP/Recaps/6) Arrays/Chapter 16 - Dynamic Arrays std-vector.md>), [Ch 17](<LearnCPP/Recaps/6) Arrays/Chapter 17 - Fixed-size Arrays std-array and C-style Arrays.md>), [Ch 18](<LearnCPP/Recaps/7) Advanced 1/Chapter 18 - Iterators and Algorithms.md>) |
+| Smart pointers and move semantics | [Smart pointers](docs/03-cpp-standard-library/05-smart-pointers) | [Ch 22](<LearnCPP/Recaps/7) Advanced 1/Chapter 22 - Move Semantics and Smart Pointers.md>) |
+| File and stream I/O | [Files management](docs/03-cpp-standard-library/13_files_management.md) | [Ch 28](<LearnCPP/Recaps/9) Advanced 2/Chapter 28 - Input and Output (IO).md>) |
+| Templates | [Module 4](docs/04-templates-and-design-patterns/README.md) | [Ch 11](<LearnCPP/Recaps/4) Fundamentals 3/Chapter 11 - Function Overloading and Function Templates.md>), [Ch 26](<LearnCPP/Recaps/9) Advanced 2/Chapter 26 - Templates and Classes.md>) |
+| Multithreading, regex, date and time, type traits, metaprogramming, design patterns, coding rules | In Modules 3 and 4 | Not covered by learncpp.com |
 
 ---
 
