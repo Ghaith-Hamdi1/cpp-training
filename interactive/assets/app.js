@@ -258,6 +258,7 @@
       if (/^r\s*=\s*r\s*\+\s*1$/.test(line)) return { k: 'inc' };
       if ((m = /^r\s*=\s*(\w+)$/.exec(line))) return { k: 'load', v: m[1] };
       if ((m = /^(\w+)\s*=\s*r$/.exec(line))) return { k: 'store', v: m[1] };
+      if ((m = /^(\w+)\.fetch_add\(1\)$/.exec(line))) return { k: 'fadd', v: m[1] };
       if ((m = /^(\w+)\.lock\(\)$/.exec(line))) return { k: 'lock', m: m[1] };
       if ((m = /^(\w+)\.unlock\(\)$/.exec(line))) return { k: 'unlock', m: m[1] };
       throw new Error('threadsim: cannot parse "' + line + '"');
@@ -285,6 +286,7 @@
       if (o.k === 'load') { t.r = S.vars[o.v]; m += 'r = ' + o.v + ' (r is now ' + t.r + ')'; }
       else if (o.k === 'inc') { t.r += 1; m += 'r = r + 1 (r is now ' + t.r + ')'; }
       else if (o.k === 'store') { S.vars[o.v] = t.r; m += o.v + ' = r (' + o.v + ' is now ' + t.r + ')'; }
+      else if (o.k === 'fadd') { S.vars[o.v] += 1; m += o.v + '.fetch_add(1) in ONE indivisible step (' + o.v + ' is now ' + S.vars[o.v] + ')'; }
       else if (o.k === 'lock') { S.owner[o.m] = i; m += o.m + '.lock() acquired'; }
       else if (o.k === 'unlock') { delete S.owner[o.m]; m += o.m + '.unlock() released'; }
       t.pc++;
