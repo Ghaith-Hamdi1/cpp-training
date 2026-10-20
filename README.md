@@ -1,4 +1,4 @@
-# Advanced C++ Training — Index
+# cpp-training: Advanced C++ Training Index
 
 Embedded Team Academy · Presented by Mahdi SAKKA · Doc ref TR0014_G
 
@@ -6,7 +6,7 @@ Converted from the 4 source PDFs into per-topic Markdown, with matching source c
 
 ---
 
-## [Module 1 — C++ Basics](docs/01-cpp-basics/README.md)
+## [Module 1: C++ Basics](docs/01-cpp-basics/README.md)
 
 | Topic | Examples |
 |---|---|
@@ -26,7 +26,7 @@ Converted from the 4 source PDFs into per-topic Markdown, with matching source c
 | [Quiz](docs/01-cpp-basics/14_quiz.md) | |
 | [Conversion notes](docs/01-cpp-basics/conversion-notes.md) | |
 
-## [Module 2 — C++ Object Oriented Programming](docs/02-cpp-oop/README.md)
+## [Module 2: C++ Object Oriented Programming](docs/02-cpp-oop/README.md)
 
 | Topic | Examples |
 |---|---|
@@ -46,7 +46,7 @@ Converted from the 4 source PDFs into per-topic Markdown, with matching source c
 | [Quiz](docs/02-cpp-oop/14_quiz.md) | |
 | [Conversion notes](docs/02-cpp-oop/conversion-notes.md) | |
 
-## [Module 3 — C++ Standard Library](docs/03-cpp-standard-library/README.md)
+## [Module 3: C++ Standard Library](docs/03-cpp-standard-library/README.md)
 
 | Topic | Examples |
 |---|---|
@@ -90,7 +90,7 @@ Converted from the 4 source PDFs into per-topic Markdown, with matching source c
 | [Regular Expressions](docs/03-cpp-standard-library/14_regular_expressions.md) | [Examples](examples/03-cpp-standard-library/14-regular-expressions/59_regex.cpp) |
 | [Conversion notes](docs/03-cpp-standard-library/conversion-notes.md) | |
 
-## [Module 4 — Templates & Design Patterns](docs/04-templates-and-design-patterns/README.md)
+## [Module 4: Templates & Design Patterns](docs/04-templates-and-design-patterns/README.md)
 
 | Topic | Examples |
 |---|---|
