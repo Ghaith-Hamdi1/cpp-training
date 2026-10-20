@@ -1,0 +1,363 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Design Patterns in C++</title>
+<script>try{var t=JSON.parse(localStorage.getItem('cpptrain:theme'));if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body data-topic="patterns" data-kind="lesson">
+<main>
+<h1>Design Patterns in C++</h1>
+<p class="lead">Patterns are named, proven solutions to design problems that keep recurring. Interviewers use them to check that you can structure code, not just write it. This lesson covers the five you are most likely to be asked about (Singleton, Factory, Strategy, Observer, State), shows how modern C++ changes them, and ends with the SOLID principles behind them.</p>
+
+<section data-title="What patterns are and are not">
+<h2>What patterns are and are not</h2>
+<p>A design pattern is a <b>vocabulary</b>: saying "this is an Observer" instantly conveys structure and intent to another developer. They come in three families:</p>
+<table>
+<tr><th>Family</th><th>Concerned with</th><th>Examples</th></tr>
+<tr><td><b>Creational</b></td><td>how objects are created</td><td>Singleton, Factory, Builder</td></tr>
+<tr><td><b>Structural</b></td><td>how objects are composed</td><td>Adapter, Decorator, Proxy, PIMPL</td></tr>
+<tr><td><b>Behavioural</b></td><td>how objects interact and share responsibility</td><td>Strategy, Observer, State, Command, Visitor</td></tr>
+</table>
+<div class="callout warn"><span class="label">Patterns are not goals</span>Do not add a pattern for its own sake. Each one adds indirection, so use it only when it solves a real problem you have. A good answer in an interview always includes <i>when not to use it</i>.</div>
+<div class="callout tip"><span class="label">Modern C++ shortens many of them</span>A lambda or <code>std::function</code> often replaces a whole Strategy or Command class hierarchy. <code>std::visit</code> replaces the Visitor boilerplate. Smart pointers are a Proxy. RAII is a pattern the language supports directly. The ideas matter more than the class diagrams.</div>
+</section>
+
+<section data-title="Singleton">
+<h2>Singleton</h2>
+<p><b>Intent:</b> guarantee that a class has exactly one instance and give global access to it (a logger, a configuration store, a hardware manager).</p>
+<script type="text/x-cpp">
+class Logger {
+public:
+    static Logger& instance() {
+        static Logger inst;              // created the first time control passes here
+        return inst;                     // ...and the same object is returned forever after
+    }
+    Logger(const Logger&) = delete;      // forbid copies: there must be only one
+    Logger& operator=(const Logger&) = delete;
+
+    void log(const std::string& msg) { std::cout << msg << '\n'; }
+private:
+    Logger() { std::cout << "Logger constructed\n"; }   // private: nobody else can create one
+};
+
+Logger::instance().log("hello");
+</script>
+<p>This is the <b>Meyers Singleton</b>. Step through it:</p>
+<div id="st-singleton"></div>
+<ul>
+<li><b>Thread safety:</b> since C++11 the initialization of a function-local <code>static</code> is guaranteed to happen exactly once even if many threads call <code>instance()</code> at the same time ("magic statics"). You do not need a mutex or double-checked locking for the creation. Calls on the object itself (<code>log</code>) still need their own synchronization if they mutate shared state.</li>
+<li><b>Lazy:</b> it is built on first use, which also avoids the static initialization order problem between translation units.</li>
+<li><b>Drawbacks (say these in the interview):</b> it is global state in disguise; it hides dependencies (any code can reach it); it makes unit testing hard because you cannot substitute a fake; and destruction happens at program exit in an unspecified order relative to other statics, so using it from another static's destructor can touch a dead object.</li>
+<li><b>Alternative:</b> create one object in <code>main</code> and pass it (by reference) to the code that needs it: dependency injection. You still get "one instance" without the global.</li>
+</ul>
+</section>
+
+<section data-title="Factory">
+<h2>Factory</h2>
+<p><b>Intent:</b> create objects without the caller naming the concrete class. The caller asks for "a circle" (by an enum, string or config value) and receives something it can only use through an interface.</p>
+<script type="text/x-cpp">
+struct Shape {
+    virtual double area() const = 0;
+    virtual ~Shape() = default;
+};
+struct Circle : Shape { double r; explicit Circle(double r) : r(r) {} double area() const override { return 3.14159 * r * r; } };
+struct Square : Shape { double s; explicit Square(double s) : s(s) {} double area() const override { return s * s; } };
+
+enum class Kind { Circle, Square };
+
+std::unique_ptr<Shape> makeShape(Kind k, double size) {       // the factory function
+    switch (k) {
+        case Kind::Circle: return std::make_unique<Circle>(size);
+        case Kind::Square: return std::make_unique<Square>(size);
+    }
+    return nullptr;
+}
+
+auto s = makeShape(Kind::Circle, 2.0);       // caller sees only Shape
+std::cout << s->area();
+</script>
+<ul>
+<li><b>Return a smart pointer</b> (<code>unique_ptr</code>) so ownership is clear and the caller cannot leak it. It converts to <code>shared_ptr</code> if needed.</li>
+<li>The base class needs a <b>virtual destructor</b>, because the object is deleted through a <code>Shape</code> pointer.</li>
+<li><b>Adding a new type</b> means editing the factory. To avoid that (Open/Closed principle), keep a <i>registry</i>: <code>std::map&lt;std::string, std::function&lt;std::unique_ptr&lt;Shape&gt;(double)&gt;&gt;</code> that types register themselves into.</li>
+<li><b>Factory Method</b> lets subclasses decide what to create (a virtual <code>create()</code>); <b>Abstract Factory</b> creates families of related objects (for example a UI toolkit producing a matching <code>Button</code> and <code>Checkbox</code> for each platform).</li>
+</ul>
+</section>
+
+<section data-title="Strategy">
+<h2>Strategy</h2>
+<p><b>Intent:</b> define a family of interchangeable algorithms and let the caller pick one <i>at runtime</i> without changing the code that uses it. Examples: sorting order, pricing rules, compression algorithms, retry policies.</p>
+<script type="text/x-cpp">
+// 1. Classic: an interface and several implementations
+struct PricingStrategy {
+    virtual double apply(double price) const = 0;
+    virtual ~PricingStrategy() = default;
+};
+struct Regular   : PricingStrategy { double apply(double p) const override { return p; } };
+struct Member    : PricingStrategy { double apply(double p) const override { return p * 0.90; } };
+
+class Checkout {
+    std::unique_ptr<PricingStrategy> strategy_;
+public:
+    explicit Checkout(std::unique_ptr<PricingStrategy> s) : strategy_(std::move(s)) {}
+    double total(double price) const { return strategy_->apply(price); }
+};
+
+// 2. Modern: the strategy IS a callable. No class hierarchy needed.
+class Checkout2 {
+    std::function<double(double)> pricing_;
+public:
+    explicit Checkout2(std::function<double(double)> f) : pricing_(std::move(f)) {}
+    double total(double price) const { return pricing_(price); }
+};
+Checkout2 c([](double p) { return p * 0.70; });     // a lambda is a strategy
+
+// 3. Compile-time: the strategy is a template parameter (policy-based design): zero overhead
+template <typename Pricing> class Checkout3 { /* ... Pricing{}(price) ... */ };
+</script>
+<p>Try the pricing example:</p>
+<div id="w-strategy"></div>
+<div class="callout interview"><span class="label">Strategy vs State</span>They look alike (an object delegates to a swappable helper) but differ in intent. With <b>Strategy</b> the <i>client</i> chooses the algorithm and the strategies do not know about each other. With <b>State</b> the object changes its own behaviour as its internal state changes, and the states themselves usually trigger the transitions.</div>
+</section>
+
+<section data-title="Observer">
+<h2>Observer</h2>
+<p><b>Intent:</b> when one object (the <i>subject</i>) changes, automatically notify a list of dependents (the <i>observers</i>) without the subject knowing who they are. This is the heart of event systems, GUI signals and publish/subscribe. Subscribe and unsubscribe observers below, then change the temperature:</p>
+<div id="w-observer"></div>
+<script type="text/x-cpp">
+class Observer {
+public:
+    virtual void update(double value) = 0;
+    virtual ~Observer() = default;
+};
+
+class Subject {
+    std::vector<Observer*> observers_;
+public:
+    void attach(Observer* o) { observers_.push_back(o); }
+    void detach(Observer* o) { observers_.erase(std::remove(observers_.begin(), observers_.end(), o), observers_.end()); }
+    void set(double v) {
+        value_ = v;
+        auto copy = observers_;                       // iterate a COPY: an observer may detach itself in update()
+        for (auto* o : copy) o->update(v);
+    }
+private:
+    double value_ = 0;
+};
+
+// Modern, lighter version: observers are just callbacks
+std::vector<std::function<void(double)>> listeners;
+listeners.push_back([](double t) { std::cout << "temp = " << t << '\n'; });
+</script>
+<div class="callout warn"><span class="label">Classic Observer bugs</span>
+<p><b>Dangling observer:</b> an observer is destroyed but the subject still holds its raw pointer, so the next notification calls a dead object. Fix: observers detach in their destructor (RAII), or the subject stores <code>std::weak_ptr&lt;Observer&gt;</code> and skips the expired ones.</p>
+<p><b>Modifying the list while notifying:</b> iterate over a copy, as above.</p>
+<p><b>Threads:</b> notifying from another thread needs a lock, and you should not hold it while calling observers (risk of deadlock).</p></div>
+</section>
+
+<section data-title="State">
+<h2>State</h2>
+<p><b>Intent:</b> let an object change its behaviour when its internal state changes, replacing a tangle of <code>if (state == ...)</code> checks scattered through every method. A turnstile is the classic example. Send events and watch it respond:</p>
+<div id="w-state"></div>
+<script type="text/x-cpp">
+// 1. Simplest: an enum and a switch. Fine for a few states.
+enum class State { Locked, Unlocked };
+class Turnstile {
+    State s_ = State::Locked;
+public:
+    void coin() { s_ = State::Unlocked; }
+    void push() { if (s_ == State::Unlocked) s_ = State::Locked; else alarm(); }
+};
+
+// 2. Classic State pattern: one class per state
+struct TurnstileState {
+    virtual std::unique_ptr<TurnstileState> coin() = 0;     // each state returns the NEXT state
+    virtual std::unique_ptr<TurnstileState> push() = 0;
+    virtual ~TurnstileState() = default;
+};
+
+// 3. Modern: std::variant of state types + std::visit; the compiler checks every state is handled.
+using StateV = std::variant<Locked, Unlocked>;
+</script>
+<p>Use a state machine whenever the valid operations depend on "what mode am I in": connection handling (connecting, connected, closing), parsers, protocol handlers and device controllers. Making transitions explicit also makes illegal states unrepresentable and easy to test.</p>
+</section>
+
+<section data-title="Other patterns worth recognising">
+<h2>Other patterns worth recognising</h2>
+<table>
+<tr><th>Pattern</th><th>Idea</th><th>Where you already see it in C++</th></tr>
+<tr><td><b>RAII</b></td><td>object owns a resource and releases it in its destructor</td><td><code>vector</code>, <code>unique_ptr</code>, <code>lock_guard</code></td></tr>
+<tr><td><b>Adapter</b></td><td>wrap an interface so it matches the one clients expect</td><td><code>std::stack</code> (adapts <code>deque</code>), wrapping a C library</td></tr>
+<tr><td><b>Decorator</b></td><td>wrap an object to add behaviour while keeping its interface</td><td>buffered/compressed stream wrappers, logging wrappers</td></tr>
+<tr><td><b>Proxy</b></td><td>a stand-in that controls access to another object</td><td><code>shared_ptr</code>, <code>vector&lt;bool&gt;::reference</code></td></tr>
+<tr><td><b>Command</b></td><td>turn a request into an object (queue it, undo it)</td><td>task queues of <code>std::function</code>, thread pools</td></tr>
+<tr><td><b>Iterator</b></td><td>traverse a collection without exposing its structure</td><td>the entire STL</td></tr>
+<tr><td><b>Visitor</b></td><td>add operations to a type hierarchy without changing it</td><td><code>std::visit</code> with <code>std::variant</code></td></tr>
+<tr><td><b>Builder</b></td><td>construct a complex object step by step</td><td>fluent config objects: <code>Req().url(u).timeout(5).build()</code></td></tr>
+<tr><td><b>PIMPL</b></td><td>hide implementation behind a pointer to keep headers stable and compile times low</td><td>library public headers</td></tr>
+<tr><td><b>CRTP</b></td><td>a class derives from a template instantiated with itself: static polymorphism</td><td>mix-ins, <code>std::enable_shared_from_this</code></td></tr>
+</table>
+<script type="text/x-cpp">
+// CRTP: compile-time polymorphism, no vtable
+template <typename Derived>
+struct Shape {
+    double area() const { return static_cast<const Derived*>(this)->areaImpl(); }
+};
+struct Circle : Shape<Circle> {
+    double r = 1;
+    double areaImpl() const { return 3.14159 * r * r; }
+};
+</script>
+</section>
+
+<section data-title="SOLID principles">
+<h2>SOLID principles</h2>
+<p>Patterns are tools; <b>SOLID</b> explains why they work. Interviewers love it as a follow-up.</p>
+<table>
+<tr><th></th><th>Principle</th><th>In one sentence</th><th>Pattern that serves it</th></tr>
+<tr><td><b>S</b></td><td>Single Responsibility</td><td>a class has one reason to change</td><td>split parsing, logic and I/O into separate classes</td></tr>
+<tr><td><b>O</b></td><td>Open/Closed</td><td>open for extension, closed for modification: add behaviour by adding code, not editing old code</td><td>Strategy, Factory registry, Decorator</td></tr>
+<tr><td><b>L</b></td><td>Liskov Substitution</td><td>a derived object must be usable wherever the base is expected without breaking correctness</td><td>correct inheritance hierarchies</td></tr>
+<tr><td><b>I</b></td><td>Interface Segregation</td><td>prefer several small interfaces over one fat one</td><td>narrow abstract classes</td></tr>
+<tr><td><b>D</b></td><td>Dependency Inversion</td><td>depend on abstractions, not concrete classes; inject dependencies</td><td>Strategy, Observer, dependency injection (instead of Singleton)</td></tr>
+</table>
+<p>More in your notes: <a href="../docs/04-templates-and-design-patterns/06-design-patterns/README.md">Module 4: Design Patterns</a> with <a href="../examples/04-templates-and-design-patterns/06-design-patterns/">runnable examples</a> for Singleton, State, Strategy and Observer.</p>
+</section>
+
+<section data-title="Interview cheat sheet">
+<h2>Interview cheat sheet</h2>
+<details class="ex"><summary>How do you make a Singleton thread-safe in C++?</summary><div><p>Use a function-local static (Meyers Singleton). Since C++11 its initialization is guaranteed thread-safe and happens exactly once. Alternatives are <code>std::call_once</code> with an <code>std::once_flag</code>, or creating it before threads start. Hand-written double-checked locking is easy to get wrong. Remember the object's own methods still need locking if they mutate shared state.</p></div></details>
+<details class="ex"><summary>What is wrong with Singleton?</summary><div><p>It is global mutable state with a nice name: hidden dependencies, tight coupling, hard to test or mock, awkward lifetime and destruction order, and a problem for multithreading. Prefer passing a reference (dependency injection) unless a single shared instance is truly inherent.</p></div></details>
+<details class="ex"><summary>Strategy vs State?</summary><div><p>Both delegate behaviour to a swappable object. Strategy: the client selects an interchangeable algorithm and strategies are independent. State: the context changes its behaviour as its own state changes, and transitions are driven by the states or context.</p></div></details>
+<details class="ex"><summary>What problems can Observer cause?</summary><div><p>Dangling observers (destroyed but still registered), modification of the observer list during notification, unexpected notification order, cascading updates and performance issues, and thread-safety issues. Fixes: RAII detach, <code>weak_ptr</code>, iterate over a copy, and do not hold locks while calling out.</p></div></details>
+<details class="ex"><summary>Why return <code>unique_ptr</code> from a factory?</summary><div><p>It expresses that the caller takes sole ownership, prevents leaks, and the caller can convert it to a <code>shared_ptr</code> when sharing is needed. Returning a raw owning pointer is ambiguous and error-prone.</p></div></details>
+<details class="ex"><summary>How do you replace a virtual-function Strategy in modern C++?</summary><div><p>With a callable: store a <code>std::function</code> (runtime flexibility) or take a template parameter (zero overhead, compile-time choice). A lambda becomes the strategy, and no class hierarchy is needed.</p></div></details>
+<details class="ex"><summary>What is the Open/Closed principle?</summary><div><p>Software entities should be open to extension but closed to modification: you add new behaviour (a new strategy, a new shape type registered in a factory) without editing the existing, tested code.</p></div></details>
+</section>
+</main>
+
+<script src="assets/app.js"></script>
+<script>
+CT.stepper('#st-singleton', {
+  title: 'Meyers Singleton: constructed once, shared forever',
+  code: String.raw`
+static Logger& instance() {
+    static Logger inst;
+    return inst;
+}
+
+Logger& a = Logger::instance();
+Logger& b = Logger::instance();
+`,
+  steps: [
+    { line: 6, mem: [], note: 'First call to <code>instance()</code>. No Logger exists yet.' },
+    { line: 2, mem: [{ n: 'inst @0x4000', t: 'Logger', v: 'constructed', k: 'static' }], out: 'Logger constructed\n',
+      note: 'Control reaches <code>static Logger inst;</code> for the <b>first time</b>, so the constructor runs now. The compiler guards this with a thread-safe flag.' },
+    { line: 3, mem: [{ n: 'inst @0x4000', t: 'Logger', v: 'constructed', k: 'static' }, { n: 'a', t: 'Logger&', v: '0x4000', p: 'inst' }],
+      note: 'The function returns a <b>reference</b> to the static object. The reference <b>a</b> is bound to it.' },
+    { line: 7, mem: [{ n: 'inst @0x4000', t: 'Logger', v: 'constructed', k: 'static' }, { n: 'a', t: 'Logger&', v: '0x4000', p: 'inst' }],
+      note: 'Second call. This time the flag says <code>inst</code> is already initialised, so the constructor line is <b>skipped</b>: nothing more is printed.' },
+    { line: 7, mem: [{ n: 'inst @0x4000', t: 'Logger', v: 'constructed', k: 'static' }, { n: 'a', t: 'Logger&', v: '0x4000', p: 'inst' }, { n: 'b', t: 'Logger&', v: '0x4000', p: 'inst' }],
+      note: '<b>a</b> and <b>b</b> refer to the very same object (same address). That is the Singleton guarantee. Because the copy operations are deleted, you cannot accidentally make a second one with <code>Logger c = a;</code>.' }
+  ]
+});
+
+(function () {
+  const root = document.getElementById('w-strategy');
+  root.className = 'widget';
+  const strategies = {
+    'Regular price': ['[](double p) { return p; }', (p) => p],
+    'Member (10% off)': ['[](double p) { return p * 0.90; }', (p) => p * 0.9],
+    'Black Friday (30% off)': ['[](double p) { return p * 0.70; }', (p) => p * 0.7],
+    'Flat 5 off (never below 0)': ['[](double p) { return std::max(0.0, p - 5); }', (p) => Math.max(0, p - 5)]
+  };
+  root.innerHTML = '<div class="w-head"><span class="tag">Try it</span>Swap the strategy at runtime</div><div class="w-body">' +
+    '<div class="pickrow"><label for="sp">Strategy:</label><select id="sp">' + Object.keys(strategies).map((k) => '<option>' + k + '</option>').join('') + '</select>' +
+    '<label for="spr">Price:</label><input id="spr" type="number" value="40" min="0" step="1" style="width:90px;padding:5px 8px;border-radius:8px;border:1px solid var(--border);background:var(--card);color:var(--fg)"></div>' +
+    '<figure class="code"><pre><code id="sc"></code></pre></figure><div class="result good" id="sr"></div></div>';
+  function show() {
+    const name = document.getElementById('sp').value;
+    const price = parseFloat(document.getElementById('spr').value) || 0;
+    const s = strategies[name];
+    document.getElementById('sc').innerHTML = CT.highlight('Checkout2 c(' + s[0] + ');\nc.total(' + price + ');');
+    document.getElementById('sr').innerHTML = 'Total: <b>' + s[1](price).toFixed(2) + '</b>. The <code>Checkout2</code> class is identical in every case; only the injected strategy changed.';
+  }
+  document.getElementById('sp').addEventListener('change', show);
+  document.getElementById('spr').addEventListener('input', show);
+  show();
+})();
+
+(function () {
+  const root = document.getElementById('w-observer');
+  root.className = 'widget';
+  const obs = [
+    { id: 'display', name: 'Display', on: true, react: (t) => 'Display shows ' + t + ' degrees' },
+    { id: 'logger', name: 'Logger', on: true, react: (t) => 'Logger wrote "temp=' + t + '" to the file' },
+    { id: 'alarm', name: 'Alarm', on: false, react: (t) => t > 30 ? 'ALARM! ' + t + ' is above 30' : 'Alarm: ' + t + ' is within limits' }
+  ];
+  let log = [];
+  root.innerHTML = '<div class="w-head"><span class="tag">Try it</span>Subject: Thermometer</div><div class="w-body">' +
+    '<div class="pickrow"><b>Observers attached:</b>' + obs.map((o) => '<label><input type="checkbox" data-o="' + o.id + '"' + (o.on ? ' checked' : '') + '> ' + o.name + '</label>').join('') + '</div>' +
+    '<div class="pickrow"><label for="ot">set(</label><input id="ot" type="number" value="25" style="width:80px;padding:5px 8px;border-radius:8px;border:1px solid var(--border);background:var(--card);color:var(--fg)"><label>)</label>' +
+    '<button class="btn sm" id="oset" type="button">Notify</button><button class="btn sm ghost" id="oclr" type="button">Clear log</button></div>' +
+    '<div class="st-out" id="olog" style="min-height:5em"></div></div>';
+  const logEl = document.getElementById('olog');
+  root.addEventListener('change', (e) => {
+    const id = e.target.getAttribute('data-o');
+    if (!id) return;
+    const o = obs.find((x) => x.id === id);
+    o.on = e.target.checked;
+    log.push((o.on ? 'subject.attach(&' : 'subject.detach(&') + o.id + ');');
+    render();
+  });
+  document.getElementById('oset').addEventListener('click', () => {
+    const t = parseFloat(document.getElementById('ot').value) || 0;
+    log.push('subject.set(' + t + ');');
+    const active = obs.filter((o) => o.on);
+    if (!active.length) log.push('   (no observers: nobody is told)');
+    active.forEach((o) => log.push('   -> ' + o.react(t)));
+    render();
+  });
+  document.getElementById('oclr').addEventListener('click', () => { log = []; render(); });
+  function render() { logEl.textContent = log.join('\n'); logEl.scrollTop = logEl.scrollHeight; }
+  render();
+})();
+
+(function () {
+  const root = document.getElementById('w-state');
+  root.className = 'widget';
+  const table = {
+    Locked:   { coin: ['Unlocked', 'unlock the arm'], push: ['Locked', 'ALARM: pay first'] },
+    Unlocked: { coin: ['Unlocked', 'thanks, already open'], push: ['Locked', 'arm turns, then locks again'] }
+  };
+  let state = 'Locked';
+  let log = ['start in state Locked'];
+  root.innerHTML = '<div class="w-head"><span class="tag">Try it</span>Turnstile state machine</div><div class="w-body">' +
+    '<div class="ts-state"><div class="cell chg" id="sstate"><div class="nm">current state</div><div class="vl"></div></div></div>' +
+    '<div class="pickrow" style="margin-top:10px"><button class="btn sm" data-e="coin" type="button">coin()</button><button class="btn sm" data-e="push" type="button">push()</button><button class="btn sm ghost" id="sreset" type="button">Reset</button></div>' +
+    '<table><tr><th>State</th><th>coin()</th><th>push()</th></tr>' +
+    Object.keys(table).map((s) => '<tr><td><b>' + s + '</b></td><td>&rarr; ' + table[s].coin[0] + ' (' + table[s].coin[1] + ')</td><td>&rarr; ' + table[s].push[0] + ' (' + table[s].push[1] + ')</td></tr>').join('') + '</table>' +
+    '<div class="st-out" id="slog" style="min-height:4em"></div></div>';
+  function render() {
+    root.querySelector('#sstate .vl').textContent = state;
+    root.querySelector('#slog').textContent = log.join('\n');
+  }
+  root.addEventListener('click', (e) => {
+    const b = e.target.closest('button');
+    if (!b) return;
+    if (b.id === 'sreset') { state = 'Locked'; log = ['start in state Locked']; render(); return; }
+    const ev = b.getAttribute('data-e');
+    if (!ev) return;
+    const t = table[state][ev];
+    log.push(state + ' + ' + ev + '() -> ' + t[0] + ': ' + t[1]);
+    state = t[0];
+    render();
+  });
+  render();
+})();
+</script>
+</body>
+</html>
