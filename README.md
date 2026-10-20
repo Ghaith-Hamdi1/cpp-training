@@ -11,6 +11,20 @@ This repo holds two separate C++ courses that cover much of the same ground:
 
 Use the training notes for a quick pass or the embedded-specific topics, and the recaps when you want a topic explained in depth. The table below shows where each topic appears in both.
 
+## Interactive study pages
+
+For hands-on learning there are seven interactive lessons, each with a quiz, in [`interactive/`](interactive/index.html). Clone the repo and open `interactive/index.html` in a browser (no install, works offline). GitHub shows `.html` files as source, so view them locally.
+
+| # | Lesson | Quiz |
+|---|---|---|
+| 1 | [C++ Basics and Pointers](interactive/01-basics.html) | [Quiz](interactive/01-basics-quiz.html) |
+| 2 | [Object-Oriented Programming](interactive/02-oop.html) | [Quiz](interactive/02-oop-quiz.html) |
+| 3 | [Core Language and Modern C++](interactive/03-core-language.html) | [Quiz](interactive/03-core-language-quiz.html) |
+| 4 | [The STL](interactive/04-stl.html) | [Quiz](interactive/04-stl-quiz.html) |
+| 5 | [Templates](interactive/05-templates.html) | [Quiz](interactive/05-templates-quiz.html) |
+| 6 | [Design Patterns](interactive/06-design-patterns.html) | [Quiz](interactive/06-design-patterns-quiz.html) |
+| 7 | [Multithreading](interactive/07-multithreading.html) | [Quiz](interactive/07-multithreading-quiz.html) |
+
 ## Where each topic is covered
 
 | Topic | Company training | learncpp.com recap |
