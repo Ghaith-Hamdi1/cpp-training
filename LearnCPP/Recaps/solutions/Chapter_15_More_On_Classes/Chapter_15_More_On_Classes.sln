@@ -1,0 +1,87 @@
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31903.59
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "01_ThisPointer", "01_ThisPointer\01_ThisPointer.vcxproj", "{09DF0D68-EA21-4B5F-AE1C-8CD82C9D7560}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "02_MethodChaining", "02_MethodChaining\02_MethodChaining.vcxproj", "{8CC4E515-97FD-47F4-A9FE-FF351EBCE49F}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "03_NestedTypes", "03_NestedTypes\03_NestedTypes.vcxproj", "{C5A3C0E3-7C85-4677-A4FA-887C9385B90F}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "04_Destructors", "04_Destructors\04_Destructors.vcxproj", "{C2CEE73F-4C36-4B48-A784-1218B54DD159}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "05_ClassTemplatesWithMembers", "05_ClassTemplatesWithMembers\05_ClassTemplatesWithMembers.vcxproj", "{EB1BB037-2C7B-41BF-A0DC-45D7E2C95EB9}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "06_StaticMemberVariables", "06_StaticMemberVariables\06_StaticMemberVariables.vcxproj", "{DD582E46-815F-4CDD-AE1A-F441FFCD29E9}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "07_StaticMemberFunctions", "07_StaticMemberFunctions\07_StaticMemberFunctions.vcxproj", "{08CF3D44-1FCA-4385-ADF9-72C68AE6EA48}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "08_FriendFunctions", "08_FriendFunctions\08_FriendFunctions.vcxproj", "{A43DF190-3E2B-473D-804A-11470DD238E8}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "09_FriendClasses", "09_FriendClasses\09_FriendClasses.vcxproj", "{71952DE4-46C2-468E-8F87-CC46B0B48966}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "10_RefQualifiers", "10_RefQualifiers\10_RefQualifiers.vcxproj", "{70885789-2D9D-4F04-893F-2E178FE5D8BF}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "11_Composition", "11_Composition\11_Composition.vcxproj", "{94126862-5C4D-4FFA-B6E0-6C52378E9AB3}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "12_CommonPitfalls", "12_CommonPitfalls\12_CommonPitfalls.vcxproj", "{6F6ED82A-2148-4177-924E-C3E36ECB1427}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|x64 = Debug|x64
+		Release|x64 = Release|x64
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{09DF0D68-EA21-4B5F-AE1C-8CD82C9D7560}.Debug|x64.ActiveCfg = Debug|x64
+		{09DF0D68-EA21-4B5F-AE1C-8CD82C9D7560}.Debug|x64.Build.0 = Debug|x64
+		{09DF0D68-EA21-4B5F-AE1C-8CD82C9D7560}.Release|x64.ActiveCfg = Release|x64
+		{09DF0D68-EA21-4B5F-AE1C-8CD82C9D7560}.Release|x64.Build.0 = Release|x64
+		{8CC4E515-97FD-47F4-A9FE-FF351EBCE49F}.Debug|x64.ActiveCfg = Debug|x64
+		{8CC4E515-97FD-47F4-A9FE-FF351EBCE49F}.Debug|x64.Build.0 = Debug|x64
+		{8CC4E515-97FD-47F4-A9FE-FF351EBCE49F}.Release|x64.ActiveCfg = Release|x64
+		{8CC4E515-97FD-47F4-A9FE-FF351EBCE49F}.Release|x64.Build.0 = Release|x64
+		{C5A3C0E3-7C85-4677-A4FA-887C9385B90F}.Debug|x64.ActiveCfg = Debug|x64
+		{C5A3C0E3-7C85-4677-A4FA-887C9385B90F}.Debug|x64.Build.0 = Debug|x64
+		{C5A3C0E3-7C85-4677-A4FA-887C9385B90F}.Release|x64.ActiveCfg = Release|x64
+		{C5A3C0E3-7C85-4677-A4FA-887C9385B90F}.Release|x64.Build.0 = Release|x64
+		{C2CEE73F-4C36-4B48-A784-1218B54DD159}.Debug|x64.ActiveCfg = Debug|x64
+		{C2CEE73F-4C36-4B48-A784-1218B54DD159}.Debug|x64.Build.0 = Debug|x64
+		{C2CEE73F-4C36-4B48-A784-1218B54DD159}.Release|x64.ActiveCfg = Release|x64
+		{C2CEE73F-4C36-4B48-A784-1218B54DD159}.Release|x64.Build.0 = Release|x64
+		{EB1BB037-2C7B-41BF-A0DC-45D7E2C95EB9}.Debug|x64.ActiveCfg = Debug|x64
+		{EB1BB037-2C7B-41BF-A0DC-45D7E2C95EB9}.Debug|x64.Build.0 = Debug|x64
+		{EB1BB037-2C7B-41BF-A0DC-45D7E2C95EB9}.Release|x64.ActiveCfg = Release|x64
+		{EB1BB037-2C7B-41BF-A0DC-45D7E2C95EB9}.Release|x64.Build.0 = Release|x64
+		{DD582E46-815F-4CDD-AE1A-F441FFCD29E9}.Debug|x64.ActiveCfg = Debug|x64
+		{DD582E46-815F-4CDD-AE1A-F441FFCD29E9}.Debug|x64.Build.0 = Debug|x64
+		{DD582E46-815F-4CDD-AE1A-F441FFCD29E9}.Release|x64.ActiveCfg = Release|x64
+		{DD582E46-815F-4CDD-AE1A-F441FFCD29E9}.Release|x64.Build.0 = Release|x64
+		{08CF3D44-1FCA-4385-ADF9-72C68AE6EA48}.Debug|x64.ActiveCfg = Debug|x64
+		{08CF3D44-1FCA-4385-ADF9-72C68AE6EA48}.Debug|x64.Build.0 = Debug|x64
+		{08CF3D44-1FCA-4385-ADF9-72C68AE6EA48}.Release|x64.ActiveCfg = Release|x64
+		{08CF3D44-1FCA-4385-ADF9-72C68AE6EA48}.Release|x64.Build.0 = Release|x64
+		{A43DF190-3E2B-473D-804A-11470DD238E8}.Debug|x64.ActiveCfg = Debug|x64
+		{A43DF190-3E2B-473D-804A-11470DD238E8}.Debug|x64.Build.0 = Debug|x64
+		{A43DF190-3E2B-473D-804A-11470DD238E8}.Release|x64.ActiveCfg = Release|x64
+		{A43DF190-3E2B-473D-804A-11470DD238E8}.Release|x64.Build.0 = Release|x64
+		{71952DE4-46C2-468E-8F87-CC46B0B48966}.Debug|x64.ActiveCfg = Debug|x64
+		{71952DE4-46C2-468E-8F87-CC46B0B48966}.Debug|x64.Build.0 = Debug|x64
+		{71952DE4-46C2-468E-8F87-CC46B0B48966}.Release|x64.ActiveCfg = Release|x64
+		{71952DE4-46C2-468E-8F87-CC46B0B48966}.Release|x64.Build.0 = Release|x64
+		{70885789-2D9D-4F04-893F-2E178FE5D8BF}.Debug|x64.ActiveCfg = Debug|x64
+		{70885789-2D9D-4F04-893F-2E178FE5D8BF}.Debug|x64.Build.0 = Debug|x64
+		{70885789-2D9D-4F04-893F-2E178FE5D8BF}.Release|x64.ActiveCfg = Release|x64
+		{70885789-2D9D-4F04-893F-2E178FE5D8BF}.Release|x64.Build.0 = Release|x64
+		{94126862-5C4D-4FFA-B6E0-6C52378E9AB3}.Debug|x64.ActiveCfg = Debug|x64
+		{94126862-5C4D-4FFA-B6E0-6C52378E9AB3}.Debug|x64.Build.0 = Debug|x64
+		{94126862-5C4D-4FFA-B6E0-6C52378E9AB3}.Release|x64.ActiveCfg = Release|x64
+		{94126862-5C4D-4FFA-B6E0-6C52378E9AB3}.Release|x64.Build.0 = Release|x64
+		{6F6ED82A-2148-4177-924E-C3E36ECB1427}.Debug|x64.ActiveCfg = Debug|x64
+		{6F6ED82A-2148-4177-924E-C3E36ECB1427}.Debug|x64.Build.0 = Debug|x64
+		{6F6ED82A-2148-4177-924E-C3E36ECB1427}.Release|x64.ActiveCfg = Release|x64
+		{6F6ED82A-2148-4177-924E-C3E36ECB1427}.Release|x64.Build.0 = Release|x64
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

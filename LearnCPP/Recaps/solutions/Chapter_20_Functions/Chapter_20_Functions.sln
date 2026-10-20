@@ -1,0 +1,87 @@
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31903.59
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "01_FunctionPointers", "01_FunctionPointers\01_FunctionPointers.vcxproj", "{9C4B4ED6-EE52-443E-8521-212F0680DF19}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "02_StdFunctionAndTypeAliases", "02_StdFunctionAndTypeAliases\02_StdFunctionAndTypeAliases.vcxproj", "{5482040D-0D23-41F4-927F-99DB4B374FFB}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "03_CallbackPattern", "03_CallbackPattern\03_CallbackPattern.vcxproj", "{66152B50-C7FD-4F81-86CC-76DB3A68A7A6}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "04_StackAndHeap", "04_StackAndHeap\04_StackAndHeap.vcxproj", "{A5E59BD6-9988-4B44-96E5-C990C704F5D1}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "05_Recursion", "05_Recursion\05_Recursion.vcxproj", "{31E3F62A-2A7D-46D4-A97F-913BB80711F0}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "06_CommandLineArguments", "06_CommandLineArguments\06_CommandLineArguments.vcxproj", "{6D11633A-B097-48F1-8E49-D87269335470}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "07_Ellipsis", "07_Ellipsis\07_Ellipsis.vcxproj", "{260F74A5-8659-4B46-AE74-ADD3D4B31093}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "08_LambdaBasics", "08_LambdaBasics\08_LambdaBasics.vcxproj", "{84A4C035-D1CD-437D-BDC1-8FBD1741DF5F}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "09_LambdaCaptureByValue", "09_LambdaCaptureByValue\09_LambdaCaptureByValue.vcxproj", "{99B03E08-7412-4369-A87D-54B0B245391C}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "10_LambdaCaptureByReference", "10_LambdaCaptureByReference\10_LambdaCaptureByReference.vcxproj", "{040E54D9-E3F4-421D-852E-99E492D0CF1C}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "11_GenericLambdas", "11_GenericLambdas\11_GenericLambdas.vcxproj", "{6345B10F-EC28-4952-8BFC-3ECF7111EC91}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "12_CommonPitfalls", "12_CommonPitfalls\12_CommonPitfalls.vcxproj", "{32AF1EC5-60FA-4315-AEEB-1862D0B91064}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|x64 = Debug|x64
+		Release|x64 = Release|x64
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{9C4B4ED6-EE52-443E-8521-212F0680DF19}.Debug|x64.ActiveCfg = Debug|x64
+		{9C4B4ED6-EE52-443E-8521-212F0680DF19}.Debug|x64.Build.0 = Debug|x64
+		{9C4B4ED6-EE52-443E-8521-212F0680DF19}.Release|x64.ActiveCfg = Release|x64
+		{9C4B4ED6-EE52-443E-8521-212F0680DF19}.Release|x64.Build.0 = Release|x64
+		{5482040D-0D23-41F4-927F-99DB4B374FFB}.Debug|x64.ActiveCfg = Debug|x64
+		{5482040D-0D23-41F4-927F-99DB4B374FFB}.Debug|x64.Build.0 = Debug|x64
+		{5482040D-0D23-41F4-927F-99DB4B374FFB}.Release|x64.ActiveCfg = Release|x64
+		{5482040D-0D23-41F4-927F-99DB4B374FFB}.Release|x64.Build.0 = Release|x64
+		{66152B50-C7FD-4F81-86CC-76DB3A68A7A6}.Debug|x64.ActiveCfg = Debug|x64
+		{66152B50-C7FD-4F81-86CC-76DB3A68A7A6}.Debug|x64.Build.0 = Debug|x64
+		{66152B50-C7FD-4F81-86CC-76DB3A68A7A6}.Release|x64.ActiveCfg = Release|x64
+		{66152B50-C7FD-4F81-86CC-76DB3A68A7A6}.Release|x64.Build.0 = Release|x64
+		{A5E59BD6-9988-4B44-96E5-C990C704F5D1}.Debug|x64.ActiveCfg = Debug|x64
+		{A5E59BD6-9988-4B44-96E5-C990C704F5D1}.Debug|x64.Build.0 = Debug|x64
+		{A5E59BD6-9988-4B44-96E5-C990C704F5D1}.Release|x64.ActiveCfg = Release|x64
+		{A5E59BD6-9988-4B44-96E5-C990C704F5D1}.Release|x64.Build.0 = Release|x64
+		{31E3F62A-2A7D-46D4-A97F-913BB80711F0}.Debug|x64.ActiveCfg = Debug|x64
+		{31E3F62A-2A7D-46D4-A97F-913BB80711F0}.Debug|x64.Build.0 = Debug|x64
+		{31E3F62A-2A7D-46D4-A97F-913BB80711F0}.Release|x64.ActiveCfg = Release|x64
+		{31E3F62A-2A7D-46D4-A97F-913BB80711F0}.Release|x64.Build.0 = Release|x64
+		{6D11633A-B097-48F1-8E49-D87269335470}.Debug|x64.ActiveCfg = Debug|x64
+		{6D11633A-B097-48F1-8E49-D87269335470}.Debug|x64.Build.0 = Debug|x64
+		{6D11633A-B097-48F1-8E49-D87269335470}.Release|x64.ActiveCfg = Release|x64
+		{6D11633A-B097-48F1-8E49-D87269335470}.Release|x64.Build.0 = Release|x64
+		{260F74A5-8659-4B46-AE74-ADD3D4B31093}.Debug|x64.ActiveCfg = Debug|x64
+		{260F74A5-8659-4B46-AE74-ADD3D4B31093}.Debug|x64.Build.0 = Debug|x64
+		{260F74A5-8659-4B46-AE74-ADD3D4B31093}.Release|x64.ActiveCfg = Release|x64
+		{260F74A5-8659-4B46-AE74-ADD3D4B31093}.Release|x64.Build.0 = Release|x64
+		{84A4C035-D1CD-437D-BDC1-8FBD1741DF5F}.Debug|x64.ActiveCfg = Debug|x64
+		{84A4C035-D1CD-437D-BDC1-8FBD1741DF5F}.Debug|x64.Build.0 = Debug|x64
+		{84A4C035-D1CD-437D-BDC1-8FBD1741DF5F}.Release|x64.ActiveCfg = Release|x64
+		{84A4C035-D1CD-437D-BDC1-8FBD1741DF5F}.Release|x64.Build.0 = Release|x64
+		{99B03E08-7412-4369-A87D-54B0B245391C}.Debug|x64.ActiveCfg = Debug|x64
+		{99B03E08-7412-4369-A87D-54B0B245391C}.Debug|x64.Build.0 = Debug|x64
+		{99B03E08-7412-4369-A87D-54B0B245391C}.Release|x64.ActiveCfg = Release|x64
+		{99B03E08-7412-4369-A87D-54B0B245391C}.Release|x64.Build.0 = Release|x64
+		{040E54D9-E3F4-421D-852E-99E492D0CF1C}.Debug|x64.ActiveCfg = Debug|x64
+		{040E54D9-E3F4-421D-852E-99E492D0CF1C}.Debug|x64.Build.0 = Debug|x64
+		{040E54D9-E3F4-421D-852E-99E492D0CF1C}.Release|x64.ActiveCfg = Release|x64
+		{040E54D9-E3F4-421D-852E-99E492D0CF1C}.Release|x64.Build.0 = Release|x64
+		{6345B10F-EC28-4952-8BFC-3ECF7111EC91}.Debug|x64.ActiveCfg = Debug|x64
+		{6345B10F-EC28-4952-8BFC-3ECF7111EC91}.Debug|x64.Build.0 = Debug|x64
+		{6345B10F-EC28-4952-8BFC-3ECF7111EC91}.Release|x64.ActiveCfg = Release|x64
+		{6345B10F-EC28-4952-8BFC-3ECF7111EC91}.Release|x64.Build.0 = Release|x64
+		{32AF1EC5-60FA-4315-AEEB-1862D0B91064}.Debug|x64.ActiveCfg = Debug|x64
+		{32AF1EC5-60FA-4315-AEEB-1862D0B91064}.Debug|x64.Build.0 = Debug|x64
+		{32AF1EC5-60FA-4315-AEEB-1862D0B91064}.Release|x64.ActiveCfg = Release|x64
+		{32AF1EC5-60FA-4315-AEEB-1862D0B91064}.Release|x64.Build.0 = Release|x64
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

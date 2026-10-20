@@ -1,0 +1,99 @@
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31903.59
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "01_OperatorOverloadingBasics", "01_OperatorOverloadingBasics\01_OperatorOverloadingBasics.vcxproj", "{2133B573-2496-4386-8195-BF822DF516A5}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "02_FriendFunctionOverloading", "02_FriendFunctionOverloading\02_FriendFunctionOverloading.vcxproj", "{04335705-395F-40C4-BA55-08609BD8F613}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "03_NormalFunctionOverloading", "03_NormalFunctionOverloading\03_NormalFunctionOverloading.vcxproj", "{4AB88835-C6F8-42C4-8CC9-F37A52121F02}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "04_IOOperatorOverloading", "04_IOOperatorOverloading\04_IOOperatorOverloading.vcxproj", "{194384DD-2FE2-4C85-9B32-1B3EE1A08EF4}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "05_MemberFunctionOverloading", "05_MemberFunctionOverloading\05_MemberFunctionOverloading.vcxproj", "{EE48F462-A3D5-4B01-969F-057914F68710}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "06_UnaryOperatorOverloading", "06_UnaryOperatorOverloading\06_UnaryOperatorOverloading.vcxproj", "{C0F9DF12-1E71-4D16-8C8D-30927198ACEA}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "07_ComparisonOperators", "07_ComparisonOperators\07_ComparisonOperators.vcxproj", "{B356289A-646B-4F96-AD35-713A48EE5F60}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "08_IncrementDecrementOperators", "08_IncrementDecrementOperators\08_IncrementDecrementOperators.vcxproj", "{7F751775-FB7C-4561-9AAD-18A426AB8F38}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "09_SubscriptOperator", "09_SubscriptOperator\09_SubscriptOperator.vcxproj", "{8AD68AEB-1330-4920-B8CF-AD180708FB9F}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "10_FunctionCallOperator", "10_FunctionCallOperator\10_FunctionCallOperator.vcxproj", "{4BCF7931-478F-4898-A0BD-F85A11262D0D}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "11_TypecastOverloading", "11_TypecastOverloading\11_TypecastOverloading.vcxproj", "{985FDB80-A844-4850-AEA3-E168FA3982A9}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "12_CopyAssignmentOperator", "12_CopyAssignmentOperator\12_CopyAssignmentOperator.vcxproj", "{EC13C218-D2B6-415E-8EA8-BC49AE302E2A}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "13_ShallowVsDeepCopy", "13_ShallowVsDeepCopy\13_ShallowVsDeepCopy.vcxproj", "{62B04092-CF56-433C-BADD-F163B8660768}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "14_OperatorsAndTemplates", "14_OperatorsAndTemplates\14_OperatorsAndTemplates.vcxproj", "{A1817D09-ED12-4697-BDE0-57A2D7EDBB73}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|x64 = Debug|x64
+		Release|x64 = Release|x64
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{2133B573-2496-4386-8195-BF822DF516A5}.Debug|x64.ActiveCfg = Debug|x64
+		{2133B573-2496-4386-8195-BF822DF516A5}.Debug|x64.Build.0 = Debug|x64
+		{2133B573-2496-4386-8195-BF822DF516A5}.Release|x64.ActiveCfg = Release|x64
+		{2133B573-2496-4386-8195-BF822DF516A5}.Release|x64.Build.0 = Release|x64
+		{04335705-395F-40C4-BA55-08609BD8F613}.Debug|x64.ActiveCfg = Debug|x64
+		{04335705-395F-40C4-BA55-08609BD8F613}.Debug|x64.Build.0 = Debug|x64
+		{04335705-395F-40C4-BA55-08609BD8F613}.Release|x64.ActiveCfg = Release|x64
+		{04335705-395F-40C4-BA55-08609BD8F613}.Release|x64.Build.0 = Release|x64
+		{4AB88835-C6F8-42C4-8CC9-F37A52121F02}.Debug|x64.ActiveCfg = Debug|x64
+		{4AB88835-C6F8-42C4-8CC9-F37A52121F02}.Debug|x64.Build.0 = Debug|x64
+		{4AB88835-C6F8-42C4-8CC9-F37A52121F02}.Release|x64.ActiveCfg = Release|x64
+		{4AB88835-C6F8-42C4-8CC9-F37A52121F02}.Release|x64.Build.0 = Release|x64
+		{194384DD-2FE2-4C85-9B32-1B3EE1A08EF4}.Debug|x64.ActiveCfg = Debug|x64
+		{194384DD-2FE2-4C85-9B32-1B3EE1A08EF4}.Debug|x64.Build.0 = Debug|x64
+		{194384DD-2FE2-4C85-9B32-1B3EE1A08EF4}.Release|x64.ActiveCfg = Release|x64
+		{194384DD-2FE2-4C85-9B32-1B3EE1A08EF4}.Release|x64.Build.0 = Release|x64
+		{EE48F462-A3D5-4B01-969F-057914F68710}.Debug|x64.ActiveCfg = Debug|x64
+		{EE48F462-A3D5-4B01-969F-057914F68710}.Debug|x64.Build.0 = Debug|x64
+		{EE48F462-A3D5-4B01-969F-057914F68710}.Release|x64.ActiveCfg = Release|x64
+		{EE48F462-A3D5-4B01-969F-057914F68710}.Release|x64.Build.0 = Release|x64
+		{C0F9DF12-1E71-4D16-8C8D-30927198ACEA}.Debug|x64.ActiveCfg = Debug|x64
+		{C0F9DF12-1E71-4D16-8C8D-30927198ACEA}.Debug|x64.Build.0 = Debug|x64
+		{C0F9DF12-1E71-4D16-8C8D-30927198ACEA}.Release|x64.ActiveCfg = Release|x64
+		{C0F9DF12-1E71-4D16-8C8D-30927198ACEA}.Release|x64.Build.0 = Release|x64
+		{B356289A-646B-4F96-AD35-713A48EE5F60}.Debug|x64.ActiveCfg = Debug|x64
+		{B356289A-646B-4F96-AD35-713A48EE5F60}.Debug|x64.Build.0 = Debug|x64
+		{B356289A-646B-4F96-AD35-713A48EE5F60}.Release|x64.ActiveCfg = Release|x64
+		{B356289A-646B-4F96-AD35-713A48EE5F60}.Release|x64.Build.0 = Release|x64
+		{7F751775-FB7C-4561-9AAD-18A426AB8F38}.Debug|x64.ActiveCfg = Debug|x64
+		{7F751775-FB7C-4561-9AAD-18A426AB8F38}.Debug|x64.Build.0 = Debug|x64
+		{7F751775-FB7C-4561-9AAD-18A426AB8F38}.Release|x64.ActiveCfg = Release|x64
+		{7F751775-FB7C-4561-9AAD-18A426AB8F38}.Release|x64.Build.0 = Release|x64
+		{8AD68AEB-1330-4920-B8CF-AD180708FB9F}.Debug|x64.ActiveCfg = Debug|x64
+		{8AD68AEB-1330-4920-B8CF-AD180708FB9F}.Debug|x64.Build.0 = Debug|x64
+		{8AD68AEB-1330-4920-B8CF-AD180708FB9F}.Release|x64.ActiveCfg = Release|x64
+		{8AD68AEB-1330-4920-B8CF-AD180708FB9F}.Release|x64.Build.0 = Release|x64
+		{4BCF7931-478F-4898-A0BD-F85A11262D0D}.Debug|x64.ActiveCfg = Debug|x64
+		{4BCF7931-478F-4898-A0BD-F85A11262D0D}.Debug|x64.Build.0 = Debug|x64
+		{4BCF7931-478F-4898-A0BD-F85A11262D0D}.Release|x64.ActiveCfg = Release|x64
+		{4BCF7931-478F-4898-A0BD-F85A11262D0D}.Release|x64.Build.0 = Release|x64
+		{985FDB80-A844-4850-AEA3-E168FA3982A9}.Debug|x64.ActiveCfg = Debug|x64
+		{985FDB80-A844-4850-AEA3-E168FA3982A9}.Debug|x64.Build.0 = Debug|x64
+		{985FDB80-A844-4850-AEA3-E168FA3982A9}.Release|x64.ActiveCfg = Release|x64
+		{985FDB80-A844-4850-AEA3-E168FA3982A9}.Release|x64.Build.0 = Release|x64
+		{EC13C218-D2B6-415E-8EA8-BC49AE302E2A}.Debug|x64.ActiveCfg = Debug|x64
+		{EC13C218-D2B6-415E-8EA8-BC49AE302E2A}.Debug|x64.Build.0 = Debug|x64
+		{EC13C218-D2B6-415E-8EA8-BC49AE302E2A}.Release|x64.ActiveCfg = Release|x64
+		{EC13C218-D2B6-415E-8EA8-BC49AE302E2A}.Release|x64.Build.0 = Release|x64
+		{62B04092-CF56-433C-BADD-F163B8660768}.Debug|x64.ActiveCfg = Debug|x64
+		{62B04092-CF56-433C-BADD-F163B8660768}.Debug|x64.Build.0 = Debug|x64
+		{62B04092-CF56-433C-BADD-F163B8660768}.Release|x64.ActiveCfg = Release|x64
+		{62B04092-CF56-433C-BADD-F163B8660768}.Release|x64.Build.0 = Release|x64
+		{A1817D09-ED12-4697-BDE0-57A2D7EDBB73}.Debug|x64.ActiveCfg = Debug|x64
+		{A1817D09-ED12-4697-BDE0-57A2D7EDBB73}.Debug|x64.Build.0 = Debug|x64
+		{A1817D09-ED12-4697-BDE0-57A2D7EDBB73}.Release|x64.ActiveCfg = Release|x64
+		{A1817D09-ED12-4697-BDE0-57A2D7EDBB73}.Release|x64.Build.0 = Release|x64
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

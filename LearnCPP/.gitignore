@@ -1,0 +1,5 @@
+.vs/
+*.tlog
+*.obj
+Debug/ 
+*.vcxproj.user
