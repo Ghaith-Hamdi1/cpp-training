@@ -209,7 +209,7 @@
       '<button class="btn sm ghost" data-a="reset" type="button">Reset</button><span class="info"></span></div>';
     let i = -1;
     const N = cfg.steps.length;
-    const GROUPS = [['stack', 'Stack'], ['heap', 'Heap'], ['static', 'Static / global']];
+    const GROUPS = [['stack', 'Stack'], ['heap', 'Heap'], ['static', 'Static / global'], ['call', 'Call stack'], ['inst', 'Compiler-generated functions']];
 
     function render() {
       const s = i >= 0 ? cfg.steps[i] : null;
