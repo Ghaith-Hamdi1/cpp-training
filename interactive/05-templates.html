@@ -94,6 +94,17 @@ struct Printer<T*> {                       // PARTIAL specialization: any pointe
 <h2>Deduction and forwarding references</h2>
 <p>How <code>T</code> is deduced depends on how the parameter is written. The most important case is <code>T&amp;&amp;</code> <b>in a function template</b>: it is <i>not</i> an rvalue reference, it is a <b>forwarding reference</b> (also called a universal reference) that binds to <i>anything</i> and remembers whether it was an lvalue or rvalue. Explore the rules:</p>
 <div id="w-deduce"></div>
+<h3>Is it really a forwarding reference?</h3>
+<p>Only when the type is deduced for <i>that</i> function and the form is exactly <code>T&amp;&amp;</code> (or <code>auto&amp;&amp;</code>). Everything else spelled <code>&amp;&amp;</code> is an ordinary rvalue reference:</p>
+<table>
+<tr><th>Declaration</th><th>Forwarding reference?</th></tr>
+<tr><td><code>template&lt;class T&gt; void f(T&amp;&amp; x)</code></td><td>yes: <code>T</code> is deduced for <code>f</code></td></tr>
+<tr><td><code>auto&amp;&amp; x = expr;</code></td><td>yes</td></tr>
+<tr><td><code>template&lt;class T&gt; void f(std::vector&lt;T&gt;&amp;&amp; v)</code></td><td>no: not exactly <code>T&amp;&amp;</code>, so it binds rvalues only</td></tr>
+<tr><td><code>template&lt;class T&gt; void f(const T&amp;&amp; x)</code></td><td>no: <code>const</code> disqualifies it</td></tr>
+<tr><td><code>template&lt;class T&gt; struct S { void f(T&amp;&amp; x); };</code></td><td>no: <code>T</code> is fixed by the class, so nothing is deduced for <code>f</code></td></tr>
+<tr><td><code>void f(Widget&amp;&amp; w)</code></td><td>no: a plain rvalue reference</td></tr>
+</table>
 <h3>Reference collapsing</h3>
 <p>Deducing <code>T = int&amp;</code> for <code>T&amp;&amp;</code> would mean a "reference to reference", which C++ resolves with a simple rule: <b>if either is an lvalue reference, the result is an lvalue reference; only <code>&amp;&amp; + &amp;&amp;</code> stays an rvalue reference.</b></p>
 <table>

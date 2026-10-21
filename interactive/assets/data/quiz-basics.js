@@ -129,6 +129,13 @@ int c = 3.7;   // (3)`,
 
     { q: 'Besides allocating memory, what does `new` do that `malloc` does not?',
       opts: ['Nothing, they are identical', 'It calls the constructor and returns a correctly typed pointer', 'It zero-fills the memory', 'It allocates on the stack'], a: 1,
-      why: '`new` allocates, then constructs the object, and throws `std::bad_alloc` on failure. `malloc` returns raw uninitialized bytes (`void*`) and returns null on failure.' }
+      why: '`new` allocates, then constructs the object, and throws `std::bad_alloc` on failure. `malloc` returns raw uninitialized bytes (`void*`) and returns null on failure.' },
+    { q: 'A function needs to read a run of ints. What is the safest way to pass it?',
+      opts: ['A pointer and a separate count: `void f(const int* p, int n)`', 'A `std::span<const int>`, or a `const std::vector<int>&`', 'A pointer only, and the function finds the end itself', 'A global array'], a: 1,
+      why: 'A pointer does not know how many elements it points to, and a (pointer, count) pair lets the two disagree. A span (C++20) or a container reference carries the size with the data and accepts arrays and vectors without copying.' },
+
+    { q: 'When should a function take a pointer parameter instead of a reference?',
+      opts: ['Always, because pointers are faster', 'When "no object" (nullptr) is a valid argument, and then it must test for nullptr', 'Whenever the object is large', 'Never: references can do everything a pointer can'], a: 1,
+      why: 'A reference must refer to a real object, so callers can rely on it. Use a pointer only when passing nothing is meaningful. Prefer a value for tiny types and a (const) reference otherwise.' }
   ]
 };

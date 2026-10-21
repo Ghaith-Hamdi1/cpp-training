@@ -93,6 +93,9 @@ f(1, 2, 3, 4);`,
 
     { q: 'Which is the best description of templates compared with virtual functions?',
       opts: ['Templates are runtime polymorphism', 'Templates give compile-time (static) polymorphism with no runtime indirection; virtual functions give runtime polymorphism via a vtable', 'They are the same', 'Virtual functions are faster because they are inlined'], a: 1,
-      why: 'With templates the concrete type is resolved when compiling (so calls can be inlined), but the set of types is fixed then. Virtual dispatch decides at runtime at the cost of an indirection.' }
+      why: 'With templates the concrete type is resolved when compiling (so calls can be inlined), but the set of types is fixed then. Virtual dispatch decides at runtime at the cost of an indirection.' },
+    { q: 'Which of these declarations is a forwarding (universal) reference?',
+      opts: ['`template <class T> void f(T&& x);`', '`template <class T> void f(const T&& x);`', '`template <class T> void f(std::vector<T>&& v);`', '`void f(Widget&& w);`'], a: 0,
+      why: 'It must be exactly `T&&` (or `auto&&`) with the type deduced for that function. A `const` qualifier, a wrapper such as `vector<T>`, a fixed type like `Widget`, or a `T` fixed by the enclosing class all make it an ordinary rvalue reference.' }
   ]
 };

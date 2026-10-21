@@ -120,6 +120,9 @@ void byConstRef(const std::string& s) { }    // original, read-only, no copy
 <tr><td>read a small value (int, double, char, pointer)</td><td>by value: <code>int n</code></td></tr>
 <tr><td>read a large object without copying it</td><td>by const reference: <code>const std::string&amp; s</code></td></tr>
 <tr><td>modify the caller's variable</td><td>by reference: <code>int&amp; n</code></td></tr>
+<tr><td>accept "no object" as a valid argument</td><td>by pointer: <code>Widget* w</code>, and test it for <code>nullptr</code></td></tr>
+<tr><td>pass a run of elements</td><td><code>std::span&lt;int&gt;</code> (C++20) or <code>const std::vector&lt;int&gt;&amp;</code>, not a pointer plus a count</td></tr>
+<tr><td>get a result back</td><td>return it by value; big objects such as <code>std::vector</code> are moved, not copied, so no out-parameter is needed</td></tr>
 </table>
 <details class="ex"><summary><span class="ex-tag">Predict</span>What does this print?</summary><div>
 <script type="text/x-cpp">
@@ -178,6 +181,7 @@ std::cout << *(p + 1); // 20   (p + 1 advances by sizeof(int) bytes)
 std::cout << p[2];     // 30   p[i] is exactly *(p + i)
 </script>
 <div class="callout warn"><span class="label">Careful</span>Never dereference <code>nullptr</code> and never read past the end of an array. Both are undefined behavior. C++ will not stop you.</div>
+<div class="callout tip"><span class="label">What a pointer does not know</span>A pointer holds an address and a type, and nothing else. It does not know <b>how many</b> elements it points to, or <b>who</b> must free them, which is the root of most pointer bugs. It is also not an integer: <code>int*</code> and <code>char*</code> are different types and the compiler refuses to mix them, because writing an <code>int</code> through a <code>char*</code> would trample the neighbouring memory.</div>
 <div class="callout interview"><span class="label">Interview angle</span>"What is the difference between <code>NULL</code> and <code>nullptr</code>?" <code>NULL</code> is the integer 0 in disguise, so <code>f(NULL)</code> can call <code>f(int)</code> instead of <code>f(char*)</code>. <code>nullptr</code> has its own type and only converts to pointers.</div>
 </section>
 
@@ -268,6 +272,7 @@ char s[] = "hi";            // 3 chars: 'h', 'i', and a terminating '\0'
 <tr><td><code>int a[N]</code></td><td><code>std::array&lt;int, N&gt;</code></td><td>knows its size, no decay, same speed</td></tr>
 <tr><td><code>new int[n]</code></td><td><code>std::vector&lt;int&gt;</code></td><td>grows, frees itself, <code>.at(i)</code> bounds-checks</td></tr>
 <tr><td><code>char*</code> strings</td><td><code>std::string</code></td><td>owns its memory, safe copy, <code>+</code>, <code>.size()</code>, <code>.find()</code></td></tr>
+<tr><td>pointer plus a count</td><td><code>std::span&lt;int&gt;</code> (C++20)</td><td>a non-owning view that remembers its size; accepts an array or a vector without copying</td></tr>
 </table>
 <script type="text/x-cpp">
 std::string s = "hello";
