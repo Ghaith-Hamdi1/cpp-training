@@ -56,6 +56,28 @@ These are the ownership and memory chapters that every other C++ topic builds on
 | 21.1 to 21.2, 21.5 Standard algorithms, function objects, sorting and searching | 604 to 613 and 620 to 622 | 617 to 626 and 633 to 635 | 4. Algorithms; 3. Lambdas |
 | 9.11 String streams | 283 to 284 | 296 to 297 | 8. Strings, regex and time |
 
+## Special focus: pointers
+
+Pointers run through Part III of the book. It introduces them to explain how `vector` works underneath, then steers you toward safer alternatives. Most of these sections are already in the tiers above. This is the same material in the order that builds the pointer story, with what each part teaches. Matching lesson: **1. C++ Basics and Pointers** (Pointers from scratch, References, `const` and pointers, Dynamic memory) and **3. Core Language** (RAII, Smart pointers).
+
+| Step | Book section | Printed pages | PDF pages | What it teaches |
+|---|---|---|---|---|
+| 1 | 15.3 Memory, addresses and pointers | 439 to 441 | 452 to 454 | Memory is numbered bytes. A pointer holds an address; `&` takes it and `*` dereferences it. A pointer is not an integer, and pointers to different types cannot be assigned to each other, because that would silently corrupt memory. `sizeof` and why `sizeof(vector)` does not count the elements (15.3.1, up to page 442). |
+| 2 | 15.4 Free store and pointers | 442 to 446 | 455 to 459 | The memory layout (code, static data, stack, free store). `new` returns a pointer to the first element, and **a pointer does not know how many elements it points to**. Indexing with `p[i]` is unchecked. Always initialize pointers; `new` leaves built-in types uninitialized. `nullptr` and `if (p)`. `delete` versus `delete[]`, memory leaks, and deleting twice. |
+| 3 | 15.5 Destructors | 447 to 450 | 460 to 463 | A constructor acquires a resource and the destructor releases it. Generated destructors call the members' destructors. **Virtual destructors**, with the rule that a class with a virtual function needs one. |
+| 4 | 16.1 Arrays and pointer arithmetic | 464 to 467 | 477 to 480 | Arrays on the stack, in static storage and on the free store. A pointer to an array points only to its first element. `p += 2`, negative subscripts, and that out-of-range access is not detected. The book prefers `vector` throughout. |
+| 5 | 16.2 Pointers and references | 468 to 470 | 481 to 483 | A side-by-side comparison. A reference cannot be re-bound, so `r = x2` assigns a value. Parameter rules: return small results by value, use a pointer only when `nullptr` is a valid argument, otherwise use a reference. Do not pass a (pointer, count) pair; pass a `span`. |
+| 6 | 16.3 to 16.4 C-style strings and alternatives to pointers | 471 to 474 | 484 to 487 | Zero-terminated strings. The "don't use raw pointers" list: containers, `string`, `unique_ptr` and `shared_ptr` for ownership, **`span`** for a non-owned sequence, **`not_null`** for pointer arguments that must not be null. |
+| 7 | 18.5 Resource-management pointers | 537 to 540 | 550 to 553 | Return by moving instead of returning a free-store pointer ("who deletes it?"), then `unique_ptr` and `shared_ptr`. |
+| optional | 15.8 The `this` pointer | 456 to 460 | 469 to 473 | Turning a linked list's free functions into member functions. |
+
+**If you only have time for part of it:** read steps 2, 3 and 5. They give the clearest explanations in the book of why raw pointers are error-prone and how pointers differ from references.
+
+**Key ideas to take away**
+- A pointer is a value (an address) plus a type. It carries no length and no ownership information.
+- Raw pointers cause most "mysterious crash" bugs: uninitialized pointers, going out of range, dangling pointers after `delete`, and double `delete`.
+- The modern answer is to match the tool to the job: `vector`/`string` for collections, `unique_ptr`/`shared_ptr` for owning, `span` for viewing a sequence, a reference when "no object" is not allowed, and a pointer only when `nullptr` is a meaningful value.
+
 ## Skip for interview preparation
 
 - Chapter 1 (hello world and the build process, which the first lesson summarises) and chapters 5 and 6 (building a calculator parser).
