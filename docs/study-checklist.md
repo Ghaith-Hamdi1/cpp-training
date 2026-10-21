@@ -41,6 +41,7 @@ RAII, move semantics, smart pointers, lambdas, exceptions. Lesson: [03-core-lang
 - [ ] RAII: the central idea (step through the stack unwinding)
 - [ ] Lvalues, rvalues and references
 - [ ] Move semantics (step through copy versus move)
+- [ ] Optional, book: *Effective Modern C++* Items 23, 25 and 29 on `std::move`, `std::forward` and when moves are not cheap (PDF pages 176 to 182, 186 to 195 and 221 to 225, about 22 pages). See the [move semantics path](effective-modern-cpp-reading-guide.md#special-focus-move-semantics-and-perfect-forwarding)
 - [ ] Smart pointers (step through the `shared_ptr` count)
 - [ ] Modern syntax tour, then Lambdas
 - [ ] Exceptions and exception safety
@@ -97,14 +98,33 @@ The job description mentions production bugs, unit tests and mentoring. Have one
 - [ ] A time you helped or guided a teammate
 - [ ] A question or two to ask the interviewers (for example how they test changes, and how the teams across sites collaborate)
 
+## Move semantics deep dive (after the interview)
+
+Not needed for Thursday. When you want to master move semantics, follow the two guides below. The Josuttis book covers what Meyers leaves out: the moved-from state, value categories and writing move operations. About 75 pages of the Josuttis book plus a few Meyers items.
+
+- [Effective Modern C++ move semantics path](effective-modern-cpp-reading-guide.md#special-focus-move-semantics-and-perfect-forwarding) (`effective.pdf`)
+- [C++ Move Semantics reading guide, Tier 1](move-semantics-complete-guide-reading-guide.md#tier-1-read-these-first-about-75-pages) (`semant.pdf`)
+
+- [ ] Meyers Item 17, special member function generation (PDF pages 127 to 133)
+- [ ] Meyers Items 24 and 28, universal references and reference collapsing (PDF pages 182 to 186 and 215 to 221)
+- [ ] Josuttis chapter 2, core features including moved-from objects (PDF pages 43 to 52)
+- [ ] Josuttis 3.1 and 3.3 to 3.4, the rules for special member functions and the Rule of Five or Three (PDF pages 53 to 58 and 66 to 76)
+- [ ] Josuttis 6.1 to 6.2, moved-from states (PDF pages 107 to 115)
+- [ ] Josuttis 7.1 and 7.4, `noexcept` and when to use it (PDF pages 125 to 134 and 140 to 141)
+- [ ] Josuttis 8.1.2 to 8.1.3 and 8.4 to 8.5, value categories (PDF pages 145 to 148 and 153 to 154)
+- [ ] Josuttis 9.1 to 9.3, perfect forwarding and universal references (PDF pages 159 to 166)
+- [ ] Self-check from memory: write a class with a `noexcept` move constructor and move assignment, say what state its moved-from object is in, and explain the `const` trap and why `return std::move(local)` is a mistake
+
 ---
 
 ## Books: only to fill gaps
 
-Do not read either book front to back. Use the reading guides to find the few sections you need:
+Do not read any of these books front to back. Use the reading guides to find the few sections you need:
 
 - Threading: [concurrency-in-action-reading-guide.md](concurrency-in-action-reading-guide.md) (`thread.pdf`; Tier 1 is about 47 pages)
 - Foundations (pointers, OOP, templates, STL): [programming-principles-and-practice-reading-guide.md](programming-principles-and-practice-reading-guide.md) (`P_P_P.pdf`)
+- Modern C++ items: [effective-modern-cpp-reading-guide.md](effective-modern-cpp-reading-guide.md) (`effective.pdf`; Tier 1 is about 85 pages)
+- Move semantics in depth: [move-semantics-complete-guide-reading-guide.md](move-semantics-complete-guide-reading-guide.md) (`semant.pdf`; Tier 1 is about 75 pages)
 
 ## Optional extras, only if you finish early
 
