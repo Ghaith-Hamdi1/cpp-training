@@ -39,5 +39,20 @@ for (const f of readdirSync(dataDir).filter((n) => n.startsWith('quiz-'))) {
   });
 }
 
+
+// Every quiz question's sec must be a section id that exists in its lesson (the assessment links to it).
+const lessonOf = { basics: '01-basics', oop: '02-oop', core: '03-core-language', stl: '04-stl', templates: '05-templates', patterns: '06-design-patterns', threads: '07-multithreading', strings: '08-strings-regex-time', compiletime: '09-compile-time', rules: '10-coding-rules' };
+for (const [topic, lesson] of Object.entries(lessonOf)) {
+  const html = readFileSync(join(root, lesson + '.html'), 'utf8');
+  const main = (html.match(/<main[^>]*>([\s\S]*)<\/main>/) || [, ''])[1];
+  const ids = new Set([...main.matchAll(/<section([^>]*)>/g)].map((m, i) => (m[1].match(/\sid="([^"]+)"/) || [, 's' + (i + 1)])[1]));
+  const ctx = { CT: { quizData: {} } };
+  vm.runInNewContext(readFileSync(join(dataDir, 'quiz-' + topic + '.js'), 'utf8'), ctx);
+  ctx.CT.quizData[topic].questions.forEach((q, i) => {
+    if (!q.sec) err('quiz-' + topic + '.js #' + (i + 1) + ': missing sec');
+    else if (!ids.has(q.sec)) err('quiz-' + topic + '.js #' + (i + 1) + ': sec "' + q.sec + '" is not a section of ' + lesson + '.html');
+  });
+}
+
 if (errors.length) { console.error(errors.join('\n')); process.exit(1); }
 console.log('interactive/: all checks passed');

@@ -419,3 +419,33 @@ main:not(.last-page) > .pager { display: none; }
 .mock-a > :first-child { margin-top: 0; }
 .mock-a > :last-child { margin-bottom: 0; }
 .done[hidden] { display: none; }
+.resume { display: grid; grid-template-columns: 1fr auto; gap: 2px 12px; align-items: center; margin: 18px 0 12px; padding: 14px 18px; border-radius: 12px; background: var(--accent); color: var(--accent-fg); text-decoration: none; }
+.resume:hover { filter: brightness(1.08); }
+.resume small { grid-column: 1; font-size: 0.75rem; letter-spacing: 0.06em; text-transform: uppercase; opacity: 0.85; }
+.resume b { grid-column: 1; font-size: 1.1rem; }
+.resume span { grid-column: 1; opacity: 0.9; }
+.resume i { grid-column: 2; grid-row: 1 / span 3; font-style: normal; font-size: 1.6rem; }
+.tools { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 12px; margin: 12px 0 8px; }
+.tool { display: flex; flex-direction: column; gap: 4px; padding: 14px 16px; border: 1px solid var(--border); border-radius: 12px; background: var(--card); color: var(--fg); text-decoration: none; }
+.tool:hover { border-color: var(--accent); background: var(--accent-soft); }
+.tool b { color: var(--accent); }
+.tool span { color: var(--muted); font-size: 0.9rem; }
+.opt.picked { border-color: var(--accent); background: var(--accent-soft); }
+.opt.picked .k { color: var(--accent); }
+.anav { margin-top: 14px; }
+.anav .btn[disabled] { opacity: 0.45; cursor: default; }
+.qdots { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 16px; }
+.qdot { min-width: 32px; padding: 4px 6px; border: 1px solid var(--border); border-radius: 6px; background: var(--card); color: var(--muted); font: inherit; font-size: 0.82rem; cursor: pointer; }
+.qdot.done { border-color: var(--accent); color: var(--fg); }
+.qdot.cur { background: var(--accent); border-color: var(--accent); color: var(--accent-fg); }
+.seclist { list-style: none; padding: 0; margin: 8px 0 16px; }
+.seclist li { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 6px 12px; padding: 8px 12px; margin: 6px 0; border: 1px solid var(--border); border-radius: 8px; background: var(--card); }
+.seclist .miss-sec { border-left: 4px solid var(--bad); }
+.seclist .ok-sec { border-left: 4px solid var(--good); }
+.seclist span { color: var(--muted); font-size: 0.88rem; }
+.aq { margin: 8px 0; border: 1px solid var(--border); border-radius: 8px; background: var(--card); }
+.aq summary { padding: 8px 12px; cursor: pointer; font-weight: 600; }
+.aq > div { padding: 0 14px 12px; display: grid; gap: 6px; }
+.aq .mark { display: inline-block; width: 1.2em; font-weight: 700; }
+.aq.good .mark { color: var(--good); }
+.aq.bad .mark { color: var(--bad); }

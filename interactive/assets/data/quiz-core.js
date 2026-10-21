@@ -2,11 +2,11 @@
 CT.quizData.core = {
   id: 'core',
   questions: [
-    { q: 'What does RAII stand for, and what is its core idea?',
+    { sec: 's1', q: 'What does RAII stand for, and what is its core idea?',
       opts: ['Resource Allocation Is Immediate: allocate everything at program start', 'Resource Acquisition Is Initialization: tie a resource\'s lifetime to an object so the destructor always releases it', 'Run At Initialization Instantly: run code before main', 'Reference And Instance Isolation: separate objects from references'], a: 1,
       why: 'Acquire in the constructor, release in the destructor. Because destructors run on scope exit, even during exceptions, resources cannot leak.' },
 
-    { q: 'What is the output?',
+    { sec: 's7', q: 'What is the output?',
       code: String.raw`
 struct Guard {
     Guard()  { std::cout << "open "; }
@@ -22,15 +22,15 @@ int main() {
       opts: ['open caught', 'open close caught', 'open caught close', 'caught'], a: 1,
       why: 'Stack unwinding destroys `g` (printing "close") while the exception propagates out of `f`, before the catch block runs.' },
 
-    { q: 'What does `std::move(x)` do?',
+    { sec: 's3', q: 'What does `std::move(x)` do?',
       opts: ['Moves x\'s data to a new memory location', 'Casts x to an rvalue reference so a move constructor/assignment can be used; it moves nothing by itself', 'Deletes x', 'Copies x and clears the original'], a: 1,
       why: '`std::move` is just `static_cast<T&&>(x)`. The actual transfer happens in whichever move constructor or move assignment operator is then selected.' },
 
-    { q: 'After `std::vector<int> b = std::move(a);`, what may you safely do with `a`?',
+    { sec: 's3', q: 'After `std::vector<int> b = std::move(a);`, what may you safely do with `a`?',
       opts: ['Read a[0]', 'Call a.size() and trust it equals the old size', 'Destroy it or assign a new value to it', 'Nothing, the program is undefined'], a: 2,
       why: 'A moved-from object is valid but unspecified: it is safe to destroy or assign to, but you should not rely on its contents.' },
 
-    { q: 'Which line fails to compile?',
+    { sec: 's4', q: 'Which line fails to compile?',
       code: String.raw`
 auto p = std::make_unique<int>(5);   // (1)
 auto q = p;                          // (2)
@@ -38,7 +38,7 @@ auto r = std::move(p);               // (3)`,
       opts: ['(1)', '(2) because unique_ptr cannot be copied', '(3) because you cannot move a unique_ptr', 'None'], a: 1,
       why: '`unique_ptr` has exclusive ownership, so its copy constructor is deleted. It is move-only, which is what (3) does.' },
 
-    { q: 'What does this print?',
+    { sec: 's4', q: 'What does this print?',
       code: String.raw`
 auto a = std::make_shared<int>(1);
 auto b = a;
@@ -47,15 +47,15 @@ std::cout << b.use_count();`,
       opts: ['1', '2', '3', '0'], a: 1,
       why: '`b` copied `a` (count 2). Moving `a` into `c` transfers its ownership without changing the count and leaves `a` null. So `b` and `c` share: 2.' },
 
-    { q: 'Two classes each hold a `std::shared_ptr` to the other. What happens when both go out of scope?',
+    { sec: 's4', q: 'Two classes each hold a `std::shared_ptr` to the other. What happens when both go out of scope?',
       opts: ['Both are destroyed normally', 'A reference cycle: counts never reach zero, so both leak', 'Compile error', 'Only one is destroyed'], a: 1,
       why: 'Each keeps the other\'s count at 1. Break the cycle by making one direction a `std::weak_ptr`.' },
 
-    { q: 'Why prefer `std::make_unique<T>(...)` over `std::unique_ptr<T>(new T(...))`?',
+    { sec: 's4', q: 'Why prefer `std::make_unique<T>(...)` over `std::unique_ptr<T>(new T(...))`?',
       opts: ['It is the only way to create a unique_ptr', 'No naked `new`, shorter, and exception-safe when used as a function argument', 'It allocates on the stack', 'It makes the pointer shareable'], a: 1,
       why: 'It avoids raw `new`, prevents leaks when another argument in the same call throws, and is less repetitive. (`make_shared` additionally saves an allocation.)' },
 
-    { q: 'What does this print?',
+    { sec: 's6', q: 'What does this print?',
       code: String.raw`
 int x = 1;
 auto byVal = [x]  { return x; };
@@ -65,65 +65,65 @@ std::cout << byVal() << byRef();`,
       opts: ['11', '12', '21', '22'], a: 1,
       why: 'The by-value capture is a snapshot taken when the lambda was created (1). The by-reference capture reads the live variable (2).' },
 
-    { q: 'Why is `return std::move(local);` usually a mistake?',
+    { sec: 's3', q: 'Why is `return std::move(local);` usually a mistake?',
       opts: ['It does not compile', 'It prevents copy elision (RVO), so it can be slower', 'It makes the result const', 'It causes a memory leak'], a: 1,
       why: 'Returning a local by value already lets the compiler elide the copy or implicitly move it. Wrapping it in `std::move` changes the expression type and blocks elision.' },
 
-    { q: 'What does `dynamic_cast<Dog*>(animalPtr)` return when the object is not a Dog?',
+    { sec: 's8', q: 'What does `dynamic_cast<Dog*>(animalPtr)` return when the object is not a Dog?',
       opts: ['The same pointer', 'nullptr', 'It throws std::bad_cast', 'Undefined behavior'], a: 1,
       why: 'The pointer form returns null on failure; the reference form throws `std::bad_cast`. It requires the base class to be polymorphic (have a virtual function).' },
 
-    { q: 'Which cast is the most dangerous and rarely correct?',
+    { sec: 's8', q: 'Which cast is the most dangerous and rarely correct?',
       opts: ['static_cast', 'dynamic_cast', 'reinterpret_cast', 'They are equally safe'], a: 2,
       why: '`reinterpret_cast` reinterprets raw bits between unrelated types and bypasses the type system. Prefer `static_cast`, and avoid C-style casts, which can silently act as any of them.' },
 
-    { q: 'What happens if a destructor throws while the stack is already unwinding from another exception?',
+    { sec: 's7', q: 'What happens if a destructor throws while the stack is already unwinding from another exception?',
       opts: ['The second exception is ignored', 'std::terminate is called and the program ends', 'Both exceptions are caught together', 'Nothing special'], a: 1,
       why: 'Two active exceptions cannot be handled, so C++ calls `std::terminate`. That is why destructors must not let exceptions escape.' },
 
-    { q: 'Why mark a move constructor `noexcept`?',
+    { sec: 's3', q: 'Why mark a move constructor `noexcept`?',
       opts: ['It makes it faster by itself', 'std::vector only uses a move (instead of a copy) when reallocating if the move cannot throw', 'It is required by the language', 'It prevents the object being copied'], a: 1,
       why: 'To keep the strong exception guarantee, `vector` uses `std::move_if_noexcept` during reallocation: a throwing move would leave elements in a half-moved state, so it copies instead.' },
 
-    { q: 'How should you catch exceptions?',
+    { sec: 's7', q: 'How should you catch exceptions?',
       opts: ['By value', 'By `const` reference', 'By pointer', 'By rvalue reference'], a: 1,
       why: 'Catching by value copies and slices derived exception types. `catch (const std::exception& e)` is the standard idiom.' },
 
-    { q: 'What does `auto x = {1, 2, 3};` deduce?',
+    { sec: 's5', q: 'What does `auto x = {1, 2, 3};` deduce?',
       opts: ['std::vector<int>', 'int[3]', 'std::initializer_list<int>', 'It does not compile'], a: 2,
       why: 'A braced list with `auto =` deduces `std::initializer_list`. It is a famous gotcha: write the type explicitly if you want a vector.' },
 
-    { q: 'What is the problem with `for (auto [key, value] : myMap)` for a `std::map<std::string, BigObject>`?',
+    { sec: 's5', q: 'What is the problem with `for (auto [key, value] : myMap)` for a `std::map<std::string, BigObject>`?',
       opts: ['It does not compile', 'It copies each pair every iteration; use `const auto&` to avoid it', 'It modifies the map', 'It skips the first element'], a: 1,
       why: '`auto` deduces a value type, so each element is copied. Write `for (const auto& [key, value] : myMap)`.' },
 
-    { q: 'What is the danger here?',
+    { sec: 's10', q: 'What is the danger here?',
       code: String.raw`
 std::string_view sv = std::string("hello");
 std::cout << sv;`,
       opts: ['None', 'The temporary std::string is destroyed, so sv dangles (undefined behavior)', 'string_view cannot hold a string', 'It prints twice'], a: 1,
       why: '`string_view` does not own its data. The temporary string dies at the end of the statement and `sv` points to freed memory.' },
 
-    { q: 'What is the difference between `const` and `constexpr`?',
+    { sec: 's9', q: 'What is the difference between `const` and `constexpr`?',
       opts: ['None', '`constexpr` guarantees the value can be computed at compile time; `const` only means read-only after initialization', '`const` is for functions, `constexpr` for variables', '`constexpr` values live on the heap'], a: 1,
       why: 'A `const int` may be initialized at runtime. A `constexpr` variable must be a compile-time constant, usable in template arguments and array sizes.' },
 
-    { q: 'Which of these was introduced in C++17?',
+    { sec: 's10', q: 'Which of these was introduced in C++17?',
       opts: ['Move semantics', '`std::optional` and structured bindings', 'Lambdas', 'Concepts'], a: 1,
       why: 'Move semantics, lambdas and smart pointers came in C++11; `optional`, `variant`, `string_view`, structured bindings and `if constexpr` in C++17; concepts and ranges in C++20.' },
 
-    { q: 'What are the three meanings of `static` in C++?',
+    { sec: 's9', q: 'What are the three meanings of `static` in C++?',
       opts: ['Constant, shared, and fast', 'Persistent local variable, internal linkage at file scope, and class-level member', 'Heap allocation, stack allocation, and global', 'Only one: shared across threads'], a: 1,
       why: 'Inside a function it persists across calls; at namespace scope it hides the name in the translation unit; on a class member it is shared by all instances.' },
 
-    { q: 'What does the second line do?',
+    { sec: 's3', q: 'What does the second line do?',
       code: String.raw`
 const std::string a = "text";
 std::string b = std::move(a);`,
       opts: ['Moves the contents of a into b', 'Copies a into b: a const rvalue cannot bind to the move constructor', 'It does not compile', 'Undefined behavior'], a: 1,
       why: '`std::move` only casts to an rvalue, and a `const` rvalue cannot bind to `string(string&&)`, so overload resolution silently picks the copy constructor. Never return `const` values by value for the same reason.' },
 
-    { q: 'What is wrong with this code?',
+    { sec: 's4', q: 'What is wrong with this code?',
       code: String.raw`
 auto raw = new Widget;
 std::shared_ptr<Widget> a(raw);
@@ -131,7 +131,7 @@ std::shared_ptr<Widget> b(raw);`,
       opts: ['Nothing: both share ownership and the count is 2', 'Each shared_ptr creates its own control block, so the Widget is deleted twice (undefined behavior)', 'It does not compile', 'b is left null'], a: 1,
       why: 'Only copying an existing `shared_ptr` shares a control block. Build a second one from a raw pointer (or from `this`) and you get two independent reference counts. Use `enable_shared_from_this` when an object must hand out a `shared_ptr` to itself.' },
 
-    { q: 'What is the value category of the expression `std::move(x)`?',
+    { sec: 's2', q: 'What is the value category of the expression `std::move(x)`?',
       opts: ['lvalue', 'prvalue', 'xvalue', 'It is not an expression'], a: 2,
       why: 'An xvalue is an object marked as movable, and `std::move` produces one. A prvalue is an unnamed temporary like `5` or `a + b`. "Rvalue" means a prvalue or an xvalue.' }
   ]

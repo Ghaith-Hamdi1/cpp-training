@@ -628,7 +628,7 @@
     const rs = $('#resume');
     const li = store.get('lastinfo', null);
     const lt = li && topicOf(li.id);
-    if (rs) rs.innerHTML = lt ? '<p><a class="btn" href="' + lt.file + '#' + esc(li.sec) + '">Continue: ' + esc(lt.title) + ', section ' + li.n + ' of ' + li.of + ' (' + esc(li.title) + ')</a></p>' : '';
+    if (rs) rs.innerHTML = lt ? '<a class="resume" href="' + lt.file + '#' + esc(li.sec) + '"><small>Continue where you left off</small><b>' + esc(lt.title) + ', section ' + li.n + ' of ' + li.of + '</b><span>' + esc(li.title) + '</span><i>&rarr;</i></a>' : '';
     const rb = $('#reset-progress');
     if (rb) {
       rb.addEventListener('click', () => {
@@ -811,12 +811,19 @@
     root.classList.add('quiz');
     const qid = (q) => q.q + (q.code ? '\n' + q.code.trim() : '');
     const codeHtml = (c) => '<figure class="code"><pre><code>' + highlight(clean(c)) + '</code></pre></figure>';
-    let order, pos, answers;
+    const secTitle = (t, q) => {
+      const e = q.sec && (CT.searchIndex || []).find((x) => x.f === t.file && x.id === q.sec);
+      return e ? e.h : 'the lesson';
+    };
+    const secHref = (t, q) => t.file + (q.sec ? '#' + q.sec : '');
+    let order, pos, onKey = null;
+
     function intro() {
       const total = Object.keys(ASSESS_COUNTS).reduce((n, k) => n + ASSESS_COUNTS[k], 0);
       const last = store.get('assess:last', null);
       root.innerHTML = '<div class="result"><p><b>' + total + ' multiple-choice questions</b> from every topic, weighted towards the ones named in the job description (about 20 minutes). ' +
-        'No explanations until the end, like a real test. You get an overall level and a score per topic, with the weakest topics first.' +
+        'No explanations until the end, like a real test. Go back and change answers freely with the buttons or the &larr; &rarr; keys. ' +
+        'At the end you get your level, a score per topic, and the lesson section to review for every question.' +
         (last ? ' Last result: <b>' + last.pct + '%</b>.' : '') + '</p><div class="pickrow"><button class="btn" id="astart" type="button">Start</button></div></div>';
       $('#astart', root).addEventListener('click', begin);
     }
@@ -824,34 +831,61 @@
       order = [];
       Object.keys(ASSESS_COUNTS).forEach((id) => {
         const d = CT.quizData[id];
-        if (d) shuffle(d.questions.slice()).slice(0, ASSESS_COUNTS[id]).forEach((q) => order.push({ q: q, topic: id }));
+        if (d) shuffle(d.questions.slice()).slice(0, ASSESS_COUNTS[id]).forEach((q) => order.push({ q: q, topic: id, opts: shuffle(q.opts.map((t, i) => ({ t: t, ok: i === q.a }))), pick: -1 }));
       });
       order = shuffle(order);
-      pos = 0; answers = [];
+      pos = 0;
+      if (onKey) document.removeEventListener('keydown', onKey);
+      onKey = (e) => {
+        if (e.ctrlKey || e.metaKey || e.altKey || /^(INPUT|TEXTAREA|SELECT)$/.test((e.target.tagName || ''))) return;
+        const k = e.key;
+        if (k === 'ArrowRight' && pos < order.length - 1) { e.preventDefault(); pos++; ask(); }
+        else if (k === 'ArrowLeft' && pos > 0) { e.preventDefault(); pos--; ask(); }
+        else if (/^[a-gA-G1-7]$/.test(k)) {
+          const i = /\d/.test(k) ? +k - 1 : k.toLowerCase().charCodeAt(0) - 97;
+          if (i < order[pos].opts.length) { order[pos].pick = i; ask(); }
+        }
+      };
+      document.addEventListener('keydown', onKey);
       ask();
     }
     function ask() {
       const item = order[pos], q = item.q;
-      const opts = shuffle(q.opts.map((t, i) => ({ t: t, ok: i === q.a })));
-      root.innerHTML = '<div class="q-top"><span>Question ' + (pos + 1) + ' of ' + order.length + '</span><span>' + esc(topicOf(item.topic).title) + '</span></div>' +
-        '<div class="q-bar"><span style="width:' + (pos / order.length) * 100 + '%"></span></div>' +
+      const answered = order.filter((x) => x.pick >= 0).length;
+      root.innerHTML = '<div class="q-top"><span>Question ' + (pos + 1) + ' of ' + order.length + '</span><span>' + esc(topicOf(item.topic).title) + ' &middot; ' + answered + ' answered</span></div>' +
+        '<div class="q-bar"><span style="width:' + (answered / order.length) * 100 + '%"></span></div>' +
         '<p class="q-text">' + fmt(q.q) + '</p>' + (q.code ? codeHtml(q.code) : '') +
-        '<div class="opts" role="group" aria-label="Answer choices">' + opts.map((o, i) => '<button class="opt" type="button" data-i="' + i + '"><span class="k">' + 'ABCDEFG'[i] + '</span><span>' + fmt(o.t) + '</span></button>').join('') + '</div>';
-      $$('.opt', root).forEach((b) => b.addEventListener('click', () => {
-        const ok = opts[+b.dataset.i].ok;
-        answers.push({ item: item, ok: ok });
-        const w = store.get('weak:' + item.topic, {});          // feed the same weak-question list as the topic quizzes
-        if (!ok) w[qid(q)] = 0; else if (qid(q) in w) { w[qid(q)]++; if (w[qid(q)] >= 2) delete w[qid(q)]; }
-        store.set('weak:' + item.topic, w);
-        pos++;
-        if (pos >= order.length) finish(); else ask();
-      }));
+        '<div class="opts" role="group" aria-label="Answer choices">' + item.opts.map((o, i) => '<button class="opt' + (item.pick === i ? ' picked' : '') + '" type="button" data-i="' + i + '" aria-pressed="' + (item.pick === i) + '"><span class="k">' + 'ABCDEFG'[i] + '</span><span>' + fmt(o.t) + '</span></button>').join('') + '</div>' +
+        '<div class="pickrow anav"><button class="btn ghost" id="aprev" type="button"' + (pos === 0 ? ' disabled' : '') + '>&larr; Back</button>' +
+        (pos < order.length - 1 ? '<button class="btn" id="anext" type="button">Next &rarr;</button>' : '<button class="btn" id="afinish" type="button">Finish and see results</button>') + '</div>' +
+        '<div class="qdots" aria-label="Jump to a question">' + order.map((x, i) => '<button type="button" class="qdot' + (x.pick >= 0 ? ' done' : '') + (i === pos ? ' cur' : '') + '" data-j="' + i + '" aria-label="Question ' + (i + 1) + '">' + (i + 1) + '</button>').join('') + '</div>';
+      $$('.opt', root).forEach((b) => b.addEventListener('click', () => { item.pick = +b.dataset.i; ask(); }));
+      $$('.qdot', root).forEach((b) => b.addEventListener('click', () => { pos = +b.dataset.j; ask(); }));
+      $('#aprev', root).addEventListener('click', () => { if (pos > 0) { pos--; ask(); } });
+      const nx = $('#anext', root);
+      if (nx) nx.addEventListener('click', () => { pos++; ask(); });
+      const fin = $('#afinish', root);
+      if (fin) fin.addEventListener('click', () => {
+        const left = order.length - answered;
+        if (left && !confirm(left + ' question' + (left > 1 ? 's are' : ' is') + ' unanswered and will count as wrong. Finish anyway?')) return;
+        finish();
+      });
     }
     function finish() {
+      if (onKey) { document.removeEventListener('keydown', onKey); onKey = null; }
+      const ok = (x) => x.pick >= 0 && x.opts[x.pick].ok;
       const per = {};
-      answers.forEach((a) => { const p = per[a.item.topic] || (per[a.item.topic] = { right: 0, n: 0 }); p.n++; if (a.ok) p.right++; });
-      const right = answers.filter((a) => a.ok).length;
-      const pct = Math.round((right / answers.length) * 100);
+      order.forEach((x) => {
+        const p = per[x.topic] || (per[x.topic] = { right: 0, n: 0 });
+        p.n++;
+        if (ok(x)) p.right++;
+        const w = store.get('weak:' + x.topic, {});            // feed the same weak-question list as the topic quizzes
+        const k = qid(x.q);
+        if (!ok(x)) w[k] = 0; else if (k in w) { w[k]++; if (w[k] >= 2) delete w[k]; }
+        store.set('weak:' + x.topic, w);
+      });
+      const right = order.filter(ok).length;
+      const pct = Math.round((right / order.length) * 100);
       const level = pct >= 80 ? 'Interview-ready' : pct >= 60 ? 'Solid, with gaps' : pct >= 40 ? 'Developing' : 'Early stage';
       const advice = pct >= 80 ? 'Keep sharp: use the mock interview and retake the quizzes of your weakest topics.' :
         pct >= 60 ? 'Fix the weakest topics below, then retest.' :
@@ -859,14 +893,29 @@
       store.set('assess:last', { pct: pct });
       const rows = Object.keys(per).map((id) => ({ id: id, p: per[id], pc: Math.round((per[id].right / per[id].n) * 100) }))
         .sort((a, b) => a.pc - b.pc || (topicOf(b.id).hot ? 1 : 0) - (topicOf(a.id).hot ? 1 : 0));
-      const missed = answers.filter((a) => !a.ok);
-      root.innerHTML = '<div class="result ' + (pct >= 60 ? 'good' : 'bad') + '"><div class="score">' + right + ' / ' + answers.length + ' (' + pct + '%): ' + level + '</div><p>' + advice + '</p></div>' +
+      // sections to review: every section a question pointed at, missed ones first
+      const secs = {};
+      order.forEach((x) => {
+        const t = topicOf(x.topic);
+        const key = x.topic + '#' + (x.q.sec || '');
+        const s = secs[key] || (secs[key] = { t: t, q: x.q, missed: 0, n: 0 });
+        s.n++;
+        if (!ok(x)) s.missed++;
+      });
+      const secList = Object.keys(secs).map((k) => secs[k]).sort((a, b) => b.missed - a.missed || a.t.n - b.t.n);
+      root.innerHTML = '<div class="result ' + (pct >= 60 ? 'good' : 'bad') + '"><div class="score">' + right + ' / ' + order.length + ' (' + pct + '%): ' + level + '</div><p>' + advice + '</p></div>' +
         '<h3>By topic, weakest first</h3>' + rows.map((r) => { const t = topicOf(r.id); return '<div class="miss"><div class="qq">' + esc(t.n + '. ' + t.title) + (t.hot ? ' <span class="pill hot">in the job description</span>' : '') + ': ' + r.p.right + ' / ' + r.p.n + '</div>' +
           '<div class="bar-track"><span style="width:' + r.pc + '%"></span></div><div class="pickrow"><a class="btn sm" href="' + t.file + '">Lesson</a><a class="btn sm ghost" href="' + t.quiz + '">Topic quiz</a></div></div>'; }).join('') +
         '<p style="color:var(--muted)">Only 2 to 5 questions per topic, so treat each topic score as a hint, not a verdict.</p>' +
-        (missed.length ? '<h3>Questions you missed</h3>' + missed.map((a) => { const t = topicOf(a.item.topic), q = a.item.q; return '<div class="miss"><div class="qq">' + fmt(q.q) + '</div>' + (q.code ? codeHtml(q.code) : '') +
-          '<div><b style="color:var(--good)">Answer:</b> ' + fmt(q.opts[q.a]) + '</div><div style="color:var(--muted)">' + fmt(q.why) + '</div>' +
-          '<div><a href="' + t.file + (q.sec ? '#' + q.sec : '') + '">Re-read this in the lesson &rarr;</a></div></div>'; }).join('') : '') +
+        '<h3>Sections to review</h3><p style="color:var(--muted)">Every section these questions drew on, missed ones first. Worth a read even when you answered correctly.</p>' +
+        '<ul class="seclist">' + secList.map((s) => '<li class="' + (s.missed ? 'miss-sec' : 'ok-sec') + '"><a href="' + secHref(s.t, s.q) + '">' + esc(s.t.n + '. ' + s.t.title + ' › ' + secTitle(s.t, s.q)) + '</a> <span>' +
+          (s.missed ? s.missed + ' of ' + s.n + ' missed' : 'all correct') + '</span></li>').join('') + '</ul>' +
+        '<h3>Every question</h3>' + order.map((x, i) => { const t = topicOf(x.topic), q = x.q; const good = ok(x);
+          return '<details class="aq ' + (good ? 'good' : 'bad') + '"><summary><span class="mark">' + (good ? '&#10003;' : x.pick < 0 ? '&ndash;' : '&#10007;') + '</span> ' + (i + 1) + '. ' + fmt(q.q) + '</summary><div>' +
+            (q.code ? codeHtml(q.code) : '') +
+            (x.pick >= 0 && !good ? '<div><b style="color:var(--bad)">Your answer:</b> ' + fmt(x.opts[x.pick].t) + '</div>' : x.pick < 0 ? '<div><b style="color:var(--bad)">Not answered.</b></div>' : '') +
+            '<div><b style="color:var(--good)">Answer:</b> ' + fmt(q.opts[q.a]) + '</div><div style="color:var(--muted)">' + fmt(q.why) + '</div>' +
+            '<div><a href="' + secHref(t, q) + '">Review: ' + esc(secTitle(t, q)) + ' &rarr;</a></div></div></details>'; }).join('') +
         '<div class="pickrow"><button class="btn" id="aagain" type="button">Take it again with new questions</button></div>';
       $('#aagain', root).addEventListener('click', begin);
     }
