@@ -179,7 +179,8 @@
 
   function buildHeader(kind) {
     const cur = document.body.dataset.topic;
-    const links = '<a href="study-checklist.html"' + (kind === 'checklist' ? ' class="cur"' : '') + '>Study checklist</a>' + TOPICS.map((t) =>
+    const links = '<a href="study-checklist.html"' + (kind === 'checklist' ? ' class="cur"' : '') + '>Study checklist</a>' +
+      '<a href="mock-interview.html"' + (kind === 'mock' ? ' class="cur"' : '') + '>Mock interview</a>' + TOPICS.map((t) =>
       '<a href="' + t.file + '"' + (t.id === cur && kind === 'lesson' ? ' class="cur"' : '') + '>' + t.n + '. ' + esc(t.title) + '</a>' +
       '<a href="' + t.quiz + '"' + (t.id === cur && kind === 'quiz' ? ' class="cur"' : '') + '>&nbsp;&nbsp;&nbsp;&nbsp;&#8627; Quiz</a>').join('');
     const h = document.createElement('header');
@@ -287,10 +288,22 @@
       const nav = document.createElement('div');
       nav.className = 'secnav';
       const p = secs[i - 1], n = secs[i + 1];
+      const topic = topicOf(id);
       nav.innerHTML = (p ? '<a class="btn sm ghost" href="#' + p.id + '">&larr; ' + esc(p.dataset.title) + '</a>' : '<span></span>') +
         '<span class="secpos">' + (i + 1) + ' / ' + secs.length + '</span>' +
-        (n ? '<a class="btn sm" href="#' + n.id + '">' + esc(n.dataset.title) + ' &rarr;</a>' : '<span></span>');
+        '<a class="btn sm" data-done href="' + (n ? '#' + n.id : topic ? topic.quiz : '#') + '">&#10003; Understood, ' + (n ? 'next: ' + esc(n.dataset.title) : 'take the quiz') + ' &rarr;</a>';
+      $('[data-done]', nav).addEventListener('click', () => {      // tick the section, then follow the link
+        const box = $('.done input', s);
+        if (box && !box.checked) { box.checked = true; box.dispatchEvent(new Event('change')); }
+      });
       s.appendChild(nav);
+    });
+    document.addEventListener('keydown', (e) => {                  // left / right arrows walk through the sections
+      if (e.ctrlKey || e.metaKey || e.altKey || e.shiftKey || /^(INPUT|TEXTAREA|SELECT)$/.test((e.target.tagName || ''))) return;
+      if (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') return;
+      const i = secs.findIndex((s) => !s.hidden);
+      const t = secs[i + (e.key === 'ArrowRight' ? 1 : -1)];
+      if (t) { e.preventDefault(); location.hash = '#' + t.id; }
     });
     let intro = true;
     function show(first) {
@@ -300,7 +313,13 @@
         const t = document.getElementById(h);
         cur = t && t.closest ? t.closest('main > section') : null;
       }
+      if (!cur && first && !h) {                                    // no link target: resume where you stopped
+        const saved = store.get('last:' + id, '');
+        cur = secs.find((s) => s.id === saved) || null;
+      }
       if (!cur) cur = secs[0];
+      store.set('last:' + id, cur.id);
+      store.set('lastinfo', { id: id, sec: cur.id, n: secs.indexOf(cur) + 1, of: secs.length, title: cur.dataset.title });
       secs.forEach((s) => { s.hidden = s !== cur; });
       Array.from(main.children).forEach((el) => {       // intro paragraphs between the title and the first section: first page only
         if (el === secs[0]) { intro = false; }
@@ -589,6 +608,10 @@
         '<div class="bar-track"><span style="width:' + pct + '%"></span></div>' +
         '<div class="row"><a class="btn sm" href="' + t.file + '">Lesson</a><a class="btn sm ghost" href="' + t.quiz + '">Quiz</a></div></div>';
     }).join('');
+    const rs = $('#resume');
+    const li = store.get('lastinfo', null);
+    const lt = li && topicOf(li.id);
+    if (rs) rs.innerHTML = lt ? '<p><a class="btn" href="' + lt.file + '#' + esc(li.sec) + '">Continue: ' + esc(lt.title) + ', section ' + li.n + ' of ' + li.of + ' (' + esc(li.title) + ')</a></p>' : '';
     const rb = $('#reset-progress');
     if (rb) {
       rb.addEventListener('click', () => {
@@ -602,7 +625,7 @@
   /* ---------------- export / import of progress ---------------- */
   /* Progress lives in this browser's localStorage only. The code below turns the ticks and best
      scores into a short text code that can be pasted into another browser or machine. */
-  const PROGRESS_KEY = /^(checklist|(done|total|quiz):[a-z]+)$/;
+  const PROGRESS_KEY = /^(checklist|mock:missed|(done|total|quiz):[a-z]+)$/;
   const hash32 = (s) => {
     let h = 0x811c9dc5;
     for (let i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 0x01000193) >>> 0; }
@@ -638,7 +661,7 @@
     Object.keys(obj.d).forEach((k) => {
       const v = obj.d[k];
       if (!PROGRESS_KEY.test(k)) return;
-      if (k === 'checklist' || k.indexOf('done:') === 0) {
+      if (k === 'checklist' || k === 'mock:missed' || k.indexOf('done:') === 0) {
         if (Array.isArray(v) && v.length <= 300 && v.every((x) => typeof x === 'string' && /^[\w-]{1,40}$/.test(x))) { data[k] = v; count += v.length; }
       } else if (k.indexOf('total:') === 0) {
         if (Number.isInteger(v) && v >= 0 && v <= 1000) data[k] = v;
@@ -764,6 +787,84 @@
     paint();
   }
 
+  /* ---------------- mock interview: random cheat-sheet questions ---------------- */
+  function mock() {
+    const root = $('#mock');
+    const MKEY = 'mock:missed';
+    let bank = null, order = [], pos = 0, got = 0, miss = [];
+    async function load() {
+      const out = [];
+      await Promise.all(TOPICS.map(async (t) => {
+        try {
+          const d = new DOMParser().parseFromString(await (await fetch(t.file)).text(), 'text/html');
+          const sec = Array.from(d.querySelectorAll('main > section')).find((x) => /interview cheat sheet/i.test(x.dataset.title || ''));
+          if (!sec) return;
+          Array.from(sec.querySelectorAll('details')).forEach((det, i) => {
+            const sum = $('summary', det);
+            if (!sum) return;
+            const q = sum.innerHTML;
+            sum.remove();
+            out.push({ id: t.id + '-' + i, topic: t.id, q: q, a: det.innerHTML });
+          });
+        } catch (e) { /* not reachable and not cached: skip this lesson */ }
+      }));
+      return out;
+    }
+    function setup() {
+      const missedIds = new Set(store.get(MKEY, []));
+      const nMiss = bank.filter((c) => missedIds.has(c.id)).length;
+      root.innerHTML = '<div class="widget"><div class="w-head"><span class="tag">Setup</span>' + bank.length + ' questions available</div><div class="w-body">' +
+        '<div class="pickrow"><label for="mk-topic">Topic:</label><select id="mk-topic"><option value="all">All topics</option>' +
+        TOPICS.map((t) => '<option value="' + t.id + '">' + esc(t.n + '. ' + t.title) + '</option>').join('') + '</select></div>' +
+        '<div class="pickrow"><button class="btn" id="mk-start" type="button">Start</button>' +
+        (nMiss ? '<button class="btn ghost" id="mk-missed" type="button">Missed only (' + nMiss + ')</button>' : '') + '</div></div></div>';
+      $('#mk-start', root).addEventListener('click', () => {
+        const v = $('#mk-topic', root).value;
+        begin(bank.filter((c) => v === 'all' || c.topic === v));
+      });
+      const mb = $('#mk-missed', root);
+      if (mb) mb.addEventListener('click', () => begin(bank.filter((c) => missedIds.has(c.id))));
+    }
+    function begin(list) { order = shuffle(list.slice()); pos = 0; got = 0; miss = []; ask(); }
+    function mark(c, ok) {
+      const m = new Set(store.get(MKEY, []));
+      if (ok) { m.delete(c.id); got++; } else { m.add(c.id); miss.push(c); }
+      store.set(MKEY, Array.from(m));
+      pos++;
+      ask();
+    }
+    function ask() {
+      if (pos >= order.length) { finish(); return; }
+      const c = order[pos];
+      root.innerHTML = '<div class="widget"><div class="w-head"><span class="tag">' + (pos + 1) + ' / ' + order.length + '</span>' + esc(topicOf(c.topic).title) + '</div><div class="w-body">' +
+        '<p class="mock-q">' + c.q + '</p><div id="mk-a" class="mock-a" hidden>' + c.a + '</div>' +
+        '<div class="pickrow" id="mk-btns"><button class="btn" id="mk-show" type="button">Show answer</button></div></div></div>';
+      const show = $('#mk-show', root);
+      show.focus();
+      show.addEventListener('click', () => {
+        $('#mk-a', root).hidden = false;
+        $('#mk-btns', root).innerHTML = '<button class="btn" id="mk-got" type="button">Got it</button><button class="btn ghost" id="mk-no" type="button">Missed it</button>';
+        $('#mk-got', root).addEventListener('click', () => mark(c, true));
+        $('#mk-no', root).addEventListener('click', () => mark(c, false));
+        $('#mk-got', root).focus();
+      });
+    }
+    function finish() {
+      root.innerHTML = '<div class="result"><p><b>' + got + ' of ' + order.length + '</b> answered correctly.</p><div class="pickrow">' +
+        (miss.length ? '<button class="btn" id="mk-retry" type="button">Retry the ' + miss.length + ' missed</button>' : '') +
+        '<button class="btn ghost" id="mk-again" type="button">New round</button></div></div>';
+      const rt = $('#mk-retry', root);
+      if (rt) rt.addEventListener('click', () => begin(miss));
+      $('#mk-again', root).addEventListener('click', setup);
+    }
+    root.textContent = 'Loading questions...';
+    load().then((b) => {
+      bank = b;
+      if (!bank.length) { root.textContent = 'Could not load the questions. Open this page once while online.'; return; }
+      setup();
+    });
+  }
+
   function boot() {
     const kind = document.body.dataset.kind || 'lesson';
     renderCodeBlocks();
@@ -773,6 +874,7 @@
     else if (kind === 'quiz' && main) { main.classList.add('solo'); buildPager(main, 'quiz'); }
     else if (kind === 'home') { if (main) main.classList.add('solo'); home(); }
     else if (kind === 'checklist' && main) { main.classList.add('solo'); checklist(main); }
+    else if (kind === 'mock' && main) { main.classList.add('solo'); mock(); }
     const pt = $('#progress-tools');
     if (pt) progressTools(pt);
   }
