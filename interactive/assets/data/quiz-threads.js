@@ -168,6 +168,22 @@ if (!s.empty()) {
 
     { q: 'Why should you not call user-supplied code (a callback, a virtual function) while holding a lock?',
       opts: ['It is slower', 'It may take another lock (a hidden nested lock, risking deadlock) or keep a pointer or reference to the protected data and use it later without the lock', 'Callbacks cannot be called with a mutex held', 'The lock would be released early'], a: 1,
-      why: 'You do not control what that code does. Never pass out references to protected data, and avoid holding a lock across calls to code you do not own.' }
+      why: 'You do not control what that code does. Never pass out references to protected data, and avoid holding a lock across calls to code you do not own.' },
+
+    { q: 'What is the problem with this code?',
+      code: String.raw`
+void f(int i, const std::string& s);
+
+void g() {
+    char buffer[64] = "hi";
+    std::thread t(f, 1, buffer);
+    t.detach();
+}`,
+      opts: ['Nothing: arguments are converted on the calling thread', 'The char* is copied as is and converted to std::string inside the new thread, possibly after g() has returned: a dangling pointer', 'detach cannot be used with a free function', 'buffer is too large to copy'], a: 1,
+      why: 'The thread constructor copies the arguments as given, and the conversion to the parameter type happens later, in the new thread. Convert first: `std::thread t(f, 1, std::string(buffer));`.' },
+
+    { q: 'Why does the destructor of a joinable `std::thread` call `std::terminate` instead of joining or detaching for you?',
+      opts: ['An implicit join can hide long waits and an implicit detach can leave the thread using destroyed locals, so the standard makes the mistake loud', 'Joining inside a destructor is impossible', 'detach is not allowed in destructors', 'It makes threads start faster'], a: 0,
+      why: 'Both implicit options have worse failure modes (hard-to-find performance problems, or undefined behavior). Make the thread unjoinable on every path with an RAII guard, or use `std::jthread` in C++20.' }
   ]
 };

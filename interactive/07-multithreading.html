@@ -24,6 +24,7 @@
 <tr><td><b>Parallelism</b></td><td>several tasks <i>running at literally the same instant</i> on different cores.</td></tr>
 </table>
 <p><b>Why use threads?</b> (1) <b>Speed</b>: split heavy work across cores. (2) <b>Responsiveness</b>: keep a UI or a network handler alive while a slow job runs. (3) <b>Waiting</b>: do other work while one thread blocks on I/O.</p>
+<p><b>When not to use them:</b> every thread needs its own stack (often around 1 MB), starting one takes time, and too many threads slow the system down through context switching. Use threads where the gain is measurable or the design is clearer. For a task that finishes quickly, running it directly can be faster.</p>
 <div class="callout warn"><span class="label">The whole difficulty in one sentence</span>Threads share memory, and the operating system may switch between them <b>at any moment</b>, between any two instructions. Everything in this lesson is about keeping shared memory correct despite that.</div>
 <script type="text/x-cpp">
 std::thread::hardware_concurrency();     // how many hardware threads (cores x hyperthreads) this machine has, e.g. 8
@@ -85,6 +86,36 @@ void f() {
 }                                      // f returns, local is destroyed, the thread still writes to it
 </script>
 Capture by value (or <code>join()</code>) whenever the thread could outlive the variable.</div>
+<div class="callout warn"><span class="label">Converted too late</span>
+<script type="text/x-cpp">
+void f(int i, const std::string& s);
+
+void oops() {
+    char buffer[1024];
+    std::thread t(f, 3, buffer);               // copies the char* POINTER, not the text
+    t.detach();                                // oops() may return before the thread builds the std::string
+}                                              // fix: std::thread t(f, 3, std::string(buffer));
+</script>
+The constructor copies the arguments <i>as you gave them</i>, and the conversion to the parameter type happens later, inside the new thread. Convert on the calling side.</div>
+<h3>Join on every path</h3>
+<p>If anything between starting a thread and <code>join()</code> can throw or return early, the thread is still joinable when the scope ends and the program terminates. Put the <code>join()</code> in a destructor (RAII):</p>
+<script type="text/x-cpp">
+class ThreadGuard {
+    std::thread& t_;
+public:
+    explicit ThreadGuard(std::thread& t) : t_(t) {}
+    ~ThreadGuard() { if (t_.joinable()) t_.join(); }     // joins however the scope is left
+    ThreadGuard(const ThreadGuard&) = delete;
+    ThreadGuard& operator=(const ThreadGuard&) = delete;
+};
+
+void f() {
+    std::thread t(work);
+    ThreadGuard g(t);                  // joins when f exits, even by an exception
+    mayThrow();
+}
+</script>
+<p>Why does a joinable <code>std::thread</code>'s destructor terminate instead of joining or detaching for you? An implicit join could hide long waits (a function that returned early would still wait for the whole task), and an implicit detach is worse: the thread keeps running and uses locals that no longer exist. If a class owns a <code>std::thread</code>, declare it <b>last</b> among the data members: a thread may start running immediately, so everything it uses must already be initialized.</p>
 <div class="callout tip"><span class="label">C++20: std::jthread</span>It joins automatically in its destructor (and supports cooperative cancellation with <code>std::stop_token</code>), so you cannot forget the <code>join</code>.</div>
 </section>
 
@@ -106,6 +137,7 @@ void work() { for (int i = 0; i < 2; ++i) ++counter; }   // two threads each run
 <p>Hint: let A do <code>r = counter</code>, then let B run completely, then let A finish. Or just press <b>Run 500 random schedules</b> and see how often the "impossible" results appear.</p>
 <div class="callout tip"><span class="label">A realistic caveat</span>The simulator may switch threads between <i>every</i> pair of instructions, far more often than a real operating system does, so it makes the bug look very common. On a real machine the same race might fail once in thousands of runs, which is exactly why these bugs survive testing and bite in production.</div>
 <div class="callout warn"><span class="label">Data race = undefined behavior</span>A <b>data race</b> is two threads accessing the same memory at the same time, with at least one writing and no synchronization. In C++ this is <b>undefined behavior</b>, not merely "a slightly wrong number": the compiler and CPU may reorder things in ways that make the program do anything. A <b>race condition</b> is the broader logic bug where the result depends on timing.</div>
+<p><b>Why this matters.</b> Shared data usually has an <b>invariant</b>, something that must always be true (a list's next and previous links agree, a count matches the items). An update breaks it for a moment, and a thread that looks during that moment sees a corrupt structure. Not every race is a bug: if two threads add to a queue and the order does not matter, any outcome is fine. It becomes a problem when the race exposes a broken invariant, which is why trouble starts with operations that must change <i>two or more</i> pieces of data together.</p>
 <h3>Three ways to be safe</h3>
 <table>
 <tr><th>Strategy</th><th>How</th></tr>
@@ -414,6 +446,7 @@ int result = f.get();                                                  // wait i
 <ul>
 <li><code>f.get()</code> blocks until the result is ready, and it can be called only once. <code>f.wait()</code> waits without taking the value; <code>f.wait_for(...)</code> waits with a timeout.</li>
 <li><b>Exceptions travel with the result</b>: if the task throws, <code>f.get()</code> rethrows it in the calling thread. This is the clean way to report errors from threads.</li>
+<li><b>Prefer tasks to raw threads.</b> A <code>std::thread</code> gives you no return value, terminates the program if its function throws, and leaves you to cope with running out of threads, oversubscription and load balancing. <code>std::async</code> returns a future and handles those for you.</li>
 <li>Pass <code>std::launch::async</code> explicitly. With the default policy the implementation is allowed to <i>defer</i> the call and run it lazily (on the calling thread) only when you call <code>get()</code>.</li>
 <li>A future obtained from <code>std::async</code> <b>blocks in its destructor</b> until the task finishes. So <code>std::async(...)</code> with the returned future discarded runs the task effectively synchronously.</li>
 </ul>
@@ -545,7 +578,7 @@ public:
 <p>Say each answer out loud, then open it to compare.</p>
 <details class="ex"><summary>What is the difference between a process and a thread?</summary><div><p>A process has its own address space; threads of one process share memory but each has its own stack and registers. Thread creation and switching are cheaper, communication is easy (shared memory) but needs synchronization.</p></div></details>
 <details class="ex"><summary>What is a data race? Is it the same as a race condition?</summary><div><p>A data race is unsynchronised concurrent access to the same memory with at least one write: undefined behavior in C++. A race condition is the wider class of bugs where correctness depends on timing, which can exist even without a data race (two correctly locked steps that needed to be one atomic operation).</p></div></details>
-<details class="ex"><summary>What happens if a <code>std::thread</code> is destroyed while still joinable?</summary><div><p><code>std::terminate</code> is called. Always <code>join()</code> or <code>detach()</code>; <code>std::jthread</code> (C++20) joins automatically.</p></div></details>
+<details class="ex"><summary>What happens if a <code>std::thread</code> is destroyed while still joinable, and why?</summary><div><p><code>std::terminate</code> is called. The alternatives are worse: an implicit <code>join</code> can hide long waits, and an implicit <code>detach</code> leaves a running thread using locals that may be gone (undefined behavior). So make the thread unjoinable on every path: join in an RAII guard, or use <code>std::jthread</code> (C++20), which joins automatically.</p></div></details>
 <details class="ex"><summary><code>lock_guard</code> vs <code>unique_lock</code> vs <code>scoped_lock</code>?</summary><div><p><code>lock_guard</code>: simplest RAII lock for a scope. <code>unique_lock</code>: flexible (unlock/relock, deferred, movable) and needed by condition variables. <code>scoped_lock</code> (C++17): locks multiple mutexes at once with deadlock avoidance.</p></div></details>
 <details class="ex"><summary>What is a deadlock and how do you prevent it?</summary><div><p>Threads wait for each other's locks forever. Needs mutual exclusion, hold-and-wait, no preemption and circular wait. Prevent with a consistent global lock order, <code>std::scoped_lock</code>/<code>std::lock</code> for multiple mutexes, short critical sections, no calls to foreign code under a lock, or <code>try_lock</code>.</p></div></details>
 <details class="ex"><summary>Why does <code>condition_variable::wait</code> need a predicate / a loop?</summary><div><p>Spurious wakeups (a thread may wake without a notification) and because the state may change again between the notification and the thread reacquiring the lock. The predicate re-checks the real condition.</p></div></details>
