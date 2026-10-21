@@ -1,0 +1,5 @@
+# The interactive site and its tooling are checked out with LF on every platform, so
+# generated files (search index, service worker) are byte-identical everywhere.
+interactive/** text eol=lf
+tools/** text eol=lf
+.github/** text eol=lf
