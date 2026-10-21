@@ -29,11 +29,11 @@
 
 <section class="ck-section" data-ck-section>
 <h2>Step 1: multithreading (about 2 hours) <span class="ck-count"></span></h2>
-<p class="ck-note">The topic you knew least, and the one the job description names. <a href="07-multithreading.html">Lesson</a> <span class="badge" data-lesson="threads"></span> and <a href="07-multithreading-quiz.html">quiz</a> (32 questions) <span class="badge" data-quiz="threads"></span></p>
+<p class="ck-note">The topic you knew least, and the one the job description names. <a href="07-multithreading.html">Lesson</a> <span class="badge" data-lesson="threads"></span> and <a href="07-multithreading-quiz.html">quiz</a> (34 questions) <span class="badge" data-quiz="threads"></span></p>
 <ul class="ck-list">
 <li><label><input type="checkbox" data-ck="mt-1"><span class="t">Section 1: Why threads? The mental model <a href="07-multithreading.html#s1">open</a></span></label></li>
-<li><label><input type="checkbox" data-ck="mt-2"><span class="t">Section 2: Your first thread <a href="07-multithreading.html#s2">open</a></span></label></li>
-<li><label><input type="checkbox" data-ck="mt-3"><span class="t">Section 3: Shared data and data races (run the race simulator and "Run 500 random schedules") <a href="07-multithreading.html#s3">open</a></span></label></li>
+<li><label><input type="checkbox" data-ck="mt-2"><span class="t">Section 2: Your first thread (including the dangling-argument trap and joining on every path) <a href="07-multithreading.html#s2">open</a></span></label></li>
+<li><label><input type="checkbox" data-ck="mt-3"><span class="t">Section 3: Shared data and data races (invariants; run the race simulator and "Run 500 random schedules") <a href="07-multithreading.html#s3">open</a></span></label></li>
 <li><label><input type="checkbox" data-ck="mt-4"><span class="t">Section 4: Mutexes: taking turns (run the mutex simulator) <a href="07-multithreading.html#s4">open</a></span></label></li>
 <li><label><input type="checkbox" data-ck="mt-5"><span class="t">Section 5: Races hidden in interfaces (step through the stack example) <a href="07-multithreading.html#interface-races">open</a></span></label></li>
 <li><label><input type="checkbox" data-ck="mt-6"><span class="t">Section 6: Deadlock (cause the deadlock yourself, then run the fixed version) <a href="07-multithreading.html#s5">open</a></span></label></li>
@@ -48,13 +48,13 @@
 
 <section class="ck-section" data-ck-section>
 <h2>Step 2: core language (about 1.5 hours) <span class="ck-count"></span></h2>
-<p class="ck-note">RAII, move semantics, smart pointers, lambdas, exceptions. <a href="03-core-language.html">Lesson</a> <span class="badge" data-lesson="core"></span> and <a href="03-core-language-quiz.html">quiz</a> (21 questions) <span class="badge" data-quiz="core"></span></p>
+<p class="ck-note">RAII, move semantics, smart pointers, lambdas, exceptions. <a href="03-core-language.html">Lesson</a> <span class="badge" data-lesson="core"></span> and <a href="03-core-language-quiz.html">quiz</a> (24 questions) <span class="badge" data-quiz="core"></span></p>
 <ul class="ck-list">
 <li><label><input type="checkbox" data-ck="core-raii"><span class="t">RAII: the central idea (step through the stack unwinding) <a href="03-core-language.html#s1">open</a></span></label></li>
-<li><label><input type="checkbox" data-ck="core-lvalues"><span class="t">Lvalues, rvalues and references <a href="03-core-language.html#s2">open</a></span></label></li>
-<li><label><input type="checkbox" data-ck="core-move"><span class="t">Move semantics (step through copy versus move) <a href="03-core-language.html#s3">open</a></span></label></li>
+<li><label><input type="checkbox" data-ck="core-lvalues"><span class="t">Lvalues, rvalues and references (including the three value categories) <a href="03-core-language.html#s2">open</a></span></label></li>
+<li><label><input type="checkbox" data-ck="core-move"><span class="t">Move semantics (step through copy versus move; the <code>const</code> trap and the by-value-then-move idiom) <a href="03-core-language.html#s3">open</a></span></label></li>
 <li><label><input type="checkbox" data-ck="core-meyers-move"><span class="t">Optional, book: <i>Effective Modern C++</i> Items 23, 25 and 29 on <code>std::move</code>, <code>std::forward</code> and when moves are not cheap (PDF pages 176 to 182, 186 to 195 and 221 to 225, about 22 pages) <a href="https://github.com/Ghaith-Hamdi1/cpp-training/blob/main/docs/effective-modern-cpp-reading-guide.md#special-focus-move-semantics-and-perfect-forwarding">move semantics path</a></span></label></li>
-<li><label><input type="checkbox" data-ck="core-smart"><span class="t">Smart pointers (step through the <code>shared_ptr</code> count) <a href="03-core-language.html#s4">open</a></span></label></li>
+<li><label><input type="checkbox" data-ck="core-smart"><span class="t">Smart pointers (step through the <code>shared_ptr</code> count; one control block per object) <a href="03-core-language.html#s4">open</a></span></label></li>
 <li><label><input type="checkbox" data-ck="core-syntax"><span class="t">Modern syntax tour, then Lambdas <a href="03-core-language.html#s5">open</a></span></label></li>
 <li><label><input type="checkbox" data-ck="core-exceptions"><span class="t">Exceptions and exception safety <a href="03-core-language.html#s7">open</a></span></label></li>
 <li><label><input type="checkbox" data-ck="core-casts"><span class="t">Casts, <code>const</code>/<code>constexpr</code>/<code>static</code>, and what C++14/17/20 added <a href="03-core-language.html#s8">open</a></span></label></li>
@@ -67,7 +67,7 @@
 <h2>Step 3: templates and design patterns (about 1.5 hours) <span class="ck-count"></span></h2>
 <p class="ck-note">Both are named in the job description.</p>
 <h3>Templates</h3>
-<p class="ck-note"><a href="05-templates.html">Lesson</a> <span class="badge" data-lesson="templates"></span> and <a href="05-templates-quiz.html">quiz</a> (20 questions) <span class="badge" data-quiz="templates"></span></p>
+<p class="ck-note"><a href="05-templates.html">Lesson</a> <span class="badge" data-lesson="templates"></span> and <a href="05-templates-quiz.html">quiz</a> (21 questions) <span class="badge" data-quiz="templates"></span></p>
 <ul class="ck-list">
 <li><label><input type="checkbox" data-ck="tpl-basic"><span class="t">Function templates and class templates <a href="05-templates.html#s1">open</a></span></label></li>
 <li><label><input type="checkbox" data-ck="tpl-deduce"><span class="t">Deduction and forwarding references (use the explorer), then perfect forwarding <a href="05-templates.html#s4">open</a></span></label></li>
@@ -94,8 +94,8 @@
 <p class="ck-note">Take each quiz <b>first</b>. Only read the lesson sections for the questions you miss.</p>
 <ul class="ck-list">
 <li><label><input type="checkbox" data-ck="rest-stl"><span class="t">STL: <a href="04-stl.html">lesson</a>, <a href="04-stl-quiz.html">quiz</a> (21 questions) <span class="badge" data-quiz="stl"></span></span></label></li>
-<li><label><input type="checkbox" data-ck="rest-basics"><span class="t">Basics and pointers: <a href="01-basics.html">lesson</a>, <a href="01-basics-quiz.html">quiz</a> (20 questions) <span class="badge" data-quiz="basics"></span></span></label></li>
-<li><label><input type="checkbox" data-ck="rest-oop"><span class="t">OOP: <a href="02-oop.html">lesson</a>, <a href="02-oop-quiz.html">quiz</a> (20 questions) <span class="badge" data-quiz="oop"></span></span></label></li>
+<li><label><input type="checkbox" data-ck="rest-basics"><span class="t">Basics and pointers: <a href="01-basics.html">lesson</a>, <a href="01-basics-quiz.html">quiz</a> (22 questions) <span class="badge" data-quiz="basics"></span></span></label></li>
+<li><label><input type="checkbox" data-ck="rest-oop"><span class="t">OOP: <a href="02-oop.html">lesson</a>, <a href="02-oop-quiz.html">quiz</a> (22 questions) <span class="badge" data-quiz="oop"></span></span></label></li>
 </ul>
 </section>
 

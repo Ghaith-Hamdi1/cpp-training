@@ -19,11 +19,11 @@ A step-by-step plan from Wednesday to the interview.
 
 ## Step 1: multithreading (about 2 hours)
 
-The topic you knew least, and the one the job description names. Lesson: [07-multithreading.html](../interactive/07-multithreading.html), quiz: [07-multithreading-quiz.html](../interactive/07-multithreading-quiz.html) (32 questions).
+The topic you knew least, and the one the job description names. Lesson: [07-multithreading.html](../interactive/07-multithreading.html), quiz: [07-multithreading-quiz.html](../interactive/07-multithreading-quiz.html) (34 questions).
 
 - [ ] Section 1: Why threads? The mental model
-- [ ] Section 2: Your first thread
-- [ ] Section 3: Shared data and data races (run the race simulator and "Run 500 random schedules")
+- [ ] Section 2: Your first thread (including the dangling-argument trap and joining on every path)
+- [ ] Section 3: Shared data and data races (invariants; run the race simulator and "Run 500 random schedules")
 - [ ] Section 4: Mutexes: taking turns (run the mutex simulator)
 - [ ] Section 5: Races hidden in interfaces (step through the stack example)
 - [ ] Section 6: Deadlock (cause the deadlock yourself, then run the fixed version)
@@ -36,13 +36,13 @@ The topic you knew least, and the one the job description names. Lesson: [07-mul
 
 ## Step 2: core language (about 1.5 hours)
 
-RAII, move semantics, smart pointers, lambdas, exceptions. Lesson: [03-core-language.html](../interactive/03-core-language.html), quiz: [03-core-language-quiz.html](../interactive/03-core-language-quiz.html) (21 questions).
+RAII, move semantics, smart pointers, lambdas, exceptions. Lesson: [03-core-language.html](../interactive/03-core-language.html), quiz: [03-core-language-quiz.html](../interactive/03-core-language-quiz.html) (24 questions).
 
 - [ ] RAII: the central idea (step through the stack unwinding)
-- [ ] Lvalues, rvalues and references
-- [ ] Move semantics (step through copy versus move)
+- [ ] Lvalues, rvalues and references (including the three value categories)
+- [ ] Move semantics (step through copy versus move; the `const` trap and the by-value-then-move idiom)
 - [ ] Optional, book: *Effective Modern C++* Items 23, 25 and 29 on `std::move`, `std::forward` and when moves are not cheap (PDF pages 176 to 182, 186 to 195 and 221 to 225, about 22 pages). See the [move semantics path](effective-modern-cpp-reading-guide.md#special-focus-move-semantics-and-perfect-forwarding)
-- [ ] Smart pointers (step through the `shared_ptr` count)
+- [ ] Smart pointers (step through the `shared_ptr` count; one control block per object)
 - [ ] Modern syntax tour, then Lambdas
 - [ ] Exceptions and exception safety
 - [ ] Casts, `const`/`constexpr`/`static`, and what C++14/17/20 added
@@ -53,7 +53,7 @@ RAII, move semantics, smart pointers, lambdas, exceptions. Lesson: [03-core-lang
 
 Both are named in the job description.
 
-**Templates:** [05-templates.html](../interactive/05-templates.html), quiz: [05-templates-quiz.html](../interactive/05-templates-quiz.html) (20 questions).
+**Templates:** [05-templates.html](../interactive/05-templates.html), quiz: [05-templates-quiz.html](../interactive/05-templates-quiz.html) (21 questions).
 
 - [ ] Function templates and class templates
 - [ ] Deduction and forwarding references (use the explorer), then perfect forwarding
@@ -77,8 +77,8 @@ Both are named in the job description.
 Take each quiz **first**. Only read the lesson sections for questions you miss.
 
 - [ ] STL: [lesson](../interactive/04-stl.html), [quiz](../interactive/04-stl-quiz.html) (21 questions)
-- [ ] Basics and pointers: [lesson](../interactive/01-basics.html), [quiz](../interactive/01-basics-quiz.html) (20 questions)
-- [ ] OOP: [lesson](../interactive/02-oop.html), [quiz](../interactive/02-oop-quiz.html) (20 questions)
+- [ ] Basics and pointers: [lesson](../interactive/01-basics.html), [quiz](../interactive/01-basics-quiz.html) (22 questions)
+- [ ] OOP: [lesson](../interactive/02-oop.html), [quiz](../interactive/02-oop-quiz.html) (22 questions)
 
 ## Step 5: Thursday morning, before the interview
 
