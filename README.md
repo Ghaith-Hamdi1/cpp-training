@@ -10,7 +10,7 @@ Study material for learning C++ and preparing for C++ interviews, in three parts
 | **Prepare for an interview** | The [study checklist](https://ghaith-hamdi1.github.io/cpp-training/study-checklist.html), with clickable boxes that remember your progress |
 | **Find one topic** | The [topic map](docs/topic-map.md): where each topic appears in the notes, the recaps and the lessons |
 | **Read the source notes** | The [training notes index](docs/README.md) |
-| **Go deeper with the books** | The reading guides for [C++ Concurrency in Action](docs/concurrency-in-action-reading-guide.md) and [Programming: Principles and Practice](docs/programming-principles-and-practice-reading-guide.md) |
+| **Go deeper with the books** | The reading guides for [C++ Concurrency in Action](docs/concurrency-in-action-reading-guide.md), [Programming: Principles and Practice](docs/programming-principles-and-practice-reading-guide.md) and [Effective Modern C++](docs/effective-modern-cpp-reading-guide.md) |
 
 The lessons work offline after one visit. From a clone you can also open [`interactive/index.html`](interactive/index.html) directly; no install is needed.
 
@@ -51,5 +51,25 @@ node tools/check-interactive.mjs    # checks links and quiz data
 
 ## Further reading
 
+### Books to read next
+
+After the two books in this repo (see their reading guides above), these are the ones I would read next, in this order, for a C++ role that involves modern C++, templates, design patterns and multithreaded or low-latency code. They are copyrighted, so none are included here. Check current editions before buying.
+
+| # | Book | Why read it | Lessons |
+|---|---|---|---|
+| 1 | **Effective Modern C++**, Scott Meyers ([reading guide](docs/effective-modern-cpp-reading-guide.md)) | Short, self-contained items on move semantics, smart pointers, lambdas, `auto`, forwarding references and a concurrency chapter (C++11/14). The best interview-style book on the list. | 3, 5, 7 |
+| 2 | **[C++ Move Semantics: The Complete Guide](https://leanpub.com/cppmove)**, Nicolai Josuttis | A whole book on one topic (about 260 pages, 2020): `std::move`, rvalue references, moved-from states, value categories, `std::forward`, forwarding references and `decltype(auto)`. The deepest treatment of move semantics. | 2, 3, 5 |
+| 3 | **A Tour of C++**, Bjarne Stroustrup | A short whole-language overview by the language's creator, including the C++20 features (concepts, ranges, modules, coroutines). | 3, 4, 5 |
+| 4 | **C++ Templates: The Complete Guide**, Vandevoorde, Josuttis and Gregor | The definitive templates book: variadic templates, forwarding, type traits, SFINAE and `if constexpr`. Large, so use it as a reference. | 5, 9 |
+| 5 | **Hands-On Design Patterns with C++**, Fedor Pikus | Design patterns in modern C++, including templates, concurrency and performance. | 6 |
+| 6 | **C++ High Performance**, Björn Andrist and Viktor Sehr | Performance, STL algorithms, memory and concurrency, relevant to real-time and low-latency work. | 4, 7 |
+| 7 | **The Art of Multiprocessor Programming**, Maurice Herlihy and Nir Shavit | The theory behind locks, lock-free structures and memory models. Heavy and academic; read it only if lock-free work interests you. | 7 |
+
+"Lessons" refers to the [lessons](#the-lessons) above.
+
+### Online
+
+- [C++ Core Guidelines](https://isocpp.github.io/CppCoreGuidelines/CppCoreGuidelines): the rules from Stroustrup and Sutter, a good companion to lesson 10 on coding rules.
+- [cppreference.com](https://en.cppreference.com/): the standard reference for language and library details.
 - [modern-cpp-tutorial](https://github.com/changkun/modern-cpp-tutorial): book-style tutorial on C++11/14/17/20 that explains why modern features exist.
 - [modern-cpp-features](https://github.com/AnthonyCalandra/modern-cpp-features): cheat sheet with a short snippet per feature, C++11 through C++23.
