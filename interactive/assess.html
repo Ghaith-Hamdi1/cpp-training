@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Level Check</title>
+<script>try{var t=JSON.parse(localStorage.getItem('cpptrain:theme'));if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body data-topic="assess" data-kind="assess">
+<main>
+<h1>Level check</h1>
+<p class="lead">A mixed multiple-choice test across all ten topics. It tells you where you stand and what to study first.</p>
+<div id="assess"></div>
+</main>
+<script src="assets/app.js"></script>
+<script src="assets/data/quiz-basics.js"></script>
+<script src="assets/data/quiz-oop.js"></script>
+<script src="assets/data/quiz-core.js"></script>
+<script src="assets/data/quiz-stl.js"></script>
+<script src="assets/data/quiz-templates.js"></script>
+<script src="assets/data/quiz-patterns.js"></script>
+<script src="assets/data/quiz-threads.js"></script>
+<script src="assets/data/quiz-strings.js"></script>
+<script src="assets/data/quiz-compiletime.js"></script>
+<script src="assets/data/quiz-rules.js"></script>
+<script>CT.assess('#assess');</script>
+</body>
+</html>

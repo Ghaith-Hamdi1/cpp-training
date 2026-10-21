@@ -180,6 +180,7 @@
   function buildHeader(kind) {
     const cur = document.body.dataset.topic;
     const links = '<a href="study-checklist.html"' + (kind === 'checklist' ? ' class="cur"' : '') + '>Study checklist</a>' +
+      '<a href="assess.html"' + (kind === 'assess' ? ' class="cur"' : '') + '>Level check</a>' +
       '<a href="mock-interview.html"' + (kind === 'mock' ? ' class="cur"' : '') + '>Mock interview</a>' + TOPICS.map((t) =>
       '<a href="' + t.file + '"' + (t.id === cur && kind === 'lesson' ? ' class="cur"' : '') + '>' + t.n + '. ' + esc(t.title) + '</a>' +
       '<a href="' + t.quiz + '"' + (t.id === cur && kind === 'quiz' ? ' class="cur"' : '') + '>&nbsp;&nbsp;&nbsp;&nbsp;&#8627; Quiz</a>').join('');
@@ -803,6 +804,75 @@
     paint();
   }
 
+  /* ---------------- level check: a mixed quiz that scores each topic ---------------- */
+  const ASSESS_COUNTS = { threads: 5, core: 4, templates: 4, patterns: 3, stl: 3, oop: 3, basics: 2, strings: 2, compiletime: 2, rules: 2 };
+  function assess(sel) {
+    const root = typeof sel === 'string' ? $(sel) : sel;
+    root.classList.add('quiz');
+    const qid = (q) => q.q + (q.code ? '\n' + q.code.trim() : '');
+    const codeHtml = (c) => '<figure class="code"><pre><code>' + highlight(clean(c)) + '</code></pre></figure>';
+    let order, pos, answers;
+    function intro() {
+      const total = Object.keys(ASSESS_COUNTS).reduce((n, k) => n + ASSESS_COUNTS[k], 0);
+      const last = store.get('assess:last', null);
+      root.innerHTML = '<div class="result"><p><b>' + total + ' multiple-choice questions</b> from every topic, weighted towards the ones named in the job description (about 20 minutes). ' +
+        'No explanations until the end, like a real test. You get an overall level and a score per topic, with the weakest topics first.' +
+        (last ? ' Last result: <b>' + last.pct + '%</b>.' : '') + '</p><div class="pickrow"><button class="btn" id="astart" type="button">Start</button></div></div>';
+      $('#astart', root).addEventListener('click', begin);
+    }
+    function begin() {
+      order = [];
+      Object.keys(ASSESS_COUNTS).forEach((id) => {
+        const d = CT.quizData[id];
+        if (d) shuffle(d.questions.slice()).slice(0, ASSESS_COUNTS[id]).forEach((q) => order.push({ q: q, topic: id }));
+      });
+      order = shuffle(order);
+      pos = 0; answers = [];
+      ask();
+    }
+    function ask() {
+      const item = order[pos], q = item.q;
+      const opts = shuffle(q.opts.map((t, i) => ({ t: t, ok: i === q.a })));
+      root.innerHTML = '<div class="q-top"><span>Question ' + (pos + 1) + ' of ' + order.length + '</span><span>' + esc(topicOf(item.topic).title) + '</span></div>' +
+        '<div class="q-bar"><span style="width:' + (pos / order.length) * 100 + '%"></span></div>' +
+        '<p class="q-text">' + fmt(q.q) + '</p>' + (q.code ? codeHtml(q.code) : '') +
+        '<div class="opts" role="group" aria-label="Answer choices">' + opts.map((o, i) => '<button class="opt" type="button" data-i="' + i + '"><span class="k">' + 'ABCDEFG'[i] + '</span><span>' + fmt(o.t) + '</span></button>').join('') + '</div>';
+      $$('.opt', root).forEach((b) => b.addEventListener('click', () => {
+        const ok = opts[+b.dataset.i].ok;
+        answers.push({ item: item, ok: ok });
+        const w = store.get('weak:' + item.topic, {});          // feed the same weak-question list as the topic quizzes
+        if (!ok) w[qid(q)] = 0; else if (qid(q) in w) { w[qid(q)]++; if (w[qid(q)] >= 2) delete w[qid(q)]; }
+        store.set('weak:' + item.topic, w);
+        pos++;
+        if (pos >= order.length) finish(); else ask();
+      }));
+    }
+    function finish() {
+      const per = {};
+      answers.forEach((a) => { const p = per[a.item.topic] || (per[a.item.topic] = { right: 0, n: 0 }); p.n++; if (a.ok) p.right++; });
+      const right = answers.filter((a) => a.ok).length;
+      const pct = Math.round((right / answers.length) * 100);
+      const level = pct >= 80 ? 'Interview-ready' : pct >= 60 ? 'Solid, with gaps' : pct >= 40 ? 'Developing' : 'Early stage';
+      const advice = pct >= 80 ? 'Keep sharp: use the mock interview and retake the quizzes of your weakest topics.' :
+        pct >= 60 ? 'Fix the weakest topics below, then retest.' :
+        pct >= 40 ? 'Work through the lessons of the weakest topics first, then their quizzes.' : 'Start with the lessons in order (basics first), then take each quiz. This is a normal first score.';
+      store.set('assess:last', { pct: pct });
+      const rows = Object.keys(per).map((id) => ({ id: id, p: per[id], pc: Math.round((per[id].right / per[id].n) * 100) }))
+        .sort((a, b) => a.pc - b.pc || (topicOf(b.id).hot ? 1 : 0) - (topicOf(a.id).hot ? 1 : 0));
+      const missed = answers.filter((a) => !a.ok);
+      root.innerHTML = '<div class="result ' + (pct >= 60 ? 'good' : 'bad') + '"><div class="score">' + right + ' / ' + answers.length + ' (' + pct + '%): ' + level + '</div><p>' + advice + '</p></div>' +
+        '<h3>By topic, weakest first</h3>' + rows.map((r) => { const t = topicOf(r.id); return '<div class="miss"><div class="qq">' + esc(t.n + '. ' + t.title) + (t.hot ? ' <span class="pill hot">in the job description</span>' : '') + ': ' + r.p.right + ' / ' + r.p.n + '</div>' +
+          '<div class="bar-track"><span style="width:' + r.pc + '%"></span></div><div class="pickrow"><a class="btn sm" href="' + t.file + '">Lesson</a><a class="btn sm ghost" href="' + t.quiz + '">Topic quiz</a></div></div>'; }).join('') +
+        '<p style="color:var(--muted)">Only 2 to 5 questions per topic, so treat each topic score as a hint, not a verdict.</p>' +
+        (missed.length ? '<h3>Questions you missed</h3>' + missed.map((a) => { const t = topicOf(a.item.topic), q = a.item.q; return '<div class="miss"><div class="qq">' + fmt(q.q) + '</div>' + (q.code ? codeHtml(q.code) : '') +
+          '<div><b style="color:var(--good)">Answer:</b> ' + fmt(q.opts[q.a]) + '</div><div style="color:var(--muted)">' + fmt(q.why) + '</div>' +
+          '<div><a href="' + t.file + (q.sec ? '#' + q.sec : '') + '">Re-read this in the lesson &rarr;</a></div></div>'; }).join('') : '') +
+        '<div class="pickrow"><button class="btn" id="aagain" type="button">Take it again with new questions</button></div>';
+      $('#aagain', root).addEventListener('click', begin);
+    }
+    intro();
+  }
+
   /* ---------------- mock interview: random cheat-sheet questions ---------------- */
   function mock() {
     const root = $('#mock');
@@ -891,6 +961,7 @@
     else if (kind === 'home') { if (main) main.classList.add('solo'); home(); }
     else if (kind === 'checklist' && main) { main.classList.add('solo'); checklist(main); }
     else if (kind === 'mock' && main) { main.classList.add('solo'); mock(); }
+    else if (kind === 'assess' && main) { main.classList.add('solo'); }
     const pt = $('#progress-tools');
     if (pt) progressTools(pt);
   }
@@ -904,6 +975,6 @@
     if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(() => { /* optional */ });
   }
 
-  window.CT = { quizData: {}, TOPICS, stepper, threadsim, quiz, highlight, fmt, esc };
+  window.CT = { quizData: {}, TOPICS, stepper, threadsim, quiz, assess, highlight, fmt, esc };
   boot();
 })();
