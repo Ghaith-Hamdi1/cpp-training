@@ -404,11 +404,13 @@
     /* Leitner-style weak list: question text -> box (0 = just missed). Answering right twice in later runs clears it. */
     const wkey = 'weak:' + cfg.id;
     const weak = () => store.get(wkey, {});
-    const weakList = () => { const w = weak(); return cfg.questions.filter((q) => q.q in w); };
+    const qid = (q) => q.q + (q.code ? '\n' + q.code.trim() : '');
+    const weakList = () => { const w = weak(); return cfg.questions.filter((q) => qid(q) in w); };
     function record(q, ok) {
       const w = weak();
-      if (!ok) w[q.q] = 0;
-      else if (q.q in w) { w[q.q]++; if (w[q.q] >= 2) delete w[q.q]; }
+      const k = qid(q);
+      if (!ok) w[k] = 0;
+      else if (k in w) { w[k]++; if (w[k] >= 2) delete w[k]; }
       store.set(wkey, w);
     }
     const lessonHref = () => { const t = topicOf(document.body.dataset.topic); return t ? t.file : 'index.html'; };
@@ -511,6 +513,6 @@
     else if (kind === 'home') { if (main) main.classList.add('solo'); home(); }
   }
 
-  window.CT = { TOPICS, stepper, threadsim, quiz, highlight, fmt, esc };
+  window.CT = { quizData: {}, TOPICS, stepper, threadsim, quiz, highlight, fmt, esc };
   boot();
 })();

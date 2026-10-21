@@ -1,0 +1,17 @@
+name: Check interactive lessons
+
+on:
+  push:
+    paths: ['interactive/**', 'tools/**']
+  pull_request:
+    paths: ['interactive/**', 'tools/**']
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - run: node tools/check-interactive.mjs
