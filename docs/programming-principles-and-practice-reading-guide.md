@@ -138,6 +138,42 @@ Those topics make up most of what interviews ask, so the lessons are the main so
 - Inheritance does not carry through templates: `vector<Circle>` is not a `vector<Shape>`.
 - A general-purpose template must cope with types that have no default value, throwing copies and destructors.
 
+## Special focus: the STL
+
+The STL is Part III of the book (chapters 19 to 21). It is taught from the idea down rather than as a reference. It starts with a worked example that generalizes a loop until iterators appear, then covers containers, then algorithms. Matching lesson: **4. The STL**.
+
+| Step | Book section | PDF pages | What it teaches | Matching lesson section |
+|---|---|---|---|---|
+| 1 | **19.1 Storing and processing data, STL ideals** (19.1.3) | 559 to 564 | The motivation. Two loops that find the highest value, one for an array and one for a vector, are generalized with pointers, which leads to iterators and `[first, last)` ranges. The STL is defined as the containers plus the generic algorithms. | The big picture |
+| 2 | 19.2 Sequences and iterators | 565 to 567 | An iterator is a generalized pointer; sequences are traversed from `begin()` to `end()`. | Iterators |
+| 3 | **20.7.1 Iterator categories** | 610 to 612 | The six categories (input, output, forward, bidirectional, random-access, contiguous) and which container provides which. Range versions such as `ranges::find`. | Iterators |
+| 4 | 17.8 Changing size | 517 to 522 | How a `vector` grows: `reserve`, `resize` and `push_back` on a hand-built `Vector`. | vector: the workhorse |
+| 5 | **20.6 Container overview** | 604 to 610 | One-line advice per container: `vector` is "the default container", `list` for inserts and deletes without moving elements, `forward_list` for mostly-empty lists, `deque` "don't use until you have expert-level knowledge", and the ordered versus hash-based associative containers. The informal definition of an STL container and its operations, and the "almost containers" (`string`, built-in arrays, I/O streams). | Other sequence containers; Which container should I use? |
+| 6 | 20.1 to 20.2 Associative containers and `map` | 591 to 598 | The word-count example (`++words[s]`), where a missing key is inserted with a default value, and structured bindings. | Associative and unordered containers |
+| 7 | 20.3 and 20.5 `unordered_map` and `set` | 598 to 599 and 602 to 604 | Hash tables, and sets for tracking individual values. | Associative and unordered containers |
+| 8 | 20.4 Timing | 599 to 602 | Measuring a linear `find` in a `vector` against a `map` lookup with `<chrono>`. Make no efficiency claim without measuring, and use the result so the optimizer cannot delete the code. | Which container should I use? |
+| 9 | **21.1 Standard algorithms** | 617 to 622 | About 125 algorithms; a summary table (`find`, `find_if`, `count`, `count_if`, `sort`, `copy`, `merge`, `equal_range`, `accumulate`, `max_element`, `iota`). Input sequences are iterator pairs, and failure is reported by returning `end()`. | Algorithms |
+| 10 | 21.2 Function objects and lambdas | 623 to 626 | Function objects, predicates on class members, lambda expressions. | Algorithms; Core Language: Lambdas |
+| 11 | 21.5 Sorting and searching | 633 to 635 | `sort` with a custom comparator. `binary_search` and `equal_range`, which require a sorted sequence and are much faster than `find` on long ones. | Algorithms |
+| optional | 19.3, 19.4, 19.6 Linked lists, making `Vector` act like an STL container, `vector`/`list`/`string` | 568 to 572, 573 to 578 and 585 to 586 | Building a list and a container that fits the STL. | Other sequence containers |
+| optional | 21.3 to 21.4 Numerical algorithms and copying | 627 to 632 | `accumulate`, `inner_product`, `copy` and `copy_if`. | Algorithms |
+
+**If you only have time for part of it:** read steps 3, 5 and 9 (about 16 pages, PDF pages 604 to 612 and 617 to 622). They give the container advice, the iterator categories and the algorithm model.
+
+**What the book barely covers or omits, so use the lesson for it:**
+- `stack`, `queue` and `priority_queue` are absent, and `deque` appears only in the advice above.
+- Iterator invalidation gets only a brief mention.
+- There is no erase-remove idiom, and `transform` appears in only a few places.
+- There is no `string_view`.
+- Complexity is limited to a brief big-O section (20.3) and the timing experiment, with no table of operation costs.
+
+**Key ideas to take away**
+- The STL is three parts that fit together: containers hold data, iterators walk it, and algorithms work on iterator ranges without knowing the container.
+- Default to `vector`; pick another container only for a reason you can state.
+- A `map`'s `operator[]` inserts a default value for a missing key. A `map` is ordered, and hash containers are the "optimized version" for large lookups.
+- Binary search needs a sorted sequence. Algorithms report "not found" by returning `end()`.
+- Measure before you claim something is faster.
+
 ## Skip for interview preparation
 
 - Chapter 1 (hello world and the build process, which the first lesson summarises) and chapters 5 and 6 (building a calculator parser).
