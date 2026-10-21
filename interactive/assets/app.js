@@ -75,6 +75,16 @@
     return out + esc(src.slice(last));
   }
 
+  /* Compiler Explorer link: runs the snippet when it has main(), otherwise just compiles it. */
+  function godboltUrl(src) {
+    const opts = '-std=c++20 -O1 -pthread';
+    const hasMain = /main\s*\(/.test(src);
+    const state = { sessions: [{ id: 1, language: 'c++', source: src,
+      compilers: [{ id: 'g132', options: opts }],
+      executors: hasMain ? [{ compiler: { id: 'g132', options: opts }, stdin: '', stdout: true, wrap: true }] : [] }] };
+    return 'https://godbolt.org/clientstate/' + encodeURIComponent(btoa(unescape(encodeURIComponent(JSON.stringify(state)))));
+  }
+
   function renderCodeBlocks() {
     $$('script[type="text/x-cpp"],script[type="text/x-out"]').forEach((s) => {
       const isOut = s.type === 'text/x-out';
@@ -84,7 +94,8 @@
       const title = s.getAttribute('data-title');
       fig.innerHTML = (title || isOut ? '<figcaption>' + (title ? esc(title) : '') + '</figcaption>' : '') +
         '<pre><code>' + (isOut ? esc(txt) : highlight(txt)) + '</code></pre>' +
-        (isOut ? '' : '<button class="copy" type="button">Copy</button>');
+        (isOut ? '' : '<a class="run" target="_blank" rel="noopener" href="' + esc(godboltUrl(txt)) + '">' + (/main\s*\(/.test(txt) ? 'Run' : 'Try') + ' &#8599;</a>' +
+          '<button class="copy" type="button">Copy</button>');
       const btn = $('.copy', fig);
       if (btn) {
         btn.addEventListener('click', () => {

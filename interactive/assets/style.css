@@ -201,6 +201,8 @@ figure.code pre, .st-code { margin: 0; padding: 14px 16px; background: var(--cod
 figure.code pre code { background: none; padding: 0; font-size: inherit; }
 figure.out pre { border-left: 4px solid var(--good); }
 figure.out figcaption::before { content: "Output"; }
+.run { position: absolute; top: 6px; right: 62px; font-size: 0.72rem; padding: 2px 8px; border-radius: 6px; border: 1px solid var(--border); background: var(--card); color: var(--muted); text-decoration: none; opacity: 0; transition: opacity 0.15s; }
+figure.code:hover .run, .run:focus { opacity: 1; }
 .copy { position: absolute; top: 6px; right: 6px; font-size: 0.72rem; padding: 2px 8px; border-radius: 6px; border: 1px solid var(--border); background: var(--card); color: var(--muted); cursor: pointer; opacity: 0; transition: opacity 0.15s; }
 figure.code:hover .copy, .copy:focus { opacity: 1; }
 .tk-kw { color: var(--tk-kw); font-weight: 600; }
@@ -345,6 +347,6 @@ select, .chip {
   .hist .row { grid-template-columns: 76px 1fr 40px; }
 }
 @media print {
-  .top, .toc, .pager, .done, .copy { display: none; }
+  .top, .toc, .pager, .done, .copy, .run { display: none; }
   .layout { display: block; }
 }
