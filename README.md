@@ -10,7 +10,7 @@ Study material for learning C++ and preparing for C++ interviews, in three parts
 | **Prepare for an interview** | The [study checklist](https://ghaith-hamdi1.github.io/cpp-training/study-checklist.html), with clickable boxes that remember your progress |
 | **Find one topic** | The [topic map](docs/topic-map.md): where each topic appears in the notes, the recaps and the lessons |
 | **Read the source notes** | The [training notes index](docs/README.md) |
-| **Go deeper with the books** | The reading guides for [C++ Concurrency in Action](docs/concurrency-in-action-reading-guide.md), [Programming: Principles and Practice](docs/programming-principles-and-practice-reading-guide.md) and [Effective Modern C++](docs/effective-modern-cpp-reading-guide.md) |
+| **Go deeper with the books** | The reading guides for [C++ Concurrency in Action](docs/concurrency-in-action-reading-guide.md), [Programming: Principles and Practice](docs/programming-principles-and-practice-reading-guide.md), [Effective Modern C++](docs/effective-modern-cpp-reading-guide.md) and [C++ Move Semantics](docs/move-semantics-complete-guide-reading-guide.md) |
 
 The lessons work offline after one visit. From a clone you can also open [`interactive/index.html`](interactive/index.html) directly; no install is needed.
 
@@ -58,7 +58,7 @@ After the two books in this repo (see their reading guides above), these are the
 | # | Book | Why read it | Lessons |
 |---|---|---|---|
 | 1 | **Effective Modern C++**, Scott Meyers ([reading guide](docs/effective-modern-cpp-reading-guide.md)) | Short, self-contained items on move semantics, smart pointers, lambdas, `auto`, forwarding references and a concurrency chapter (C++11/14). The best interview-style book on the list. | 3, 5, 7 |
-| 2 | **[C++ Move Semantics: The Complete Guide](https://leanpub.com/cppmove)**, Nicolai Josuttis | A whole book on one topic (about 260 pages, 2020): `std::move`, rvalue references, moved-from states, value categories, `std::forward`, forwarding references and `decltype(auto)`. The deepest treatment of move semantics. | 2, 3, 5 |
+| 2 | **[C++ Move Semantics: The Complete Guide](https://leanpub.com/cppmove)**, Nicolai Josuttis ([reading guide](docs/move-semantics-complete-guide-reading-guide.md)) | A whole book on one topic (about 260 pages, 2020): `std::move`, rvalue references, moved-from states, value categories, `std::forward`, forwarding references and `decltype(auto)`. The deepest treatment of move semantics. | 2, 3, 5 |
 | 3 | **A Tour of C++**, Bjarne Stroustrup | A short whole-language overview by the language's creator, including the C++20 features (concepts, ranges, modules, coroutines). | 3, 4, 5 |
 | 4 | **C++ Templates: The Complete Guide**, Vandevoorde, Josuttis and Gregor | The definitive templates book: variadic templates, forwarding, type traits, SFINAE and `if constexpr`. Large, so use it as a reference. | 5, 9 |
 | 5 | **Hands-On Design Patterns with C++**, Fedor Pikus | Design patterns in modern C++, including templates, concurrency and performance. | 6 |

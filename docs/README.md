@@ -8,7 +8,7 @@ The 4 source PDFs of the training, converted into per-topic Markdown, with match
 
 - [Topic map](topic-map.md): where each topic appears in the training notes, the recaps and the lessons.
 - [Study checklist](study-checklist.md): a step-by-step plan, also available with clickable boxes on the [site](https://ghaith-hamdi1.github.io/cpp-training/study-checklist.html).
-- Reading guides: [C++ Concurrency in Action](concurrency-in-action-reading-guide.md), [Programming: Principles and Practice Using C++](programming-principles-and-practice-reading-guide.md) and [Effective Modern C++](effective-modern-cpp-reading-guide.md).
+- Reading guides: [C++ Concurrency in Action](concurrency-in-action-reading-guide.md), [Programming: Principles and Practice Using C++](programming-principles-and-practice-reading-guide.md), [Effective Modern C++](effective-modern-cpp-reading-guide.md) and [C++ Move Semantics: The Complete Guide](move-semantics-complete-guide-reading-guide.md).
 
 ## [Module 1: C++ Basics](01-cpp-basics/README.md)
 
