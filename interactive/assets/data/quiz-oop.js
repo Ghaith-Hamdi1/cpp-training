@@ -132,6 +132,22 @@ walk(5.0);`,
 
     { q: 'Which statement about `protected` members is correct?',
       opts: ['Accessible by anyone', 'Accessible inside the class and its derived classes, but not from outside code', 'Accessible only inside the class', 'Accessible only from friends'], a: 1,
-      why: '`protected` sits between public and private: derived classes can use the member, outside code cannot.' }
+      why: '`protected` sits between public and private: derived classes can use the member, outside code cannot.' },
+
+    { q: 'What happens on the last line?',
+      code: String.raw`
+class Widget {
+public:
+    ~Widget() { std::cout << "bye"; }
+    // no other special member functions declared
+};
+Widget a;
+Widget b = std::move(a);`,
+      opts: ['It moves: the compiler generates a move constructor', 'It copies: declaring a destructor suppresses the move operations, so the copy constructor is used', 'It does not compile', 'Undefined behavior'], a: 1,
+      why: 'A user-declared destructor (or copy operation) stops the compiler generating move operations, and an rvalue then falls back to the copy constructor. It compiles and works, just more slowly. Ask for the defaults with `= default` if the class should stay movable.' },
+
+    { q: 'What is a class invariant?',
+      opts: ['A member that is declared const', 'A rule that must hold for every valid object, established by the constructors and preserved by every member function', 'A function that cannot be overridden', 'A static data member'], a: 1,
+      why: 'For `BankAccount` it might be "the balance never goes negative". Hiding the representation and checking inputs in the public functions is how a class protects its invariant. If you cannot state one, the type is probably plain data and should be a `struct`.' }
   ]
 };

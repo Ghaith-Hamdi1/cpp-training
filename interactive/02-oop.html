@@ -41,6 +41,7 @@ acc.withdraw(30);          // fine
 <tr><td><code>protected</code></td><td>the class itself and classes derived from it</td></tr>
 <tr><td><code>private</code></td><td>only the class itself (and its friends)</td></tr>
 </table>
+<p>The rule that decides what "valid" means is the class <b>invariant</b>, here "the balance never goes negative". Hide the representation, let constructors create only valid objects, and make every member function leave the object valid. If you cannot state an invariant, the type is probably plain data and should be a <code>struct</code>. Keep the public interface small, <i>as small as possible but no smaller</i>: put extras in non-member helper functions, which also leaves fewer places to look when something breaks.</p>
 <div class="callout tip"><span class="label">struct vs class</span>They are the same thing except for defaults: <code>struct</code> members and inheritance are <b>public</b> by default, <code>class</code> ones are <b>private</b>. By convention, use <code>struct</code> for plain data and <code>class</code> when there are invariants to protect.</div>
 </section>
 
@@ -62,6 +63,7 @@ public:
 <li><b>Use the initializer list</b> (after the colon). It <i>initializes</i> members directly. Assigning in the body means the member was default-constructed first and then overwritten. <code>const</code> and reference members <i>can only</i> be set in the list.</li>
 <li><b>Members are initialized in declaration order</b>, not in the order you write the list. Mismatched order is a classic warning (<code>-Wreorder</code>).</li>
 <li><b><code>explicit</code></b> on a one-argument constructor stops the compiler converting an <code>int</code> into your type behind your back.</li>
+<li><b>Every object should start valid.</b> Constructors guarantee it. A type with an obvious default gets a default constructor, which is why <code>std::string s;</code> is empty rather than garbage.</li>
 </ul>
 
 <h3>Order of construction and destruction</h3>
@@ -102,6 +104,17 @@ public:
     NoCopy& operator=(const NoCopy&) = delete;
 };
 </script>
+<h3>What the compiler still generates once you declare something</h3>
+<table>
+<tr><th>You declare</th><th>Copying</th><th>Moving</th></tr>
+<tr><td>nothing</td><td>generated</td><td>generated</td></tr>
+<tr><td>a destructor, a copy constructor or a copy assignment</td><td>still generated (but deprecated)</td><td><b>not generated</b>: an rvalue silently falls back to a copy</td></tr>
+<tr><td>a move constructor or a move assignment</td><td><b>disabled</b></td><td>only what you declared</td></tr>
+</table>
+<ul>
+<li>A class can quietly lose its moves: adding a logging destructor later turns every move into a copy, and the code still compiles and passes its tests. To keep the defaults, ask for them with <code>= default</code>. A polymorphic base with <code>virtual ~Base() = default;</code> must also default its copy and move operations if it should stay movable.</li>
+<li><b>Never <code>= delete</code> a move operation.</b> It disables the copy fallback too, so even a copy from an rvalue becomes an error. To make a move-only type, delete the <i>copy</i> operations.</li>
+</ul>
 <div class="callout tip"><span class="label">Best answer in an interview</span>"I follow the Rule of Zero: I use <code>std::vector</code> and smart pointers so the compiler-generated special members are already correct. I only write the Rule of Five when I wrap a raw resource."</div>
 </section>
 
@@ -247,7 +260,7 @@ std::ostream& operator<<(std::ostream& os, const Vec2& v) {   // MUST be non-mem
 <details class="ex"><summary>Why must a base class destructor be virtual?</summary><div><p>If you <code>delete</code> a derived object through a base pointer and the destructor is not virtual, only the base destructor runs: undefined behavior, and the derived part's resources leak. A virtual destructor makes <code>delete</code> dispatch to the most derived destructor first. Any class meant to be a polymorphic base needs one.</p></div></details>
 <details class="ex"><summary>What is the difference between overloading and overriding?</summary><div><p>Overloading: several functions with the same name and different parameters in the same scope, chosen at compile time. Overriding: a derived class provides its own implementation of a base <i>virtual</i> function with the same signature, chosen at runtime.</p></div></details>
 <details class="ex"><summary>What is a pure virtual function and an abstract class?</summary><div><p>A pure virtual function is declared <code>= 0</code> and has no required implementation. A class with at least one cannot be instantiated; it defines an interface that derived classes must implement.</p></div></details>
-<details class="ex"><summary>What is the Rule of Three / Five / Zero?</summary><div><p>Three: if you define a destructor, copy constructor or copy assignment, define all three. Five: add the move constructor and move assignment. Zero: design classes so none are needed by holding resources in self-managing members like <code>vector</code> and <code>unique_ptr</code>.</p></div></details>
+<details class="ex"><summary>What is the Rule of Three / Five / Zero?</summary><div><p>Three: if you define a destructor, copy constructor or copy assignment, define all three. Five: add the move constructor and move assignment. Zero: design classes so none are needed by holding resources in self-managing members like <code>vector</code> and <code>unique_ptr</code>. Remember that declaring a destructor or a copy operation suppresses the move operations, so moves silently become copies.</p></div></details>
 <details class="ex"><summary>What is object slicing?</summary><div><p>Copying a derived object into a base-class value discards the derived members and virtual behaviour. Avoid it by passing polymorphic objects by reference or pointer.</p></div></details>
 <details class="ex"><summary>What does <code>explicit</code> do?</summary><div><p>It stops a constructor (or conversion operator) from being used for implicit conversions. Without it, <code>void f(Account); f(5);</code> could silently build an <code>Account</code> from 5.</p></div></details>
 <details class="ex"><summary>Can a constructor be virtual? Can a destructor be pure virtual?</summary><div><p>A constructor cannot be virtual: the vptr is set up by the constructor, so there is no dynamic type yet. A destructor <i>can</i> be pure virtual to make a class abstract, but it still needs a body because derived destructors call it.</p></div></details>
