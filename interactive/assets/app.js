@@ -377,6 +377,17 @@
     root.classList.add('quiz');
     const key = 'quiz:' + cfg.id;
     let order, pos, missed, right;
+    /* Leitner-style weak list: question text -> box (0 = just missed). Answering right twice in later runs clears it. */
+    const wkey = 'weak:' + cfg.id;
+    const weak = () => store.get(wkey, {});
+    const weakList = () => { const w = weak(); return cfg.questions.filter((q) => q.q in w); };
+    function record(q, ok) {
+      const w = weak();
+      if (!ok) w[q.q] = 0;
+      else if (q.q in w) { w[q.q]++; if (w[q.q] >= 2) delete w[q.q]; }
+      store.set(wkey, w);
+    }
+    const lessonHref = () => { const t = topicOf(document.body.dataset.topic); return t ? t.file : 'index.html'; };
 
     const codeHtml = (c) => '<figure class="code"><pre><code>' + highlight(clean(c)) + '</code></pre></figure>';
 
@@ -384,8 +395,11 @@
       const best = store.get(key, null);
       root.innerHTML = '<div class="result"><p><b>' + cfg.questions.length + ' questions.</b> Pick an answer to see the explanation straight away. ' +
         'Questions and answers are shuffled each time.' + (best ? ' Your best score so far: <b>' + best.best + '%</b>.' : '') + '</p>' +
-        '<button class="btn" id="qstart" type="button">Start the quiz</button></div>';
+        '<div class="pickrow"><button class="btn" id="qstart" type="button">Start the quiz</button>' +
+        (weakList().length ? '<button class="btn ghost" id="qweak" type="button">Review ' + weakList().length + ' weak question' + (weakList().length > 1 ? 's' : '') + '</button>' : '') + '</div></div>';
       $('#qstart', root).addEventListener('click', () => begin(cfg.questions));
+      const wb = $('#qweak', root);
+      if (wb) wb.addEventListener('click', () => begin(weakList()));
     }
     function begin(list) {
       order = shuffle(list.slice());
@@ -407,6 +421,7 @@
         $$('.opt', root).forEach((x, i) => { x.disabled = true; if (opts[i].ok) x.classList.add('right'); });
         if (!pick.ok) b.classList.add('wrong');
         if (pick.ok) right++; else missed.push(q);
+        record(q, pick.ok);
         const last = pos === order.length - 1;
         $('.fb', root).innerHTML = '<div class="why"><b class="' + (pick.ok ? 'ok">Correct.' : 'no">Not quite.') + '</b> ' + fmt(q.why) + '</div>' +
           '<button class="btn" id="qnext" type="button">' + (last ? 'See results' : 'Next question') + '</button>';
@@ -417,12 +432,14 @@
     function finish() {
       const pct = Math.round((right / order.length) * 100);
       const prev = store.get(key, null);
-      store.set(key, { best: Math.max(pct, prev ? prev.best : 0), last: pct, total: cfg.questions.length });
+      const full = order.length === cfg.questions.length;
+      store.set(key, { best: full ? Math.max(pct, prev ? prev.best : 0) : (prev ? prev.best : 0), last: full ? pct : (prev ? prev.last : pct), total: cfg.questions.length });
       const verdict = pct >= 90 ? 'Excellent. You are interview-ready on this topic.' : pct >= 70 ? 'Solid. Review the explanations below and retry the ones you missed.' :
         pct >= 50 ? 'Getting there. Re-read the lesson sections for the questions you missed.' : 'Go back through the lesson, then try again. This is a normal first score for new material.';
       root.innerHTML = '<div class="result ' + (pct >= 70 ? 'good' : 'bad') + '"><div class="score">' + right + ' / ' + order.length + ' (' + pct + '%)</div><p>' + verdict + '</p></div>' +
         (missed.length ? '<h3>Questions to review</h3>' + missed.map((q) => '<div class="miss"><div class="qq">' + fmt(q.q) + '</div>' + (q.code ? codeHtml(q.code) : '') +
-          '<div><b class="ok" style="color:var(--good)">Answer:</b> ' + fmt(q.opts[q.a]) + '</div><div style="color:var(--muted)">' + fmt(q.why) + '</div></div>').join('') : '') +
+          '<div><b class="ok" style="color:var(--good)">Answer:</b> ' + fmt(q.opts[q.a]) + '</div><div style="color:var(--muted)">' + fmt(q.why) + '</div>' +
+          '<div><a href="' + lessonHref() + (q.sec ? '#' + q.sec : '') + '">Re-read this in the lesson &rarr;</a></div></div>').join('') : '') +
         '<div class="pickrow">' + (missed.length ? '<button class="btn" id="qretry" type="button">Retry the ' + missed.length + ' missed</button>' : '') +
         '<button class="btn ghost" id="qagain" type="button">Restart the full quiz</button></div>';
       const r = $('#qretry', root);
@@ -444,7 +461,8 @@
       const pct = total ? Math.round((done / total) * 100) : 0;
       return '<div class="card"><span class="num">TOPIC ' + t.n + '</span><h3>' + esc(t.title) + '</h3><p>' + esc(t.blurb) + '</p>' +
         '<div class="meta"><span class="pill">' + t.time + '</span>' + (t.hot ? '<span class="pill hot">named in the job description</span>' : '') +
-        '<span class="pill">' + (total ? done + '/' + total + ' sections' : 'not started') + '</span>' + (q ? '<span class="pill">quiz best ' + q.best + '%</span>' : '') + '</div>' +
+        '<span class="pill">' + (total ? done + '/' + total + ' sections' : 'not started') + '</span>' + (q ? '<span class="pill">quiz best ' + q.best + '%</span>' : '') +
+        (Object.keys(store.get('weak:' + t.id, {})).length ? '<span class="pill hot">' + Object.keys(store.get('weak:' + t.id, {})).length + ' to review</span>' : '') + '</div>' +
         '<div class="bar-track"><span style="width:' + pct + '%"></span></div>' +
         '<div class="row"><a class="btn sm" href="' + t.file + '">Lesson</a><a class="btn sm ghost" href="' + t.quiz + '">Quiz</a></div></div>';
     }).join('');
