@@ -449,3 +449,8 @@ main:not(.last-page) > .pager { display: none; }
 .aq .mark { display: inline-block; width: 1.2em; font-weight: 700; }
 .aq.good .mark { color: var(--good); }
 .aq.bad .mark { color: var(--bad); }
+
+/* Level check: "I don't know" */
+.btn.dk.picked { background: var(--warn-soft); border-color: var(--warn); color: var(--warn); }
+.qdot.dk { border-style: dashed; border-color: var(--warn); }
+details.aq.dk > summary .mark { color: var(--warn); }
