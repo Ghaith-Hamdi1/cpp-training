@@ -10,11 +10,11 @@
 <body data-topic="core" data-kind="lesson">
 <main>
 <h1>Core Language and Modern C++</h1>
-<p class="lead">The ideas that separate "I know C++ syntax" from "I write modern C++": RAII, move semantics, smart pointers, lambdas, exceptions and casts, plus a tour of what C++11 to C++20 added. You should be comfortable with <a href="01-basics.html">Basics</a> and <a href="02-oop.html">OOP</a> first.</p>
+<p class="lead">What separates "I know C++ syntax" from "I write modern C++": RAII, move semantics, smart pointers, lambdas, exceptions, casts, and C++11 to 20 features. Assumes <a href="01-basics.html">Basics</a> and <a href="02-oop.html">OOP</a>.</p>
 
 <section data-title="RAII: the central idea">
 <h2>RAII: the central idea</h2>
-<p><b>Resource Acquisition Is Initialization.</b> Tie the lifetime of a resource (heap memory, file, lock, socket) to the lifetime of an object. Acquire it in the constructor, release it in the destructor. Since destructors run automatically at the end of scope, <b>even when an exception is thrown</b>, the resource can never leak.</p>
+<p><b>RAII</b>: tie a resource (memory, file, lock, socket) to an object. Acquire in the constructor, release in the destructor. Destructors run even when an exception is thrown, so nothing leaks.</p>
 <script type="text/x-cpp">
 class File {
     std::FILE* f_;
@@ -25,15 +25,15 @@ public:
     File& operator=(const File&) = delete;
 };
 </script>
-<p>Watch what happens when something throws in the middle:</p>
+<p>Watch a throw in the middle:</p>
 <div id="st-raii"></div>
-<p>You have already been using RAII: <code>std::vector</code> frees its memory, <code>std::unique_ptr</code> deletes its object, <code>std::lock_guard</code> unlocks its mutex, <code>std::fstream</code> closes its file. The rule: <b>never</b> manage a resource with a bare <code>new</code>/<code>delete</code>, <code>lock()</code>/<code>unlock()</code> or <code>fopen</code>/<code>fclose</code> pair in your own code. Wrap it.</p>
-<div class="callout interview"><span class="label">Interview angle</span>"What is RAII and why is it important?" It binds resource lifetime to object lifetime so cleanup is automatic and exception-safe. It replaces <code>try/finally</code> (which C++ does not have) and is the reason C++ needs no garbage collector.</div>
+<p><code>vector</code>, <code>unique_ptr</code>, <code>lock_guard</code>, <code>fstream</code> are all RAII. Never manage a resource with a bare <code>new</code>/<code>delete</code>, <code>lock()</code>/<code>unlock()</code> or <code>fopen</code>/<code>fclose</code>: wrap it.</p>
+<div class="callout interview"><span class="label">Interview angle</span>RAII binds resource lifetime to object lifetime: automatic, exception-safe cleanup. It replaces <code>try/finally</code> and removes the need for a garbage collector.</div>
 </section>
 
 <section data-title="Lvalues, rvalues and references">
 <h2>Lvalues, rvalues and references</h2>
-<p>An <b>lvalue</b> is an object with a name and an address you can take (<code>x</code>, <code>v[0]</code>). An <b>rvalue</b> is a temporary with no name (<code>5</code>, <code>a + b</code>, a function's returned value). Rvalues are about to disappear, so their guts are safe to steal.</p>
+<p>An <b>lvalue</b> has a name and address (<code>x</code>, <code>v[0]</code>). An <b>rvalue</b> is an unnamed temporary (<code>5</code>, <code>a + b</code>, a returned value): about to vanish, so its guts can be stolen.</p>
 <table>
 <tr><th>Reference type</th><th>Binds to</th><th>Typical use</th></tr>
 <tr><td><code>T&amp;</code></td><td>lvalues only</td><td>modify the caller's object</td></tr>
@@ -50,25 +50,26 @@ f(name);              // OK
 g(std::string("x"));  // OK: temporary
 g(std::move(name));   // OK: std::move says "treat name as a temporary"
 </script>
-<p>Every expression has exactly one of three <b>value categories</b>:</p>
+<p>Three <b>value categories</b>:</p>
 <table>
 <tr><th>Category</th><th>Roughly</th><th>Examples</th></tr>
 <tr><td><b>lvalue</b></td><td>a named object</td><td><code>x</code>, <code>v[0]</code></td></tr>
 <tr><td><b>prvalue</b></td><td>an unnamed temporary</td><td><code>5</code>, <code>a + b</code>, a call that returns by value</td></tr>
 <tr><td><b>xvalue</b></td><td>an object marked as movable</td><td><code>std::move(x)</code></td></tr>
 </table>
-<p>"Rvalue" means a prvalue or an xvalue. An rvalue reference binds only to rvalues, which is why <code>std::move</code>, which produces an xvalue, lets a named object bind to <code>T&amp;&amp;</code>.</p>
-<div class="callout warn"><span class="label">A name is always an lvalue</span>Inside <code>g</code>, the parameter <code>s</code> has a name, so it is an <i>lvalue</i> there even though its type is <code>std::string&amp;&amp;</code>. To pass it on as an rvalue again you must write <code>std::move(s)</code> (or <code>std::forward</code> in templates).</div>
+<p>"Rvalue" = prvalue or xvalue. <code>std::move</code> produces an xvalue, so a named object can bind to <code>T&amp;&amp;</code>.</p>
+<div class="callout warn"><span class="label">A name is always an lvalue</span>Inside <code>g</code>, <code>s</code> is an lvalue despite its <code>&amp;&amp;</code> type. Pass it on with <code>std::move(s)</code> (or <code>std::forward</code>).</div>
 </section>
 
 <section data-title="Move semantics">
 <h2>Move semantics</h2>
-<p>Copying a <code>std::vector</code> with a million elements allocates and copies a million elements. If the source is a temporary that is about to be destroyed anyway, that is wasteful. A <b>move</b> just <i>steals the internal pointer</i> and leaves the source empty.</p>
+<figure class="fig"><svg viewBox="0 0 640 190" role="img" aria-label="A copy duplicates the buffer; a move hands the pointer over and leaves the source empty"><defs><marker id="d1" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path class="ah" d="M0 0L10 5L0 10z"/></marker></defs><text class="t" x="10" y="22">Copy: b = a</text><rect class="acc" x="10" y="34" width="70" height="30" rx="5"/><text x="45" y="54" text-anchor="middle">a</text><path class="ar" d="M80 49H168" marker-end="url(#d1)"/><rect class="wn" x="170" y="34" width="150" height="30" rx="5"/><text x="245" y="54" text-anchor="middle">1,000,000 ints</text><rect class="acc" x="350" y="34" width="70" height="30" rx="5"/><text x="385" y="54" text-anchor="middle">b</text><path class="ar" d="M420 49H488" marker-end="url(#d1)"/><rect class="wn" x="490" y="34" width="140" height="30" rx="5"/><text x="560" y="54" text-anchor="middle">a second copy</text><text class="m" x="10" y="84">allocates and copies a million elements</text><text class="t" x="10" y="122">Move: b = std::move(a)</text><rect class="bd" x="10" y="134" width="70" height="30" rx="5"/><text x="45" y="154" text-anchor="middle">a: null</text><rect class="acc" x="350" y="134" width="70" height="30" rx="5"/><text x="385" y="154" text-anchor="middle">b</text><path class="ar" d="M420 149H488" marker-end="url(#d1)"/><rect class="wn" x="490" y="134" width="140" height="30" rx="5"/><text x="560" y="154" text-anchor="middle">same buffer</text><text class="m" x="100" y="154">b stole the pointer: two assignments, no copying</text><text class="m" x="10" y="182">The moved-from object is valid but unspecified: destroy it or assign to it.</text></svg><figcaption>std::move only casts; the move constructor does the stealing.</figcaption></figure>
+<p>Copying a million-element vector copies a million elements; if the source is a dying temporary that is waste. A <b>move</b> just <i>steals the internal pointer</i>.</p>
 <div id="st-move"></div>
 <ul>
-<li><code>std::move(x)</code> <b>does not move anything</b>. It is only a cast to an rvalue reference, a signal that says "you may steal from this". The actual stealing happens in the move constructor or move assignment that gets selected.</li>
-<li>A moved-from object is <b>valid but unspecified</b>. You may destroy it or assign a new value to it. Do not read its value.</li>
-<li>If your type holds a raw resource, write the Rule of Five. Mark the move operations <code>noexcept</code>: <code>std::vector</code> only moves elements during reallocation if the move cannot throw, otherwise it falls back to copying.</li>
+<li><code>std::move(x)</code> <b>moves nothing</b>: it is a cast to an rvalue reference meaning "you may steal". The move constructor or assignment does the stealing.</li>
+<li>A moved-from object is <b>valid but unspecified</b>: destroy or reassign it, do not read it.</li>
+<li>Raw resource? Rule of Five, with <code>noexcept</code> moves: <code>vector</code> only moves on reallocation if the move cannot throw, else it copies.</li>
 </ul>
 <script type="text/x-cpp">
 class Buffer {
@@ -91,7 +92,7 @@ Buffer make() { Buffer b(1000); return b; }   // fine: NO std::move needed on re
 const std::string s = "abc";
 std::string t = std::move(s);          // COPIES: a const rvalue cannot bind to the move constructor
 </script>
-<code>std::move</code> on a <code>const</code> object compiles but falls back to the copy constructor. The same silent fallback happens for any type that has no move operations. So never return <code>const</code> values by value (<code>const std::string f()</code> disables moving the result), and call <code>std::move</code> only on the <i>last</i> use of an object.</div>
+<code>std::move</code> on a <code>const</code> object, or a type with no move operations, silently copies. So never return <code>const</code> values by value, and call <code>std::move</code> only on the <i>last</i> use.</div>
 <h3>Taking a parameter you will store</h3>
 <script type="text/x-cpp">
 class Person {
@@ -100,13 +101,14 @@ public:
     explicit Person(std::string n) : name_(std::move(n)) {}    // by value, then move into the member
 };
 </script>
-<p>When a constructor stores its argument and moving is cheap, take the parameter <b>by value and move it</b>: an lvalue is copied once, an rvalue is moved once. Do not use this to update an existing value (a <code>setName</code>): the extra construction can cost more than a copy assignment.</p>
-<div class="callout warn"><span class="label">Do not write <code>return std::move(local);</code></span>Returning a local by value already allows the compiler to elide the copy entirely (RVO/NRVO) or move it automatically. Adding <code>std::move</code> blocks the elision and makes things slower.</div>
+<p>A constructor that stores its argument: take it <b>by value and move</b> (lvalue copied once, rvalue moved once). Not for setters: the extra construction can cost more than assignment.</p>
+<div class="callout warn"><span class="label">No <code>return std::move(local);</code></span>Returning a local already allows elision (RVO/NRVO) or an automatic move. <code>std::move</code> blocks the elision.</div>
 </section>
 
 <section data-title="Smart pointers">
 <h2>Smart pointers</h2>
-<p>Smart pointers are RAII wrappers around <code>new</code>/<code>delete</code> in <code>&lt;memory&gt;</code>. They make ownership explicit in the type.</p>
+<figure class="fig"><svg viewBox="0 0 640 170" role="img" aria-label="Two shared_ptr owners and one weak_ptr point at a control block that counts them"><defs><marker id="d2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path class="ah" d="M0 0L10 5L0 10z"/></marker></defs><rect class="acc" x="10" y="20" width="90" height="30" rx="5"/><text x="55" y="40" text-anchor="middle">s1 shared</text><rect class="acc" x="10" y="64" width="90" height="30" rx="5"/><text x="55" y="84" text-anchor="middle">s2 shared</text><rect class="box" x="10" y="124" width="90" height="30" rx="5" stroke-dasharray="5 4"/><text x="55" y="144" text-anchor="middle">w weak</text><path class="ar" d="M100 35L238 62M100 79L238 76"/><path class="ln" d="M100 139L238 92" stroke-dasharray="5 4"/><rect class="wn" x="240" y="40" width="170" height="70" rx="8"/><text class="t" x="325" y="62" text-anchor="middle">control block</text><text class="m" x="325" y="82" text-anchor="middle">strong count: 2</text><text class="m" x="325" y="98" text-anchor="middle">weak count: 1</text><path class="ar" d="M410 75H498" marker-end="url(#d2)"/><rect class="gd" x="500" y="52" width="130" height="46" rx="8"/><text class="t" x="565" y="80" text-anchor="middle">Widget</text><text class="m" x="10" y="166">Object freed when strong count hits 0. weak_ptr.lock() gives a shared_ptr or null.</text></svg><figcaption>unique_ptr has no control block: zero overhead, one owner.</figcaption></figure>
+<p>RAII wrappers around <code>new</code>/<code>delete</code> (<code>&lt;memory&gt;</code>) that make ownership explicit in the type.</p>
 <table>
 <tr><th>Type</th><th>Ownership</th><th>Copyable?</th><th>Cost</th></tr>
 <tr><td><code>std::unique_ptr&lt;T&gt;</code></td><td>exclusive: one owner</td><td><b>no</b>, only movable</td><td>same as a raw pointer</td></tr>
@@ -124,26 +126,26 @@ auto s2 = s1;                                // two owners, use_count() == 2
 std::weak_ptr<Widget> w = s1;                // observe only
 if (auto sp = w.lock()) { /* still alive: use sp */ }   // lock() gives a shared_ptr or null
 </script>
-<p>Step through the lifetime of a shared object:</p>
+<p>Step through a shared object:</p>
 <div id="st-shared"></div>
 <h3>Reference cycles and <code>weak_ptr</code></h3>
-<p>If <code>A</code> holds a <code>shared_ptr&lt;B&gt;</code> and <code>B</code> holds a <code>shared_ptr&lt;A&gt;</code>, each keeps the other's count above zero forever: <b>neither is ever destroyed</b>, a leak that RAII cannot fix. Make one direction (usually the "back-pointer" or parent link) a <code>weak_ptr</code>.</p>
+<p>If <code>A</code> holds a <code>shared_ptr&lt;B&gt;</code> and <code>B</code> a <code>shared_ptr&lt;A&gt;</code>, <b>neither is ever destroyed</b>. Make one direction (the parent link) a <code>weak_ptr</code>.</p>
 <div class="callout warn"><span class="label">One control block per object</span>
 <script type="text/x-cpp">
 auto raw = new Widget;
 std::shared_ptr<Widget> a(raw);
 std::shared_ptr<Widget> b(raw);        // a second, independent control block: double delete!
 </script>
-Never build a second <code>shared_ptr</code> from a raw pointer, and never from <code>this</code> (for example <code>list.emplace_back(this)</code>). Copy an existing <code>shared_ptr</code>, or have the class inherit <code>std::enable_shared_from_this</code> and call <code>shared_from_this()</code>.</div>
-<p>Two smaller details: a <code>unique_ptr</code> can take a custom deleter (<code>unique_ptr&lt;T, Deleter&gt;</code>), and a stateful deleter makes it larger than a raw pointer, while a <code>shared_ptr</code>'s deleter is not part of its type. <code>weak_ptr</code> is also the right tool for caches and observer lists, not only for breaking cycles.</p>
+Never build a second <code>shared_ptr</code> from a raw pointer or from <code>this</code>. Copy an existing one, or inherit <code>std::enable_shared_from_this</code> and call <code>shared_from_this()</code>.</div>
+<p>Also: a stateful <code>unique_ptr</code> deleter makes it larger than a raw pointer; a <code>shared_ptr</code>'s deleter is not part of its type; <code>weak_ptr</code> suits caches and observer lists too.</p>
 <div class="callout tip"><span class="label">Ownership rules of thumb</span>
-<p>Default to <code>unique_ptr</code> (or better, a plain value member). Use <code>shared_ptr</code> only when ownership is truly shared. A raw pointer or a reference means "I use it, I do not own it". Pass a smart pointer by value only to transfer or share ownership; otherwise pass <code>T&amp;</code> or <code>T*</code>.</p></div>
-<div class="callout interview"><span class="label">Interview angle</span>"Why <code>make_unique</code>/<code>make_shared</code> instead of <code>new</code>?" No naked <code>new</code> (exception safety, no leak if another argument throws), less typing, and <code>make_shared</code> does a single allocation instead of two.</div>
+<p>Default to <code>unique_ptr</code> (or a plain value member); <code>shared_ptr</code> only for truly shared ownership. A raw pointer or reference means "I use it, I do not own it". Pass smart pointers by value only to transfer or share ownership.</p></div>
+<div class="callout interview"><span class="label">Interview angle</span><code>make_unique</code>/<code>make_shared</code>: no naked <code>new</code> (exception safe), less typing, and <code>make_shared</code> allocates once instead of twice.</div>
 </section>
 
 <section data-title="Modern syntax tour">
 <h2>Modern syntax tour</h2>
-<p>These are the C++11/14/17 features you are expected to use naturally. Each replaces an older, more error-prone idiom.</p>
+<p>C++11/14/17 features to use naturally; each replaces an error-prone idiom.</p>
 <table>
 <tr><th>Feature</th><th>Instead of</th><th>Example</th></tr>
 <tr><td><code>auto</code></td><td>long type names</td><td><code>auto it = m.find(k);</code></td></tr>
@@ -161,12 +163,13 @@ Never build a second <code>shared_ptr</code> from a raw pointer, and never from 
 <tr><td><code>[[nodiscard]]</code></td><td>ignored error codes</td><td><code>[[nodiscard]] bool open();</code></td></tr>
 </table>
 <div class="callout warn"><span class="label">auto traps</span>
-<p><code>auto x = {1, 2, 3};</code> deduces <code>std::initializer_list&lt;int&gt;</code>, not a vector. <code>auto</code> drops references and <code>const</code>: <code>auto y = v[0];</code> <i>copies</i> the element; write <code>auto&amp; y</code> or <code>const auto&amp; y</code> to avoid the copy. Likewise <code>for (auto [k, v] : map)</code> copies every pair; use <code>const auto&amp;</code>.</p></div>
+<p><code>auto x = {1,2,3};</code> is an <code>initializer_list</code>, not a vector. <code>auto</code> drops references and <code>const</code>: <code>auto y = v[0];</code> <i>copies</i>; write <code>const auto&amp;</code>. Same for <code>for (auto [k, v] : map)</code>.</p></div>
 </section>
 
 <section data-title="Lambdas">
 <h2>Lambdas</h2>
-<p>A lambda is an unnamed function object you write in place. The compiler turns it into a small class whose <code>operator()</code> holds the body and whose members hold the captures.</p>
+<figure class="fig"><svg viewBox="0 0 640 130" role="img" aria-label="A lambda is compiled to a small class holding the captures and an operator()"><rect class="box" x="10" y="10" width="250" height="100" rx="8"/><text class="t" x="24" y="34">[factor](int x) { return x * factor; }</text><text class="m" x="24" y="58">captures in [ ]</text><text class="m" x="24" y="76">parameters in ( )</text><text class="m" x="24" y="94">body in { }</text><text class="t" x="270" y="60">compiles to</text><path class="ar" d="M268 72H362"/><path class="ah" d="M372 72l-10-6v12z"/><rect class="acc" x="380" y="10" width="250" height="100" rx="8"/><text class="t" x="394" y="34">class __lambda {</text><text class="m" x="410" y="56">int factor;   // by-value capture</text><text class="m" x="410" y="76">int operator()(int x) const</text><text class="m" x="410" y="94">{ return x * factor; }</text></svg><figcaption>Capture by reference stores a reference instead; it dangles if the lambda outlives the variable.</figcaption></figure>
+<p>A lambda is an unnamed function object written in place.</p>
 <script type="text/x-cpp">
 //  [captures] (parameters) -> return_type { body }
 auto add = [](int a, int b) { return a + b; };
@@ -195,7 +198,7 @@ std::cout << byVal() << byRef();
 <p><code>byVal</code> took a snapshot of <code>x</code> (1) when it was created. <code>byRef</code> sees the variable itself, so it reads the new value 2. A by-value capture is <i>const</i> inside the lambda unless you add <code>mutable</code>.</p>
 </div></details>
 <div class="callout warn"><span class="label">Dangling captures</span>A lambda that captures a local by reference and then outlives it (returned from the function, or run later on another thread) reads destroyed memory. When a lambda escapes its scope, capture by value.</div>
-<p><code>std::function</code> can store any callable of a given signature, but it type-erases and may allocate. Prefer <code>auto</code> for a local lambda and a template parameter for a function that accepts one.</p>
+<p><code>std::function</code> type-erases and may allocate. Prefer <code>auto</code> locally and a template parameter for functions taking a callable.</p>
 </section>
 
 <section data-title="Exceptions and exception safety">
@@ -215,11 +218,11 @@ try {
 }
 </script>
 <ul>
-<li><b>Throw by value, catch by <code>const&amp;</code></b>. Catching by value slices the exception object.</li>
-<li>When a <code>throw</code> happens, the runtime performs <b>stack unwinding</b>: it leaves scopes one by one, running destructors, until a matching <code>catch</code> is found. This is why RAII makes code exception-safe.</li>
-<li>A <b>destructor must never throw</b>. If it throws during unwinding, <code>std::terminate</code> is called and the program dies. Destructors are implicitly <code>noexcept</code>.</li>
-<li><code>noexcept</code> promises a function will not throw. It enables optimisations (such as moves in <code>vector</code>) and if the promise is broken the program terminates.</li>
-<li>Use exceptions for <i>exceptional</i> failure, not routine control flow, and not on real-time hot paths where the throw cost is unacceptable.</li>
+<li><b>Throw by value, catch by <code>const&amp;</code></b> (by value slices).</li>
+<li><b>Stack unwinding</b>: leaving scopes runs destructors until a <code>catch</code> matches. This is why RAII is exception-safe.</li>
+<li>A <b>destructor must never throw</b>: during unwinding that calls <code>std::terminate</code>. Destructors are implicitly <code>noexcept</code>.</li>
+<li><code>noexcept</code> promises no throw (enables optimisations such as <code>vector</code> moves); breaking it terminates.</li>
+<li>Exceptions for exceptional failure, not control flow or real-time hot paths.</li>
 </ul>
 <table>
 <tr><th>Exception safety level</th><th>Promise</th></tr>
@@ -231,7 +234,7 @@ try {
 
 <section data-title="Casts and type conversion">
 <h2>Casts and type conversion</h2>
-<p>C++ replaces the single dangerous C cast <code>(T)x</code> with four named casts, each saying exactly what you intend and easy to search for.</p>
+<p>Four named casts replace the C cast <code>(T)x</code>: each states intent and is searchable.</p>
 <table>
 <tr><th>Cast</th><th>Use for</th><th>Danger</th></tr>
 <tr><td><code>static_cast&lt;T&gt;(x)</code></td><td>well-defined conversions: <code>int</code> to <code>double</code>, base to derived pointer when you are sure</td><td>low</td></tr>
@@ -247,14 +250,14 @@ if (auto* d = dynamic_cast<Dog*>(a)) {                 // safe downcast: null if
     d->fetch();
 }
 </script>
-<div class="callout tip"><span class="label">Rule</span>If you need many casts, the design is probably wrong. Prefer virtual functions to <code>dynamic_cast</code> chains, and never use a C-style cast in new code.</div>
+<div class="callout tip"><span class="label">Rule</span>Many casts mean a design problem. Prefer virtual functions to <code>dynamic_cast</code> chains; no C casts.</div>
 </section>
 
 <section data-title="const, constexpr and static">
 <h2><code>const</code>, <code>constexpr</code> and <code>static</code></h2>
 <ul>
-<li><b><code>const</code></b>: the value cannot change after initialization (checked at compile time). Use it everywhere you can.</li>
-<li><b><code>constexpr</code></b>: the value (or function result) can be computed <b>at compile time</b>, so it costs nothing at runtime and can be used in array sizes and template arguments.</li>
+<li><b><code>const</code></b>: unchangeable after initialization. Use everywhere.</li>
+<li><b><code>constexpr</code></b>: computable <b>at compile time</b> (array sizes, template arguments), and still callable at runtime.</li>
 </ul>
 <script type="text/x-cpp">
 constexpr int square(int x) { return x * x; }
@@ -265,7 +268,7 @@ int r = square(runtime);              // also fine: same function runs at runtim
 
 static_assert(N == 16, "math is broken");   // checked at compile time
 </script>
-<p>The keyword <code>static</code> means three different things depending on where it appears:</p>
+<p><code>static</code> means three things:</p>
 <table>
 <tr><th>Where</th><th>Meaning</th></tr>
 <tr><td>Local variable in a function</td><td>one instance that lives for the whole program and keeps its value between calls</td></tr>
@@ -276,7 +279,7 @@ static_assert(N == 16, "math is broken");   // checked at compile time
 
 <section data-title="What C++14, 17 and 20 added">
 <h2>What C++14, 17 and 20 added</h2>
-<p>Interviewers often ask "what modern features do you use?". Know at least these, and why they help.</p>
+<p>"What modern features do you use?" Know these and why:</p>
 <table>
 <tr><th>Standard</th><th>Feature</th><th>One-liner</th></tr>
 <tr><td>C++11</td><td>move semantics, smart pointers, lambdas, <code>auto</code>, <code>constexpr</code>, <code>std::thread</code>, variadic templates, <code>nullptr</code>, range-for</td><td>The big modernisation.</td></tr>
@@ -294,7 +297,7 @@ std::visit([](auto&& x) { std::cout << x; }, v);
 void print(std::string_view sv);                         // non-owning view, no copy, accepts literals and strings
 // WARNING: a string_view must not outlive the string it views
 </script>
-<p>For the full list with examples see the <a href="https://github.com/AnthonyCalandra/modern-cpp-features">modern-cpp-features</a> cheat sheet (C++11, 14, 17, 20, 23) and the <a href="https://github.com/changkun/modern-cpp-tutorial">modern-cpp-tutorial</a> book. Your own notes: <a href="../docs/03-cpp-standard-library/README.md">Module 3</a> and learncpp.com chapters 10, 12, 19, 22, 26 and 27.</p>
+<p>Full lists: <a href="https://github.com/AnthonyCalandra/modern-cpp-features">modern-cpp-features</a>, <a href="https://github.com/changkun/modern-cpp-tutorial">modern-cpp-tutorial</a>. Your notes: <a href="../docs/03-cpp-standard-library/README.md">Module 3</a>.</p>
 </section>
 
 <section data-title="Interview cheat sheet">

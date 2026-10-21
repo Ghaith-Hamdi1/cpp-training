@@ -395,3 +395,22 @@ dialog.search .results a small { display: block; color: var(--muted); }
 @media print { .ck-summary { position: static; } }
 .ck-section .badge { display: inline-block; margin: 0 2px; }
 .pt-box { width: 100%; box-sizing: border-box; font: 0.8rem/1.4 var(--mono, monospace); padding: 8px; border: 1px solid var(--border); border-radius: 8px; background: var(--code-bg); color: inherit; word-break: break-all; }
+.fig { margin: 1em 0 1.2em; }
+.fig svg { width: 100%; height: auto; display: block; }
+.fig figcaption { font-size: 0.85rem; color: var(--muted); text-align: center; margin-top: 4px; }
+.fig text { fill: var(--fg); font: 13px var(--sans); }
+.fig .m { fill: var(--muted); font-size: 12px; }
+.fig .box { fill: var(--card); stroke: var(--border); stroke-width: 1.5; }
+.fig .acc { fill: var(--accent-soft); stroke: var(--accent); stroke-width: 1.5; }
+.fig .gd { fill: var(--good-soft); stroke: var(--good); stroke-width: 1.5; }
+.fig .bd { fill: var(--bad-soft); stroke: var(--bad); stroke-width: 1.5; }
+.fig .wn { fill: var(--warn-soft); stroke: var(--warn); stroke-width: 1.5; }
+.fig .ln { stroke: var(--muted); stroke-width: 1.5; fill: none; }
+.fig .ar { stroke: var(--accent); stroke-width: 2; fill: none; }
+.fig .ah { fill: var(--accent); }
+.fig .t { font-weight: 700; }
+main > section[hidden] { display: none; }
+main:not(.last-page) > .pager { display: none; }
+.secnav { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; justify-content: space-between; margin: 28px 0 8px; padding-top: 16px; border-top: 1px solid var(--border); }
+.secnav .secpos { color: var(--muted); font-size: 0.85rem; }
+@media print { main > section[hidden] { display: block; } .secnav { display: none; } main:not(.last-page) > .pager { display: none; } }

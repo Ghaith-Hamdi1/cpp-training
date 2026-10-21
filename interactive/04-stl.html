@@ -10,18 +10,18 @@
 <body data-topic="stl" data-kind="lesson">
 <main>
 <h1>The C++ Standard Template Library</h1>
-<p class="lead">Containers hold data, algorithms work on it, and iterators connect the two. Knowing which container to pick, what each operation costs and when iterators break is a staple of C++ interviews.</p>
+<p class="lead">Containers hold data, algorithms work on it, iterators connect them. Container choice, operation costs and iterator invalidation are interview staples.</p>
 
 <section data-title="The big picture">
 <h2>The big picture</h2>
-<p>The STL has three cooperating parts:</p>
+<figure class="fig"><svg viewBox="0 0 640 120" role="img" aria-label="Algorithms reach containers only through iterators"><defs><marker id="e1" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path class="ah" d="M0 0L10 5L0 10z"/></marker></defs><rect class="acc" x="10" y="30" width="170" height="60" rx="8"/><text class="t" x="95" y="56" text-anchor="middle">Containers</text><text class="m" x="95" y="74" text-anchor="middle">vector, map, list</text><rect class="wn" x="235" y="30" width="170" height="60" rx="8"/><text class="t" x="320" y="56" text-anchor="middle">Iterators</text><text class="m" x="320" y="74" text-anchor="middle">[begin, end)</text><rect class="gd" x="460" y="30" width="170" height="60" rx="8"/><text class="t" x="545" y="56" text-anchor="middle">Algorithms</text><text class="m" x="545" y="74" text-anchor="middle">sort, find, accumulate</text><path class="ar" d="M180 60H233M460 60H407" marker-end="url(#e1)"/><text class="m" x="320" y="112" text-anchor="middle">Algorithms never touch containers, only iterator ranges.</text></svg><figcaption>One sort works on any container that offers the right iterators.</figcaption></figure>
 <table>
 <tr><th>Part</th><th>What it is</th><th>Examples</th></tr>
 <tr><td><b>Containers</b></td><td>classes that own and organise a collection of elements</td><td><code>vector</code>, <code>map</code>, <code>set</code>, <code>deque</code></td></tr>
 <tr><td><b>Iterators</b></td><td>generalised pointers that walk a container</td><td><code>v.begin()</code>, <code>m.find(k)</code></td></tr>
 <tr><td><b>Algorithms</b></td><td>generic functions that operate on iterator <i>ranges</i></td><td><code>sort</code>, <code>find</code>, <code>accumulate</code></td></tr>
 </table>
-<p>Algorithms never touch containers directly. They only see a pair of iterators <code>[first, last)</code>, so one <code>std::sort</code> works on a vector, an array or a deque, and one container can be used with hundreds of algorithms. That separation is the design genius of the library.</p>
+<p>Algorithms see only <code>[first, last)</code>, so one <code>std::sort</code> serves a vector, array or deque. That separation is the design.</p>
 <script type="text/x-cpp">
 #include <vector>       // std::vector
 #include <map>          // std::map, std::multimap
@@ -31,12 +31,13 @@
 #include <numeric>      // std::accumulate, std::iota
 #include <string>       // std::string
 </script>
-<div class="callout tip"><span class="label">Default choice</span>If you do not have a reason to pick something else, use <code>std::vector</code>. Contiguous memory is so cache-friendly that it often beats "theoretically better" containers for realistic sizes.</div>
+<div class="callout tip"><span class="label">Default choice</span><code>std::vector</code>. Contiguous memory is so cache-friendly it often beats "better" containers.</div>
 </section>
 
 <section data-title="vector: the workhorse">
 <h2><code>vector</code>: the workhorse</h2>
-<p>A <code>vector</code> stores its elements in one contiguous heap array. It tracks two numbers: <b>size</b> (elements in use) and <b>capacity</b> (slots allocated). When <code>push_back</code> finds no spare capacity it allocates a bigger buffer, <i>moves or copies every element across</i>, and frees the old one. That is O(n) once in a while, but because capacity grows geometrically the average cost per <code>push_back</code> is <b>amortised O(1)</b>.</p>
+<figure class="fig"><svg viewBox="0 0 640 120" role="img" aria-label="A vector buffer with size elements in use and spare capacity"><text class="t" x="10" y="20">buffer on the heap</text><rect class="acc" x="10" y="32" width="64" height="36" rx="4"/><rect class="acc" x="78" y="32" width="64" height="36" rx="4"/><rect class="acc" x="146" y="32" width="64" height="36" rx="4"/><text x="42" y="55" text-anchor="middle">10</text><text x="110" y="55" text-anchor="middle">20</text><text x="178" y="55" text-anchor="middle">30</text><rect class="box" x="214" y="32" width="64" height="36" rx="4" stroke-dasharray="4 3"/><rect class="box" x="282" y="32" width="64" height="36" rx="4" stroke-dasharray="4 3"/><text class="m" x="246" y="55" text-anchor="middle">spare</text><text class="m" x="314" y="55" text-anchor="middle">spare</text><path class="ln" d="M10 80H210M214 80H346"/><text class="m" x="110" y="98" text-anchor="middle">size = 3 (elements in use)</text><text class="m" x="280" y="114" text-anchor="middle">capacity = 5 (slots allocated)</text><text class="t" x="380" y="48">push_back, buffer full:</text><text class="m" x="380" y="68">allocate bigger, move all, free old</text><text class="m" x="380" y="86">= amortised O(1), but every iterator</text><text class="m" x="380" y="104">and pointer into it is invalidated</text></svg><figcaption>reserve() grows capacity only; resize() changes size.</figcaption></figure>
+<p>A <code>vector</code> is one contiguous heap array with a <b>size</b> and a <b>capacity</b>. When full, <code>push_back</code> allocates a bigger buffer, moves everything and frees the old one: occasional O(n), <b>amortised O(1)</b>.</p>
 <div id="st-vec"></div>
 <script type="text/x-cpp">
 std::vector<int> v;
@@ -50,7 +51,7 @@ v.at(3);                 // bounds-checked: throws std::out_of_range
 v.front(); v.back(); v.data();   // data() is the raw int* for C APIs
 v.size(); v.capacity(); v.empty();
 </script>
-<div class="callout warn"><span class="label">reserve vs resize</span><code>reserve(n)</code> only allocates space (capacity). <code>resize(n)</code> changes the number of elements (size). Calling <code>v[5] = x</code> after only <code>reserve(10)</code> is undefined behavior: element 5 does not exist yet.</div>
+<div class="callout warn"><span class="label">reserve vs resize</span><code>reserve(n)</code> only allocates; <code>resize(n)</code> creates elements. <code>v[5] = x</code> after only <code>reserve(10)</code> is UB.</div>
 </section>
 
 <section data-title="Other sequence containers">
@@ -75,6 +76,7 @@ v.size(); v.capacity(); v.empty();
 
 <section data-title="Associative and unordered containers">
 <h2>Associative and unordered containers</h2>
+<figure class="fig"><svg viewBox="0 0 640 160" role="img" aria-label="A sorted tree versus a hash table with buckets"><text class="t" x="10" y="20">map / set: balanced tree, sorted, O(log n)</text><rect class="acc" x="130" y="32" width="50" height="28" rx="14"/><text x="155" y="51" text-anchor="middle">20</text><rect class="acc" x="70" y="84" width="50" height="28" rx="14"/><text x="95" y="103" text-anchor="middle">10</text><rect class="acc" x="190" y="84" width="50" height="28" rx="14"/><text x="215" y="103" text-anchor="middle">30</text><path class="ln" d="M142 60L102 86M168 60L208 86"/><text class="m" x="10" y="140">in-order walk = sorted order</text><text class="t" x="340" y="20">unordered_map: hash table, average O(1)</text><rect class="box" x="340" y="32" width="50" height="22" rx="3"/><text class="m" x="365" y="48" text-anchor="middle">0</text><rect class="wn" x="394" y="32" width="70" height="22" rx="3"/><text x="429" y="48" text-anchor="middle">"Ana"</text><rect class="box" x="340" y="58" width="50" height="22" rx="3"/><text class="m" x="365" y="74" text-anchor="middle">1</text><rect class="box" x="340" y="84" width="50" height="22" rx="3"/><text class="m" x="365" y="100" text-anchor="middle">2</text><rect class="wn" x="394" y="84" width="70" height="22" rx="3"/><text x="429" y="100" text-anchor="middle">"Bob"</text><rect class="wn" x="468" y="84" width="70" height="22" rx="3"/><text x="503" y="100" text-anchor="middle">"Eve"</text><text class="m" x="340" y="140">hash(key) picks a bucket; collisions chain (Bob, Eve)</text></svg><figcaption>Need order or range queries: map. Plain lookup: unordered_map.</figcaption></figure>
 <table>
 <tr><th></th><th><code>map</code> / <code>set</code></th><th><code>unordered_map</code> / <code>unordered_set</code></th></tr>
 <tr><td>Implementation</td><td>balanced binary tree (usually red-black)</td><td>hash table</td></tr>
@@ -119,14 +121,14 @@ std::priority_queue<int, std::vector<int>, std::greater<int>> minHeap;   // smal
 
 <section data-title="Which container should I use?">
 <h2>Which container should I use?</h2>
-<p>Pick what you mostly do. The advisor gives the container and the reason.</p>
+<p>Pick what you mostly do:</p>
 <div id="w-choose"></div>
-<div class="callout interview"><span class="label">Interview angle</span>"vector vs list?" Answer with <i>memory</i>, not just big-O: a vector is contiguous, so traversals are cache-friendly and in practice beat a list even for inserts in the middle at modest sizes. A list wins only when you need stable iterators/references and cheap splicing.</div>
+<div class="callout interview"><span class="label">Interview angle</span>"vector vs list?" Answer with <i>memory</i>: contiguous means cache-friendly, so vector wins even for middle inserts at modest sizes. List wins for stable iterators and cheap splicing.</div>
 </section>
 
 <section data-title="Iterators">
 <h2>Iterators</h2>
-<p>An iterator behaves like a pointer: <code>*it</code> reads the element, <code>++it</code> moves on, <code>it == end</code> ends the walk. Every container exposes <code>begin()</code> (first element) and <code>end()</code> (<b>one past the last</b>). Ranges are <b>half-open</b>: <code>[begin, end)</code>.</p>
+<p>An iterator acts like a pointer: <code>*it</code>, <code>++it</code>, <code>it == end</code>. <code>end()</code> is <b>one past the last</b>; ranges are half-open <code>[begin, end)</code>.</p>
 <script type="text/x-cpp">
 std::vector<int> v{1, 2, 3};
 for (auto it = v.begin(); it != v.end(); ++it) std::cout << *it;   // use != not <, it works for every container
@@ -140,10 +142,10 @@ auto it2 = std::next(v.begin(), 2);       // advance without assuming random acc
 <tr><td>Bidirectional</td><td>also <code>--</code></td><td><code>list</code>, <code>map</code>, <code>set</code></td></tr>
 <tr><td>Random access</td><td>also <code>it + n</code>, <code>it[i]</code>, <code>it1 - it2</code>, <code>&lt;</code></td><td><code>vector</code>, <code>deque</code>, <code>array</code>, <code>string</code></td></tr>
 </table>
-<p>This is why <code>std::sort</code> needs random-access iterators and does not work on <code>std::list</code> (which has its own member <code>list.sort()</code>).</p>
+<p>So <code>std::sort</code> needs random access and fails on <code>std::list</code> (use <code>list.sort()</code>).</p>
 
 <h3>Iterator invalidation</h3>
-<p>Changing a container can make existing iterators, pointers and references <b>invalid</b>. Using one is undefined behavior. Memorise this table:</p>
+<p>Changing a container can <b>invalidate</b> iterators, pointers and references; using one is UB.</p>
 <table>
 <tr><th>Container</th><th>Operation</th><th>What is invalidated</th></tr>
 <tr><td><code>vector</code></td><td><code>push_back</code>, <code>insert</code></td><td><b>all</b> if it reallocated; otherwise those at or after the insertion point</td></tr>
@@ -173,8 +175,8 @@ std::erase_if(v, [](int x) { return x % 2 == 0; });
 
 <section data-title="Algorithms">
 <h2>Algorithms</h2>
-<p>The <code>&lt;algorithm&gt;</code> and <code>&lt;numeric&gt;</code> headers hold over a hundred generic functions. Prefer them to hand-written loops: they are named (so they document intent), tested, and often faster. Most take a <b>predicate or comparator</b>, usually a lambda.</p>
-<p>Try some on the array <code>{5, 2, 9, 2, 7, 4}</code>:</p>
+<p>Over a hundred generic functions in <code>&lt;algorithm&gt;</code>/<code>&lt;numeric&gt;</code>. Prefer them to loops: named, tested, often faster. Most take a lambda.</p>
+<p>Try some on <code>{5, 2, 9, 2, 7, 4}</code>:</p>
 <div id="w-algo"></div>
 <script type="text/x-cpp">
 std::sort(v.begin(), v.end(), [](const P& a, const P& b) { return a.age < b.age; });   // custom order
@@ -194,13 +196,13 @@ std::cout << v.size();
 <script type="text/x-out">
 5
 </script>
-<p>Algorithms only see iterators, so they cannot change a container's size. <code>std::remove</code> shifts the kept elements forward and returns the new logical end, leaving junk after it. To really remove, use the <b>erase-remove idiom</b>:</p>
+<p>Algorithms cannot change a container's size. <code>std::remove</code> shifts kept elements forward and returns the new logical end. Use the <b>erase-remove idiom</b>:</p>
 <script type="text/x-cpp">
 v.erase(std::remove(v.begin(), v.end(), 3), v.end());   // classic
 std::erase(v, 3);                                       // C++20: one call
 </script>
 </div></details>
-<div class="callout warn"><span class="label">Comparators must be a strict weak ordering</span>Use <code>&lt;</code>, never <code>&lt;=</code>. A comparator that returns true for equal elements violates the contract and can crash <code>std::sort</code> or corrupt a <code>std::set</code>. <code>std::sort</code> is O(n log n) and not stable; use <code>std::stable_sort</code> to preserve the order of equal elements.</div>
+<div class="callout warn"><span class="label">Strict weak ordering</span>Use <code>&lt;</code>, never <code>&lt;=</code>: a comparator true for equal elements can crash <code>sort</code> or corrupt a <code>set</code>. <code>sort</code> is not stable; use <code>stable_sort</code>.</div>
 </section>
 
 <section data-title="Strings and string_view">
@@ -219,9 +221,9 @@ std::string_view sv = s;                    // non-owning view: no allocation, n
 void log(std::string_view msg);             // accepts string, literal and substring views cheaply
 </script>
 <ul>
-<li><code>std::string</code> stores small strings (about 15 chars with common implementations) <b>inline</b> without a heap allocation: the small string optimisation.</li>
-<li><code>string_view</code> must never outlive the string it points into. Returning a <code>string_view</code> to a local string, or storing one from a temporary, dangles.</li>
-<li>Use <code>std::stringstream</code> / <code>std::getline</code> for parsing and formatting streams.</li>
+<li>Small strings (about 15 chars) live <b>inline</b>: small string optimisation.</li>
+<li><code>string_view</code> must not outlive its string (returning one to a local dangles).</li>
+<li><code>std::stringstream</code> / <code>std::getline</code> for parsing and formatting.</li>
 </ul>
 </section>
 
@@ -244,7 +246,7 @@ std::array<int, 3> a{1, 2, 3};                      // fixed-size, knows its siz
 <tr><td><code>auto x = v[0]</code> copies the element</td><td><code>const auto&amp; x = v[0]</code></td></tr>
 <tr><td><code>std::find</code> on a <code>map</code> is O(n)</td><td>use the member <code>m.find(key)</code>, O(log n)</td></tr>
 </table>
-<p>More in your notes: <a href="../docs/03-cpp-standard-library/README.md">Module 3: C++ Standard Library</a> (containers, iterators, algorithms, strings) and learncpp.com chapters 16, 17 and 18.</p>
+<p>Notes: <a href="../docs/03-cpp-standard-library/README.md">Module 3</a>.</p>
 </section>
 
 <section data-title="Interview cheat sheet">

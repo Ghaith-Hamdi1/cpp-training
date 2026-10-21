@@ -10,11 +10,12 @@
 <body data-topic="templates" data-kind="lesson">
 <main>
 <h1>C++ Templates</h1>
-<p class="lead">Templates let you write code once and have the compiler generate a version for every type you use. They power the whole standard library. This lesson goes from a first function template to forwarding references, variadic templates and type traits, the exact topics the job description lists.</p>
+<p class="lead">Write code once, let the compiler generate it per type. From a first function template to forwarding references, variadics and type traits: the topics the job description lists.</p>
 
 <section data-title="Why templates, and function templates">
 <h2>Why templates, and function templates</h2>
-<p>Without templates you would write <code>maxInt</code>, <code>maxDouble</code>, <code>maxString</code>... identical except for the type. A <b>template</b> is a blueprint with the type as a parameter:</p>
+<figure class="fig"><svg viewBox="0 0 640 150" role="img" aria-label="One template blueprint instantiated into separate real functions per type"><defs><marker id="f1" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path class="ah" d="M0 0L10 5L0 10z"/></marker></defs><rect class="wn" x="10" y="45" width="200" height="60" rx="8"/><text class="t" x="110" y="70" text-anchor="middle">template&lt;T&gt; maxOf</text><text class="m" x="110" y="90" text-anchor="middle">a blueprint: generates no code</text><path class="ar" d="M210 62L328 28M210 75H328M210 88L328 122" marker-end="url(#f1)"/><rect class="gd" x="330" y="10" width="190" height="36" rx="6"/><text x="425" y="33" text-anchor="middle">int maxOf(int, int)</text><rect class="gd" x="330" y="57" width="190" height="36" rx="6"/><text x="425" y="80" text-anchor="middle">double maxOf(double, double)</text><rect class="gd" x="330" y="104" width="190" height="36" rx="6"/><text x="425" y="127" text-anchor="middle">string maxOf(string, string)</text><text class="m" x="530" y="80">real functions,</text><text class="m" x="530" y="96">made on first use</text></svg><figcaption>Compile-time polymorphism: no runtime cost, more code per type.</figcaption></figure>
+<p>Without templates: <code>maxInt</code>, <code>maxDouble</code>, <code>maxString</code>... A <b>template</b> takes the type as a parameter:</p>
 <script type="text/x-cpp">
 template <typename T>
 T maxOf(T a, T b) {
@@ -25,15 +26,15 @@ maxOf(3, 7);          // compiler deduces T = int
 maxOf(2.5, 1.5);      // T = double
 maxOf<double>(3, 2.5);// explicit: T = double, the int is converted
 </script>
-<p>The compiler does <b>not</b> compile the template itself. Each time you use it with a new type it <b>instantiates</b> it: stamps out a real function with <code>T</code> replaced, then compiles that. This is <i>compile-time polymorphism</i>: no runtime overhead, but the code is generated per type (more binary size) and errors only appear when a bad type is used.</p>
-<p>Pick a type and see what the compiler does with <code>maxOf</code>:</p>
+<p>The template is not compiled itself. Each new type <b>instantiates</b> a real function: no runtime cost, more binary size, and errors appear only when a bad type is used.</p>
+<p>Pick a type:</p>
 <div id="w-inst"></div>
-<div class="callout interview"><span class="label">Interview angle</span>"Templates vs virtual functions?" Templates resolve at <b>compile time</b> (static polymorphism): fastest, can be inlined, but every instantiation is separate code and types must be known at compile time. Virtual functions resolve at <b>runtime</b>: one piece of code, objects chosen dynamically, but a vtable indirection per call.</div>
+<div class="callout interview"><span class="label">Interview angle</span>Templates: <b>compile-time</b> (static) polymorphism, fastest, inlinable, more code, types known at compile time. Virtual: <b>runtime</b>, one code path, mixed objects, a vtable indirection.</div>
 </section>
 
 <section data-title="Class templates">
 <h2>Class templates</h2>
-<p>The same idea for classes: <code>std::vector&lt;T&gt;</code>, <code>std::map&lt;K,V&gt;</code>, <code>std::unique_ptr&lt;T&gt;</code> are all class templates.</p>
+<p>Same idea for classes: <code>vector&lt;T&gt;</code>, <code>map&lt;K,V&gt;</code>, <code>unique_ptr&lt;T&gt;</code>.</p>
 <script type="text/x-cpp">
 template <typename T, std::size_t Capacity = 8>      // a type parameter, a NON-TYPE parameter, with a default
 class Stack {
@@ -56,16 +57,15 @@ std::pair p{1, 2.5};        // C++17 CTAD: class template argument deduction -> 
 std::vector v{1, 2, 3};     // std::vector<int>
 </script>
 <ul>
-<li><b>Non-type parameters</b> (<code>std::size_t Capacity</code>) are compile-time constants, which is how <code>std::array&lt;int, 5&gt;</code> knows its size.</li>
-<li>Each instantiation (<code>Stack&lt;int&gt;</code>, <code>Stack&lt;double&gt;</code>) is a completely separate class with no relationship to the others.</li>
-<li>Member functions of a class template are only instantiated if you actually call them.</li>
+<li><b>Non-type parameters</b> are compile-time constants (how <code>std::array&lt;int,5&gt;</code> knows its size).</li>
+<li>Each instantiation is a separate, unrelated class. Members are instantiated only if called.</li>
 </ul>
-<div class="callout warn"><span class="label">Why templates live in headers</span>The compiler needs the full definition at the point of instantiation. If you put a template's body in a <code>.cpp</code> file, other files see only the declaration and the linker reports undefined references. Put templates in headers (or use explicit instantiation <code>template class Stack&lt;int&gt;;</code> in the <code>.cpp</code>).</div>
+<div class="callout warn"><span class="label">Why templates live in headers</span>The compiler needs the body at instantiation. In a <code>.cpp</code>, others see only a declaration: linker errors. Use headers, or explicit instantiation (<code>template class Stack&lt;int&gt;;</code>).</div>
 </section>
 
 <section data-title="Specialization">
 <h2>Specialization</h2>
-<p>Sometimes one type deserves a different implementation. A <b>specialization</b> overrides the generic template for specific arguments.</p>
+<p>A <b>specialization</b> replaces the generic template for specific arguments.</p>
 <script type="text/x-cpp">
 template <typename T>
 struct Printer {                           // primary template
@@ -87,15 +87,16 @@ struct Printer<T*> {                       // PARTIAL specialization: any pointe
 <tr><td><b>Full</b> specialization</td><td>all parameters fixed: <code>template&lt;&gt; ... Printer&lt;bool&gt;</code></td><td>class and function templates</td></tr>
 <tr><td><b>Partial</b> specialization</td><td>a pattern: <code>Printer&lt;T*&gt;</code></td><td><b>class templates only</b></td></tr>
 </table>
-<div class="callout tip"><span class="label">For functions, prefer overloads</span>You cannot partially specialize a function template. Overload it instead (<code>void f(int)</code> next to <code>template&lt;class T&gt; void f(T)</code>): overload resolution prefers the non-template when it matches exactly. Function template specializations also do not take part in overload resolution, which surprises people.</div>
+<div class="callout tip"><span class="label">Functions: prefer overloads</span>No partial specialization for function templates. Overload instead; an exact non-template match wins. Function specializations do not take part in overload resolution.</div>
 </section>
 
 <section data-title="Deduction and forwarding references">
 <h2>Deduction and forwarding references</h2>
-<p>How <code>T</code> is deduced depends on how the parameter is written. The most important case is <code>T&amp;&amp;</code> <b>in a function template</b>: it is <i>not</i> an rvalue reference, it is a <b>forwarding reference</b> (also called a universal reference) that binds to <i>anything</i> and remembers whether it was an lvalue or rvalue. Explore the rules:</p>
+<figure class="fig"><svg viewBox="0 0 640 150" role="img" aria-label="For a forwarding reference, an lvalue argument deduces T as X& and an rvalue deduces T as X"><defs><marker id="f2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path class="ah" d="M0 0L10 5L0 10z"/></marker></defs><text class="t" x="10" y="20">template&lt;class T&gt; void f(T&amp;&amp; x)</text><rect class="acc" x="10" y="40" width="150" height="34" rx="6"/><text x="85" y="62" text-anchor="middle">f(lvalue)  s</text><path class="ar" d="M160 57H210" marker-end="url(#f2)"/><rect class="box" x="212" y="40" width="130" height="34" rx="6"/><text x="277" y="62" text-anchor="middle">T = X&amp;</text><path class="ar" d="M342 57H392" marker-end="url(#f2)"/><rect class="wn" x="394" y="40" width="236" height="34" rx="6"/><text x="512" y="62" text-anchor="middle">X&amp; &amp;&amp; collapses to X&amp;</text><rect class="acc" x="10" y="90" width="150" height="34" rx="6"/><text x="85" y="112" text-anchor="middle">f(rvalue)  string("x")</text><path class="ar" d="M160 107H210" marker-end="url(#f2)"/><rect class="box" x="212" y="90" width="130" height="34" rx="6"/><text x="277" y="112" text-anchor="middle">T = X</text><path class="ar" d="M342 107H392" marker-end="url(#f2)"/><rect class="wn" x="394" y="90" width="236" height="34" rx="6"/><text x="512" y="112" text-anchor="middle">parameter is X&amp;&amp;</text><text class="m" x="10" y="144">Collapsing rule: any lvalue reference involved gives an lvalue reference. std::forward restores the original category.</text></svg><figcaption>One signature accepts both; std::forward passes the category on.</figcaption></figure>
+<p><code>T&amp;&amp;</code> <b>in a function template</b> is a <b>forwarding reference</b>, not an rvalue reference: it binds to anything and remembers lvalue vs rvalue. Explore:</p>
 <div id="w-deduce"></div>
 <h3>Is it really a forwarding reference?</h3>
-<p>Only when the type is deduced for <i>that</i> function and the form is exactly <code>T&amp;&amp;</code> (or <code>auto&amp;&amp;</code>). Everything else spelled <code>&amp;&amp;</code> is an ordinary rvalue reference:</p>
+<p>Only when <code>T</code> is deduced for <i>that</i> function and the form is exactly <code>T&amp;&amp;</code> or <code>auto&amp;&amp;</code>:</p>
 <table>
 <tr><th>Declaration</th><th>Forwarding reference?</th></tr>
 <tr><td><code>template&lt;class T&gt; void f(T&amp;&amp; x)</code></td><td>yes: <code>T</code> is deduced for <code>f</code></td></tr>
@@ -106,14 +107,14 @@ struct Printer<T*> {                       // PARTIAL specialization: any pointe
 <tr><td><code>void f(Widget&amp;&amp; w)</code></td><td>no: a plain rvalue reference</td></tr>
 </table>
 <h3>Reference collapsing</h3>
-<p>Deducing <code>T = int&amp;</code> for <code>T&amp;&amp;</code> would mean a "reference to reference", which C++ resolves with a simple rule: <b>if either is an lvalue reference, the result is an lvalue reference; only <code>&amp;&amp; + &amp;&amp;</code> stays an rvalue reference.</b></p>
+<p>Reference to reference collapses: <b>any lvalue reference makes it an lvalue reference; only <code>&amp;&amp; + &amp;&amp;</code> stays rvalue.</b></p>
 <table>
 <tr><th>Written</th><th>Collapses to</th></tr>
 <tr><td><code>T&amp; &amp;</code>, <code>T&amp; &amp;&amp;</code>, <code>T&amp;&amp; &amp;</code></td><td><code>T&amp;</code></td></tr>
 <tr><td><code>T&amp;&amp; &amp;&amp;</code></td><td><code>T&amp;&amp;</code></td></tr>
 </table>
 <h3>Perfect forwarding</h3>
-<p>Problem: a wrapper function takes arguments and passes them on to another function. Inside the wrapper the parameter has a <i>name</i>, so it is an lvalue, and the callee would always copy it. <code>std::forward</code> restores the original value category:</p>
+<p>A wrapper's parameter has a <i>name</i>, so it is an lvalue and the callee would always copy. <code>std::forward</code> restores the category:</p>
 <script type="text/x-cpp">
 template <typename T, typename... Args>
 std::unique_ptr<T> makeUnique(Args&&... args) {                  // forwarding references
@@ -124,12 +125,12 @@ std::string s = "abc";
 auto a = makeUnique<Widget>(s);              // s is an lvalue  -> Widget copies it
 auto b = makeUnique<Widget>(std::string("x"));// temporary rvalue -> Widget MOVES it
 </script>
-<div class="callout warn"><span class="label">std::move vs std::forward</span><code>std::move(x)</code> <i>always</i> casts to an rvalue ("steal from this"). <code>std::forward&lt;T&gt;(x)</code> casts to an rvalue <i>only if</i> the original argument was an rvalue, and is used with forwarding references. Only use <code>forward</code> on a forwarding reference, and use it once.</div>
+<div class="callout warn"><span class="label">std::move vs std::forward</span><code>move</code> <i>always</i> casts to rvalue. <code>forward&lt;T&gt;</code> casts to rvalue <i>only if</i> the argument was one. Use <code>forward</code> only on a forwarding reference, once.</div>
 </section>
 
 <section data-title="Variadic templates and fold expressions">
 <h2>Variadic templates and fold expressions</h2>
-<p>A <b>parameter pack</b> (<code>typename... Args</code>) lets a template take any number of arguments. You <i>expand</i> the pack with <code>args...</code>. Before C++17 you processed a pack by recursion: peel off the first element, recurse on the rest, and stop with a base case.</p>
+<p>A <b>parameter pack</b> (<code>typename... Args</code>) takes any number of arguments; <code>args...</code> expands it. Before C++17: recursion with a base case.</p>
 <script type="text/x-cpp">
 template <typename T>
 T sum(T v) { return v; }                               // base case: one argument
@@ -139,9 +140,9 @@ T sum(T first, Rest... rest) { return first + sum(rest...); }   // peel one off,
 
 sum(1, 2, 3);
 </script>
-<p>Watch the compiler instantiate a chain of real functions:</p>
+<p>The compiler instantiates a chain of real functions:</p>
 <div id="st-variadic"></div>
-<p>C++17 <b>fold expressions</b> replace the recursion with one line:</p>
+<p>C++17 <b>fold expressions</b> replace the recursion:</p>
 <script type="text/x-cpp">
 template <typename... Args>
 auto sum(Args... args) { return (args + ...); }          // unary right fold: a + (b + (c ...))
@@ -151,12 +152,13 @@ void print(Args&&... args) { ((std::cout << args << ' '), ...); }   // comma fol
 
 sizeof...(Args);                                          // number of elements in the pack
 </script>
-<p>Variadics are behind <code>std::make_unique</code>, <code>std::make_shared</code>, <code>emplace_back</code>, <code>std::tuple</code>, <code>std::thread</code> and <code>std::function</code>.</p>
+<p>Behind <code>make_unique</code>, <code>make_shared</code>, <code>emplace_back</code>, <code>tuple</code>, <code>thread</code>, <code>function</code>.</p>
 </section>
 
 <section data-title="Type traits and if constexpr">
 <h2>Type traits and <code>if constexpr</code></h2>
-<p><code>&lt;type_traits&gt;</code> lets code ask questions about types <i>at compile time</i> and even build new types from them.</p>
+<figure class="fig"><svg viewBox="0 0 640 130" role="img" aria-label="if constexpr keeps only the branch that matches T and discards the others"><defs><marker id="f3" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path class="ah" d="M0 0L10 5L0 10z"/></marker></defs><rect class="acc" x="10" y="45" width="110" height="40" rx="8"/><text class="t" x="65" y="70" text-anchor="middle">describe&lt;int&gt;</text><path class="ar" d="M120 58L218 28" marker-end="url(#f3)"/><rect class="gd" x="220" y="10" width="250" height="32" rx="6"/><text x="345" y="31" text-anchor="middle">is_integral: compiled and kept</text><path class="ln" d="M120 65H218" stroke-dasharray="5 4"/><rect class="box" x="220" y="49" width="250" height="32" rx="6" stroke-dasharray="5 4"/><text class="m" x="345" y="70" text-anchor="middle">is_floating_point: discarded</text><path class="ln" d="M120 75L218 108" stroke-dasharray="5 4"/><rect class="box" x="220" y="88" width="250" height="32" rx="6" stroke-dasharray="5 4"/><text class="m" x="345" y="109" text-anchor="middle">else: discarded</text><text class="m" x="484" y="60">not even compiled, so</text><text class="m" x="484" y="76">they may use code that</text><text class="m" x="484" y="92">is invalid for T</text></svg><figcaption>A normal if would fail to compile as soon as one branch is invalid for T.</figcaption></figure>
+<p><code>&lt;type_traits&gt;</code>: ask questions about types <i>at compile time</i>.</p>
 <script type="text/x-cpp">
 #include <type_traits>
 
@@ -178,9 +180,8 @@ std::string describe(const T& v) {
     else                                            return "something else";
 }
 </script>
-<p>The condition is evaluated while compiling and the <b>untaken branches are discarded, not even compiled</b>, so each branch may use operations that are invalid for the other types. A normal <code>if</code> would fail to compile as soon as one branch did not make sense for <code>T</code>.</p>
 <h3>SFINAE and enable_if (the older way)</h3>
-<p><b>S</b>ubstitution <b>F</b>ailure <b>I</b>s <b>N</b>ot <b>A</b>n <b>E</b>rror: if substituting a type into a template's <i>signature</i> produces invalid code, that overload is silently dropped from consideration instead of causing a compile error.</p>
+<p><b>S</b>ubstitution <b>F</b>ailure <b>I</b>s <b>N</b>ot <b>A</b>n <b>E</b>rror: a type that makes a template <i>signature</i> invalid silently drops that overload.</p>
 <script type="text/x-cpp">
 template <typename T, typename = std::enable_if_t<std::is_integral_v<T>>>
 T twice(T x) { return x * 2; }
@@ -198,7 +199,7 @@ T twice(T x) { return x * 2; }
 
 <section data-title="Compile-time computation">
 <h2>Compile-time computation</h2>
-<p>Templates are accidentally a compile-time programming language (template metaprogramming). The classic example computes a factorial during compilation using recursion on the template argument:</p>
+<p>Templates are accidentally a compile-time language. Factorial by recursion on the template argument:</p>
 <script type="text/x-cpp">
 template <unsigned N>
 struct Fact { static constexpr unsigned long value = N * Fact<N - 1>::value; };
@@ -208,13 +209,13 @@ struct Fact<0> { static constexpr unsigned long value = 1; };   // specializatio
 
 static_assert(Fact<5>::value == 120);       // evaluated by the compiler, zero runtime cost
 </script>
-<p>Modern C++ does the same far more readably with <code>constexpr</code> functions, which look like ordinary code:</p>
+<p>Modern C++: a <code>constexpr</code> function.</p>
 <script type="text/x-cpp">
 constexpr unsigned long fact(unsigned n) { return n <= 1 ? 1 : n * fact(n - 1); }
 static_assert(fact(5) == 120);
 std::array<int, fact(4)> a;          // size 24, computed at compile time
 </script>
-<p>Use <code>constexpr</code> for values and <code>if constexpr</code>, concepts and type traits for decisions; reach for hand-written template recursion only in older code or when a type must be computed.</p>
+<p><code>constexpr</code> for values; <code>if constexpr</code>, concepts, traits for decisions; template recursion only in old code or to compute a type.</p>
 </section>
 
 <section data-title="Pitfalls and good practice">
@@ -229,7 +230,7 @@ std::array<int, fact(4)> a;          // size 24, computed at compile time
 <tr><td>Deduction conflicts: <code>maxOf(3, 2.5)</code></td><td>Two different deduced <code>T</code>s fail. Cast, specify <code>maxOf&lt;double&gt;</code>, or use two parameters.</td></tr>
 <tr><td><code>maxOf("a", "b")</code> with <code>const char*</code></td><td>Compares pointer addresses, not text. Use <code>std::string</code> or <code>std::string_view</code>.</td></tr>
 </table>
-<p>See also your notes in <a href="../docs/04-templates-and-design-patterns/README.md">Module 4: Templates and Design Patterns</a> (templates, type traits, metaprogramming, variadic templates, perfect forwarding) and learncpp.com chapters 11 and 26, plus the <a href="https://github.com/AnthonyCalandra/modern-cpp-features">modern-cpp-features</a> sections on variadic templates, forwarding references, fold expressions, CTAD and <code>if constexpr</code>.</p>
+<p>Notes: <a href="../docs/04-templates-and-design-patterns/README.md">Module 4</a>; <a href="https://github.com/AnthonyCalandra/modern-cpp-features">modern-cpp-features</a>.</p>
 </section>
 
 <section data-title="Interview cheat sheet">

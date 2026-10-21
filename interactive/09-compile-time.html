@@ -10,11 +10,11 @@
 <body data-topic="compiletime" data-kind="lesson">
 <main>
 <h1>Type Traits and Compile-time C++</h1>
-<p class="lead">C++ can ask questions about types and compute values while compiling, so mistakes become compile errors and work moves out of the running program. This lesson covers <code>&lt;type_traits&gt;</code>, <code>enable_if</code>, <code>if constexpr</code>, <code>constexpr</code> and classic template metaprogramming.</p>
+<p class="lead">Ask questions about types and compute values while compiling: <code>&lt;type_traits&gt;</code>, <code>enable_if</code>, <code>if constexpr</code>, <code>constexpr</code> and template metaprogramming.</p>
 
 <section data-title="Type traits">
 <h2>Type traits</h2>
-<p>A <b>type trait</b> is a template in <code>&lt;type_traits&gt;</code> that answers a question about a type at compile time, or transforms one type into another. Query traits expose a <code>::value</code> (and, since C++17, a shorter <code>_v</code> variable template). Transformation traits expose a <code>::type</code> (and, since C++14, a shorter <code>_t</code> alias).</p>
+<p>A <b>type trait</b> answers a question about a type at compile time (<code>::value</code> / <code>_v</code>) or transforms one (<code>::type</code> / <code>_t</code>).</p>
 <script type="text/x-cpp">
 #include <type_traits>
 
@@ -29,14 +29,14 @@ T multiply(T a, T b) {
 }
 // multiply(std::string("a"), std::string("b"));   // compile error with YOUR message
 </script>
-<p>Explore what the common traits say about different types. Look closely at the references and <code>const</code> rows: they are where people guess wrong.</p>
+<p>Explore, especially the references and <code>const</code> rows, where people guess wrong:</p>
 <div id="w-traits"></div>
-<div class="callout interview"><span class="label">Interview angle</span>"What is the difference between <code>static_assert</code> and <code>assert</code>?" <code>static_assert</code> is checked at <b>compile time</b> on constant expressions and costs nothing at run time. <code>assert</code> is a run-time check that disappears when <code>NDEBUG</code> is defined.</div>
+<div class="callout interview"><span class="label">Interview angle</span><code>static_assert</code>: compile-time, free. <code>assert</code>: run-time, gone when <code>NDEBUG</code> is defined.</div>
 </section>
 
 <section data-title="enable_if and SFINAE">
 <h2><code>enable_if</code> and SFINAE</h2>
-<p>When the compiler tries every overload of a template and substitution produces an invalid type, it does not report an error: it just drops that candidate. This rule is <b>SFINAE</b> (Substitution Failure Is Not An Error). <code>std::enable_if</code> uses it to switch overloads on or off by a condition.</p>
+<p><b>SFINAE</b>: an invalid substitution drops that overload instead of erroring. <code>std::enable_if</code> uses it to switch overloads by a condition.</p>
 <script type="text/x-cpp">
 template <typename T, std::enable_if_t<std::is_integral_v<T>, bool> = true>
 void print(const T& v) { std::cout << "integral: " << v << '\n'; }
@@ -47,7 +47,7 @@ void print(const T& v) { std::cout << "other: " << v << '\n'; }
 print(42);      // first overload
 print(2.5);     // second overload: for double the first overload's enable_if has no ::type, so it is discarded
 </script>
-<p>It works, but the syntax is noisy and the error messages are poor. Modern C++ gives you two better tools:</p>
+<p>Noisy syntax, poor errors. Better tools:</p>
 <table>
 <tr><th>Tool</th><th>Standard</th><th>Looks like</th></tr>
 <tr><td><code>if constexpr</code></td><td>C++17</td><td>Branch inside <i>one</i> function; the untaken branch is not even compiled for that type</td></tr>
@@ -63,12 +63,13 @@ void print(const T& v) {
 template <std::integral T>        // C++20: constrained template, readable errors
 T twice(T v) { return v * 2; }
 </script>
-<div class="callout warn"><span class="label">Plain if is not enough</span>With an ordinary <code>if (std::is_integral_v&lt;T&gt;)</code> <b>both</b> branches must compile for every <code>T</code>, so a branch that only makes sense for integers breaks the build for <code>double</code>. <code>if constexpr</code> discards the false branch inside a template.</div>
+<div class="callout warn"><span class="label">Plain if is not enough</span>With <code>if (is_integral_v&lt;T&gt;)</code> <b>both</b> branches must compile for every <code>T</code>. <code>if constexpr</code> discards the false one.</div>
 </section>
 
 <section data-title="constexpr, consteval, constinit">
 <h2><code>constexpr</code>, <code>consteval</code>, <code>constinit</code></h2>
-<p>Instead of tricks with templates, you can usually just write an ordinary function and ask for compile-time evaluation.</p>
+<figure class="fig"><svg viewBox="0 0 640 160" role="img" aria-label="Which keyword forces compile time and which allows run time"><text class="m" x="190" y="16">compile time</text><text class="m" x="440" y="16">run time</text><text class="t" x="10" y="46">constexpr variable</text><rect class="gd" x="190" y="30" width="200" height="26" rx="5"/><text x="290" y="48" text-anchor="middle">always computed</text><text class="t" x="10" y="82">constexpr function</text><rect class="gd" x="190" y="66" width="200" height="26" rx="5"/><text x="290" y="84" text-anchor="middle">if arguments are constants</text><rect class="wn" x="394" y="66" width="200" height="26" rx="5"/><text x="494" y="84" text-anchor="middle">otherwise at run time</text><text class="t" x="10" y="118">consteval function</text><rect class="gd" x="190" y="102" width="200" height="26" rx="5"/><text x="290" y="120" text-anchor="middle">MUST be compile time</text><rect class="bd" x="394" y="102" width="200" height="26" rx="5" stroke-dasharray="4 3"/><text class="m" x="494" y="120" text-anchor="middle">error</text><text class="m" x="10" y="150">constinit: initialised at compile time, still mutable (avoids static-init-order problems).</text></svg><figcaption>constexpr does not force compile time; assign to a constexpr variable or use consteval.</figcaption></figure>
+<p>Write an ordinary function and ask for compile-time evaluation.</p>
 <table>
 <tr><th>Keyword</th><th>Meaning</th></tr>
 <tr><td><code>constexpr</code> variable</td><td>Must be initialised with a constant expression; usable where constants are required (array sizes, template arguments).</td></tr>
@@ -89,12 +90,11 @@ consteval int sq(int x) { return x * x; }
 constexpr int a = sq(7);                  // OK
 // int b = sq(n);                         // ERROR: n is not a constant expression
 </script>
-<div class="callout tip"><span class="label">constexpr does not force compile time</span>A <code>constexpr</code> function called with a non-constant argument simply runs at run time. To <i>guarantee</i> compile-time evaluation, assign the result to a <code>constexpr</code> variable (or use <code>consteval</code>).</div>
 </section>
 
 <section data-title="Template metaprogramming">
 <h2>Template metaprogramming (TMP)</h2>
-<p>Before <code>constexpr</code> functions could do loops and recursion, compile-time computation was done by <b>recursive template instantiation</b>. You will meet this style in older code and in interview questions.</p>
+<p>Before <code>constexpr</code> loops, compile-time computation was <b>recursive template instantiation</b>. You will meet it in old code and interviews.</p>
 <script type="text/x-cpp">
 template <int N>
 struct Fact {
@@ -107,10 +107,10 @@ struct Fact<0> {                                             // full specialisat
 
 static_assert(Fact<5>::value == 120);
 </script>
-<p>Each <code>Fact&lt;N&gt;</code> is a separate class created by the compiler. The result is a constant baked into the program: zero run-time cost.</p>
+<p>Each <code>Fact&lt;N&gt;</code> is a separate class; the result is a baked-in constant.</p>
 <ul>
-<li><b>Limits:</b> compilers cap template recursion depth (often a few hundred), and deep instantiation slows compilation and bloats error messages.</li>
-<li><b>Today:</b> prefer a <code>constexpr</code> function for values, and traits plus <code>if constexpr</code>/concepts for types. Write TMP only when you must compute <i>types</i>.</li>
+<li><b>Limits:</b> recursion depth cap (a few hundred), slow builds, long errors.</li>
+<li><b>Today:</b> <code>constexpr</code> for values, traits + <code>if constexpr</code>/concepts for types; TMP only to compute <i>types</i>.</li>
 </ul>
 <table>
 <tr><th>Task</th><th>Old style</th><th>Modern style</th></tr>

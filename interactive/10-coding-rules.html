@@ -10,34 +10,34 @@
 <body data-topic="rules" data-kind="lesson">
 <main>
 <h1>Coding Rules and Safe C++</h1>
-<p class="lead">In safety-related domains such as automotive, you are not free to use every C++ feature in every way. Coding guidelines restrict the language to a safer subset and tools check them automatically. This lesson explains what they are, why they exist, and the kinds of rules you will meet.</p>
+<p class="lead">Safety-related domains such as automotive restrict C++ to a safer subset, checked by tools. What the rules are, why, and the themes you will meet.</p>
 
 <section data-title="Why coding rules exist">
 <h2>Why coding rules exist</h2>
-<p>C++ lets you write code that compiles but has <b>undefined</b>, <b>unspecified</b> or <b>implementation-defined</b> behaviour, or is simply easy to misread. In a car or medical device, a rare misbehaviour is not acceptable, so projects agree on rules that remove the risky corners.</p>
-<p>Coding rules come in two kinds:</p>
+<p>C++ allows code with <b>undefined</b>, <b>unspecified</b> or <b>implementation-defined</b> behaviour. Where a rare fault is unacceptable (cars, medical), projects agree rules that remove the risky corners.</p>
+<p>Two kinds of rule:</p>
 <table>
 <tr><th>Kind</th><th>Purpose</th><th>Examples</th></tr>
 <tr><td><b>Guidelines</b> (language usage)</td><td>Avoid errors from using language features in vulnerable or unclear ways</td><td>initialise every variable; no C-style casts; no unchecked implicit narrowing</td></tr>
 <tr><td><b>Style</b> (form)</td><td>Make code uniform and tidy so reviews are about logic</td><td>indentation, brace position, naming of classes, functions and members</td></tr>
 </table>
-<p>Everyone on the project must know the rules and follow them, and rules are only useful if they are <b>checked automatically</b>.</p>
+<p>Rules only work if <b>checked automatically</b>.</p>
 </section>
 
 <section data-title="MISRA and AUTOSAR C++14">
 <h2>MISRA and AUTOSAR C++14</h2>
 <ul>
-<li><b>MISRA C / MISRA C++</b> are among the best-known rule sets. They began in the automotive industry and are now used widely in safety-critical embedded work. MISRA C++:2008 targets C++03.</li>
-<li><b>AUTOSAR C++14</b> is a guideline for using C++14 in safety-related and critical environments. It is based on MISRA C++:2008 and other leading standards, updated for modern C++ (smart pointers, move semantics, constexpr and so on).</li>
-<li>Both classify rules by strictness (for example required versus advisory) and let a project record a justified <b>deviation</b> when a rule must be broken.</li>
-<li>Standards keep evolving (MISRA C++:2023 was written to supersede both MISRA C++:2008 and AUTOSAR C++14), so always check which version your project mandates.</li>
+<li><b>MISRA C / C++</b>: well-known rule sets from automotive, now common in safety-critical embedded. MISRA C++:2008 targets C++03.</li>
+<li><b>AUTOSAR C++14</b>: C++14 guidelines for safety-critical use, based on MISRA C++:2008, updated for smart pointers, move semantics, constexpr.</li>
+<li>Rules are graded (required, advisory); a justified <b>deviation</b> can be recorded.</li>
+<li>MISRA C++:2023 supersedes both; check which version the project mandates.</li>
 </ul>
 <div class="callout tip"><span class="label">Say this in an interview</span>"I follow the project's coding standard, such as AUTOSAR C++14, check it with a static analyser in CI, and document any deviation with a reason rather than silently working around the tool."</div>
 </section>
 
 <section data-title="Typical rules, and why">
 <h2>Typical rules, and why</h2>
-<p>The exact rule numbers differ between standards, so learn the <i>themes</i>. Each one below is a pattern that is legal C++ but risky. Try to name the problem before you open each answer.</p>
+<p>Learn the <i>themes</i>, not rule numbers. Name the problem before opening each answer.</p>
 <script type="text/x-cpp" data-title="1. Uninitialised variable">
 int count;
 if (ready) count = compute();
@@ -84,7 +84,8 @@ public:
 
 <section data-title="Static analysis and tooling">
 <h2>Static analysis and tooling</h2>
-<p>Rules are verified by <b>static code analysers</b> that read the source without running it. Examples named in industry include <code>cppcheck</code> (free), <code>clang-tidy</code> (free, with checks aligned to several guidelines) and commercial tools such as CodeSonar, Polyspace or Helix QAC that map findings to MISRA or AUTOSAR rule IDs.</p>
+<figure class="fig"><svg viewBox="0 0 640 120" role="img" aria-label="Layers of checking from compiler warnings to run-time sanitisers"><defs><marker id="i1" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path class="ah" d="M0 0L10 5L0 10z"/></marker></defs><rect class="acc" x="10" y="28" width="130" height="54" rx="8"/><text class="t" x="75" y="50" text-anchor="middle">Compiler</text><text class="m" x="75" y="68" text-anchor="middle">-Wall -Wextra</text><rect class="acc" x="165" y="28" width="130" height="54" rx="8"/><text class="t" x="230" y="50" text-anchor="middle">Static analyser</text><text class="m" x="230" y="68" text-anchor="middle">rules, leaks, nulls (CI)</text><rect class="acc" x="320" y="28" width="130" height="54" rx="8"/><text class="t" x="385" y="50" text-anchor="middle">Formatter</text><text class="m" x="385" y="68" text-anchor="middle">clang-format</text><rect class="gd" x="475" y="28" width="155" height="54" rx="8"/><text class="t" x="552" y="50" text-anchor="middle">Tests + sanitisers</text><text class="m" x="552" y="68" text-anchor="middle">run-time behaviour</text><path class="ar" d="M140 55H163M295 55H318M450 55H473" marker-end="url(#i1)"/><text class="m" x="10" y="108">Static layers read the source; the last one runs the program. None of them is a proof.</text></svg><figcaption>Turn warnings on first: they are free.</figcaption></figure>
+<p><b>Static analysers</b> read the source without running it: <code>cppcheck</code>, <code>clang-tidy</code> (free); CodeSonar, Polyspace, Helix QAC (commercial, map findings to MISRA/AUTOSAR IDs).</p>
 <table>
 <tr><th>Layer</th><th>What it catches</th></tr>
 <tr><td>Compiler warnings (<code>-Wall -Wextra -Werror</code>)</td><td>Many beginner mistakes immediately, at no cost. Turn them on first.</td></tr>

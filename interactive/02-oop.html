@@ -10,11 +10,12 @@
 <body data-topic="oop" data-kind="lesson">
 <main>
 <h1>Object-Oriented Programming in C++</h1>
-<p class="lead">Classes, object lifetime, copying, inheritance and polymorphism. This is the lesson interviewers use to find out whether you understand what a C++ object really is. It assumes you know pointers and references from <a href="01-basics.html">C++ Basics</a>.</p>
+<p class="lead">Classes, object lifetime, copying, inheritance and polymorphism: what interviewers use to test whether you understand what a C++ object is. Assumes <a href="01-basics.html">C++ Basics</a>.</p>
 
 <section data-title="Classes and encapsulation">
 <h2>Classes and encapsulation</h2>
-<p>A <b>class</b> bundles data (<i>members</i>) with the functions that operate on it (<i>member functions</i>, or methods). The key idea is <b>encapsulation</b>: keep the data private and expose only operations that keep it valid.</p>
+<figure class="fig"><svg viewBox="0 0 640 150" role="img" aria-label="Access specifiers as nested circles of visibility"><rect class="bd" x="10" y="10" width="620" height="130" rx="12"/><text class="t" x="24" y="32">private: only the class (and friends)</text><rect class="wn" x="150" y="44" width="470" height="86" rx="10"/><text class="t" x="164" y="66">protected: plus derived classes</text><rect class="gd" x="330" y="78" width="280" height="42" rx="8"/><text class="t" x="344" y="104">public: everyone</text><text class="m" x="24" y="64">balance_</text><text class="m" x="24" y="84">(the data)</text><text class="m" x="164" y="100">name_ in a base</text><text class="m" x="450" y="104">withdraw(), balance()</text></svg><figcaption>Hide the data, expose operations that keep the invariant true.</figcaption></figure>
+<p>A <b>class</b> bundles data with the functions that use it. <b>Encapsulation</b>: keep data private, expose only operations that keep it valid.</p>
 <script type="text/x-cpp">
 class BankAccount {
 public:                                    // the interface other code may use
@@ -41,13 +42,13 @@ acc.withdraw(30);          // fine
 <tr><td><code>protected</code></td><td>the class itself and classes derived from it</td></tr>
 <tr><td><code>private</code></td><td>only the class itself (and its friends)</td></tr>
 </table>
-<p>The rule that decides what "valid" means is the class <b>invariant</b>, here "the balance never goes negative". Hide the representation, let constructors create only valid objects, and make every member function leave the object valid. If you cannot state an invariant, the type is probably plain data and should be a <code>struct</code>. Keep the public interface small, <i>as small as possible but no smaller</i>: put extras in non-member helper functions, which also leaves fewer places to look when something breaks.</p>
-<div class="callout tip"><span class="label">struct vs class</span>They are the same thing except for defaults: <code>struct</code> members and inheritance are <b>public</b> by default, <code>class</code> ones are <b>private</b>. By convention, use <code>struct</code> for plain data and <code>class</code> when there are invariants to protect.</div>
+<p>"Valid" is the class <b>invariant</b> (here: balance never negative). Hide the representation, let constructors build only valid objects, keep the public interface small. No invariant to protect? Use a plain <code>struct</code>.</p>
+<div class="callout tip"><span class="label">struct vs class</span>Only the default access differs: <code>struct</code> public, <code>class</code> private. Use <code>struct</code> for plain data.</div>
 </section>
 
 <section data-title="Constructors and destructors">
 <h2>Constructors and destructors</h2>
-<p>A <b>constructor</b> runs when an object is created and sets it up. A <b>destructor</b> (<code>~Name()</code>) runs automatically when the object's lifetime ends: at the closing brace for locals, or on <code>delete</code> for heap objects. This automatic cleanup is the foundation of RAII (see Core Language).</p>
+<p>A <b>constructor</b> sets an object up; the <b>destructor</b> (<code>~Name()</code>) runs automatically when its lifetime ends. This is the basis of RAII.</p>
 <script type="text/x-cpp">
 class Widget {
     const int id_;
@@ -60,23 +61,22 @@ public:
 };
 </script>
 <ul>
-<li><b>Use the initializer list</b> (after the colon). It <i>initializes</i> members directly. Assigning in the body means the member was default-constructed first and then overwritten. <code>const</code> and reference members <i>can only</i> be set in the list.</li>
-<li><b>Members are initialized in declaration order</b>, not in the order you write the list. Mismatched order is a classic warning (<code>-Wreorder</code>).</li>
-<li><b><code>explicit</code></b> on a one-argument constructor stops the compiler converting an <code>int</code> into your type behind your back.</li>
-<li><b>Every object should start valid.</b> Constructors guarantee it. A type with an obvious default gets a default constructor, which is why <code>std::string s;</code> is empty rather than garbage.</li>
+<li><b>Use the initializer list</b>: it initializes members directly. <code>const</code> and reference members can only be set there.</li>
+<li><b>Members initialize in declaration order</b>, not list order (<code>-Wreorder</code>).</li>
+<li><b><code>explicit</code></b> on a one-argument constructor blocks silent conversions.</li>
 </ul>
 
 <h3>Order of construction and destruction</h3>
-<p>Base class first, then members (in declaration order), then the derived constructor body. Destruction is the exact <b>reverse</b>. Step through it:</p>
+<p>Construction: base, members, derived body. Destruction: the exact reverse.</p>
 <div id="st-order"></div>
-<div class="callout interview"><span class="label">Interview angle</span>"In what order are constructors and destructors called with inheritance?" Construct: base, members, derived body. Destruct: derived body, members (reverse), base. This is also why a derived class can safely use its base while its own body runs.</div>
+<div class="callout interview"><span class="label">Interview angle</span>Construct: base, members, derived body. Destruct: reverse.</div>
 </section>
 
 <section data-title="Copying and the Rule of 3, 5 and 0">
 <h2>Copying and the Rule of 3, 5 and 0</h2>
-<p>If you do not write them, the compiler generates a <b>copy constructor</b> and <b>copy assignment operator</b> that copy every member one by one. For an <code>int</code> that is perfect. For a raw pointer it copies only the <i>address</i>, which is called a <b>shallow copy</b>, and that is a bug waiting to happen:</p>
+<p>The compiler generates copy operations that copy every member. For a raw pointer that copies only the <i>address</i>: a <b>shallow copy</b>, and a bug:</p>
 <div id="st-copy"></div>
-<p>The fix is a <b>deep copy</b>: give the class its own copy operations. This is the <b>Rule of Three</b>: if a class needs a custom destructor, copy constructor <i>or</i> copy assignment, it almost certainly needs all three.</p>
+<p>Fix: a <b>deep copy</b>. <b>Rule of Three</b>: a custom destructor, copy constructor or copy assignment means you need all three.</p>
 <script type="text/x-cpp">
 class Buffer {
     int* data_;
@@ -112,10 +112,10 @@ public:
 <tr><td>a move constructor or a move assignment</td><td><b>disabled</b></td><td>only what you declared</td></tr>
 </table>
 <ul>
-<li>A class can quietly lose its moves: adding a logging destructor later turns every move into a copy, and the code still compiles and passes its tests. To keep the defaults, ask for them with <code>= default</code>. A polymorphic base with <code>virtual ~Base() = default;</code> must also default its copy and move operations if it should stay movable.</li>
-<li><b>Never <code>= delete</code> a move operation.</b> It disables the copy fallback too, so even a copy from an rvalue becomes an error. To make a move-only type, delete the <i>copy</i> operations.</li>
+<li>A class can quietly lose its moves (a later logging destructor turns every move into a copy). Ask for defaults with <code>= default</code>; a polymorphic base needs them defaulted too.</li>
+<li><b>Never <code>= delete</code> a move</b>: it kills the copy fallback too. For a move-only type, delete the <i>copy</i> operations.</li>
 </ul>
-<div class="callout tip"><span class="label">Best answer in an interview</span>"I follow the Rule of Zero: I use <code>std::vector</code> and smart pointers so the compiler-generated special members are already correct. I only write the Rule of Five when I wrap a raw resource."</div>
+<div class="callout tip"><span class="label">Best interview answer</span>"Rule of Zero: <code>vector</code> and smart pointers make the generated members correct. Rule of Five only when wrapping a raw resource."</div>
 </section>
 
 <section data-title="Member functions: this, const, static, friend">
@@ -140,15 +140,15 @@ Counter c;
 c.add(1).add(2);                           // chaining works because add returns *this
 </script>
 <ul>
-<li>A <b><code>const</code> member function</b> can be called on a <code>const</code> object, and the compiler stops it modifying members (except those marked <code>mutable</code>). Make every getter <code>const</code>.</li>
-<li>A <b>static member function</b> belongs to the class, not an object, so it has no <code>this</code>.</li>
-<li><b><code>friend</code></b> grants a function or class access to private members. Use it sparingly: it weakens encapsulation.</li>
+<li><b><code>const</code> member function</b>: callable on const objects, cannot modify members (except <code>mutable</code>). Make getters const.</li>
+<li><b>static member function</b>: belongs to the class, no <code>this</code>.</li>
+<li><b><code>friend</code></b>: access to privates. Use sparingly.</li>
 </ul>
 </section>
 
 <section data-title="Inheritance">
 <h2>Inheritance</h2>
-<p>Public inheritance models <b>"is-a"</b>: a <code>Dog</code> is an <code>Animal</code>, so a <code>Dog</code> can be used anywhere an <code>Animal</code> is expected.</p>
+<p>Public inheritance models <b>is-a</b>: a <code>Dog</code> works anywhere an <code>Animal</code> is expected.</p>
 <script type="text/x-cpp">
 class Animal {
 public:
@@ -164,16 +164,17 @@ public:
     void fetch() const { std::cout << name_ << " fetches\n"; }
 };
 </script>
-<div class="callout warn"><span class="label">Object slicing</span>Copying a derived object into a base <i>value</i> chops off the derived part: <code>Animal a = Dog("Rex");</code> keeps only the <code>Animal</code> bits, and virtual behaviour is lost. Pass and store polymorphic objects by <b>pointer or reference</b>, never by value.</div>
-<p>Mark a class <code>final</code> to forbid deriving from it. Prefer <b>composition</b> (see below) when the relationship is not truly is-a.</p>
+<div class="callout warn"><span class="label">Object slicing</span><code>Animal a = Dog("Rex");</code> chops off the Dog part and its virtual behaviour. Use pointers or references.</div>
+<p><code>final</code> forbids deriving. Prefer <b>composition</b> unless it is truly is-a.</p>
 </section>
 
 <section data-title="Polymorphism and virtual functions">
 <h2>Polymorphism and virtual functions</h2>
-<p>Polymorphism lets you call <code>p-&gt;speak()</code> through a base pointer and get the <i>derived</i> class's behaviour. It only works if the base function is <code>virtual</code>. Without <code>virtual</code> the compiler picks the function from the pointer's <b>static type</b> at compile time. With <code>virtual</code> it picks from the object's real <b>dynamic type</b> at runtime. Try it, and watch what changes:</p>
+<figure class="fig"><svg viewBox="0 0 640 160" role="img" aria-label="An object holds a vptr that points to its class vtable of function pointers"><defs><marker id="c1" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path class="ah" d="M0 0L10 5L0 10z"/></marker></defs><rect class="acc" x="10" y="30" width="150" height="90" rx="8"/><text class="t" x="85" y="52" text-anchor="middle">Dog object</text><rect class="wn" x="24" y="64" width="122" height="24" rx="4"/><text x="85" y="81" text-anchor="middle">vptr</text><rect class="box" x="24" y="92" width="122" height="22" rx="4"/><text class="m" x="85" y="108" text-anchor="middle">name_ ...</text><path class="ar" d="M146 76H258" marker-end="url(#c1)"/><rect class="box" x="260" y="30" width="190" height="90" rx="8"/><text class="t" x="355" y="50" text-anchor="middle">Dog vtable</text><rect class="gd" x="274" y="60" width="162" height="26" rx="4"/><text x="355" y="78" text-anchor="middle">speak() : Dog::speak</text><rect class="gd" x="274" y="90" width="162" height="26" rx="4"/><text x="355" y="108" text-anchor="middle">~Dog()</text><path class="ar" d="M436 73H518" marker-end="url(#c1)"/><rect class="box" x="520" y="52" width="110" height="42" rx="6"/><text x="575" y="78" text-anchor="middle">Dog::speak code</text><text class="m" x="10" y="146">A virtual call: follow vptr, index the table, jump. Cost: one pointer per object, one indirection per call.</text></svg><figcaption>One vtable per class, one vptr per object.</figcaption></figure>
+<p><code>p-&gt;speak()</code> through a base pointer reaches the <i>derived</i> behaviour only if <code>speak</code> is <code>virtual</code>. Without it the <b>static type</b> decides (compile time); with it the <b>dynamic type</b> (runtime). Try it:</p>
 <div id="w-virtual"></div>
-<h3>How it works: the vtable</h3>
-<p>A class with virtual functions gets a hidden table of function pointers (the <b>vtable</b>), one per class. Each object carries a hidden pointer to it (the <b>vptr</b>), set up by the constructor. A virtual call is: follow the vptr, index the table, jump. The cost is one extra pointer per object and one indirection per call, and the call usually cannot be inlined.</p>
+<h3>How it works: vtable and vptr</h3>
+<p>Each class with virtuals has a <b>vtable</b>; each object has a hidden <b>vptr</b> to it. Cost: a pointer per object, an indirection per call, usually no inlining.</p>
 <table>
 <tr><th>Term</th><th>Meaning</th></tr>
 <tr><td><b>Overloading</b></td><td>same name, different parameters, resolved at compile time</td></tr>
@@ -198,7 +199,7 @@ struct Circle : Shape {
 
 <section data-title="Abstract classes and interfaces">
 <h2>Abstract classes and interfaces</h2>
-<p>A function declared <code>= 0</code> is <b>pure virtual</b>. A class with at least one is <b>abstract</b>: you cannot create objects of it, only derive from it. A class with <i>only</i> pure virtual functions (and no data) is an <b>interface</b>.</p>
+<p><code>= 0</code> makes a function <b>pure virtual</b>; a class with one is <b>abstract</b> (cannot be instantiated). Only pure virtuals and no data: an <b>interface</b>.</p>
 <script type="text/x-cpp">
 struct Logger {                                   // interface
     virtual void log(const std::string& msg) = 0;
@@ -220,7 +221,7 @@ for (const auto& s : shapes) std::cout << s->area() << '\n';
 
 <section data-title="Operator overloading">
 <h2>Operator overloading</h2>
-<p>You can give operators meaning for your own types so they read naturally. Do it only when the meaning is obvious (<code>+</code> on vectors, <code>==</code> on values, <code>&lt;&lt;</code> for printing).</p>
+<p>Overload operators only when the meaning is obvious (<code>+</code> on vectors, <code>==</code> on values, <code>&lt;&lt;</code> to print).</p>
 <script type="text/x-cpp">
 struct Vec2 {
     double x{}, y{};
@@ -235,15 +236,16 @@ std::ostream& operator<<(std::ostream& os, const Vec2& v) {   // MUST be non-mem
 }
 </script>
 <ul>
-<li>Binary operators that do not change their operands (<code>+</code>, <code>==</code>) are best as <b>non-member</b> functions so both sides get implicit conversions; compound assignment (<code>+=</code>) is a member.</li>
-<li>Keep the usual semantics: <code>==</code> and <code>!=</code> together, <code>&lt;</code> should be a strict weak ordering. C++20's <code>operator&lt;=&gt;</code> can generate all comparisons from one function.</li>
-<li>You cannot invent new operators or change precedence, and <code>::</code>, <code>.</code>, <code>.*</code>, <code>?:</code> cannot be overloaded.</li>
+<li>Non-mutating binary operators (<code>+</code>, <code>==</code>): <b>non-member</b>, so both sides convert. <code>+=</code>: member.</li>
+<li>Keep usual semantics: <code>==</code> with <code>!=</code>, <code>&lt;</code> a strict weak ordering. C++20 <code>&lt;=&gt;</code> generates all comparisons.</li>
+<li>No new operators; <code>::</code> <code>.</code> <code>.*</code> <code>?:</code> cannot be overloaded.</li>
 </ul>
 </section>
 
 <section data-title="Composition, relationships and design">
 <h2>Composition, relationships and design</h2>
-<p>Ask "is it a, or does it have a?" Inheritance is the <i>strongest</i> coupling in C++; prefer <b>composition</b> unless you truly need polymorphism.</p>
+<figure class="fig"><svg viewBox="0 0 640 170" role="img" aria-label="Inheritance, composition, aggregation and association drawn as boxes and arrows"><defs><marker id="c2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path class="ah" d="M0 0L10 5L0 10z"/></marker></defs><rect class="box" x="10" y="10" width="110" height="34" rx="6"/><text x="65" y="32" text-anchor="middle">Animal</text><path class="ln" d="M65 100V46"/><path class="ah" d="M65 46L58 58H72z" style="fill:var(--card);stroke:var(--accent);stroke-width:1.5"/><rect class="box" x="10" y="100" width="110" height="34" rx="6"/><text x="65" y="122" text-anchor="middle">Dog</text><text class="m" x="65" y="156" text-anchor="middle">is-a (inherits)</text><rect class="box" x="170" y="10" width="110" height="34" rx="6"/><text x="225" y="32" text-anchor="middle">Car</text><path class="ln" d="M225 44V100"/><path d="M225 44L218 56L225 68L232 56z" style="fill:var(--accent)"/><rect class="box" x="170" y="100" width="110" height="34" rx="6"/><text x="225" y="122" text-anchor="middle">Engine</text><text class="m" x="225" y="156" text-anchor="middle">owns: dies with Car</text><rect class="box" x="330" y="10" width="110" height="34" rx="6"/><text x="385" y="32" text-anchor="middle">Team</text><path class="ln" d="M385 44V100"/><path d="M385 44L378 56L385 68L392 56z" style="fill:var(--card);stroke:var(--accent);stroke-width:1.5"/><rect class="box" x="330" y="100" width="110" height="34" rx="6"/><text x="385" y="122" text-anchor="middle">Player</text><text class="m" x="385" y="156" text-anchor="middle">uses: lives on its own</text><rect class="box" x="490" y="10" width="110" height="34" rx="6"/><text x="545" y="32" text-anchor="middle">Doctor</text><path class="ar" d="M545 44V98" marker-end="url(#c2)"/><rect class="box" x="490" y="100" width="110" height="34" rx="6"/><text x="545" y="122" text-anchor="middle">Patient</text><text class="m" x="545" y="156" text-anchor="middle">association (a pointer)</text></svg><figcaption>Prefer composition; inheritance is the strongest coupling.</figcaption></figure>
+<p>"Is it a, or does it have a?" Prefer <b>composition</b> unless you need polymorphism.</p>
 <table>
 <tr><th>Relationship</th><th>Meaning</th><th>C++ shape</th><th>Lifetime</th></tr>
 <tr><td><b>Inheritance</b> (is-a)</td><td>Dog is an Animal</td><td><code>class Dog : public Animal</code></td><td>one object</td></tr>
@@ -251,7 +253,7 @@ std::ostream& operator<<(std::ostream& os, const Vec2& v) {   // MUST be non-mem
 <tr><td><b>Aggregation</b> (uses, shared)</td><td>Team has Players who exist independently</td><td><code>Player*</code> / <code>std::shared_ptr</code> member</td><td>independent</td></tr>
 <tr><td><b>Association</b></td><td>Doctor treats Patients</td><td>reference or pointer parameter</td><td>independent</td></tr>
 </table>
-<div class="callout interview"><span class="label">Liskov Substitution Principle</span>Code that works with a base type must keep working when handed any derived type. If <code>Square : Rectangle</code> breaks because setting the width also changes the height, inheritance was the wrong model. Public inheritance must mean "behaves like", not just "shares code".</div>
+<div class="callout interview"><span class="label">Liskov Substitution</span>Code using a base must keep working with any derived type. If <code>Square : Rectangle</code> breaks on setting the width, inheritance was the wrong model: it must mean "behaves like", not "shares code".</div>
 <p>Related notes in your repo: <a href="../docs/02-cpp-oop/README.md">Module 2: C++ OOP</a>, <a href="../docs/02-cpp-oop/13_objects_relationships.md">objects relationships</a>, and the learncpp.com recaps for chapters 14, 15, 21, 23, 24 and 25.</p>
 </section>
 

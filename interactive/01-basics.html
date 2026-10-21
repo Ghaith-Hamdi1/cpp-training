@@ -10,11 +10,12 @@
 <body data-topic="basics" data-kind="lesson">
 <main>
 <h1>C++ Basics and Pointers</h1>
-<p class="lead">Start here if C++ is new or rusty. By the end you will understand types, functions, where variables live in memory, and how pointers and references really work. Every other lesson builds on this one.</p>
+<p class="lead">Start here if C++ is new or rusty: types, functions, where variables live, and how pointers and references work.</p>
 
 <section data-title="How a C++ program is built">
 <h2>How a C++ program is built</h2>
-<p>C++ is a <b>compiled</b> language: your source code is translated into machine code before it runs. There is no interpreter watching over it, which makes C++ fast but also means the language trusts you not to make memory mistakes.</p>
+<figure class="fig"><svg viewBox="0 0 640 110" role="img" aria-label="Source file goes through preprocess, compile and link to become an executable"><defs><marker id="b1" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path class="ah" d="M0 0L10 5L0 10z"/></marker></defs><rect class="box" x="8" y="30" width="96" height="46" rx="8"/><text class="t" x="56" y="58" text-anchor="middle">main.cpp</text><rect class="acc" x="150" y="30" width="110" height="46" rx="8"/><text class="t" x="205" y="52" text-anchor="middle">Preprocess</text><text class="m" x="205" y="68" text-anchor="middle">#include pasted</text><rect class="acc" x="300" y="30" width="110" height="46" rx="8"/><text class="t" x="355" y="52" text-anchor="middle">Compile</text><text class="m" x="355" y="68" text-anchor="middle">one .o per .cpp</text><rect class="acc" x="450" y="30" width="90" height="46" rx="8"/><text class="t" x="495" y="52" text-anchor="middle">Link</text><text class="m" x="495" y="68" text-anchor="middle">join .o + libs</text><rect class="gd" x="574" y="30" width="60" height="46" rx="8"/><text class="t" x="604" y="58" text-anchor="middle">main</text><path class="ar" d="M104 53H148M260 53H298M410 53H448M540 53H572" marker-end="url(#b1)"/><text class="m" x="355" y="100" text-anchor="middle">Compile error: a problem inside one file.   Linker error: declared and called but never defined.</text></svg><figcaption>Three stages. Know which one an error comes from.</figcaption></figure>
+<p>C++ is <b>compiled</b> to machine code before it runs: fast, but it trusts you not to make memory mistakes.</p>
 <script type="text/x-cpp" data-title="main.cpp">
 #include <iostream>          // paste in the declarations for std::cout
 
@@ -47,7 +48,7 @@ g++ -std=c++17 -Wall -Wextra main.cpp -o main
 <tr><td><code>long long</code></td><td>bigger whole number</td><td>8 bytes</td></tr>
 <tr><td><code>float</code> / <code>double</code></td><td>decimal number</td><td>4 / 8 bytes</td></tr>
 </table>
-<p>Sizes other than <code>char</code> are only guaranteed as minimums, so when size matters use the fixed-width types from <code>&lt;cstdint&gt;</code>: <code>std::int32_t</code>, <code>std::uint64_t</code> and so on.</p>
+<p>Only <code>char</code> has a fixed size. When size matters use <code>&lt;cstdint&gt;</code>: <code>std::int32_t</code>, <code>std::uint64_t</code>.</p>
 
 <h3>Initialization: always give a variable a value</h3>
 <script type="text/x-cpp">
@@ -60,15 +61,15 @@ int f{3.7};     // ERROR: braces forbid narrowing double -> int
 auto g = 5;     // g is int: the compiler deduces the type
 const int h = 9;// cannot be changed after initialization
 </script>
-<div class="callout warn"><span class="label">Undefined behavior</span>A local variable you never initialize contains garbage left over in memory. Reading it is <b>undefined behavior (UB)</b>: the program may print junk, crash, or appear to work until the day it does not.</div>
+<div class="callout warn"><span class="label">Undefined behavior</span>An uninitialized local holds garbage. Reading it is <b>UB</b>: junk, a crash, or "works" until it does not.</div>
 
 <h3>The signed/unsigned trap</h3>
-<p><code>unsigned</code> types never go negative; they wrap around instead. Mixing signed and unsigned in a comparison converts the signed value to unsigned first.</p>
+<p><code>unsigned</code> wraps instead of going negative, and a mixed comparison converts the signed side to unsigned.</p>
 <details class="ex"><summary><span class="ex-tag">Predict</span>What does this print?</summary><div>
 <script type="text/x-cpp">
 std::cout << (-1 < 1u);
 </script>
-<p>It prints <code>0</code> (false). <code>-1</code> is converted to <code>unsigned</code> and becomes 4294967295, which is not less than 1. This is why <code>-Wall -Wextra</code> warns about sign comparisons, and why you should be careful comparing an <code>int</code> index with <code>vector::size()</code> (an unsigned type).</p>
+<p>It prints <code>0</code>: <code>-1</code> becomes 4294967295. Beware comparing an <code>int</code> index with <code>vector::size()</code>.</p>
 </div></details>
 </section>
 
@@ -102,7 +103,7 @@ std::cout << a << ' ' << b << ' ' << x;
 
 <section data-title="Functions and passing arguments">
 <h2>Functions and passing arguments</h2>
-<p>A function must be <b>declared</b> before it is called. A declaration (prototype) says the name and types; the definition supplies the body. Headers hold declarations so many files can share them.</p>
+<p>Declare before use; the header holds declarations, the .cpp the definitions.</p>
 <script type="text/x-cpp">
 int add(int a, int b);                 // declaration
 int add(int a, int b) { return a + b; }// definition
@@ -137,7 +138,7 @@ std::cout << a;
 
 <section data-title="Where variables live: stack, heap, static">
 <h2>Where variables live: stack, heap, static</h2>
-<p>Pointers only make sense once you know there are different regions of memory.</p>
+<figure class="fig"><svg viewBox="0 0 640 170" role="img" aria-label="Stack, heap and static storage compared"><rect class="acc" x="10" y="10" width="200" height="150" rx="10"/><text class="t" x="110" y="36" text-anchor="middle">Stack</text><text class="m" x="110" y="62" text-anchor="middle">locals, parameters</text><text class="m" x="110" y="84" text-anchor="middle">freed at the closing }</text><text class="m" x="110" y="106" text-anchor="middle">very fast, about 1 to 8 MB</text><text class="m" x="110" y="140" text-anchor="middle">int local = 1;</text><rect class="wn" x="220" y="10" width="200" height="150" rx="10"/><text class="t" x="320" y="36" text-anchor="middle">Heap</text><text class="m" x="320" y="62" text-anchor="middle">new / malloc</text><text class="m" x="320" y="84" text-anchor="middle">lives until you delete it</text><text class="m" x="320" y="106" text-anchor="middle">slower, huge</text><text class="m" x="320" y="140" text-anchor="middle">int* p = new int(5);</text><rect class="gd" x="430" y="10" width="200" height="150" rx="10"/><text class="t" x="530" y="36" text-anchor="middle">Static / global</text><text class="m" x="530" y="62" text-anchor="middle">globals, static variables</text><text class="m" x="530" y="84" text-anchor="middle">whole program lifetime</text><text class="m" x="530" y="106" text-anchor="middle">fixed at startup</text><text class="m" x="530" y="140" text-anchor="middle">static int calls;</text></svg><figcaption>The lifetime rule decides where a variable should live.</figcaption></figure>
 <table>
 <tr><th>Region</th><th>What goes there</th><th>Lifetime</th><th>Speed / size</th></tr>
 <tr><td><b>Stack</b></td><td>local variables, function parameters</td><td>automatic: freed when the scope <code>{ }</code> ends</td><td>very fast, small (about 1 to 8 MB)</td></tr>
@@ -155,12 +156,12 @@ void f() {
     delete p;
 }
 </script>
-<div class="callout tip"><span class="label">Mental model</span>The stack is a pile of plates: push one per function call, pop it when the call returns, everything on it vanishes automatically. The heap is a storage unit you rent: it stays yours until you hand the key back.</div>
+<div class="callout tip"><span class="label">Mental model</span>Stack: a pile of plates, popped automatically. Heap: a storage unit you rent until you hand the key back.</div>
 </section>
 
 <section data-title="Pointers from scratch">
 <h2>Pointers from scratch</h2>
-<p>Every variable lives at an <b>address</b> in memory. A <b>pointer</b> is simply a variable whose value is an address.</p>
+<p>A <b>pointer</b> is a variable whose value is an <b>address</b>.</p>
 <table>
 <tr><th>Syntax</th><th>Meaning</th></tr>
 <tr><td><code>int* p</code></td><td>declare <code>p</code> as "pointer to int"</td></tr>
@@ -168,11 +169,11 @@ void f() {
 <tr><td><code>*p</code></td><td>dereference: the thing <code>p</code> points to</td></tr>
 <tr><td><code>nullptr</code></td><td>the pointer that points to nothing</td></tr>
 </table>
-<p>Step through this program and watch the memory. The addresses are made up for illustration.</p>
+<p>Step through it (addresses are made up):</p>
 <div id="st-ptr"></div>
 
 <h3>Pointers and arrays</h3>
-<p>An array name <b>decays</b> to a pointer to its first element, and adding 1 to a pointer moves it by one <i>element</i> (not one byte).</p>
+<p>An array name <b>decays</b> to a pointer to its first element; <code>p + 1</code> moves one <i>element</i>.</p>
 <script type="text/x-cpp">
 int a[3] = {10, 20, 30};
 int* p = a;            // same as &a[0]
@@ -181,13 +182,13 @@ std::cout << *(p + 1); // 20   (p + 1 advances by sizeof(int) bytes)
 std::cout << p[2];     // 30   p[i] is exactly *(p + i)
 </script>
 <div class="callout warn"><span class="label">Careful</span>Never dereference <code>nullptr</code> and never read past the end of an array. Both are undefined behavior. C++ will not stop you.</div>
-<div class="callout tip"><span class="label">What a pointer does not know</span>A pointer holds an address and a type, and nothing else. It does not know <b>how many</b> elements it points to, or <b>who</b> must free them, which is the root of most pointer bugs. It is also not an integer: <code>int*</code> and <code>char*</code> are different types and the compiler refuses to mix them, because writing an <code>int</code> through a <code>char*</code> would trample the neighbouring memory.</div>
+<div class="callout tip"><span class="label">What a pointer does not know</span>Only an address and a type: not <b>how many</b> elements, nor <b>who</b> frees them. Root of most pointer bugs.</div>
 <div class="callout interview"><span class="label">Interview angle</span>"What is the difference between <code>NULL</code> and <code>nullptr</code>?" <code>NULL</code> is the integer 0 in disguise, so <code>f(NULL)</code> can call <code>f(int)</code> instead of <code>f(char*)</code>. <code>nullptr</code> has its own type and only converts to pointers.</div>
 </section>
 
 <section data-title="References">
 <h2>References</h2>
-<p>A reference is an <b>alias</b>: another name for an existing variable. It is not a copy and it adds no new variable.</p>
+<p>A reference is an <b>alias</b>: another name for an existing variable, not a copy.</p>
 <script type="text/x-cpp">
 int x = 1;
 int& r = x;     // r is another name for x
@@ -217,7 +218,8 @@ std::cout << a << b;
 
 <section data-title="const and pointers">
 <h2><code>const</code> and pointers</h2>
-<p><code>const</code> means "I promise not to modify this". With pointers there are two things that can be const: the pointed-to value and the pointer itself. <b>Read the declaration right to left.</b></p>
+<figure class="fig"><svg viewBox="0 0 640 150" role="img" aria-label="const before the star locks the data, const after the star locks the pointer"><defs><marker id="b2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path class="ah" d="M0 0L10 5L0 10z"/></marker></defs><text class="t" x="10" y="26">const int* p</text><text class="m" x="10" y="44">data locked</text><rect class="gd" x="190" y="12" width="90" height="36" rx="6"/><text x="235" y="35" text-anchor="middle">p</text><path class="ar" d="M280 30H398" marker-end="url(#b2)"/><text class="m" x="340" y="22" text-anchor="middle">p can move</text><rect class="bd" x="400" y="12" width="120" height="36" rx="6"/><text x="460" y="35" text-anchor="middle">int (read-only)</text><text class="m" x="535" y="35">*p = 5 is an error</text><text class="t" x="10" y="96">int* const p</text><text class="m" x="10" y="114">pointer locked</text><rect class="bd" x="190" y="82" width="90" height="36" rx="6"/><text x="235" y="105" text-anchor="middle">p</text><path class="ar" d="M280 100H398" marker-end="url(#b2)"/><text class="m" x="340" y="92" text-anchor="middle">p cannot move</text><rect class="gd" x="400" y="82" width="120" height="36" rx="6"/><text x="460" y="105" text-anchor="middle">int (changeable)</text><text class="m" x="535" y="105">*p = 5 is fine</text><text class="m" x="10" y="142">Read right to left. Red = locked, green = free.</text></svg><figcaption>const before the star protects the data; after the star it protects the pointer.</figcaption></figure>
+<p><code>const</code> = "I will not modify this". With pointers, either the data or the pointer can be const. <b>Read right to left.</b></p>
 <script type="text/x-cpp">
 int x = 1, y = 2;
 
@@ -231,13 +233,12 @@ int* const p2 = &x;         // "p2 is a const pointer to int"
 
 const int* const p3 = &x;   // neither can change
 </script>
-<div class="callout tip"><span class="label">Rule of thumb</span>Whatever is to the <i>left</i> of the <code>*</code> is the pointed-to data; whatever is to the right is the pointer. <code>const</code> before the star protects the data.</div>
-<p>Make everything <code>const</code> that can be. It documents intent and lets the compiler catch mistakes. Prefer <code>const T&amp;</code> parameters for big read-only objects.</p>
+<p>Make everything <code>const</code> that can be.</p>
 </section>
 
 <section data-title="Dynamic memory: new and delete">
 <h2>Dynamic memory: <code>new</code> and <code>delete</code></h2>
-<p><code>new</code> allocates on the heap <b>and</b> constructs the object, then returns a pointer. You must give the memory back with <code>delete</code> or it <b>leaks</b>.</p>
+<p><code>new</code> allocates on the heap <b>and</b> constructs; you must <code>delete</code> it or it <b>leaks</b>.</p>
 <div id="st-heap"></div>
 <script type="text/x-cpp">
 int*  one = new int(42);     delete one;        // single object: new / delete
@@ -250,7 +251,7 @@ int*  arr = new int[100];    delete[] arr;      // array: new[] / delete[]  (mus
 <tr><td><b>Double delete</b></td><td>you freed the same memory twice: undefined behavior, often a crash</td></tr>
 <tr><td><b>Mismatch</b></td><td><code>new[]</code> freed with <code>delete</code>, or the reverse</td></tr>
 </table>
-<div class="callout tip"><span class="label">Modern C++ rule</span>Avoid raw <code>new</code> and <code>delete</code> in new code. Use <code>std::vector</code> for arrays, and <code>std::unique_ptr</code> / <code>std::make_unique</code> for single objects: they free memory automatically. You will meet them in the <a href="03-core-language.html">Core Language</a> lesson.</div>
+<div class="callout tip"><span class="label">Modern C++</span>Avoid raw <code>new</code>/<code>delete</code>: use <code>std::vector</code> and <code>std::unique_ptr</code> (<a href="03-core-language.html">Core Language</a>).</div>
 <div class="callout interview"><span class="label">Interview angle</span>"What does <code>new</code> do beyond <code>malloc</code>?" It calls the constructor, throws <code>std::bad_alloc</code> on failure (instead of returning null), and returns a correctly typed pointer. <code>delete</code> calls the destructor and then frees the memory.</div>
 </section>
 
@@ -266,7 +267,7 @@ void f(int arr[]) {         // this is really `int* arr`: the size is lost!
 
 char s[] = "hi";            // 3 chars: 'h', 'i', and a terminating '\0'
 </script>
-<p>C-style arrays and strings are error-prone. In C++ you should almost always use:</p>
+<p>Prefer:</p>
 <table>
 <tr><th>Instead of</th><th>Use</th><th>Why</th></tr>
 <tr><td><code>int a[N]</code></td><td><code>std::array&lt;int, N&gt;</code></td><td>knows its size, no decay, same speed</td></tr>
@@ -285,7 +286,7 @@ v.push_back(4);                      // size is now 4
 
 <section data-title="The classic memory bugs">
 <h2>The classic memory bugs</h2>
-<p>Most "mysterious" C++ crashes are one of these. Learn to spot them by eye.</p>
+<p>Most "mysterious" crashes are one of these.</p>
 <table>
 <tr><th>Bug</th><th>Example</th></tr>
 <tr><td>Uninitialized read</td><td><code>int n; use(n);</code></td></tr>
@@ -306,12 +307,12 @@ int good() {
     return local;          // fine: returns a copy of the value
 }
 </script>
-<div class="callout warn"><span class="label">Tooling</span>Compile with <code>-fsanitize=address,undefined</code> while testing. AddressSanitizer reports leaks, out-of-bounds access and use-after-free with the exact line; UndefinedBehaviorSanitizer catches overflow, bad shifts and more.</div>
+<div class="callout warn"><span class="label">Tooling</span>Test with <code>-fsanitize=address,undefined</code>: it reports leaks, out-of-bounds, use-after-free and overflow with the exact line.</div>
 </section>
 
 <section data-title="Interview cheat sheet">
 <h2>Interview cheat sheet</h2>
-<p>Try answering each one out loud before opening it.</p>
+<p>Answer aloud, then open.</p>
 <details class="ex"><summary>Pointer vs reference?</summary><div><p>A pointer holds an address, can be null, can be re-pointed, and needs <code>*</code> to use. A reference is a permanent alias that must be initialized and cannot be null. Use references for parameters, pointers when "nothing" is a valid value or you need to re-point.</p></div></details>
 <details class="ex"><summary>Stack vs heap?</summary><div><p>The stack holds locals and is freed automatically when the scope ends; it is fast but small. The heap holds <code>new</code>-allocated objects that live until you free them; it is large but slower and you must manage the lifetime (or let a smart pointer do it).</p></div></details>
 <details class="ex"><summary>What is a dangling pointer?</summary><div><p>A pointer to memory that has been freed or has gone out of scope. Dereferencing it is undefined behavior. Setting a pointer to <code>nullptr</code> after <code>delete</code> helps, and smart pointers avoid the problem.</p></div></details>

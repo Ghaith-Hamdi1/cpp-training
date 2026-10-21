@@ -282,20 +282,46 @@
     });
     paint();
 
-    if ('IntersectionObserver' in window) {
-      const io = new IntersectionObserver((es) => {
-        es.forEach((e) => {
-          if (e.isIntersecting) {
-            $$('a', aside).forEach((a) => {
-              const on = a.dataset.id === e.target.id;
-              a.classList.toggle('active', on);
-              if (on) a.setAttribute('aria-current', 'location'); else a.removeAttribute('aria-current');
-            });
-          }
-        });
-      }, { rootMargin: '-80px 0px -65% 0px' });
-      secs.forEach((s) => io.observe(s));
+    /* one section per page: #id shows that section, prev/next buttons walk through them */
+    secs.forEach((s, i) => {
+      const nav = document.createElement('div');
+      nav.className = 'secnav';
+      const p = secs[i - 1], n = secs[i + 1];
+      nav.innerHTML = (p ? '<a class="btn sm ghost" href="#' + p.id + '">&larr; ' + esc(p.dataset.title) + '</a>' : '<span></span>') +
+        '<span class="secpos">' + (i + 1) + ' / ' + secs.length + '</span>' +
+        (n ? '<a class="btn sm" href="#' + n.id + '">' + esc(n.dataset.title) + ' &rarr;</a>' : '<span></span>');
+      s.appendChild(nav);
+    });
+    let intro = true;
+    function show(first) {
+      let cur = null;
+      const h = decodeURIComponent(location.hash.slice(1));
+      if (h) {
+        const t = document.getElementById(h);
+        cur = t && t.closest ? t.closest('main > section') : null;
+      }
+      if (!cur) cur = secs[0];
+      secs.forEach((s) => { s.hidden = s !== cur; });
+      Array.from(main.children).forEach((el) => {       // intro paragraphs between the title and the first section: first page only
+        if (el === secs[0]) { intro = false; }
+        else if (intro && el.tagName !== 'H1') el.hidden = cur !== secs[0];
+      });
+      intro = true;
+      main.classList.toggle('last-page', cur === secs[secs.length - 1]);
+      $$('a', aside).forEach((a) => {
+        const on = a.dataset.id === cur.id;
+        a.classList.toggle('active', on);
+        if (on) a.setAttribute('aria-current', 'page'); else a.removeAttribute('aria-current');
+      });
+      aside.classList.remove('open');
+      $('.toggle', aside).setAttribute('aria-expanded', 'false');
+      if (!first || h) {
+        const t = h && document.getElementById(h);
+        if (t && t !== cur) t.scrollIntoView(); else window.scrollTo(0, 0);
+      }
     }
+    window.addEventListener('hashchange', () => show(false));
+    show(true);
   }
 
   /* ---------------- step-through memory visualiser ---------------- */
