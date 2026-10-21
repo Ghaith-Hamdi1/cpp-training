@@ -122,12 +122,25 @@
       '<details class="menu"><summary>Topics &#9662;</summary><div class="panel">' + links + '</div></details>' +
       '<button class="icon-btn" id="theme" type="button" aria-label="Toggle light or dark theme">&#9680;</button><div class="progress"></div>';
     document.body.prepend(h);
+    const mainEl = $('main');
+    if (mainEl) {
+      if (!mainEl.id) mainEl.id = 'content';
+      mainEl.tabIndex = -1;
+      const skip = document.createElement('a');
+      skip.className = 'skip';
+      skip.href = '#' + mainEl.id;
+      skip.textContent = 'Skip to content';
+      document.body.prepend(skip);
+    }
+    h.setAttribute('role', 'banner');
     $('#theme').addEventListener('click', () => {
       const root = document.documentElement;
       const dark = root.dataset.theme ? root.dataset.theme === 'dark' : matchMedia('(prefers-color-scheme: dark)').matches;
       root.dataset.theme = dark ? 'light' : 'dark';
       store.set('theme', root.dataset.theme);
+      $('#theme').setAttribute('aria-pressed', String(root.dataset.theme === 'dark'));
     });
+    $('#theme').setAttribute('aria-pressed', String(document.documentElement.dataset.theme ? document.documentElement.dataset.theme === 'dark' : matchMedia('(prefers-color-scheme: dark)').matches));
     document.addEventListener('click', (e) => { const m = $('.menu', h); if (m && !m.contains(e.target)) m.open = false; });
   }
 
@@ -161,19 +174,23 @@
 
     const aside = document.createElement('aside');
     aside.className = 'toc';
-    aside.innerHTML = '<button class="toggle" type="button">Contents &#9662;</button><nav class="list"><h4>In this lesson</h4>' +
+    aside.setAttribute('aria-label', 'Lesson contents');
+    aside.innerHTML = '<button class="toggle" type="button" aria-expanded="false">Contents &#9662;</button><nav class="list" aria-label="Sections in this lesson"><h4>In this lesson</h4>' +
       secs.map((s) => '<a href="#' + s.id + '" data-id="' + s.id + '"><span class="tick"></span><span>' + esc(s.dataset.title) + '</span></a>').join('') +
       '<div class="count"></div></nav>';
     const layout = document.createElement('div');
     layout.className = 'layout';
     main.parentNode.insertBefore(layout, main);
     layout.append(aside, main);
-    $('.toggle', aside).addEventListener('click', () => aside.classList.toggle('open'));
+    $('.toggle', aside).addEventListener('click', () => {
+      $('.toggle', aside).setAttribute('aria-expanded', String(aside.classList.toggle('open')));
+    });
 
     function paint() {
       secs.forEach((s) => {
         const a = $('a[data-id="' + s.id + '"] .tick', aside);
         if (a) a.textContent = done.has(s.id) ? '✓' : '';
+        a.parentNode.title = done.has(s.id) ? 'Marked as understood' : '';
       });
       $('.count', aside).textContent = done.size + ' of ' + secs.length + ' sections understood';
       const bar = $('.top .progress');
@@ -198,7 +215,11 @@
       const io = new IntersectionObserver((es) => {
         es.forEach((e) => {
           if (e.isIntersecting) {
-            $$('a', aside).forEach((a) => a.classList.toggle('active', a.dataset.id === e.target.id));
+            $$('a', aside).forEach((a) => {
+              const on = a.dataset.id === e.target.id;
+              a.classList.toggle('active', on);
+              if (on) a.setAttribute('aria-current', 'location'); else a.removeAttribute('aria-current');
+            });
           }
         });
       }, { rootMargin: '-80px 0px -65% 0px' });
@@ -213,9 +234,9 @@
     const code = clean(cfg.code).split('\n');
     const lines = code.map((l, i) => '<span class="ln" data-l="' + (i + 1) + '"><i>' + (i + 1) + '</i>' + (highlight(l) || ' ') + '</span>').join('');
     root.innerHTML = '<div class="w-head"><span class="tag">Step through</span>' + esc(cfg.title || '') + '</div>' +
-      '<div class="st-body"><pre class="st-code">' + lines + '</pre><div class="st-side"><div class="st-mem"></div><div class="st-out"></div></div></div>' +
-      '<div class="st-note"></div>' +
-      '<div class="w-foot"><button class="btn sm ghost" data-a="back" type="button">&#9664; Back</button>' +
+      '<div class="st-body"><pre class="st-code">' + lines + '</pre><div class="st-side"><div class="st-mem"></div><div class="st-out" aria-label="Program output"></div></div></div>' +
+      '<div class="st-note" role="status" aria-live="polite"></div>' +
+      '<div class="w-foot" role="group" aria-label="Step controls"><button class="btn sm ghost" data-a="back" type="button">&#9664; Back</button>' +
       '<button class="btn sm" data-a="next" type="button">Next &#9654;</button>' +
       '<button class="btn sm ghost" data-a="reset" type="button">Reset</button><span class="info"></span></div>';
     let i = -1;
@@ -350,7 +371,7 @@
         }).join('') + '</div>';
       }
       root.innerHTML = '<div class="w-head"><span class="tag">Simulator</span>' + esc(cfg.title || 'Thread interleaving') + '</div><div class="w-body"><div class="ts-cols">' + cols + '</div>' +
-        '<div class="ts-state">' + vars + muts + '</div><div class="ts-msg' + cls + '">' + esc(msg) + '</div>' + h + '</div>' +
+        '<div class="ts-state">' + vars + muts + '</div><div class="ts-msg' + cls + '" role="status">' + esc(msg) + '</div>' + h + '</div>' +
         '<div class="w-foot"><button class="btn sm ghost" data-a="reset" type="button">Reset</button><button class="btn sm ghost" data-a="run1" type="button">Finish randomly</button>' +
         '<button class="btn sm" data-a="run500" type="button">Run 500 random schedules</button><span class="info">The scheduler may switch threads between any two instructions.</span></div>';
     }
@@ -367,6 +388,9 @@
         hist = { n: 500, c };
       }
       render();
+      /* render() rebuilds the DOM; put keyboard focus back on the equivalent control */
+      const again = a === 'step' ? $('button[data-a="step"][data-i="' + b.dataset.i + '"]', root) : $('button[data-a="' + a + '"]', root);
+      if (again && !again.disabled) again.focus();
     });
     render();
   }
@@ -412,7 +436,7 @@
       root.innerHTML = '<div class="q-top"><span>Question ' + (pos + 1) + ' of ' + order.length + '</span><span>' + right + ' correct</span></div>' +
         '<div class="q-bar"><span style="width:' + (pos / order.length) * 100 + '%"></span></div>' +
         '<p class="q-text">' + fmt(q.q) + '</p>' + (q.code ? codeHtml(q.code) : '') +
-        '<div class="opts">' + opts.map((o, i) => '<button class="opt" type="button" data-i="' + i + '"><span class="k">' + 'ABCDEFG'[i] + '</span><span>' + fmt(o.t) + '</span></button>').join('') + '</div><div class="fb"></div>';
+        '<div class="opts" role="group" aria-label="Answer choices">' + opts.map((o, i) => '<button class="opt" type="button" data-i="' + i + '"><span class="k">' + 'ABCDEFG'[i] + '</span><span>' + fmt(o.t) + '</span></button>').join('') + '</div><div class="fb" role="status" aria-live="polite"></div>';
       let locked = false;
       $$('.opt', root).forEach((b) => b.addEventListener('click', () => {
         if (locked) return;

@@ -350,3 +350,14 @@ select, .chip {
   .top, .toc, .pager, .done, .copy, .run { display: none; }
   .layout { display: block; }
 }
+
+/* Accessibility */
+.skip { position: absolute; left: 8px; top: -60px; z-index: 100; padding: 8px 14px; border-radius: 8px; background: var(--accent); color: var(--accent-fg); text-decoration: none; font-weight: 600; }
+.skip:focus { top: 8px; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+main:focus { outline: none; }
+figure.code:focus-within .run, figure.code:focus-within .copy { opacity: 1; }
+@media (hover: none) { .run, .copy { opacity: 1; } }
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: 0.001ms !important; animation-iteration-count: 1 !important; transition-duration: 0.001ms !important; scroll-behavior: auto !important; }
+}
