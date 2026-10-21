@@ -179,7 +179,7 @@
 
   function buildHeader(kind) {
     const cur = document.body.dataset.topic;
-    const links = TOPICS.map((t) =>
+    const links = '<a href="study-checklist.html"' + (kind === 'checklist' ? ' class="cur"' : '') + '>Study checklist</a>' + TOPICS.map((t) =>
       '<a href="' + t.file + '"' + (t.id === cur && kind === 'lesson' ? ' class="cur"' : '') + '>' + t.n + '. ' + esc(t.title) + '</a>' +
       '<a href="' + t.quiz + '"' + (t.id === cur && kind === 'quiz' ? ' class="cur"' : '') + '>&nbsp;&nbsp;&nbsp;&nbsp;&#8627; Quiz</a>').join('');
     const h = document.createElement('header');
@@ -574,6 +574,67 @@
   }
 
   /* ---------------- boot ---------------- */
+  /* ---------------- study checklist page ---------------- */
+  function checklist(main) {
+    const KEY = 'checklist';
+    const boxes = $$('input[type="checkbox"][data-ck]', main);
+    const done = new Set(store.get(KEY, []));
+    const sections = $$('section[data-ck-section]', main);
+    const sum = $('#ck-summary', main);
+
+    function paint() {
+      boxes.forEach((b) => b.closest('label').classList.toggle('on', b.checked));
+      sections.forEach((s) => {
+        const bs = $$('input[data-ck]', s);
+        const n = bs.filter((b) => b.checked).length;
+        const c = $('.ck-count', s);
+        if (c) c.textContent = n + ' / ' + bs.length;
+        s.classList.toggle('complete', bs.length > 0 && n === bs.length);
+      });
+      const total = boxes.length;
+      const n = boxes.filter((b) => b.checked).length;
+      if (sum) {
+        $('.ck-text', sum).textContent = n + ' of ' + total + ' done' + (total && n === total ? ': everything is ticked. Good luck!' : '');
+        const bar = $('.bar-track', sum);
+        bar.setAttribute('aria-valuenow', String(n));
+        bar.setAttribute('aria-valuemax', String(total));
+        $('span', bar).style.width = (total ? (n / total) * 100 : 0) + '%';
+      }
+    }
+
+    boxes.forEach((b) => {
+      b.checked = done.has(b.dataset.ck);
+      b.addEventListener('change', () => {
+        if (b.checked) done.add(b.dataset.ck); else done.delete(b.dataset.ck);
+        store.set(KEY, Array.from(done));
+        paint();
+      });
+    });
+
+    // Live results from the lessons and quizzes completed on this device.
+    $$('[data-lesson]', main).forEach((el) => {
+      const id = el.dataset.lesson;
+      const total = store.get('total:' + id, 0);
+      el.textContent = total ? store.get('done:' + id, []).length + '/' + total + ' sections' : 'not started';
+    });
+    $$('[data-quiz]', main).forEach((el) => {
+      const q = store.get('quiz:' + el.dataset.quiz, null);
+      el.textContent = q ? 'quiz best ' + q.best + '%' : 'quiz not taken';
+    });
+
+    const reset = $('#ck-reset', main);
+    if (reset) {
+      reset.addEventListener('click', () => {
+        if (!confirm('Untick every item on this checklist? Lesson progress and quiz scores are not affected.')) return;
+        done.clear();
+        store.set(KEY, []);
+        boxes.forEach((b) => { b.checked = false; });
+        paint();
+      });
+    }
+    paint();
+  }
+
   function boot() {
     const kind = document.body.dataset.kind || 'lesson';
     renderCodeBlocks();
@@ -582,6 +643,7 @@
     if (kind === 'lesson' && main) { buildLesson(main); buildPager(main, 'lesson'); }
     else if (kind === 'quiz' && main) { main.classList.add('solo'); buildPager(main, 'quiz'); }
     else if (kind === 'home') { if (main) main.classList.add('solo'); home(); }
+    else if (kind === 'checklist' && main) { main.classList.add('solo'); checklist(main); }
   }
 
   /* offline support: manifest + service worker (only on http/https) */

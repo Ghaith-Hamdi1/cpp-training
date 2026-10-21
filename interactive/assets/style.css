@@ -372,3 +372,25 @@ dialog.search .results a:hover, dialog.search .results a:focus { background: var
 dialog.search .results a span { margin-left: 8px; color: var(--muted); font-size: 0.8rem; }
 dialog.search .results a small { display: block; color: var(--muted); }
 @media print { dialog.search, #search-btn { display: none; } }
+
+/* Study checklist */
+.ck-summary { position: sticky; top: 58px; z-index: 5; margin: 14px 0 18px; padding: 12px 16px; border: 1px solid var(--border); border-radius: 12px; background: var(--card); }
+.ck-summary .ck-text { font-weight: 700; margin-bottom: 8px; }
+.ck-summary .bar-track { height: 10px; }
+.ck-section { margin: 22px 0; padding: 4px 16px 10px; border: 1px solid var(--border); border-radius: 12px; background: var(--card); }
+.ck-section h2 { display: flex; align-items: baseline; gap: 10px; margin: 14px 0 4px; font-size: 1.2rem; }
+.ck-section h2 .ck-count { margin-left: auto; font: 600 0.8rem var(--mono); color: var(--muted); border: 1px solid var(--border); border-radius: 999px; padding: 1px 10px; white-space: nowrap; }
+.ck-section.complete h2 .ck-count { color: var(--good); border-color: var(--good); }
+.ck-section .ck-note { margin: 0 0 6px; color: var(--muted); font-size: 0.92rem; }
+.ck-list { list-style: none; margin: 6px 0; padding: 0; }
+.ck-list li { margin: 0; }
+.ck-list label { display: flex; align-items: flex-start; gap: 12px; padding: 9px 6px; border-radius: 8px; cursor: pointer; }
+.ck-list label:hover { background: var(--code-bg); }
+.ck-list input[type="checkbox"] { flex: none; width: 1.25em; height: 1.25em; margin-top: 0.2em; accent-color: var(--good); cursor: pointer; }
+.ck-list .t { flex: 1; min-width: 0; }
+.ck-list label.on .t { color: var(--muted); text-decoration: line-through; text-decoration-thickness: 1px; }
+.ck-list .t a { margin-left: 6px; font-size: 0.85rem; white-space: nowrap; }
+.ck-section .badge { flex: none; align-self: center; font: 600 0.72rem var(--mono); color: var(--muted); border: 1px solid var(--border); border-radius: 999px; padding: 1px 8px; white-space: nowrap; }
+.ck-actions { margin-top: 2em; }
+@media print { .ck-summary { position: static; } }
+.ck-section .badge { display: inline-block; margin: 0 2px; }
