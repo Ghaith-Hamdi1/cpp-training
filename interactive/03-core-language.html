@@ -50,6 +50,14 @@ f(name);              // OK
 g(std::string("x"));  // OK: temporary
 g(std::move(name));   // OK: std::move says "treat name as a temporary"
 </script>
+<p>Every expression has exactly one of three <b>value categories</b>:</p>
+<table>
+<tr><th>Category</th><th>Roughly</th><th>Examples</th></tr>
+<tr><td><b>lvalue</b></td><td>a named object</td><td><code>x</code>, <code>v[0]</code></td></tr>
+<tr><td><b>prvalue</b></td><td>an unnamed temporary</td><td><code>5</code>, <code>a + b</code>, a call that returns by value</td></tr>
+<tr><td><b>xvalue</b></td><td>an object marked as movable</td><td><code>std::move(x)</code></td></tr>
+</table>
+<p>"Rvalue" means a prvalue or an xvalue. An rvalue reference binds only to rvalues, which is why <code>std::move</code>, which produces an xvalue, lets a named object bind to <code>T&amp;&amp;</code>.</p>
 <div class="callout warn"><span class="label">A name is always an lvalue</span>Inside <code>g</code>, the parameter <code>s</code> has a name, so it is an <i>lvalue</i> there even though its type is <code>std::string&amp;&amp;</code>. To pass it on as an rvalue again you must write <code>std::move(s)</code> (or <code>std::forward</code> in templates).</div>
 </section>
 
@@ -78,6 +86,21 @@ public:
 
 Buffer make() { Buffer b(1000); return b; }   // fine: NO std::move needed on return
 </script>
+<div class="callout warn"><span class="label">The const trap</span>
+<script type="text/x-cpp">
+const std::string s = "abc";
+std::string t = std::move(s);          // COPIES: a const rvalue cannot bind to the move constructor
+</script>
+<code>std::move</code> on a <code>const</code> object compiles but falls back to the copy constructor. The same silent fallback happens for any type that has no move operations. So never return <code>const</code> values by value (<code>const std::string f()</code> disables moving the result), and call <code>std::move</code> only on the <i>last</i> use of an object.</div>
+<h3>Taking a parameter you will store</h3>
+<script type="text/x-cpp">
+class Person {
+    std::string name_;
+public:
+    explicit Person(std::string n) : name_(std::move(n)) {}    // by value, then move into the member
+};
+</script>
+<p>When a constructor stores its argument and moving is cheap, take the parameter <b>by value and move it</b>: an lvalue is copied once, an rvalue is moved once. Do not use this to update an existing value (a <code>setName</code>): the extra construction can cost more than a copy assignment.</p>
 <div class="callout warn"><span class="label">Do not write <code>return std::move(local);</code></span>Returning a local by value already allows the compiler to elide the copy entirely (RVO/NRVO) or move it automatically. Adding <code>std::move</code> blocks the elision and makes things slower.</div>
 </section>
 
@@ -105,6 +128,14 @@ if (auto sp = w.lock()) { /* still alive: use sp */ }   // lock() gives a shared
 <div id="st-shared"></div>
 <h3>Reference cycles and <code>weak_ptr</code></h3>
 <p>If <code>A</code> holds a <code>shared_ptr&lt;B&gt;</code> and <code>B</code> holds a <code>shared_ptr&lt;A&gt;</code>, each keeps the other's count above zero forever: <b>neither is ever destroyed</b>, a leak that RAII cannot fix. Make one direction (usually the "back-pointer" or parent link) a <code>weak_ptr</code>.</p>
+<div class="callout warn"><span class="label">One control block per object</span>
+<script type="text/x-cpp">
+auto raw = new Widget;
+std::shared_ptr<Widget> a(raw);
+std::shared_ptr<Widget> b(raw);        // a second, independent control block: double delete!
+</script>
+Never build a second <code>shared_ptr</code> from a raw pointer, and never from <code>this</code> (for example <code>list.emplace_back(this)</code>). Copy an existing <code>shared_ptr</code>, or have the class inherit <code>std::enable_shared_from_this</code> and call <code>shared_from_this()</code>.</div>
+<p>Two smaller details: a <code>unique_ptr</code> can take a custom deleter (<code>unique_ptr&lt;T, Deleter&gt;</code>), and a stateful deleter makes it larger than a raw pointer, while a <code>shared_ptr</code>'s deleter is not part of its type. <code>weak_ptr</code> is also the right tool for caches and observer lists, not only for breaking cycles.</p>
 <div class="callout tip"><span class="label">Ownership rules of thumb</span>
 <p>Default to <code>unique_ptr</code> (or better, a plain value member). Use <code>shared_ptr</code> only when ownership is truly shared. A raw pointer or a reference means "I use it, I do not own it". Pass a smart pointer by value only to transfer or share ownership; otherwise pass <code>T&amp;</code> or <code>T*</code>.</p></div>
 <div class="callout interview"><span class="label">Interview angle</span>"Why <code>make_unique</code>/<code>make_shared</code> instead of <code>new</code>?" No naked <code>new</code> (exception safety, no leak if another argument throws), less typing, and <code>make_shared</code> does a single allocation instead of two.</div>
@@ -268,7 +299,7 @@ void print(std::string_view sv);                         // non-owning view, no 
 
 <section data-title="Interview cheat sheet">
 <h2>Interview cheat sheet</h2>
-<details class="ex"><summary>What does <code>std::move</code> actually do?</summary><div><p>Nothing at runtime: it is an unconditional cast to an rvalue reference. It enables the move constructor or move assignment to be chosen. The moved-from object stays valid but unspecified.</p></div></details>
+<details class="ex"><summary>What does <code>std::move</code> actually do?</summary><div><p>Nothing at runtime: it is an unconditional cast to an rvalue reference. It enables the move constructor or move assignment to be chosen. The moved-from object stays valid but unspecified. On a <code>const</code> object it silently copies, because a <code>const</code> rvalue cannot bind to a move constructor.</p></div></details>
 <details class="ex"><summary><code>unique_ptr</code> vs <code>shared_ptr</code> vs <code>weak_ptr</code>?</summary><div><p><code>unique_ptr</code>: sole owner, move-only, zero overhead. <code>shared_ptr</code>: reference-counted shared ownership with a control block and atomic count. <code>weak_ptr</code>: non-owning observer used to break cycles and to check whether a shared object is still alive (<code>lock()</code>).</p></div></details>
 <details class="ex"><summary>Is <code>shared_ptr</code> thread-safe?</summary><div><p>The reference count is atomic, so copying and destroying <code>shared_ptr</code>s from different threads is safe. The pointed-to object is <b>not</b> protected: concurrent access to it still needs synchronization. Concurrently modifying the same <code>shared_ptr</code> variable is also a race.</p></div></details>
 <details class="ex"><summary>What is copy elision / RVO?</summary><div><p>The compiler constructs a returned object directly in the caller's storage, skipping the copy or move. In C++17 it is guaranteed when returning a temporary (prvalue). Do not write <code>return std::move(local)</code>: it prevents it.</p></div></details>

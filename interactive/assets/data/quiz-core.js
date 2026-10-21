@@ -114,6 +114,25 @@ std::cout << sv;`,
 
     { q: 'What are the three meanings of `static` in C++?',
       opts: ['Constant, shared, and fast', 'Persistent local variable, internal linkage at file scope, and class-level member', 'Heap allocation, stack allocation, and global', 'Only one: shared across threads'], a: 1,
-      why: 'Inside a function it persists across calls; at namespace scope it hides the name in the translation unit; on a class member it is shared by all instances.' }
+      why: 'Inside a function it persists across calls; at namespace scope it hides the name in the translation unit; on a class member it is shared by all instances.' },
+
+    { q: 'What does the second line do?',
+      code: String.raw`
+const std::string a = "text";
+std::string b = std::move(a);`,
+      opts: ['Moves the contents of a into b', 'Copies a into b: a const rvalue cannot bind to the move constructor', 'It does not compile', 'Undefined behavior'], a: 1,
+      why: '`std::move` only casts to an rvalue, and a `const` rvalue cannot bind to `string(string&&)`, so overload resolution silently picks the copy constructor. Never return `const` values by value for the same reason.' },
+
+    { q: 'What is wrong with this code?',
+      code: String.raw`
+auto raw = new Widget;
+std::shared_ptr<Widget> a(raw);
+std::shared_ptr<Widget> b(raw);`,
+      opts: ['Nothing: both share ownership and the count is 2', 'Each shared_ptr creates its own control block, so the Widget is deleted twice (undefined behavior)', 'It does not compile', 'b is left null'], a: 1,
+      why: 'Only copying an existing `shared_ptr` shares a control block. Build a second one from a raw pointer (or from `this`) and you get two independent reference counts. Use `enable_shared_from_this` when an object must hand out a `shared_ptr` to itself.' },
+
+    { q: 'What is the value category of the expression `std::move(x)`?',
+      opts: ['lvalue', 'prvalue', 'xvalue', 'It is not an expression'], a: 2,
+      why: 'An xvalue is an object marked as movable, and `std::move` produces one. A prvalue is an unnamed temporary like `5` or `a + b`. "Rvalue" means a prvalue or an xvalue.' }
   ]
 };
