@@ -1,7 +1,6 @@
 # Embedded Team Academy — Advanced C++ Training
 
 **Module 4: C++ Advanced Programming**
-Prepared and Presented by **Mahdi SAKKA**
 Document reference: **TR0014_G**
 
 > Source note: this file was converted from a PowerPoint deck exported to PDF, extracted with `pdftotext` (no OCR/image tooling was available, so pure code/diagram *images* embedded in slides could not be read directly — see the "Conversion notes" section and the cross-references to the `examples/*.cpp` files used to reconstruct accurate code). Every slide in the source PDF carries a repeated footer classification legend — **"Provisoire · Public · Interne · Confidentiel · Secret"** — which has been stripped from the body text below since it is document-classification boilerplate, not slide content.

@@ -1,6 +1,5 @@
 # Embedded Team Academy — Advanced C++ Training — Module 1: C++ Basics
 
-**Prepared and presented by:** Mahdi SAKKA
 **Document reference:** TR0014_G
 **Source:** PowerPoint deck exported to PDF (`Advanced_cpp_training_module1_PDF.pdf`, ~73 content slides). Converted to Markdown from the extracted PDF text (`pdftotext`, both raw reading-order and `-layout` column-preserving modes were cross-checked), with code samples cross-checked against the companion `examples/*.cpp` files.
 **Classification legend:** every slide in the source carries the footer "Provisoire Public Interne Confidentiel Secret" (a document-classification legend template, not actual classified content). This footer has been stripped from every section below and is only mentioned here.

@@ -1,7 +1,6 @@
 # Embedded Team Academy — Advanced C++ Training
 
 **Module 3: C++ Standard Library**
-Prepared and Presented by: **Mahdi SAKKA**
 Document reference: **TR0014_G**
 
 > Source note: this Markdown file was converted from a PowerPoint deck exported to PDF (`Advanced_cpp_training_module3_PDF.pdf`, 85 pages/slides). It was extracted with `pdftotext` (both raw reading-order mode and `-layout` column-preserving mode, cross-checked against each other) since no OCR/image-rendering tool was available in the environment; slides whose content was embedded as a code screenshot (image) rather than selectable text are flagged below. Every slide in the source PDF carries a repeated footer classification legend **"Provisoire Public Interne Confidentiel Secret"** — this is a standard document-classification banner, not confidential content; it has been stripped from every section below and is only mentioned here once. Where an actual C++ example file in this repository's `examples/` folder matches a slide's topic, the verified, complete source from that file is embedded instead of the (sometimes truncated) PDF-extracted snippet.

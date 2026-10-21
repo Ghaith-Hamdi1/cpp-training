@@ -2,7 +2,6 @@
 
 _Part of: Embedded Team Academy — Advanced C++ Training_
 
-- **Presented by:** Mahdi SAKKA
 - **Document reference:** TR0014_G
 - **Source:** Converted from `Advanced_cpp_training_module2_PDF.pdf` (a PowerPoint deck exported to PDF, 86 slides) via text extraction (`pdftotext`, both reading-order and `-layout` modes were cross-checked); no PDF image-rendering tool was available, so purely visual content (diagrams, code screenshots) is reproduced below as extracted text labels, or — where a slide's code snippet clearly matches one of this repository's verified `examples/*.cpp` files — as the accurate, complete source from that file.
 - **Classification legend:** every slide in the source carries the repeated footer "Provisoire Public Interne Confidentiel Secret" (an internal document-classification legend, not real classified content). It has been stripped from every section below; this is the only mention of it.

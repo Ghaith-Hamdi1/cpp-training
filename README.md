@@ -1,6 +1,6 @@
 # cpp-training: Advanced C++ Training Index
 
-Embedded Team Academy · Presented by Mahdi SAKKA · Doc ref TR0014_G
+Embedded Team Academy · Doc ref TR0014_G
 
 This repo holds two separate C++ courses that cover much of the same ground:
 
