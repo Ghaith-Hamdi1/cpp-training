@@ -394,3 +394,4 @@ dialog.search .results a small { display: block; color: var(--muted); }
 .ck-actions { margin-top: 2em; }
 @media print { .ck-summary { position: static; } }
 .ck-section .badge { display: inline-block; margin: 0 2px; }
+.pt-box { width: 100%; box-sizing: border-box; font: 0.8rem/1.4 var(--mono, monospace); padding: 8px; border: 1px solid var(--border); border-radius: 8px; background: var(--code-bg); color: inherit; word-break: break-all; }

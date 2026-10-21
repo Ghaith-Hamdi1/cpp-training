@@ -573,6 +573,109 @@
     }
   }
 
+  /* ---------------- export / import of progress ---------------- */
+  /* Progress lives in this browser's localStorage only. The code below turns the ticks and best
+     scores into a short text code that can be pasted into another browser or machine. */
+  const PROGRESS_KEY = /^(checklist|(done|total|quiz):[a-z]+)$/;
+  const hash32 = (s) => {
+    let h = 0x811c9dc5;
+    for (let i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 0x01000193) >>> 0; }
+    return ('00000000' + h.toString(16)).slice(-8);
+  };
+  const b64e = (s) => btoa(s).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+  const b64d = (s) => atob(s.replace(/-/g, '+').replace(/_/g, '/') + '='.repeat((4 - (s.length % 4)) % 4));
+
+  function collectProgress() {
+    const d = {};
+    try {
+      Object.keys(localStorage).forEach((k) => {
+        if (k.indexOf('cpptrain:') !== 0) return;
+        const name = k.slice(9);
+        if (PROGRESS_KEY.test(name)) d[name] = JSON.parse(localStorage.getItem(k));
+      });
+    } catch (e) { /* storage unavailable */ }
+    return d;
+  }
+  function makeCode() {
+    const p = b64e(JSON.stringify({ v: 1, d: collectProgress() }));
+    return 'CPP1.' + p + '.' + hash32(p);
+  }
+  function parseCode(text) {
+    const m = /^CPP1\.([A-Za-z0-9_-]+)\.([0-9a-f]{8})$/.exec(text.replace(/\s+/g, ''));
+    if (!m) throw new Error('That does not look like a progress code. It should start with CPP1.');
+    if (hash32(m[1]) !== m[2]) throw new Error('The code is damaged: a character was lost or changed while copying. Copy it again.');
+    let obj;
+    try { obj = JSON.parse(b64d(m[1])); } catch (e) { throw new Error('The code could not be read.'); }
+    if (!obj || obj.v !== 1 || !obj.d || typeof obj.d !== 'object') throw new Error('Unsupported code version.');
+    const data = {};
+    let count = 0;
+    Object.keys(obj.d).forEach((k) => {
+      const v = obj.d[k];
+      if (!PROGRESS_KEY.test(k)) return;
+      if (k === 'checklist' || k.indexOf('done:') === 0) {
+        if (Array.isArray(v) && v.length <= 300 && v.every((x) => typeof x === 'string' && /^[\w-]{1,40}$/.test(x))) { data[k] = v; count += v.length; }
+      } else if (k.indexOf('total:') === 0) {
+        if (Number.isInteger(v) && v >= 0 && v <= 1000) data[k] = v;
+      } else if (v && [v.best, v.last, v.total].every((x) => Number.isInteger(x) && x >= 0 && x <= 1000)) {
+        data[k] = { best: v.best, last: v.last, total: v.total };
+        count++;
+      }
+    });
+    if (!Object.keys(data).length) throw new Error('The code contains no progress.');
+    return { data, count };
+  }
+  function applyProgress(data, replace) {
+    if (replace) {
+      try { Object.keys(localStorage).forEach((k) => { if (k.indexOf('cpptrain:') === 0 && PROGRESS_KEY.test(k.slice(9))) localStorage.removeItem(k); }); } catch (e) { /* ignore */ }
+    }
+    Object.keys(data).forEach((k) => {
+      const v = data[k];
+      const cur = store.get(k, null);
+      if (cur === null) store.set(k, v);
+      else if (Array.isArray(v)) store.set(k, Array.from(new Set([].concat(cur, v))));      // union of ticks
+      else if (typeof v === 'number') store.set(k, Math.max(cur, v));
+      else if (v.best > (cur.best || 0)) store.set(k, v);                                    // keep the better quiz score
+    });
+  }
+
+  function progressTools(el) {
+    el.className = 'widget';
+    el.innerHTML = '<div class="w-head"><span class="tag">Backup</span>Save or move your progress</div><div class="w-body">' +
+      '<p class="ck-note">Your progress is stored only in this browser. To continue on another browser or machine, show a code here and import it there. The code covers checklist ticks, lesson section ticks and best quiz scores.</p>' +
+      '<div class="pickrow"><button class="btn sm" id="pt-export" type="button">Show my progress code</button><button class="btn sm ghost" id="pt-copy" type="button" hidden>Copy</button></div>' +
+      '<textarea id="pt-out" class="pt-box" rows="3" readonly hidden aria-label="Your progress code"></textarea>' +
+      '<p style="margin:16px 0 6px"><label for="pt-in"><b>Import a code</b></label></p>' +
+      '<textarea id="pt-in" class="pt-box" rows="3" placeholder="Paste a code that starts with CPP1." spellcheck="false"></textarea>' +
+      '<div class="pickrow"><button class="btn sm" id="pt-import" type="button">Import</button><label><input type="checkbox" id="pt-replace"> Replace the progress in this browser instead of merging</label></div>' +
+      '<div class="result" id="pt-msg" role="status" aria-live="polite" hidden></div></div>';
+    const q = (id) => $('#' + id, el);
+    const say = (text, cls) => { const m = q('pt-msg'); m.hidden = false; m.className = 'result ' + (cls || ''); m.textContent = text; };
+    q('pt-export').addEventListener('click', () => {
+      if (!Object.keys(collectProgress()).length) { say('Nothing to export yet. Tick a checklist item or finish a quiz first.'); return; }
+      const out = q('pt-out');
+      out.value = makeCode();
+      out.hidden = false;
+      q('pt-copy').hidden = false;
+      out.focus();
+      out.select();
+      say('Copy this code and paste it into the Import box on the other machine.', 'good');
+    });
+    q('pt-copy').addEventListener('click', () => {
+      const out = q('pt-out');
+      out.select();
+      try { navigator.clipboard.writeText(out.value).then(() => say('Copied.', 'good'), () => say('Press Ctrl+C to copy the selected code.')); } catch (e) { say('Press Ctrl+C to copy the selected code.'); }
+    });
+    q('pt-import').addEventListener('click', () => {
+      let parsed;
+      try { parsed = parseCode(q('pt-in').value); } catch (e) { say(e.message, 'bad'); return; }
+      const replace = q('pt-replace').checked;
+      if (replace && !confirm('Replace the checklist ticks, lesson ticks and quiz scores in this browser with the imported ones?')) return;
+      applyProgress(parsed.data, replace);
+      say('Imported ' + parsed.count + ' item' + (parsed.count === 1 ? '' : 's') + (replace ? ' (replaced)' : ' (merged)') + '. Reloading the page...', 'good');
+      setTimeout(() => location.reload(), 900);
+    });
+  }
+
   /* ---------------- boot ---------------- */
   /* ---------------- study checklist page ---------------- */
   function checklist(main) {
@@ -644,6 +747,8 @@
     else if (kind === 'quiz' && main) { main.classList.add('solo'); buildPager(main, 'quiz'); }
     else if (kind === 'home') { if (main) main.classList.add('solo'); home(); }
     else if (kind === 'checklist' && main) { main.classList.add('solo'); checklist(main); }
+    const pt = $('#progress-tools');
+    if (pt) progressTools(pt);
   }
 
   /* offline support: manifest + service worker (only on http/https) */
