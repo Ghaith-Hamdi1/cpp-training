@@ -53,6 +53,7 @@
 <li><label><input type="checkbox" data-ck="core-raii"><span class="t">RAII: the central idea (step through the stack unwinding) <a href="03-core-language.html#s1">open</a></span></label></li>
 <li><label><input type="checkbox" data-ck="core-lvalues"><span class="t">Lvalues, rvalues and references <a href="03-core-language.html#s2">open</a></span></label></li>
 <li><label><input type="checkbox" data-ck="core-move"><span class="t">Move semantics (step through copy versus move) <a href="03-core-language.html#s3">open</a></span></label></li>
+<li><label><input type="checkbox" data-ck="core-meyers-move"><span class="t">Optional, book: <i>Effective Modern C++</i> Items 23, 25 and 29 on <code>std::move</code>, <code>std::forward</code> and when moves are not cheap (PDF pages 176 to 182, 186 to 195 and 221 to 225, about 22 pages) <a href="https://github.com/Ghaith-Hamdi1/cpp-training/blob/main/docs/effective-modern-cpp-reading-guide.md#special-focus-move-semantics-and-perfect-forwarding">move semantics path</a></span></label></li>
 <li><label><input type="checkbox" data-ck="core-smart"><span class="t">Smart pointers (step through the <code>shared_ptr</code> count) <a href="03-core-language.html#s4">open</a></span></label></li>
 <li><label><input type="checkbox" data-ck="core-syntax"><span class="t">Modern syntax tour, then Lambdas <a href="03-core-language.html#s5">open</a></span></label></li>
 <li><label><input type="checkbox" data-ck="core-exceptions"><span class="t">Exceptions and exception safety <a href="03-core-language.html#s7">open</a></span></label></li>
@@ -122,6 +123,22 @@
 </section>
 
 <section class="ck-section" data-ck-section>
+<h2>Move semantics deep dive (after the interview) <span class="ck-count"></span></h2>
+<p class="ck-note">Not needed for Thursday. When you want to master move semantics, follow the two reading guides: <a href="https://github.com/Ghaith-Hamdi1/cpp-training/blob/main/docs/effective-modern-cpp-reading-guide.md#special-focus-move-semantics-and-perfect-forwarding"><i>Effective Modern C++</i> move semantics path</a> (<code>effective.pdf</code>) and <a href="https://github.com/Ghaith-Hamdi1/cpp-training/blob/main/docs/move-semantics-complete-guide-reading-guide.md#tier-1-read-these-first-about-75-pages">the <i>C++ Move Semantics</i> guide, Tier 1</a> (<code>semant.pdf</code>). The Josuttis book covers what Meyers leaves out: the moved-from state, value categories and writing move operations. About 75 pages of Josuttis plus a few Meyers items.</p>
+<ul class="ck-list">
+<li><label><input type="checkbox" data-ck="mv-meyers-17"><span class="t">Meyers Item 17, special member function generation (PDF pages 127 to 133)</span></label></li>
+<li><label><input type="checkbox" data-ck="mv-meyers-24-28"><span class="t">Meyers Items 24 and 28, universal references and reference collapsing (PDF pages 182 to 186 and 215 to 221)</span></label></li>
+<li><label><input type="checkbox" data-ck="mv-j-core"><span class="t">Josuttis chapter 2, core features including moved-from objects (PDF pages 43 to 52)</span></label></li>
+<li><label><input type="checkbox" data-ck="mv-j-rules"><span class="t">Josuttis 3.1 and 3.3 to 3.4, the rules for special member functions and the Rule of Five or Three (PDF pages 53 to 58 and 66 to 76)</span></label></li>
+<li><label><input type="checkbox" data-ck="mv-j-movedfrom"><span class="t">Josuttis 6.1 to 6.2, moved-from states (PDF pages 107 to 115)</span></label></li>
+<li><label><input type="checkbox" data-ck="mv-j-noexcept"><span class="t">Josuttis 7.1 and 7.4, <code>noexcept</code> and when to use it (PDF pages 125 to 134 and 140 to 141)</span></label></li>
+<li><label><input type="checkbox" data-ck="mv-j-values"><span class="t">Josuttis 8.1.2 to 8.1.3 and 8.4 to 8.5, value categories (PDF pages 145 to 148 and 153 to 154)</span></label></li>
+<li><label><input type="checkbox" data-ck="mv-j-forwarding"><span class="t">Josuttis 9.1 to 9.3, perfect forwarding and universal references (PDF pages 159 to 166)</span></label></li>
+<li><label><input type="checkbox" data-ck="mv-selfcheck"><span class="t">Self-check from memory: write a class with a <code>noexcept</code> move constructor and move assignment, say what state its moved-from object is in, and explain the <code>const</code> trap and why <code>return std::move(local)</code> is a mistake</span></label></li>
+</ul>
+</section>
+
+<section class="ck-section" data-ck-section>
 <h2>Optional extras, only if you finish early <span class="ck-count"></span></h2>
 <ul class="ck-list">
 <li><label><input type="checkbox" data-ck="opt-8"><span class="t">Strings, regex and time: <a href="08-strings-regex-time.html">lesson</a>, <a href="08-strings-regex-time-quiz.html">quiz</a> (15 questions) <span class="badge" data-quiz="strings"></span></span></label></li>
@@ -131,7 +148,7 @@
 </section>
 
 <h2>Books, only to fill gaps</h2>
-<p>Do not read either book front to back. The reading guides in the repo point to the few sections you need: <a href="https://github.com/Ghaith-Hamdi1/cpp-training/blob/main/docs/concurrency-in-action-reading-guide.md">threading</a> (<code>thread.pdf</code>) and <a href="https://github.com/Ghaith-Hamdi1/cpp-training/blob/main/docs/programming-principles-and-practice-reading-guide.md">foundations: pointers, OOP, templates, STL</a> (<code>P_P_P.pdf</code>).</p>
+<p>Do not read any of these books front to back. The reading guides in the repo point to the few sections you need: <a href="https://github.com/Ghaith-Hamdi1/cpp-training/blob/main/docs/concurrency-in-action-reading-guide.md">threading</a> (<code>thread.pdf</code>), <a href="https://github.com/Ghaith-Hamdi1/cpp-training/blob/main/docs/programming-principles-and-practice-reading-guide.md">foundations: pointers, OOP, templates, STL</a> (<code>P_P_P.pdf</code>), <a href="https://github.com/Ghaith-Hamdi1/cpp-training/blob/main/docs/effective-modern-cpp-reading-guide.md">modern C++ items</a> (<code>effective.pdf</code>) and <a href="https://github.com/Ghaith-Hamdi1/cpp-training/blob/main/docs/move-semantics-complete-guide-reading-guide.md">move semantics in depth</a> (<code>semant.pdf</code>).</p>
 
 <p class="ck-actions"><button class="btn sm ghost" id="ck-reset" type="button">Untick everything</button></p>
 </main>
