@@ -361,3 +361,14 @@ figure.code:focus-within .run, figure.code:focus-within .copy { opacity: 1; }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: 0.001ms !important; animation-iteration-count: 1 !important; transition-duration: 0.001ms !important; scroll-behavior: auto !important; }
 }
+
+/* Search */
+dialog.search { width: min(620px, 92vw); margin: 10vh auto auto; padding: 14px; border: 1px solid var(--border); border-radius: 12px; background: var(--card); color: var(--fg); }
+dialog.search::backdrop { background: rgba(0, 0, 0, 0.45); }
+dialog.search input { width: 100%; box-sizing: border-box; padding: 10px 12px; font: 1rem var(--sans); border: 1px solid var(--border); border-radius: 8px; background: var(--bg); color: var(--fg); }
+dialog.search .results { margin-top: 10px; max-height: 60vh; overflow: auto; color: var(--muted); font-size: 0.92rem; }
+dialog.search .results a { display: block; padding: 8px 10px; border-radius: 8px; text-decoration: none; color: var(--fg); }
+dialog.search .results a:hover, dialog.search .results a:focus { background: var(--accent-soft); }
+dialog.search .results a span { margin-left: 8px; color: var(--muted); font-size: 0.8rem; }
+dialog.search .results a small { display: block; color: var(--muted); }
+@media print { dialog.search, #search-btn { display: none; } }

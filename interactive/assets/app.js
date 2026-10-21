@@ -111,6 +111,57 @@
   /* ---------------- page chrome ---------------- */
   function topicOf(id) { return TOPICS.find((t) => t.id === id); }
 
+  /* ---------------- search across all lessons ---------------- */
+  let searchDlg;
+  function openSearch() {
+    if (!searchDlg) {
+      searchDlg = document.createElement('dialog');
+      searchDlg.className = 'search';
+      searchDlg.setAttribute('aria-label', 'Search the lessons');
+      searchDlg.innerHTML = '<input type="search" placeholder="Search all lessons (e.g. mutex, rule of five)" aria-label="Search terms" autocomplete="off">' +
+        '<div class="results" role="status" aria-live="polite"></div>';
+      document.body.appendChild(searchDlg);
+      searchDlg.addEventListener('click', (e) => { if (e.target === searchDlg) searchDlg.close(); });
+      const input = $('input', searchDlg);
+      const box = $('.results', searchDlg);
+      const run = () => {
+        const terms = input.value.toLowerCase().split(/\s+/).filter(Boolean);
+        if (!terms.length) { box.textContent = ''; return; }
+        if (!CT.searchIndex) { box.textContent = 'Loading the index...'; return; }
+        const hits = [];
+        CT.searchIndex.forEach((e) => {
+          const hl = e.h.toLowerCase();
+          const xl = e.x.toLowerCase();
+          let score = 0;
+          for (const t of terms) {
+            const inH = hl.indexOf(t) >= 0;
+            const n = xl.split(t).length - 1;
+            if (!inH && !n) return;
+            score += (inH ? 20 : 0) + Math.min(n, 10);
+          }
+          hits.push({ e, score, i: xl.indexOf(terms[0]) });
+        });
+        hits.sort((a, b) => b.score - a.score);
+        box.innerHTML = hits.length ? hits.slice(0, 12).map((h) => {
+          const x = h.e.x;
+          const at = Math.max(0, h.i - 50);
+          const snip = (at ? '...' : '') + x.slice(at, at + 130) + '...';
+          return '<a href="' + h.e.f + '#' + h.e.id + '"><b>' + esc(h.e.h) + '</b><span>' + esc(h.e.n) + '</span><small>' + esc(snip) + '</small></a>';
+        }).join('') : 'No matches.';
+      };
+      input.addEventListener('input', run);
+      if (!CT.searchIndex) {
+        const sc = document.createElement('script');
+        sc.src = 'assets/data/search-index.js';
+        sc.onload = run;
+        document.head.appendChild(sc);
+      }
+    }
+    if (!searchDlg.open) searchDlg.showModal();
+    $('input', searchDlg).focus();
+    $('input', searchDlg).select();
+  }
+
   function buildHeader(kind) {
     const cur = document.body.dataset.topic;
     const links = TOPICS.map((t) =>
@@ -119,6 +170,7 @@
     const h = document.createElement('header');
     h.className = 'top';
     h.innerHTML = '<a class="brand" href="index.html">C++ Interview Prep</a><span class="spacer"></span>' +
+      '<button class="icon-btn" id="search-btn" type="button" aria-label="Search the lessons (press /)">&#128269;</button>' +
       '<details class="menu"><summary>Topics &#9662;</summary><div class="panel">' + links + '</div></details>' +
       '<button class="icon-btn" id="theme" type="button" aria-label="Toggle light or dark theme">&#9680;</button><div class="progress"></div>';
     document.body.prepend(h);
@@ -133,6 +185,10 @@
       document.body.prepend(skip);
     }
     h.setAttribute('role', 'banner');
+    $('#search-btn').addEventListener('click', openSearch);
+    document.addEventListener('keydown', (e) => {
+      if (e.key === '/' && !/^(INPUT|TEXTAREA|SELECT)$/.test((e.target.tagName || '')) && !e.ctrlKey && !e.metaKey) { e.preventDefault(); openSearch(); }
+    });
     $('#theme').addEventListener('click', () => {
       const root = document.documentElement;
       const dark = root.dataset.theme ? root.dataset.theme === 'dark' : matchMedia('(prefers-color-scheme: dark)').matches;
@@ -511,6 +567,15 @@
     if (kind === 'lesson' && main) { buildLesson(main); buildPager(main, 'lesson'); }
     else if (kind === 'quiz' && main) { main.classList.add('solo'); buildPager(main, 'quiz'); }
     else if (kind === 'home') { if (main) main.classList.add('solo'); home(); }
+  }
+
+  /* offline support: manifest + service worker (only on http/https) */
+  if (/^https?:$/.test(location.protocol)) {
+    const link = document.createElement('link');
+    link.rel = 'manifest';
+    link.href = 'manifest.webmanifest';
+    document.head.appendChild(link);
+    if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(() => { /* optional */ });
   }
 
   window.CT = { quizData: {}, TOPICS, stepper, threadsim, quiz, highlight, fmt, esc };
