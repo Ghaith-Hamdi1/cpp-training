@@ -11,7 +11,7 @@
 <main>
 <h1>Multithreading in C++</h1>
 <p class="lead">From "what is a thread?" to mutexes, deadlocks, atomics, condition variables, futures and thread pools, with simulators that let you <i>create</i> each bug yourself. No prior knowledge assumed. Multithreading is named in the job description, so this is the highest-value lesson in the set.</p>
-<div class="callout tip"><span class="label">How to study this</span>If it is all new, do sections 1 to 5 carefully first (threads, races, mutexes, deadlocks): that is the core that interviews probe. Then read 6 to 9. Run every simulator, because the bugs only make sense once you have <i>watched</i> them happen. All examples assume <code>#include &lt;thread&gt;</code>, <code>&lt;mutex&gt;</code> etc. and compile with <code>g++ -std=c++17 -pthread</code>.</div>
+<div class="callout tip"><span class="label">How to study this</span>If it is all new, do sections 1 to 6 carefully first (threads, races, mutexes, interface races, deadlocks): that is the core that interviews probe. Then read 7 to 10. Run every simulator, because the bugs only make sense once you have <i>watched</i> them happen. All examples assume <code>#include &lt;thread&gt;</code>, <code>&lt;mutex&gt;</code> etc. and compile with <code>g++ -std=c++17 -pthread</code>.</div>
 
 <section data-title="Why threads? The mental model">
 <h2>Why threads? The mental model</h2>
@@ -159,7 +159,64 @@ public:
 </ul></div>
 </section>
 
-<section data-title="Deadlock">
+<section id="interface-races" data-title="Races hidden in interfaces">
+<h2>Races hidden in interfaces</h2>
+<p>You now know to put a mutex inside a class and lock it in every member function. That is necessary but <b>not sufficient</b>: the <i>interface</i> of a class can still make a race unavoidable. Take a shared stack where every member function locks internally, so no individual call can corrupt anything. Now two threads each run this very ordinary code:</p>
+<script type="text/x-cpp">
+SafeStack<int> s;                  // shared by several threads; push, pop, top, empty all lock internally
+
+if (!s.empty()) {                  // 1. is there anything to take?
+    int v = s.top();               // 2. read the top element
+    s.pop();                       // 3. remove it
+    use(v);
+}
+</script>
+<p>Each call is atomic, but the <b>sequence of three calls is not</b>. Another thread can act between any two of them. Play thread A and thread B against the stack that holds a single element:</p>
+<div id="st-iface"></div>
+<p>Two things can go wrong with this interleaving, and both are <b>logic errors that no amount of internal locking can prevent</b>:</p>
+<ul>
+<li>B calls <code>top()</code> on an empty stack: undefined behavior. Its earlier <code>empty()</code> answer was <i>true when given, stale one moment later</i>.</li>
+<li>If both threads read <code>top()</code> before either calls <code>pop()</code>, the same element is processed <b>twice</b> while the stack loses only one.</li>
+</ul>
+<p>This is a <b>check-then-act</b> race (sometimes called time-of-check to time-of-use). It is not specific to mutexes: a lock-free stack with the same interface has the same problem. The cause is the <i>interface</i>, so the cure is to change the interface.</p>
+<h3>The fix: offer whole operations, not steps</h3>
+<p>Make the check, the read and the removal <b>one call</b>, done under a single lock:</p>
+<script type="text/x-cpp">
+template <typename T>
+class SafeStack {
+    std::stack<T> s_;
+    mutable std::mutex m_;
+public:
+    void push(T v) {
+        std::lock_guard<std::mutex> lk(m_);
+        s_.push(std::move(v));
+    }
+    std::optional<T> try_pop() {                 // check + read + remove as ONE atomic operation
+        std::lock_guard<std::mutex> lk(m_);
+        if (s_.empty()) return std::nullopt;
+        T v = std::move(s_.top());
+        s_.pop();
+        return v;
+    }
+    // empty() may still exist, but treat its answer as a hint only: it can be stale the moment it returns.
+};
+
+if (auto v = s.try_pop()) use(*v);               // no window between the check and the removal
+</script>
+<div class="callout tip"><span class="label">Why does std::stack split top() and pop() in the first place?</span>
+If <code>pop()</code> returned the element by value, and copying it threw an exception <i>after</i> the element was already removed, that element would be lost. That is why the single-threaded design separates them. A concurrent version has to merge them, so the usual solutions are to hand the value out through an out-parameter or <code>std::optional</code>, to return a <code>std::shared_ptr&lt;T&gt;</code>, or to require that the element type's move or copy cannot throw.</div>
+<p>The same pattern shows up everywhere. All of these are check-then-act races when only the individual calls are locked:</p>
+<table>
+<tr><th>Racy sequence</th><th>Whole-operation fix</th></tr>
+<tr><td><code>if (!m.contains(k)) m[k] = v;</code></td><td>one <code>insert</code>/<code>try_emplace</code> call that does both under the lock</td></tr>
+<tr><td><code>if (q.size() &lt; max) q.push(x);</code></td><td>a <code>try_push</code> that checks and pushes under one lock</td></tr>
+<tr><td><code>if (!file_exists(p)) create(p);</code></td><td>an atomic "create if absent" call (for example the OS <code>O_EXCL</code> flag)</td></tr>
+<tr><td><code>if (counter.load() &gt; 0) counter--;</code></td><td>a <code>compare_exchange</code> loop</td></tr>
+</table>
+<div class="callout interview"><span class="label">Interview angle</span>"I added a mutex to every method, so is my class thread-safe?" Not necessarily. Each method is safe, but the caller's <i>sequence</i> of calls is not. Protect the <b>whole invariant</b>: provide combined operations such as <code>try_pop</code>, and design the interface so that callers never need to check and act separately.</div>
+</section>
+
+<section id="s5" data-title="Deadlock">
 <h2>Deadlock</h2>
 <p>A <b>deadlock</b> is when threads wait for each other forever. The classic recipe: thread A holds lock <code>a</code> and wants <code>b</code>, while thread B holds <code>b</code> and wants <code>a</code>. Neither can proceed. Here the two threads take the locks in <b>opposite order</b>. Try to deadlock them by hand: step A once (takes <code>a</code>), step B once (takes <code>b</code>), then try to go on.</p>
 <div id="sim-deadlock"></div>
@@ -185,10 +242,68 @@ std::lock(a, b);                                          // lock both atomicall
 std::lock_guard<std::mutex> la(a, std::adopt_lock);       // adopt the already-held locks so RAII still unlocks
 std::lock_guard<std::mutex> lb(b, std::adopt_lock);
 </script>
+<h3>Four guidelines that all say the same thing</h3>
+<p>Every deadlock-avoidance rule boils down to one idea: <b>do not wait for another thread if there is any chance it is waiting for you</b>. The practical guidelines are ways of making sure that cannot happen:</p>
+<ol>
+<li><b>Avoid nested locks.</b> If a thread never holds more than one lock, locks alone cannot deadlock. When you truly need several, take them in a single step with <code>std::scoped_lock</code> (or <code>std::lock</code>).</li>
+<li><b>Do not call user-supplied code while holding a lock.</b> A callback, a virtual function or an operation on a template parameter could do anything, including taking another lock (a hidden nested lock) or, worse, keeping a pointer to your protected data:
+<script type="text/x-cpp">
+class Wrapper {
+    Data data_;
+    std::mutex m_;
+public:
+    template <typename F>
+    void process(F f) {
+        std::lock_guard<std::mutex> lk(m_);
+        f(data_);                          // hands a reference to the protected data to unknown code
+    }
+};
+
+Data* leaked;
+wrapper.process([](Data& d) { leaked = &d; });   // the callback keeps the pointer
+leaked->modify();                                 // later: modifies the data with NO lock held
+</script>
+Rule: <b>never pass out a pointer or reference to protected data</b>, whether by returning it, storing it somewhere visible, or giving it to code you do not control. The mutex only protects what is accessed through it.</li>
+<li><b>Acquire locks in a fixed order</b> when you must hold several and cannot take them together. A classic trap is a mutex <i>per node</i> in a linked list with "hand-over-hand" traversal (lock the next node, then release the current one). Two threads walking in opposite directions meet in the middle holding each other's lock: deadlock. Fix it by fixing the traversal direction, so everyone locks nodes in the same order.</li>
+<li><b>Use a lock hierarchy.</b> Give each mutex a numeric level and let a thread lock only a mutex whose level is <i>lower</i> than every lock it already holds. Then a cycle is impossible, and a violation is reported <b>the first time the wrong order is attempted</b>, even if the unlucky timing that would actually deadlock never happens in testing.
+<script type="text/x-cpp">
+class HierarchicalMutex {
+    std::mutex m_;
+    const unsigned level_;
+    unsigned previous_ = 0;
+    static thread_local unsigned current_;        // lowest level this thread currently holds
+public:
+    explicit HierarchicalMutex(unsigned level) : level_(level) {}
+    void lock() {
+        if (current_ <= level_) throw std::logic_error("lock order violated");   // must go strictly downward
+        m_.lock();
+        previous_ = current_;
+        current_ = level_;
+    }
+    void unlock() {
+        if (current_ != level_) throw std::logic_error("unlock out of order");
+        current_ = previous_;
+        m_.unlock();
+    }
+};
+thread_local unsigned HierarchicalMutex::current_ = UINT_MAX;   // a new thread holds nothing yet
+
+HierarchicalMutex high(10000), low(5000);
+{ std::lock_guard<HierarchicalMutex> a(high); std::lock_guard<HierarchicalMutex> b(low); }   // OK: 10000 then 5000
+{ std::lock_guard<HierarchicalMutex> a(low);  std::lock_guard<HierarchicalMutex> b(high); }   // throws at once
+</script></li>
+</ol>
+<div class="callout warn"><span class="label">Deadlock needs no mutex at all</span>Two threads that each call <code>join()</code> on the other deadlock, and so does any cycle of threads waiting on each other's futures or condition variables. It applies to every kind of waiting, not just locks.
+<script type="text/x-cpp">
+std::thread tA, tB;                  // both threads are started elsewhere, running funcA and funcB
+
+void funcA() { tB.join(); }          // A waits for B to finish...
+void funcB() { tA.join(); }          // ...and B waits for A to finish: neither ever returns
+</script></div>
 <div class="callout interview"><span class="label">Interview angle</span>"How do you prevent deadlock?" Impose a global lock ordering; lock multiple mutexes with <code>std::scoped_lock</code>; avoid holding a lock while calling out to other code; hold locks briefly; avoid nested locking when you can; or use <code>try_lock</code> with back-off. Also: locking a non-recursive mutex you already own is undefined behavior (in practice, a thread that deadlocks with itself).</div>
 </section>
 
-<section data-title="Atomics">
+<section id="s6" data-title="Atomics">
 <h2>Atomics</h2>
 <p>For a single simple variable, a mutex is overkill. <code>std::atomic&lt;T&gt;</code> makes operations on one variable <b>indivisible</b>: no other thread can see a half-finished update. It is implemented with special CPU instructions and usually does not block. Compare with the broken counter: the increment is now one single step.</p>
 <div id="sim-atomic"></div>
@@ -235,7 +350,7 @@ ready.store(true, std::memory_order_release);         std::cout << data;       /
 <div class="callout interview"><span class="label">Interview angle</span>Know: atomic vs mutex (lock-free single variable vs general critical section); <code>is_lock_free()</code>; that default <code>seq_cst</code> is the safe choice and weaker orders are an optimisation needing proof; and the <b>ABA problem</b> (a CAS succeeds because a value changed A to B and back to A, hiding that something happened; fixed with version counters or hazard pointers).</div>
 </section>
 
-<section data-title="Condition variables">
+<section id="s7" data-title="Condition variables">
 <h2>Condition variables</h2>
 <p>Sometimes a thread must <b>wait until something happens</b>: a consumer waits for the producer to put an item in a queue. Looping on <code>while (queue.empty()) {}</code> burns 100% CPU ("busy waiting"). A <b>condition variable</b> lets the thread <i>sleep</i> until another thread wakes it. It always works together with a mutex and the shared state it guards.</p>
 <script type="text/x-cpp">
@@ -284,7 +399,7 @@ public:
 </script>
 </section>
 
-<section data-title="Futures and async">
+<section id="s8" data-title="Futures and async">
 <h2>Futures and async</h2>
 <p>Often you do not want to manage a thread by hand: you just want to <b>run a function in the background and get its result later</b>. A <code>std::future&lt;T&gt;</code> is a placeholder for a value that will be ready in the future.</p>
 <script type="text/x-cpp">
@@ -313,7 +428,7 @@ t.join();
 <p><code>std::packaged_task</code> wraps a function so that its result goes into a future, which is how thread pools return results from queued tasks.</p>
 </section>
 
-<section data-title="Thread pools and producer/consumer">
+<section id="s9" data-title="Thread pools and producer/consumer">
 <h2>Thread pools and producer/consumer</h2>
 <p>Creating a thread per task is expensive (tens of microseconds, plus memory for its stack) and creating thousands overloads the scheduler. A <b>thread pool</b> starts a fixed number of worker threads once. Tasks are put in a queue; each idle worker takes the next one. This is the <b>producer/consumer</b> pattern: producers submit work, consumers (workers) process it.</p>
 <script type="text/x-cpp">
@@ -358,7 +473,7 @@ pool.submit([] { std::cout << "task runs on some worker\n"; });
 <p>Sizing: for CPU-bound work use about <code>hardware_concurrency()</code> workers (more just fight over cores: <b>oversubscription</b>). For work that mostly waits on I/O you can use more.</p>
 </section>
 
-<section data-title="Performance and real-time concerns">
+<section id="s10" data-title="Performance and real-time concerns">
 <h2>Performance and real-time concerns</h2>
 <p>Correct is step one. Fast and predictable is step two, and it is what matters for low-latency systems such as market-data feed handlers.</p>
 <table>
@@ -398,7 +513,7 @@ public:
 <div class="callout tip"><span class="label">Be honest about lock-free in interviews</span>Lock-free code is hard to write and verify. Say you would start with a mutex-based queue, measure, and move to a lock-free structure only if profiling shows the lock is the bottleneck. The SPSC queue is the one case simple enough to write confidently.</div>
 </section>
 
-<section data-title="Debugging and common bugs">
+<section id="s11" data-title="Debugging and common bugs">
 <h2>Debugging and common bugs</h2>
 <p>Threading bugs are timing-dependent: they vanish when you add a <code>printf</code> or run under a debugger (a "Heisenbug"). Use tools built to catch them:</p>
 <ul>
@@ -425,7 +540,7 @@ public:
 <p>Further reading: your notes in <a href="../docs/03-cpp-standard-library/11-multithreading-and-synchronization/">Module 3: multithreading and synchronization</a> (with <a href="../examples/03-cpp-standard-library/11-multithreading-and-synchronization/">runnable examples</a>), the <a href="https://github.com/changkun/modern-cpp-tutorial/blob/master/book/en-us/07-thread.md">modern-cpp-tutorial concurrency chapter</a> (threads, mutexes, futures, condition variables, atomics and the memory model), and the <a href="https://github.com/AnthonyCalandra/modern-cpp-features">modern-cpp-features</a> notes on <code>std::thread</code>, <code>std::async</code>, <code>std::scoped_lock</code> and parallel algorithms.</p>
 </section>
 
-<section data-title="Interview cheat sheet">
+<section id="s12" data-title="Interview cheat sheet">
 <h2>Interview cheat sheet</h2>
 <p>Say each answer out loud, then open it to compare.</p>
 <details class="ex"><summary>What is the difference between a process and a thread?</summary><div><p>A process has its own address space; threads of one process share memory but each has its own stack and registers. Thread creation and switching are cheaper, communication is easy (shared memory) but needs synchronization.</p></div></details>
@@ -442,6 +557,8 @@ public:
 <details class="ex"><summary>What is false sharing?</summary><div><p>Threads writing different variables on the same cache line force the line to bounce between cores, slowing everything. Fix by padding or aligning per-thread data to the cache line size (<code>alignas(64)</code>).</p></div></details>
 <details class="ex"><summary>Why avoid locks and heap allocation on a real-time hot path?</summary><div><p>Both can block or take unpredictable time (contention, priority inversion, allocator locks). Use preallocated buffers and pools, per-thread data and lock-free structures such as an SPSC ring buffer to keep latency bounded.</p></div></details>
 <details class="ex"><summary>Is a function-local <code>static</code> initialised thread-safely?</summary><div><p>Yes, since C++11 initialization happens exactly once even with concurrent callers ("magic statics"). That is why the Meyers Singleton is thread-safe. Using the object afterwards still needs its own synchronization.</p></div></details>
+<details class="ex"><summary>My class locks a mutex in every method. Is it thread-safe?</summary><div><p>Not necessarily. Each call is safe on its own, but a caller's <i>sequence</i> of calls is not atomic. The classic case is a shared stack: <code>if (!s.empty()) { v = s.top(); s.pop(); }</code> races, because another thread can pop between the check and the use. The cause is the interface (it is also true of a lock-free stack), so the fix is to provide whole operations such as <code>std::optional&lt;T&gt; try_pop()</code> that check and remove under one lock.</p></div></details>
+<details class="ex"><summary>Can threads deadlock without any mutex? What are the practical rules against deadlock?</summary><div><p>Yes: two threads that <code>join()</code> each other, or any cycle of waits on futures or condition variables. The rules all mean "do not wait for a thread that might be waiting for you": avoid nested locks (or take several with <code>scoped_lock</code>), never call user-supplied code or leak references to protected data while holding a lock, lock in a fixed order, and use a lock hierarchy so a wrong order is caught immediately at runtime.</p></div></details>
 <details class="ex"><summary>How would you find a data race in a large program?</summary><div><p>Build and run the tests with ThreadSanitizer (<code>-fsanitize=thread</code>), and Helgrind for lock-order problems; review shared state and make sure every access has a lock or is atomic; reduce sharing by design.</p></div></details>
 </section>
 </main>
@@ -493,6 +610,29 @@ CT.threadsim('#sim-atomic', {
   ],
   vars: { counter: 0 }, show: 'counter', expect: 4,
   help: 'There is no gap between the read and the write for another thread to sneak into.'
+});
+
+CT.stepper('#st-iface', {
+  title: 'Two threads running check-then-act on a stack that holds one element',
+  code: String.raw`
+if (!s.empty()) {
+    int v = s.top();
+    s.pop();
+    use(v);
+}
+`,
+  steps: [
+    { line: 1, mem: [{ n: 'stack s', t: '1 element', v: '[ 7 ]' }, { n: 'thread A', v: 'empty() -> false' }, { n: 'thread B', v: 'waiting to run' }],
+      note: '<b>Thread A</b> calls <code>empty()</code>. The call locks, checks and unlocks correctly: the stack has an element, so the answer is false (not empty).' },
+    { line: 1, mem: [{ n: 'stack s', t: '1 element', v: '[ 7 ]' }, { n: 'thread A', v: 'empty() -> false' }, { n: 'thread B', v: 'empty() -> false' }],
+      note: 'The scheduler switches. <b>Thread B</b> runs the same check. The stack is still untouched, so B also gets "not empty". Each call was perfectly protected, yet both threads now believe they may take an element.' },
+    { line: 2, mem: [{ n: 'stack s', t: '1 element', v: '[ 7 ]' }, { n: 'thread A', v: 'v = top() = 7' }, { n: 'thread B', v: 'empty() -> false' }],
+      note: '<b>Thread A</b> reads the top element: 7.' },
+    { line: 3, mem: [{ n: 'stack s', t: 'EMPTY', v: '[ ]' }, { n: 'thread A', v: 'pop() done, has 7' }, { n: 'thread B', v: 'still believes: not empty' }],
+      note: '<b>Thread A</b> pops. The stack is now empty. B\'s earlier answer is <b>stale</b>: it was true when given and false a moment later.' },
+    { line: 2, mem: [{ n: 'stack s', t: 'EMPTY', v: '[ ]' }, { n: 'thread A', v: 'using 7' }, { n: 'thread B', v: 'top() on EMPTY stack: UNDEFINED BEHAVIOR', dead: true }],
+      note: '<b>Thread B</b> calls <code>top()</code> on an empty stack: undefined behavior. (In a slightly different interleaving, B reads 7 before A pops, and both threads process the same element.) No amount of locking inside <code>empty()</code>, <code>top()</code> and <code>pop()</code> can prevent this. The interface forces callers to do three separate steps. Fix: one <code>try_pop()</code> that does all three under a single lock.' }
+  ]
 });
 
 CT.stepper('#st-cv', {

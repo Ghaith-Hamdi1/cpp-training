@@ -141,6 +141,33 @@ void f() {
 
     { q: 'Why can a single-producer single-consumer ring buffer work without locks?',
       opts: ['Because it uses volatile', 'Each index is written by only one thread (head by the consumer, tail by the producer) and acquire/release atomics publish the data', 'Because the buffer never fills', 'Because the OS serialises threads'], a: 1,
-      why: 'With exactly one writer per index, there are no conflicting writes. Release on the store and acquire on the load make the slot contents visible in the right order.' }
+      why: 'With exactly one writer per index, there are no conflicting writes. Release on the store and acquire on the load make the slot contents visible in the right order.' },
+
+    { q: 'Every member function of this shared stack locks a mutex internally. Why is the caller\'s code still racy?',
+      code: String.raw`
+SafeStack<int> s;                 // shared by several threads
+if (!s.empty()) {
+    int v = s.top();
+    s.pop();
+    use(v);
+}`,
+      opts: ['The mutex is not recursive', 'Each call is atomic but the sequence of three calls is not: another thread can pop between the check and top(), so the check is stale', 'lock_guard cannot protect a std::stack', 'empty() must be called twice'], a: 1,
+      why: 'This is a check-then-act race built into the interface. The cure is to change the interface, not to add more locking inside the individual calls.' },
+
+    { q: 'What is the best fix for that stack?',
+      opts: ['Make every method `volatile`', 'Provide one operation such as `std::optional<T> try_pop()` that checks, reads and removes under a single lock', 'Call `empty()` twice to be sure', 'Use `notify_all()` after each pop'], a: 1,
+      why: 'Offer whole operations rather than steps, so callers never need to check and act separately. `empty()` may remain as a hint, but its answer can be stale the moment it returns.' },
+
+    { q: 'Can two threads deadlock without any mutex being involved?',
+      opts: ['No: deadlock requires a mutex', 'Yes: for example each thread calls join() on the other, or they wait in a cycle on futures or condition variables', 'Only with atomics', 'Only if one thread is detached'], a: 1,
+      why: 'Deadlock is a cycle of waiting. The guideline is general: do not wait for another thread if there is a chance it is waiting for you.' },
+
+    { q: 'What does a lock hierarchy (levels on mutexes) give you?',
+      opts: ['Faster locking', 'A thread may only lock a mutex of lower level than any it holds, so cycles are impossible, and a violation is detected the first time the wrong order is attempted, even if no deadlock actually occurs', 'Automatic unlocking', 'Fair scheduling'], a: 1,
+      why: 'Runtime-checked ordering turns a rare, timing-dependent deadlock into a deterministic error you can find in testing.' },
+
+    { q: 'Why should you not call user-supplied code (a callback, a virtual function) while holding a lock?',
+      opts: ['It is slower', 'It may take another lock (a hidden nested lock, risking deadlock) or keep a pointer or reference to the protected data and use it later without the lock', 'Callbacks cannot be called with a mutex held', 'The lock would be released early'], a: 1,
+      why: 'You do not control what that code does. Never pass out references to protected data, and avoid holding a lock across calls to code you do not own.' }
   ]
 };
