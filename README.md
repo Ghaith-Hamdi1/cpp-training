@@ -13,7 +13,7 @@ Use the training notes for a quick pass or the embedded-specific topics, and the
 
 ## Interactive study pages
 
-For hands-on learning there are seven interactive lessons, each with a quiz, in [`interactive/`](interactive/index.html). Clone the repo and open `interactive/index.html` in a browser (no install, works offline). GitHub shows `.html` files as source, so view them locally.
+For hands-on learning there are seven interactive lessons, each with a quiz, in [`interactive/`](interactive/index.html). Read them online at **https://ghaith-hamdi1.github.io/cpp-training/** (published from `interactive/` by GitHub Pages), or clone the repo and open `interactive/index.html` locally (no install, works offline).
 
 | # | Lesson | Quiz |
 |---|---|---|
