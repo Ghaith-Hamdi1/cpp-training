@@ -119,6 +119,8 @@
 
   /* ---------------- search across all lessons ---------------- */
   let searchDlg;
+  let searchFailed = false;
+  let loadIndex = () => {};
   function openSearch() {
     if (!searchDlg) {
       searchDlg = document.createElement('dialog');
@@ -133,7 +135,7 @@
       const run = () => {
         const terms = input.value.toLowerCase().split(/\s+/).filter(Boolean);
         if (!terms.length) { box.textContent = ''; return; }
-        if (!CT.searchIndex) { box.textContent = 'Loading the index...'; return; }
+        if (!CT.searchIndex) { box.textContent = searchFailed ? 'The search index could not be loaded. Check your connection, then close and reopen search to retry.' : 'Loading the index...'; return; }
         const hits = [];
         CT.searchIndex.forEach((e) => {
           const hl = e.h.toLowerCase();
@@ -156,12 +158,19 @@
         }).join('') : 'No matches.';
       };
       input.addEventListener('input', run);
-      if (!CT.searchIndex) {
+      loadIndex = () => {
+        if (CT.searchIndex) return;
+        searchFailed = false;
         const sc = document.createElement('script');
         sc.src = 'assets/data/search-index.js';
         sc.onload = run;
+        sc.onerror = () => { sc.remove(); searchFailed = true; run(); };   // offline with nothing cached
         document.head.appendChild(sc);
-      }
+      };
+      loadIndex();
+    } else if (searchFailed) {
+      loadIndex();                          // reopening after a failure retries the download
+      $('input', searchDlg).dispatchEvent(new Event('input'));
     }
     if (!searchDlg.open) searchDlg.showModal();
     $('input', searchDlg).focus();
