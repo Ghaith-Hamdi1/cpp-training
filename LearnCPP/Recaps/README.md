@@ -2,7 +2,7 @@
 
 Personal chapter-by-chapter recap notes for [learncpp.com](https://www.learncpp.com/), written after working through each chapter. Each recap follows a two-pass format: **Pass 1 (Beginner View)** for a fast, simple-language pass, and **Pass 2 (Technical View)** with full detail for reference, ending in a **Mastery Check**.
 
-These recaps overlap with the company training notes in the repo root. See the [topic cross-reference](../../README.md#where-each-topic-is-covered) to find the matching section in each.
+These recaps overlap with the company training notes in `docs/`. See the [topic map](../../docs/topic-map.md) to find the matching section in each.
 
 Solved practice exercises for every chapter live under [`solutions/`](solutions/), one folder per chapter (e.g. `solutions/Chapter_14_Intro_To_Classes/`).
 
