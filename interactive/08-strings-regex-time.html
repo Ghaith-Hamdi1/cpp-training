@@ -1,0 +1,197 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Strings, Regex and Time</title>
+<script>try{var t=JSON.parse(localStorage.getItem('cpptrain:theme'));if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body data-topic="strings" data-kind="lesson">
+<main>
+<h1>Strings, Regex and Time</h1>
+<p class="lead">Three standard-library areas that show up in real code and in interviews but are not covered by learncpp.com: owning and viewing text, pattern matching with <code>&lt;regex&gt;</code>, and measuring time with <code>&lt;chrono&gt;</code>.</p>
+
+<section data-title="std::string and std::string_view">
+<h2><code>std::string</code> and <code>std::string_view</code></h2>
+<p><code>std::string</code> <b>owns</b> its characters: it allocates, copies and frees them. <code>std::string_view</code> (C++17) is a <b>non-owning</b> pointer plus a length. Passing a view costs two words and never allocates, but the view is only valid while the text it points at is alive.</p>
+<script type="text/x-cpp">
+#include <string>
+#include <string_view>
+
+void log(std::string_view msg);          // accepts std::string, string literal, char array... without copying
+
+std::string s = "hello world";
+log(s);
+log("literal");                          // no temporary std::string is built
+
+auto pos = s.find("world");              // 6
+if (pos != std::string::npos) {          // find returns npos (a huge value) when nothing matches
+    std::string_view word = std::string_view(s).substr(pos);   // "world", no copy
+}
+</script>
+<div class="callout warn"><span class="label">Classic bug: dangling view</span>
+<script type="text/x-cpp">
+std::string_view bad = std::string("temporary");   // the string dies at the semicolon
+// 'bad' now points at freed memory: undefined behaviour if you read it
+
+std::string_view f() {
+    std::string local = "oops";
+    return local;                                   // returns a view of a dead local
+}
+</script>
+A view must never outlive the string it looks at, and it is <b>not guaranteed to be null-terminated</b>, so do not hand <code>sv.data()</code> to a C API that expects a C string.</div>
+<ul>
+<li><b>Small string optimisation (SSO):</b> short strings (around 15 characters on common implementations) live inside the <code>std::string</code> object itself, with no heap allocation.</li>
+<li>Use <code>std::string_view</code> for <i>read-only function parameters</i>. Keep <code>std::string</code> for anything you store.</li>
+<li><code>s += a + b</code> style concatenation can create temporaries; use <code>append</code> or <code>reserve</code> when building large strings in a loop.</li>
+</ul>
+<div class="callout interview"><span class="label">Interview angle</span>"<code>const std::string&amp;</code> or <code>std::string_view</code> for a parameter?" View when you only read, because it accepts literals without constructing a temporary string. Reference when you need a real <code>std::string</code> (for example to call a function that needs null termination).</div>
+</section>
+
+<section data-title="Regular expressions: the basics">
+<h2>Regular expressions: the basics</h2>
+<p>A regular expression describes a <i>set of strings</i>. <code>&lt;regex&gt;</code> gives you three entry points, and the difference between the first two is a favourite question:</p>
+<table>
+<tr><th>Function</th><th>Question it answers</th></tr>
+<tr><td><code>std::regex_match</code></td><td>Does the <b>whole</b> string match the pattern?</td></tr>
+<tr><td><code>std::regex_search</code></td><td>Does <b>some part</b> of the string match? (first match; captures in <code>std::smatch</code>)</td></tr>
+<tr><td><code>std::regex_replace</code></td><td>Replace every match with a replacement string.</td></tr>
+</table>
+<script type="text/x-cpp">
+#include <regex>
+
+std::regex re("ab+c");
+std::regex_match("abbbc", re);       // true  : the entire string fits
+std::regex_match("xabbbcx", re);     // false : extra characters around it
+std::regex_search("xabbbcx", re);    // true  : found inside
+</script>
+<table>
+<tr><th>Syntax</th><th>Meaning</th><th>Example</th></tr>
+<tr><td><code>.</code></td><td>any character</td><td><code>a.b</code> matches <code>aab</code>, <code>axb</code></td></tr>
+<tr><td><code>?</code> <code>*</code> <code>+</code></td><td>0 or 1, 0 or more, 1 or more</td><td><code>ab*c</code> matches <code>ac</code>, <code>abbbc</code></td></tr>
+<tr><td><code>{n}</code> <code>{n,m}</code></td><td>exactly n, between n and m</td><td><code>ab{3}c</code> matches <code>abbbc</code></td></tr>
+<tr><td><code>[abc]</code> <code>[a-z]</code> <code>[^a-z]</code></td><td>one of, a range, none of</td><td><code>a[bcd]e</code></td></tr>
+<tr><td><code>(x|y)</code></td><td>group and alternation</td><td><code>gr(e|a)y</code> matches <code>grey</code>, <code>gray</code></td></tr>
+<tr><td><code>^</code> <code>$</code></td><td>start and end of the string</td><td><code>^\d+$</code></td></tr>
+<tr><td><code>\d</code> <code>\w</code> <code>\s</code></td><td>digit, word character, whitespace</td><td><code>\w+@\w+</code></td></tr>
+</table>
+<p>Try patterns yourself. <code>std::regex</code> uses the ECMAScript grammar by default, which is the same grammar this tester (the browser's own regex engine) uses for everything in the table above.</p>
+<div id="w-regex"></div>
+<div class="callout tip"><span class="label">Backslashes in C++ strings</span>In a normal string literal you must write <code>"\\d+"</code>. A raw string literal avoids the doubling: <code>std::regex re(R"(\d+)");</code>. POSIX classes such as <code>[[:alnum:]]</code> work in <code>std::regex</code> but not in the browser tester.</div>
+</section>
+
+<section data-title="Captures, replace and iterating matches">
+<h2>Captures, replace and iterating matches</h2>
+<p>Parentheses make <b>capture groups</b>. After a successful search, <code>std::smatch</code> holds the whole match at index 0 and each group after it.</p>
+<script type="text/x-cpp">
+std::string line = "temp=21.5C humidity=40%";
+std::regex kv(R"((\w+)=([\d.]+))");
+
+std::smatch m;
+if (std::regex_search(line, m, kv)) {
+    // m[0] = "temp=21.5"   m[1] = "temp"   m[2] = "21.5"
+    std::cout << m[1] << " is " << m[2] << '\n';
+}
+
+// every match, not just the first
+for (std::sregex_iterator it(line.begin(), line.end(), kv), end; it != end; ++it)
+    std::cout << (*it)[1] << " -> " << (*it)[2] << '\n';   // temp -> 21.5, then humidity -> 40
+
+// replace: $1, $2 refer to groups
+std::string swapped = std::regex_replace(line, kv, "$2:$1");   // "21.5:tempC 40:humidity%"  (only the matched parts change)
+</script>
+<div class="callout warn"><span class="label">Practical limits of std::regex</span>
+<ul>
+<li><b>Constructing a regex is expensive</b> (it compiles the pattern). Build it once, not inside a loop.</li>
+<li><code>std::regex</code> is generally <b>slow</b> compared with hand-written parsing or libraries such as RE2 or CTRE. In hot paths or latency-sensitive embedded code, prefer simple <code>find</code>/<code>from_chars</code> parsing.</li>
+<li>Patterns with nested quantifiers like <code>(a+)+b</code> can backtrack exponentially on bad input. Never feed untrusted input to a pattern you have not reasoned about.</li>
+<li>An invalid pattern throws <code>std::regex_error</code> at construction.</li>
+</ul></div>
+<div class="callout interview"><span class="label">Interview angle</span>"Why does <code>regex_match("hello world", std::regex("hello"))</code> return false?" Because <code>regex_match</code> needs the pattern to cover the <b>entire</b> string. <code>regex_search</code> would return true.</div>
+</section>
+
+<section data-title="Time with std::chrono">
+<h2>Time with <code>std::chrono</code></h2>
+<p><code>&lt;chrono&gt;</code> is built from three ideas that are worth saying in this order in an interview:</p>
+<ul>
+<li><b>Duration</b>: an amount of time, a count plus a unit (<code>seconds</code>, <code>milliseconds</code>...). It is type-safe, so you cannot confuse seconds with milliseconds.</li>
+<li><b>Time point</b>: an instant, measured as a duration since a clock's epoch.</li>
+<li><b>Clock</b>: the source of time points.</li>
+</ul>
+<table>
+<tr><th>Clock</th><th>Behaviour</th><th>Use it for</th></tr>
+<tr><td><code>system_clock</code></td><td>Wall-clock time. Can jump (NTP, manual changes, daylight handling by the OS). Convertible to <code>time_t</code>.</td><td>Timestamps, dates shown to people</td></tr>
+<tr><td><code>steady_clock</code></td><td><b>Monotonic</b>: never goes backwards.</td><td>Measuring elapsed time, timeouts</td></tr>
+<tr><td><code>high_resolution_clock</code></td><td>Smallest tick the implementation has. Often just an alias of one of the above.</td><td>Rarely the right choice; prefer <code>steady_clock</code></td></tr>
+</table>
+<script type="text/x-cpp">
+#include <chrono>
+#include <thread>
+using namespace std::chrono_literals;
+
+auto t0 = std::chrono::steady_clock::now();
+std::this_thread::sleep_for(250ms);                       // duration literal
+auto t1 = std::chrono::steady_clock::now();
+
+auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(t1 - t0);
+std::cout << elapsed.count() << " ms\n";                  // about 250
+
+std::chrono::seconds s = 90s;
+std::chrono::milliseconds ms = s;                          // implicit: lossless conversion allowed
+// std::chrono::seconds back = ms;                         // ERROR: would lose precision, needs duration_cast
+auto m = std::chrono::duration_cast<std::chrono::minutes>(s);   // 1 (truncates)
+</script>
+<div class="callout warn"><span class="label">Use steady_clock for intervals</span>Measuring elapsed time with <code>system_clock</code> can give negative or wildly wrong results if the system clock is adjusted while you measure. This matters for timeouts in real-time and embedded code.</div>
+</section>
+
+<section data-title="Interview cheat sheet">
+<h2>Interview cheat sheet</h2>
+<p>Say each answer out loud, then open it.</p>
+<details><summary>When is a <code>string_view</code> dangerous?</summary>When it outlives the string it views: views of temporaries, of locals returned from a function, or of a string that is later modified or reallocated.</details>
+<details><summary><code>regex_match</code> versus <code>regex_search</code>?</summary><code>regex_match</code> must match the whole input. <code>regex_search</code> finds a match anywhere inside it.</details>
+<details><summary>How do you iterate over every match?</summary><code>std::sregex_iterator</code> (or <code>std::cregex_iterator</code> for C strings) over the range, compared with a default-constructed end iterator.</details>
+<details><summary>Which clock for a timeout, and why?</summary><code>steady_clock</code>, because it is monotonic and unaffected by changes to the system time.</details>
+<details><summary>Why can <code>seconds = milliseconds</code> not compile but <code>milliseconds = seconds</code> can?</summary>Converting to a coarser unit would truncate, so it requires an explicit <code>duration_cast</code>. Converting to a finer unit is lossless, so it is implicit.</details>
+<details><summary>Output: what does this print? <code>std::string s = "abc"; std::cout &lt;&lt; s.find('z') == std::string::npos;</code></summary>It does not compile as intended: <code>&lt;&lt;</code> binds tighter than <code>==</code>, so it tries to compare the stream with <code>npos</code>. Parenthesise: <code>std::cout &lt;&lt; (s.find('z') == std::string::npos);</code> prints 1.</details>
+</section>
+</main>
+<script src="assets/app.js"></script>
+<script>
+(function () {
+  const root = document.getElementById('w-regex');
+  root.className = 'widget';
+  root.innerHTML = '<div class="w-head"><span class="tag">Try it</span>Regex tester</div><div class="w-body">' +
+    '<div class="pickrow"><label for="rx-p">Pattern:</label><input id="rx-p" type="text" value="gr(e|a)y" size="26" spellcheck="false">' +
+    '<label for="rx-m">Function:</label><select id="rx-m"><option value="match">regex_match</option><option value="search">regex_search</option><option value="all">sregex_iterator (all matches)</option></select></div>' +
+    '<div class="pickrow"><label for="rx-s">Text:</label><input id="rx-s" type="text" value="the grey and gray cat" size="40" spellcheck="false"></div>' +
+    '<div class="result" id="rx-r" role="status" aria-live="polite"></div></div>';
+  const $ = (id) => document.getElementById(id);
+  function run() {
+    const r = $('rx-r');
+    let re;
+    try { re = new RegExp($('rx-p').value, 'g'); } catch (e) { r.className = 'result bad'; r.textContent = 'std::regex_error: ' + e.message; return; }
+    const s = $('rx-s').value;
+    const mode = $('rx-m').value;
+    const groups = (m) => m.slice(1).map((g, i) => ' group ' + (i + 1) + ' = ' + (g === undefined ? '(unmatched)' : '"' + g + '"')).join(',');
+    if (mode === 'match') {
+      const full = new RegExp('^(?:' + $('rx-p').value + ')$').exec(s);
+      r.className = 'result ' + (full ? 'good' : 'bad');
+      r.innerHTML = '<b>' + (full ? 'true' : 'false') + '</b>: ' + (full ? 'the whole string matches.' : 'the whole string does not match (regex_search might still succeed).');
+      return;
+    }
+    const all = [];
+    let m;
+    re.lastIndex = 0;
+    while ((m = re.exec(s)) !== null) { all.push(m); if (m[0] === '') re.lastIndex++; if (mode === 'search') break; }
+    r.className = 'result ' + (all.length ? 'good' : 'bad');
+    r.innerHTML = all.length ? '<b>' + all.length + ' match' + (all.length > 1 ? 'es' : '') + '</b><br>' +
+      all.map((x) => 'm[0] = <code>"' + CT.esc(x[0]) + '"</code> at position ' + x.index + (x.length > 1 ? ';' + CT.esc(groups(x)) : '')).join('<br>') : '<b>false</b>: no match found.';
+  }
+  ['rx-p', 'rx-s'].forEach((id) => $(id).addEventListener('input', run));
+  $('rx-m').addEventListener('change', run);
+  run();
+})();
+</script>
+</body>
+</html>

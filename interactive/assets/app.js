@@ -21,7 +21,13 @@
     { id: 'patterns', n: 6, title: 'Design Patterns', file: '06-design-patterns.html', quiz: '06-design-patterns-quiz.html', time: '50 min', hot: true,
       blurb: 'Singleton, Factory, Strategy, Observer and State in modern C++, plus the idioms you should recognise.' },
     { id: 'threads', n: 7, title: 'Multithreading', file: '07-multithreading.html', quiz: '07-multithreading-quiz.html', time: '90 min', hot: true,
-      blurb: 'From your first thread to mutexes, deadlocks, atomics, condition variables, futures and thread pools.' }
+      blurb: 'From your first thread to mutexes, deadlocks, atomics, condition variables, futures and thread pools.' },
+    { id: 'strings', n: 8, title: 'Strings, Regex & Time', file: '08-strings-regex-time.html', quiz: '08-strings-regex-time-quiz.html', time: '40 min', hot: false,
+      blurb: 'string versus string_view, regular expressions with a live tester, and measuring time with chrono clocks and durations.' },
+    { id: 'compiletime', n: 9, title: 'Type Traits & Compile-time C++', file: '09-compile-time.html', quiz: '09-compile-time-quiz.html', time: '45 min', hot: true,
+      blurb: 'Type traits, SFINAE, if constexpr, constexpr and consteval, and classic template metaprogramming.' },
+    { id: 'rules', n: 10, title: 'Coding Rules & Safe C++', file: '10-coding-rules.html', quiz: '10-coding-rules-quiz.html', time: '30 min', hot: true,
+      blurb: 'MISRA and AUTOSAR C++14, typical safety rules and why they exist, and static analysis in practice.' }
   ];
 
   const $ = (s, r) => (r || document).querySelector(s);

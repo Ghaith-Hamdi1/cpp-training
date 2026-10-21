@@ -13,7 +13,7 @@ Use the training notes for a quick pass or the embedded-specific topics, and the
 
 ## Interactive study pages
 
-For hands-on learning there are seven interactive lessons, each with a quiz, in [`interactive/`](interactive/index.html). Read them online at **https://ghaith-hamdi1.github.io/cpp-training/** (published from `interactive/` by GitHub Pages), or clone the repo and open `interactive/index.html` locally (no install, works offline).
+For hands-on learning there are ten interactive lessons, each with a quiz, in [`interactive/`](interactive/index.html). Read them online at **https://ghaith-hamdi1.github.io/cpp-training/** (published from `interactive/` by GitHub Pages), or clone the repo and open `interactive/index.html` locally (no install, works offline).
 
 | # | Lesson | Quiz |
 |---|---|---|
@@ -24,6 +24,9 @@ For hands-on learning there are seven interactive lessons, each with a quiz, in 
 | 5 | [Templates](interactive/05-templates.html) | [Quiz](interactive/05-templates-quiz.html) |
 | 6 | [Design Patterns](interactive/06-design-patterns.html) | [Quiz](interactive/06-design-patterns-quiz.html) |
 | 7 | [Multithreading](interactive/07-multithreading.html) | [Quiz](interactive/07-multithreading-quiz.html) |
+| 8 | [Strings, Regex and Time](interactive/08-strings-regex-time.html) | [Quiz](interactive/08-strings-regex-time-quiz.html) |
+| 9 | [Type Traits and Compile-time C++](interactive/09-compile-time.html) | [Quiz](interactive/09-compile-time-quiz.html) |
+| 10 | [Coding Rules and Safe C++](interactive/10-coding-rules.html) | [Quiz](interactive/10-coding-rules-quiz.html) |
 
 ## Where each topic is covered
 
