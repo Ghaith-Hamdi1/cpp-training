@@ -78,6 +78,33 @@ Pointers run through Part III of the book. It introduces them to explain how `ve
 - Raw pointers cause most "mysterious crash" bugs: uninitialized pointers, going out of range, dangling pointers after `delete`, and double `delete`.
 - The modern answer is to match the tool to the job: `vector`/`string` for collections, `unique_ptr`/`shared_ptr` for owning, `span` for viewing a sequence, a reference when "no object" is not allowed, and a pointer only when `nullptr` is a meaningful value.
 
+## Special focus: object-oriented programming
+
+OOP in this book is spread over chapters 8, 12 and 17, with pieces in 15 and 18. Chapter 8 teaches classes as a way to keep objects valid. Chapter 12 teaches inheritance and virtual functions through one graphics hierarchy (`Shape`, `Circle` and so on). Matching lesson: **2. Object-Oriented Programming**.
+
+| Step | Book section | Printed pages | PDF pages | What it teaches | Matching lesson section |
+|---|---|---|---|---|---|
+| 1 | 8.1 to 8.3 User-defined types, classes and members, interface and implementation | 222 to 224 | 235 to 237 | Types exist to represent ideas, with both data and operations. A class has a public interface and a private implementation. | Classes and encapsulation |
+| 2 | 8.4.3 Keep details private | 228 to 229 | 241 to 242 | Why a public representation invites invalid objects ("time bombs"). Constructors that only create valid objects. The **invariant** (the rule for validity); if you cannot state one, use a `struct`. | Classes and encapsulation |
+| 3 | 8.7 Class interfaces (argument types, copying, default constructors, `const` member functions, helper functions) | 237 to 244 | 250 to 257 | Interface rules: complete but minimal ("as small as possible, but no smaller"), provide constructors, support copying or prohibit it, mark non-modifying functions `const`, free resources in the destructor. Why every object should be initialized. | Constructors and destructors; Member functions |
+| 4 | 12.1 to 12.2 Design principles; `Shape`: an abstract class and access control | 356 to 366 | 369 to 379 | Represent application concepts directly in code. A `protected` constructor stops you creating a general `Shape`, since a shape must be a specific one. Data stays private. | Abstract classes and interfaces |
+| 5 | **12.3 Base and derived classes** | 367 to 374 | 380 to 387 | The three mechanisms behind OOP: derivation, virtual functions (run-time dispatch) and encapsulation. **Object layout**: derived members follow the base's, and each object has a hidden vptr to a vtbl. **Overriding** and `override` (a mismatched signature silently creates a new function). Pure virtual functions (`= 0`), abstract versus concrete classes. | Inheritance; Polymorphism and virtual functions; Abstract classes |
+| 6 | 12.4 to 12.5 Copying a hierarchy; benefits of OOP | 375 to 377 | 388 to 390 | Hierarchies do not mix with default copying, so delete the copy operations of a base class. **Interface inheritance** versus **implementation inheritance**. A derived class that cannot stand in for its base is a flawed design. Adding new types without changing existing code. | Inheritance; Composition and design |
+| 7 | 15.5.2 Virtual destructors | 449 to 450 | 462 to 463 | Why `delete` through a base pointer needs a virtual destructor, with the rule that a class with a virtual function needs one. | Polymorphism and virtual functions |
+| 8 | 17.4 to 17.5 Copying and moving; essential operations | 488 to 499 | 501 to 512 | The "rule of zero" (define none of the essential operations if you can) and the "rule of all" (if you define one, define them all). | Copying and the Rule of 3, 5 and 0 |
+| optional | 8.5 to 8.6 Enumerations and operator overloading | 233 to 236 | 246 to 249 | `enum class`, and overloading `++` for a `Month` type. | Operator overloading |
+
+**If you only have time for part of it:** read steps 5, 6 and 7 (the inheritance and virtual-function core) and the rules in step 3.
+
+**What the book does not cover, so use the lesson for it:** composition versus inheritance as a design choice, the SOLID principles and Liskov substitution, `dynamic_cast` (one passing mention only), multiple inheritance and design patterns. Nearly all its OOP examples come from the one graphics hierarchy, so the ideas are consistent but the examples are less varied than the lesson's.
+
+**Key ideas to take away**
+- A class exists to keep its objects valid. Hide the representation, make constructors create only valid values, and state the invariant.
+- Keep interfaces small, and use `const` for functions that do not modify the object.
+- Inheritance means "can stand in for its base" (interface inheritance). Code that uses the base type should keep working when given a derived object.
+- Virtual functions dispatch at run time through a per-class table. Always use `override`, and give a polymorphic base a virtual destructor and no copying.
+- Define none of the copy, move and destructor operations if you can (rule of zero); if you define any, define them all.
+
 ## Skip for interview preparation
 
 - Chapter 1 (hello world and the build process, which the first lesson summarises) and chapters 5 and 6 (building a calculator parser).
