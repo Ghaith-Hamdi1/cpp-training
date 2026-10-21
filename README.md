@@ -20,6 +20,7 @@ The lessons work offline after one visit. From a clone you can also open [`inter
 |---|---|
 | [`interactive/`](interactive/index.html) | The **Lessons**: ten interactive lessons with quizzes, published with GitHub Pages. Plain HTML, CSS and JavaScript, with no build step. |
 | [`docs/`](docs/README.md) and [`examples/`](examples/) | The **Training notes**: a company course as concise, slide-style Markdown (four modules) with matching source code. The docs folder also holds the topic map, the reading guides and the study checklist. |
+| [`examples/lessons/`](examples/lessons/README.md) | **Runnable programs** for the main lesson snippets: complete, compiled and checked with g++ (`make` builds them all). |
 | [`LearnCPP/`](LearnCPP/Recaps/README.md) | The **Recaps**: personal recaps of the learncpp.com chapters, with solved exercises under [`LearnCPP/Recaps/solutions/`](LearnCPP/Recaps/solutions/). Slower and more thorough than the training notes. |
 | [`tools/`](tools/) | Scripts that check the interactive site: links, quiz data, the search index and the offline cache list. |
 | `thread.pdf`, `P_P_P.pdf` | Two reference books: *C++ Concurrency in Action* (Anthony Williams) and *Programming: Principles and Practice Using C++* (Bjarne Stroustrup). |
