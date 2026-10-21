@@ -265,6 +265,7 @@
         a.parentNode.title = done.has(s.id) ? 'Marked as understood' : '';
       });
       $('.count', aside).textContent = done.size + ' of ' + secs.length + ' sections understood';
+      if (typeof navLabel === 'function') navLabel();
       const bar = $('.top .progress');
       if (bar) bar.style.width = (secs.length ? (done.size / secs.length) * 100 : 0) + '%';
     }
@@ -272,6 +273,7 @@
     secs.forEach((s) => {
       const lab = document.createElement('label');
       lab.className = 'done' + (done.has(s.id) ? ' on' : '');
+      lab.hidden = true;                  // the button at the bottom of the section does the ticking
       lab.innerHTML = '<input type="checkbox"' + (done.has(s.id) ? ' checked' : '') + '> I understand this section';
       $('input', lab).addEventListener('change', (e) => {
         if (e.target.checked) done.add(s.id); else done.delete(s.id);
@@ -282,6 +284,12 @@
       s.appendChild(lab);
     });
     paint();
+    function navLabel() { secs.forEach((s, i) => {
+      const b = $('[data-done]', s);
+      const n = secs[i + 1];
+      const next = n ? 'next: ' + esc(n.dataset.title) : 'take the quiz';
+      if (b) b.innerHTML = (done.has(s.id) ? next.charAt(0).toUpperCase() + next.slice(1) : '&#10003; Understood, ' + next) + ' &rarr;';
+    }); }
 
     /* one section per page: #id shows that section, prev/next buttons walk through them */
     secs.forEach((s, i) => {
@@ -297,6 +305,14 @@
         if (box && !box.checked) { box.checked = true; box.dispatchEvent(new Event('change')); }
       });
       s.appendChild(nav);
+    });
+    navLabel();
+    aside.addEventListener('click', (e) => {                         // click a tick in the contents list to toggle it
+      const t = e.target.closest ? e.target.closest('.tick') : null;
+      if (!t) return;
+      e.preventDefault();
+      const box = $('.done input', document.getElementById(t.parentNode.dataset.id));
+      if (box) { box.checked = !box.checked; box.dispatchEvent(new Event('change')); }
     });
     document.addEventListener('keydown', (e) => {                  // left / right arrows walk through the sections
       if (e.ctrlKey || e.metaKey || e.altKey || e.shiftKey || /^(INPUT|TEXTAREA|SELECT)$/.test((e.target.tagName || ''))) return;
