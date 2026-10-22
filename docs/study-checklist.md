@@ -132,3 +132,4 @@ Do not read any of these books front to back. Use the reading guides to find the
 - [ ] [09-compile-time.html](../interactive/09-compile-time.html) and [quiz](../interactive/09-compile-time-quiz.html) (15 questions)
 - [ ] [10-coding-rules.html](../interactive/10-coding-rules.html) and [quiz](../interactive/10-coding-rules-quiz.html) (14 questions)
 - [ ] [11-wire-formats.html](../interactive/11-wire-formats.html) and [quiz](../interactive/11-wire-formats-quiz.html) (21 questions)
+- [ ] [12-low-latency.html](../interactive/12-low-latency.html) and [quiz](../interactive/12-low-latency-quiz.html) (23 questions)

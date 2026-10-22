@@ -439,7 +439,15 @@
         };
         const apart = B.l - A.r > 10 || A.l - B.r > 10;
         const order = sameRow ? ['right', 'rightStub', 'left', 'above', 'below'] : apart ? ['right', 'rightStub', 'left', 'vert', 'loopR', 'loopL', 'above', 'below'] : ['vert', 'loopR', 'loopL', 'above', 'below'];
-        const hitsCell = (P) => { for (let t = 0.06; t < 0.95; t += 0.04) { const p = bez(P, t); if (others.some((o) => p[0] > o.l + 2 && p[0] < o.r - 2 && p[1] > o.t + 2 && p[1] < o.b - 2)) return true; } return false; };
+        const inside = (o, p) => p[0] > o.l + 2 && p[0] < o.r - 2 && p[1] > o.t + 2 && p[1] < o.b - 2;
+        const hitsCell = (P) => {
+          for (let t = 0.06; t < 0.95; t += 0.04) {
+            const p = bez(P, t);
+            if (others.some((o) => inside(o, p))) return true;
+            if (t > 0.18 && t < 0.82 && (inside(A, p) || inside(B, p))) return true;       // doubling back through its own ends
+          }
+          return false;
+        };
         const cands = [];
         order.forEach((k, pref) => { const P = C[k](); if (P) cands.push({ P: P, L: poly(P), pref: pref, cell: hitsCell(P) ? 1 : 0 }); });
         if (cands.length) specs.push({ e: e, dst: dst, cands: cands });
@@ -475,6 +483,30 @@
       if (drawn) memEl.appendChild(svg);
     }
 
+    // Order the cells inside each region so that arrows to another region do not cross: a cell that points at a
+    // lower item in the other column is listed lower too. Only cells that have such a target are reordered.
+    function arrange(mem) {
+      const kind = (e) => e.k || 'stack';
+      const target = (e) => {
+        let dst = null;
+        if (e.to) dst = mem.find((x) => x.n === e.to || x.n.split(' ')[0] === e.to);
+        const a = addrOf(e.v);
+        if (!dst && a) dst = mem.find((x) => x !== e && x.n.indexOf('@' + a) >= 0);
+        return dst;
+      };
+      const rank = new Map();
+      let n = 0;
+      GROUPS.forEach((g) => mem.filter((e) => kind(e) === g[0]).forEach((e) => rank.set(e, n++)));
+      const out = mem.slice();
+      GROUPS.forEach((g) => {
+        const slots = [];
+        out.forEach((e, idx) => { const t = kind(e) === g[0] ? target(e) : null; if (t && kind(t) !== g[0]) slots.push(idx); });
+        const sorted = slots.map((idx) => out[idx]).sort((a, b) => rank.get(target(a)) - rank.get(target(b)));
+        slots.forEach((idx, k) => { out[idx] = sorted[k]; });
+      });
+      return out;
+    }
+
     function render() {
       const s = i >= 0 ? cfg.steps[i] : null;
       const p = i > 0 ? cfg.steps[i - 1] : null;
@@ -484,8 +516,9 @@
       if (curEl && curEl.scrollIntoView && false) curEl.scrollIntoView({ block: 'nearest' });
       let mem = '';
       if (s && s.mem && s.mem.length) {
+        const arranged = arrange(s.mem);
         GROUPS.forEach((g) => {
-          const es = s.mem.filter((e) => (e.k || 'stack') === g[0]);
+          const es = arranged.filter((e) => (e.k || 'stack') === g[0]);
           if (!es.length) return;
           mem += '<div class="mem-group g-' + g[0] + '"><h5>' + g[1] + (g[2] ? ' <small>' + g[2] + '</small>' : '') + '</h5><div class="mem">' + es.map((e) => {
             const before = p && p.mem ? p.mem.find((x) => x.n === e.n) : null;

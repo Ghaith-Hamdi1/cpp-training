@@ -31,5 +31,10 @@ Or build everything with `make` (outputs go to `build/`). The `-pthread` flag is
 | 11 Wire formats | `01_bits_layout_endian.cpp` | bit manipulation, struct padding and `offsetof`, `#pragma pack`, endianness |
 | | `02_parse_message.cpp` | a binary message read with `memcpy`-style loads, a zero-copy text parser with `string_view` and `from_chars` |
 | | `03_fixed_point_and_sequence.cpp` | prices as scaled integers versus `double`, sequence-number gaps with wrap-around |
+| 12 Low latency | `01_pool_allocator.cpp` | an object pool with a free list and a `pmr` arena, with a counting `operator new` proving zero allocations |
+| | `02_latency_percentiles.cpp` | mean versus p50, p99 and p99.9 on a synthetic sample set, and how to time with `steady_clock` |
+| | `03_order_book_levels.cpp` | an order-book side as an array indexed by price tick, checked against `std::map` |
+| | `04_aos_vs_soa.cpp` | array of structs versus struct of arrays, and cache-line padding |
+| | `05_spsc_ring_padded.cpp` | an SPSC ring with a power-of-two mask, padded indices and a drop-newest policy |
 
 Lesson 10 (coding rules) is about avoiding risky code, so it has no program. Some outputs vary between runs on purpose: the unsafe counter in `02_race_mutex_atomic.cpp` is a data race (undefined behavior) kept only to show lost updates.

@@ -1,0 +1,21 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Quiz: Low-Latency C++</title>
+<script>try{var t=JSON.parse(localStorage.getItem('cpptrain:theme'));if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body data-topic="latency" data-kind="quiz">
+<main>
+<h1>Quiz: Low-Latency C++</h1>
+<p class="lead">Tail latency, memory and pools, cache-friendly data, order books, queues, predictable hot paths and core pinning.</p>
+<div id="quiz"></div>
+</main>
+<script src="assets/data/lessons.js"></script>
+<script src="assets/app.js"></script>
+<script src="assets/data/quiz-latency.js"></script>
+<script>CT.quiz('#quiz', CT.quizData.latency);</script>
+</body>
+</html>
