@@ -87,5 +87,20 @@ Object.entries(reg.moved).forEach(([from, to]) => {
 const versions = reg.progressMigrations.map((m) => m.to);
 if (new Set(versions).size !== versions.length || versions.some((v) => !Number.isInteger(v) || v < 2)) err('lessons.js: progressMigrations need distinct whole-number versions, starting at 2');
 
+// the C++ Puzzles data (assets/data/puzzles.js, from CppQuiz.org): ids are unique and every puzzle has code, a result and an explanation
+{
+  const ctx = { CT: {} };
+  vm.runInNewContext(readFileSync(join(dataDir, 'puzzles.js'), 'utf8'), ctx, { filename: 'puzzles.js' });
+  const seen = new Set();
+  for (const q of ctx.CT.puzzleData || []) {
+    if (seen.has(q.id)) err('puzzles.js: duplicate id ' + q.id);
+    seen.add(q.id);
+    if (!['OK', 'CE', 'UD', 'US'].includes(q.r)) err('puzzles.js: puzzle ' + q.id + ' has the result ' + q.r);
+    if (!q.code || !q.ex) err('puzzles.js: puzzle ' + q.id + ' lacks code or an explanation');
+    if (q.r === 'OK' && typeof q.a !== 'string') err('puzzles.js: puzzle ' + q.id + ' has no answer text');
+  }
+  if (!seen.size) err('puzzles.js: no puzzles');
+}
+
 if (errors.length) { console.error(errors.join('\n')); process.exit(1); }
 console.log('interactive/: all checks passed');

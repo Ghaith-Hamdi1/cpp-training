@@ -162,7 +162,8 @@
     const cur = document.body.dataset.topic;
     const links = '<a href="study-checklist.html"' + (kind === 'checklist' ? ' class="cur"' : '') + '>Study checklist</a>' +
       '<a href="assess.html"' + (kind === 'assess' ? ' class="cur"' : '') + '>Level check</a>' +
-      '<a href="mock-interview.html"' + (kind === 'mock' ? ' class="cur"' : '') + '>Mock interview</a>' + TOPICS.map((t) =>
+      '<a href="mock-interview.html"' + (kind === 'mock' ? ' class="cur"' : '') + '>Mock interview</a>' +
+      '<a href="puzzles.html"' + (kind === 'puzzles' ? ' class="cur"' : '') + '>C++ Puzzles</a>' + TOPICS.map((t) =>
       '<a href="' + t.file + '"' + (t.id === cur && kind === 'lesson' ? ' class="cur"' : '') + '>' + t.n + '. ' + esc(t.title) + '</a>' +
       '<a href="' + t.quiz + '"' + (t.id === cur && kind === 'quiz' ? ' class="cur"' : '') + '>&nbsp;&nbsp;&nbsp;&nbsp;&#8627; Quiz</a>').join('');
     const h = document.createElement('header');
@@ -787,6 +788,127 @@
     render();
   }
 
+  /* ---------------- C++ puzzles (questions from CppQuiz.org, CC BY-SA 4.0) ---------------- */
+  /* A small subset of Markdown: paragraphs, "- " lists, "> " quotes, fenced code, `code`, **bold**, *italic* and links. */
+  function mdLite(src) {
+    const inline = (s) => esc(s).replace(/`([^`]+)`/g, '<code>$1</code>').replace(/\*\*([^*]+)\*\*/g, '<b>$1</b>')
+      .replace(/(^|[\s(])\*([^*\s][^*]*)\*(?=[\s).,;:]|$)/g, '$1<i>$2</i>')
+      .replace(/\[([^\]]+)\]\((https?:\/\/[^)\s]+)\)/g, '<a href="$2" target="_blank" rel="noopener">$1</a>');
+    const lines = src.replace(/\r\n/g, '\n').split('\n');
+    const out = [];
+    let i = 0;
+    while (i < lines.length) {
+      const l = lines[i];
+      if (/^```/.test(l)) {
+        const code = [];
+        i++;
+        while (i < lines.length && !/^```/.test(lines[i])) code.push(lines[i++]);
+        i++;
+        out.push('<figure class="code"><pre><code>' + highlight(code.join('\n')) + '</code></pre></figure>');
+      } else if (/^>/.test(l)) {
+        const paras = [[]];
+        while (i < lines.length && /^>/.test(lines[i])) {
+          const t = lines[i].replace(/^>\s?/, '');
+          if (!t.trim()) paras.push([]); else paras[paras.length - 1].push(t);
+          i++;
+        }
+        out.push('<blockquote>' + paras.filter((p) => p.length).map((p) => '<p>' + inline(p.join(' ')) + '</p>').join('') + '</blockquote>');
+      } else if (/^\s*[-*] /.test(l)) {
+        const items = [];
+        while (i < lines.length && /^\s*[-*] /.test(lines[i])) items.push('<li>' + inline(lines[i++].replace(/^\s*[-*] /, '')) + '</li>');
+        out.push('<ul>' + items.join('') + '</ul>');
+      } else if (!l.trim()) {
+        i++;
+      } else {
+        const para = [];
+        while (i < lines.length && lines[i].trim() && !/^(```|>|\s*[-*] )/.test(lines[i])) para.push(lines[i++]);
+        out.push('<p>' + inline(para.join(' ')) + '</p>');
+      }
+    }
+    return out.join('\n');
+  }
+
+  function puzzles() {
+    const root = $('#puzzles');
+    const data = (CT.puzzleData || []).slice();
+    const SKEY = 'puzzles:solved';
+    const solved = () => new Set(store.get(SKEY, []));
+    const RESULTS = { OK: 'The program is guaranteed to output:', CE: 'The program has a compilation error', UD: 'The program is (or may be) undefined', US: 'The program is unspecified / implementation defined' };
+    const shuffle = (a) => { for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
+    const attribution = '<p class="puz-credit">These questions come from <a href="https://cppquiz.org" target="_blank" rel="noopener">CppQuiz.org</a> by Anders Schau Knatten and contributors, ' +
+      'licensed under <a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank" rel="noopener">CC BY-SA 4.0</a>. The text is unchanged; it was reformatted into this site\'s data file ' +
+      '(source: <a href="https://github.com/knatten/cppquiz23" target="_blank" rel="noopener">github.com/knatten/cppquiz23</a>).</p>';
+    let list = [], idx = 0;
+
+    function setup() {
+      const done = solved();
+      const nSolved = data.filter((q) => done.has(q.id)).length;
+      root.innerHTML = '<div class="widget"><div class="w-head"><span class="tag">Setup</span>' + data.length + ' puzzles, ' + nSolved + ' solved</div><div class="w-body">' +
+        '<div class="pickrow"><label for="pz-d">Difficulty:</label><select id="pz-d"><option value="0">All</option><option value="1">1 (easier)</option><option value="2">2</option><option value="3">3 (harder)</option></select>' +
+        '<label for="pz-s">Show:</label><select id="pz-s"><option value="all">All</option><option value="new">Unsolved only</option></select>' +
+        '<label for="pz-o">Order:</label><select id="pz-o"><option value="rand">Random</option><option value="num">By number</option></select></div>' +
+        '<div class="pickrow"><button class="btn" id="pz-start" type="button">Start</button>' +
+        (nSolved ? '<button class="btn ghost" id="pz-reset" type="button">Forget my solved puzzles</button>' : '') + '</div></div></div>' + attribution;
+      $('#pz-start', root).addEventListener('click', () => {
+        const d = +$('#pz-d', root).value;
+        let l = data.filter((q) => (!d || q.d === d) && ($('#pz-s', root).value === 'all' || !done.has(q.id)));
+        if (!l.length) { $('#pz-start', root).insertAdjacentHTML('afterend', ' <span class="info">Nothing matches: change the filters.</span>'); return; }
+        list = $('#pz-o', root).value === 'rand' ? shuffle(l.slice()) : l.sort((a, b) => a.id - b.id);
+        idx = 0;
+        show();
+      });
+      const rb = $('#pz-reset', root);
+      if (rb) rb.addEventListener('click', () => { store.set(SKEY, []); setup(); });
+    }
+
+    function show() {
+      const q = list[idx];
+      let tries = 0, hintShown = false;
+      root.innerHTML = '<div class="widget"><div class="w-head"><span class="tag">Puzzle ' + (idx + 1) + ' of ' + list.length + '</span>#' + q.id + ', difficulty ' + q.d + '</div><div class="w-body">' +
+        '<p class="q-text">According to the C++23 standard, what is the output of this program?</p>' +
+        '<figure class="code"><pre><code>' + highlight(q.code) + '</code></pre><a class="run" target="_blank" rel="noopener" href="' + esc(godboltUrl(q.code)) + '">Run &#8599;</a></figure>' +
+        '<form id="pz-form" class="pz-form"><select id="pz-r" aria-label="Your answer">' + Object.keys(RESULTS).map((k) => '<option value="' + k + '">' + RESULTS[k] + '</option>').join('') + '</select> ' +
+        '<input id="pz-a" size="10" autocomplete="off" aria-label="The output"> <button class="btn" type="submit">Answer</button></form>' +
+        '<div class="pz-actions"><button class="btn sm ghost" id="pz-hint" type="button">Hint</button><button class="btn sm ghost" id="pz-give" type="button">Show the answer</button>' +
+        '<button class="btn sm ghost" id="pz-skip" type="button">Skip</button><button class="btn sm ghost" id="pz-quit" type="button">Stop</button></div>' +
+        '<div class="fb" id="pz-fb" role="status" aria-live="polite"></div></div></div>' + attribution;
+      const sel = $('#pz-r', root), inp = $('#pz-a', root), fb = $('#pz-fb', root);
+      const syncInput = () => { inp.hidden = sel.value !== 'OK'; };
+      sel.addEventListener('change', syncInput);
+      syncInput();
+      inp.focus();
+      const correctText = () => q.r === 'OK' ? RESULTS.OK + ' <code>' + esc(q.a === '' ? '(nothing)' : q.a) + '</code>' : RESULTS[q.r];
+      function finish(ok) {
+        $$('#pz-form button, #pz-form select, #pz-form input, #pz-hint, #pz-give', root).forEach((e) => { e.disabled = true; });
+        const last = idx === list.length - 1;
+        fb.innerHTML = '<div class="why"><b class="' + (ok ? 'ok">Correct.' : 'no">The answer:') + '</b> ' + correctText() + '</div><div class="puz-ex">' + mdLite(q.ex) + '</div>' +
+          '<p class="info"><a href="https://cppquiz.org/quiz/question/' + q.id + '" target="_blank" rel="noopener">The original question on CppQuiz.org &#8599;</a></p>' +
+          '<button class="btn" id="pz-next" type="button">' + (last ? 'Finish' : 'Next puzzle') + '</button>';
+        $('#pz-next', root).addEventListener('click', next);
+        $('#pz-next', root).focus();
+        if (ok) { const d = solved(); d.add(q.id); store.set(SKEY, Array.from(d)); }
+      }
+      $('#pz-form', root).addEventListener('submit', (e) => {
+        e.preventDefault();
+        const ok = sel.value === q.r && (q.r !== 'OK' || inp.value.trim() === q.a.trim());
+        if (ok) { finish(true); return; }
+        tries++;
+        fb.innerHTML = '<div class="why"><b class="no">Not quite.</b> Try again' + (tries >= 2 && !hintShown ? ', or open the hint' : '') + '.</div>';
+        if (hintShown) fb.insertAdjacentHTML('beforeend', '<div class="puz-ex">' + mdLite(q.hint) + '</div>');
+      });
+      $('#pz-hint', root).addEventListener('click', () => { hintShown = true; fb.innerHTML = '<div class="why"><b>Hint.</b></div><div class="puz-ex">' + mdLite(q.hint) + '</div>'; });
+      $('#pz-give', root).addEventListener('click', () => finish(false));
+      $('#pz-skip', root).addEventListener('click', next);
+      $('#pz-quit', root).addEventListener('click', setup);
+    }
+    function next() {
+      idx++;
+      if (idx >= list.length) { setup(); return; }
+      show();
+    }
+    setup();
+  }
+
   /* ---------------- quiz runner ---------------- */
   function quiz(sel, cfg) {
     const root = typeof sel === 'string' ? $(sel) : sel;
@@ -1262,6 +1384,7 @@
     else if (kind === 'home') { if (main) main.classList.add('solo'); home(); }
     else if (kind === 'checklist' && main) { main.classList.add('solo'); checklist(main); }
     else if (kind === 'mock' && main) { main.classList.add('solo'); }
+    else if (kind === 'puzzles' && main) { main.classList.add('solo'); }
     else if (kind === 'assess' && main) { main.classList.add('solo'); }
     const pt = $('#progress-tools');
     if (pt) progressTools(pt);
@@ -1276,6 +1399,6 @@
     if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(() => { /* optional */ });
   }
 
-  window.CT = Object.assign(window.CT || {}, { quizData: {}, TOPICS, stepper, threadsim, memsim, quiz, assess, mock, highlight, fmt, esc });
+  window.CT = Object.assign(window.CT || {}, { quizData: {}, TOPICS, stepper, threadsim, memsim, puzzles, quiz, assess, mock, highlight, fmt, esc });
   boot();
 })();

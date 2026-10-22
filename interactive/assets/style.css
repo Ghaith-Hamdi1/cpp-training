@@ -523,3 +523,12 @@ details.aq.dk > summary .mark { color: var(--warn); }
 .st-legend .lg.chg { background: transparent; box-shadow: 0 0 0 2px var(--accent); border-color: transparent; }
 .st-legend .lg.col { border: 0; width: 22px; background: linear-gradient(90deg, hsl(210 75% 56%) 50%, hsl(28 90% 55%) 50%); }
 .stepper .g-layout, .stepper .g-buffer { border-top-color: hsl(190 60% 45%); background: color-mix(in srgb, hsl(190 60% 45%) 7%, var(--card)); }
+
+/* C++ Puzzles page */
+.pz-form { margin: 12px 0; display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.pz-form select, .pz-form input { max-width: 100%; }
+.pz-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 8px; }
+.puz-ex { margin-top: 10px; }
+.puz-ex blockquote { margin: 10px 0; padding: 4px 14px; border-left: 3px solid var(--border); color: var(--muted); }
+.puz-ex blockquote p { margin: 6px 0; }
+.puz-credit { margin-top: 20px; font-size: 0.85rem; color: var(--muted); }

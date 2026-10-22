@@ -53,6 +53,8 @@ Each lesson has step-through memory visualizers or simulators, predict-the-outpu
 | 19 | [Low-Latency C++](https://ghaith-hamdi1.github.io/cpp-training/12-low-latency.html) | [Quiz](https://ghaith-hamdi1.github.io/cpp-training/12-low-latency-quiz.html) |
 | 20 | [Coding Rules and Safe C++](https://ghaith-hamdi1.github.io/cpp-training/10-coding-rules.html) | [Quiz](https://ghaith-hamdi1.github.io/cpp-training/10-coding-rules-quiz.html) |
 
+Besides the lessons, the site has a [C++ Puzzles](https://ghaith-hamdi1.github.io/cpp-training/puzzles.html) page: 163 "what does this program print?" questions from CppQuiz.org, each with an explanation that quotes the standard (see [third-party content](#third-party-content)).
+
 **Working on the site.** After you change anything in `interactive/`, regenerate the derived files and run the checks (the same checks run in CI):
 
 ```bash
@@ -91,3 +93,7 @@ After the two books in this repo (see their reading guides above), these are the
 - [cppreference.com](https://en.cppreference.com/): the standard reference for language and library details.
 - [modern-cpp-tutorial](https://github.com/changkun/modern-cpp-tutorial): book-style tutorial on C++11/14/17/20 that explains why modern features exist.
 - [modern-cpp-features](https://github.com/AnthonyCalandra/modern-cpp-features): cheat sheet with a short snippet per feature, C++11 through C++23.
+
+## Third-party content
+
+The questions on the C++ Puzzles page (`interactive/assets/data/puzzles.js`) come from [CppQuiz.org](https://cppquiz.org) by Anders Schau Knatten and contributors, and are licensed under [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/). The text is unchanged; it was reformatted into one data file by `tools/import-cppquiz.mjs` from the public [cppquiz23](https://github.com/knatten/cppquiz23) repository. That data file stays under CC BY-SA 4.0 and carries its own attribution header.
