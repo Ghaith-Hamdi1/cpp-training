@@ -1084,7 +1084,7 @@
     function intro() {
       const total = Object.keys(ASSESS_COUNTS).reduce((n, k) => n + ASSESS_COUNTS[k], 0);
       const last = store.get('assess:last', null);
-      root.innerHTML = '<div class="result"><p><b>' + total + ' multiple-choice questions</b> from every topic, weighted towards the core interview topics (about 20 minutes). ' +
+      root.innerHTML = '<div class="result"><p><b>' + total + ' multiple-choice questions</b> from every topic, two from each lesson (about 20 minutes). ' +
         'No explanations until the end, like a real test. If you would be guessing, press <b>I don&rsquo;t know</b> (or key 0) instead: a lucky guess would hide a gap, and it counts the same as a wrong answer. Go back and change answers freely with the buttons or the &larr; &rarr; keys. ' +
         'At the end you get your level, a score per topic, and the lesson section to review for every question.' +
         (last ? ' Last result: <b>' + last.pct + '%</b>.' : '') + '</p><div class="pickrow"><button class="btn" id="astart" type="button">Start</button></div></div>';
@@ -1159,7 +1159,7 @@
         pct >= 40 ? 'Work through the lessons of the weakest topics first, then their quizzes.' : 'Start with the lessons in order (basics first), then take each quiz. This is a normal first score.';
       store.set('assess:last', { pct: pct });
       const rows = Object.keys(per).map((id) => ({ id: id, p: per[id], pc: Math.round((per[id].right / per[id].n) * 100) }))
-        .sort((a, b) => a.pc - b.pc || (topicOf(b.id).hot ? 1 : 0) - (topicOf(a.id).hot ? 1 : 0));
+        .sort((a, b) => a.pc - b.pc);
       // sections to review: every section a question pointed at, missed ones first
       const secs = {};
       order.forEach((x) => {

@@ -16,13 +16,12 @@ Then add one entry to `CT.lessons` in `interactive/assets/data/lessons.js`:
 
 ```js
 { id: 'moves', file: '11-move-semantics.html', quiz: '11-move-semantics-quiz.html', title: 'Move Semantics',
-  time: '60 min', hot: true, assess: 3, blurb: 'One sentence shown on the home page card.' }
+  time: '60 min', assess: 2, blurb: 'One sentence shown on the home page card.' }
 ```
 
 - `id`: lowercase letters and digits. It is stored in saved progress, so **never rename it** without a migration.
 - The number shown on screen and the navigation order come from the **position in the array**, not from the file name. New lessons get the next free file number and go at the end, or wherever they belong in the order.
-- `assess`: how many questions the level check draws from this lesson (0 leaves it out; it cannot exceed the quiz size).
-- `hot`: a core interview topic (weighted up in the level check).
+- `assess`: how many questions the level check draws from this lesson. Use 2 for every lesson so the check is even (0 leaves the lesson out; it cannot exceed the quiz size).
 
 The search index, mock-interview bank, offline cache, home page, menus, pager and level check all pick the lesson up from the registry. Run the generators after editing (see section 8).
 
