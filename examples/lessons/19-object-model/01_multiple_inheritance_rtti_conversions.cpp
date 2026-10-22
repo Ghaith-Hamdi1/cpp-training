@@ -1,4 +1,4 @@
-// Lesson 19: multiple inheritance, the diamond and virtual inheritance, object layout, RTTI and typeid, private
+// Lesson 4: multiple inheritance, the diamond and virtual inheritance, object layout, RTTI and typeid, private
 // inheritance, explicit constructors and conversion operators, copy-and-swap. Compile with -std=c++20.
 #include <iostream>
 #include <string>

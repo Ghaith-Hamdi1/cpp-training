@@ -15,7 +15,7 @@ A step-by-step plan, from the highest-value topics to the rest.
 ## Step 0: set up (2 minutes)
 
 - [ ] Open the site and check that the lessons load.
-- [ ] Open **Lesson 11, Multithreading**.
+- [ ] Open **Lesson 15, Multithreading**.
 
 ## Step 1: multithreading (about 3 hours)
 

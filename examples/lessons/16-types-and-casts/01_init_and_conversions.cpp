@@ -1,4 +1,4 @@
-// Lesson 7: initialization forms and the braced-init traps, auto and decltype, implicit conversions and promotions,
+// Lesson 2: initialization forms and the braced-init traps, auto and decltype, implicit conversions and promotions,
 // the named casts, and constexpr. Compile with -std=c++20.
 #pragma GCC diagnostic ignored "-Wsign-compare"   // deliberate: the -1 < 1u trap
 #include <cstdint>

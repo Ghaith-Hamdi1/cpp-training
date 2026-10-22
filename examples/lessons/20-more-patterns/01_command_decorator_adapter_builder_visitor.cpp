@@ -1,4 +1,4 @@
-// Lesson 20: Command with undo, Decorator, Adapter, Builder, Visitor with std::variant, and a session state machine.
+// Lesson 14: Command with undo, Decorator, Adapter, Builder, Visitor with std::variant, and a session state machine.
 // Compile with -std=c++20.
 #include <iostream>
 #include <memory>

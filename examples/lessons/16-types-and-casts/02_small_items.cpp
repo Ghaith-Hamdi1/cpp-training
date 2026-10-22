@@ -1,5 +1,5 @@
-// Small items from several lessons: std::bind (lesson 6), <random> (lesson 8), user-defined literals (lesson 2),
-// extern "C" (lesson 7) and placement new (lesson 18). Compile with -std=c++20.
+// Small items from several lessons: std::bind (lesson 10), <random> (lesson 13), user-defined literals (lesson 5),
+// extern "C" (lesson 3) and placement new (lesson 4). Compile with -std=c++20.
 #include <cmath>
 #include <cstdio>
 #include <cstdlib>

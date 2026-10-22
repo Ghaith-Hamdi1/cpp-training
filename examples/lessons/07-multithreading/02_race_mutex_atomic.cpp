@@ -1,4 +1,4 @@
-// Lesson 11: a data race (lost updates), fixed with a mutex and with an atomic. Compile with -pthread.
+// Lesson 15: a data race (lost updates), fixed with a mutex and with an atomic. Compile with -pthread.
 // The UNSAFE version is undefined behavior; it is here to show lost updates. Its result differs from run to run
 // (it may even be correct by luck). Never ship code like it.
 #include <atomic>

@@ -85,14 +85,14 @@ Re-run on the finished rewrite. The site now has **20 lessons, 376 quiz question
 | "Atomics" mixed with the memory model | Separate lesson: Atomics and the Memory Model, with a memory-order simulator. |
 | Performance and lock-free in the multithreading lesson | Moved to Low-Latency; multithreading split into three lessons. |
 | Lesson 8: strings, regex and time unrelated | **Deliberately kept together** (9 sections): the strings content now has its own sections, and a split would have renumbered every lesson again. |
-| Lessons 5 and 9 duplicated | Lesson 15 owns traits, SFINAE, concepts and compile-time computation. |
-| Strings split over three lessons | Consolidated in lesson 14. |
-| Feed-handler gaps (wire formats, zero copy, order books, pools, queues, latency) | Lessons 17 (Wire Formats and Parsing) and 18 (Low-Latency C++), with compiled programs. |
+| Lessons 5 and 9 duplicated | Lesson 12 owns traits, SFINAE, concepts and compile-time computation. |
+| Strings split over three lessons | Consolidated in lesson 9. |
+| Feed-handler gaps (wire formats, zero copy, order books, pools, queues, latency) | Lessons 18 (Wire Formats and Parsing) and 19 (Low-Latency C++), with compiled programs. |
 | Missing Effective Modern C++ terms | All present (`decltype(auto)`, init-capture, braced-init trap, `promise<void>`, `cbegin`). |
 | Missing Josuttis terms | `std::exchange`, `swap` and copy-and-swap present. |
 | Missing Concurrency in Action terms | Present: happens-before, synchronizes-with, `acq_rel`, fences, `compare_exchange_weak`/`strong`, latch, barrier, semaphore, `atomic_flag`, `shared_future`, work stealing, thread-safe data structures. |
 | Missing Principles and Practice terms | Present: `fstream` and `std::format`, `<random>`, `union`, bit manipulation. |
-| Other gaps (virtual inheritance, RTTI, functors, conversion operators, placement new, `std::bind`, ranges, literals, `extern "C"`, comparators and hashes, five patterns) | All present: lesson 19 (Object Model), lesson 20 (More Patterns), and short sections in Lambdas, the STL, OOP, Types and Low-Latency. |
+| Other gaps (virtual inheritance, RTTI, functors, conversion operators, placement new, `std::bind`, ranges, literals, `extern "C"`, comparators and hashes, five patterns) | All present: lesson 4 (Object Model), lesson 14 (More Patterns), and short sections in Lambdas, the STL, OOP, Types and Low-Latency. |
 
 ### Deliberately dropped
 

@@ -1,4 +1,4 @@
-// Lesson 18: array-of-structs versus struct-of-arrays, and cache-line padding. The sums are identical; what differs is
+// Lesson 19: array-of-structs versus struct-of-arrays, and cache-line padding. The sums are identical; what differs is
 // how many bytes each loop drags through the cache. Compile with -std=c++20.
 #include <cstddef>
 #include <cstdint>

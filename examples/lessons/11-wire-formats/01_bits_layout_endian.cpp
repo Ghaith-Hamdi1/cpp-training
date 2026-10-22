@@ -1,4 +1,4 @@
-// Lesson 17: bit manipulation, struct layout and padding, endianness.
+// Lesson 18: bit manipulation, struct layout and padding, endianness.
 // Compile with -std=c++20 (uses <bit>). Expected values assume a typical 64-bit ABI (4-byte int, little-endian CPU).
 #include <bit>
 #include <cstddef>

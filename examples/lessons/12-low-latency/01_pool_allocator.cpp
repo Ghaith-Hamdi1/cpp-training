@@ -1,4 +1,4 @@
-// Lesson 18: a fixed-size object pool with a free list, and a pmr arena. A counting operator new proves that the
+// Lesson 19: a fixed-size object pool with a free list, and a pmr arena. A counting operator new proves that the
 // hot path allocates nothing. Compile with -std=c++20.
 #include <array>
 #include <cstddef>

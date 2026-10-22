@@ -1,4 +1,4 @@
-// Lesson 13: atomic operations, compare_exchange (weak versus strong), release/acquire publication, a spinlock built on
+// Lesson 17: atomic operations, compare_exchange (weak versus strong), release/acquire publication, a spinlock built on
 // atomic_flag, a reference count with the right orders, a lock-free stack push, and a fine-grained queue.
 // Compile with -std=c++20 -pthread.
 #include <atomic>
