@@ -6,7 +6,7 @@
  * To add a lesson: create <file> and <quiz> (and assets/data/quiz-<id>.js), then add one entry below.
  * Navigation order and the displayed number come from the position in this array, not from the file name.
  * Fields: id (lowercase letters and digits, used in saved progress), file, quiz, title, time, hot (named in the
- * job description), assess (questions drawn for the level check, 0 to leave the lesson out), blurb.
+ * a core interview topic), assess (questions drawn for the level check, 0 to leave the lesson out), blurb.
  */
 window.CT = window.CT || {};
 

@@ -51,7 +51,7 @@ Exit: no concept explained twice with different wording; zero audit "imprecision
 
 ## Phase 2: Low-latency and feed-handler lesson (3 to 4 sessions)
 
-**Goal:** close the biggest gap against the job description. Mostly additive, so it carries little risk and comes before the restructuring.
+**Goal:** close the biggest gap against the target role (exchange feed handlers). Mostly additive, so it carries little risk and comes before the restructuring.
 
 New lesson, possibly two (wire formats and data; latency and memory):
 1. **Binary wire formats:** packed structs, alignment and padding, endianness, strict aliasing, `memcpy` and `std::bit_cast`, integer types and bit manipulation, `union` and its pitfalls.
@@ -132,11 +132,11 @@ Total: roughly 14 to 18 sessions. Phases 4 and 5 can overlap; phase 2 can start 
 - **Content bloat.** New lessons can grow the same walls of text that were trimmed earlier. Every phase is held to the "concise and visual" rule, and long sections are split rather than extended.
 - **Unverified code.** Mitigated by compiling every new snippet and program.
 - **Quiz and level-check drift.** Splitting lessons changes question counts and weights. The checks fail on missing `sec` tags and on stale counts in the checklist.
-- **Scope creep.** The list of gaps is long. Items not tied to the job description or the audit are dropped, not added.
+- **Scope creep.** The list of gaps is long. Items not tied to the target role or the audit are dropped, not added.
 
 ## Decisions needed before starting
 
 1. One low-latency lesson or two (wire formats and data; latency and memory)?
 2. Keep the current numbering in the navigation and append new lessons at the end, or renumber (which means redirects)? The plan assumes appending, with navigation order set in the registry.
 3. Are lessons 8 (regex and time) and 10 (coding rules) worth keeping as separate lessons, or should they become sections of larger ones?
-4. Is the target C++17 or C++20? The examples compile as C++20 today; the job description may fix this.
+4. Is the target C++17 or C++20? The examples compile as C++20 today; the target role may fix this.

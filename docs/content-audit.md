@@ -6,7 +6,7 @@ Audit of `interactive/` (lessons 1 to 10, their quizzes, mock-interview and leve
 
 - **Code:** every lesson snippet that has a stated output (5) and all 51 quiz questions that contain code were compiled with g++ 16 (`-std=c++20`) and run. Outputs and answers match what the lessons say.
 - **Quiz wording:** the question text, answers and explanations of the 114 quiz questions without code in the STL, templates, patterns and multithreading quizzes were read. Nothing was wrong. The question text of the other six quizzes (basics, OOP, core language, strings, compile-time, rules) was not read.
-- **Coverage:** about 70 topics were counted across the lesson text, and compared against the contents of the four books in the repo and the job description (exchange feed handlers: real time, templates, design patterns, multithreading).
+- **Coverage:** about 70 topics were counted across the lesson text, and compared against the contents of the four books in the repo and the target role (exchange feed handlers: real time, templates, design patterns, multithreading).
 
 ## Mistakes
 
@@ -63,7 +63,7 @@ Terms below appear zero times in the lesson text.
 
 ## Suggested order of work
 
-1. A low-latency and feed-handler lesson (closest match to the job description).
+1. A low-latency and feed-handler lesson (closest match to the target role).
 2. Split lesson 3, and merge lessons 5 and 9.
 3. Split the multithreading atomics section into atomics and memory ordering, and add the missing Concurrency in Action topics.
 4. Fill the smaller gaps (`decltype`, init-capture, `std::exchange`, functors, multiple inheritance).

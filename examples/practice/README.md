@@ -15,7 +15,7 @@ The program prints which checks failed, and `all checks passed` when you are don
 ## How to practise (this is the part that matters)
 
 1. **Set a timer.** 15 minutes for the string exercises, 25 for the classes and threads.
-2. **Talk out loud while you write**, as you would in the interview: what you allocate, why that size, what each line does. Silence reads as "no idea", even when you are thinking.
+2. **Talk out loud while you write**, as you would in an interview: what you allocate, why that size, what each line does. Silence reads as "no idea", even when you are thinking.
 3. **Plan before typing.** For string functions: how long is each input, how many bytes do I need (do not forget the `'\0'`), who frees the result.
 4. **A wrong but reasoned attempt scores better than a blank.** If you forget a library function, write the loop by hand.
 5. After passing, **compare with the solution** and note anything you did differently.
@@ -25,7 +25,7 @@ The program prints which checks failed, and `all checks passed` when you are don
 
 | # | Exercise | Skills | Level |
 |---|---|---|---|
-| 01 | `buildExecutionId`: join two C strings into a new one | `new[]`, `strlen`, `memcpy`/`strcpy`/`strcat`, the terminating `'\0'`, ownership | the interview question |
+| 01 | `buildExecutionId`: join two C strings into a new one | `new[]`, `strlen`, `memcpy`/`strcpy`/`strcat`, the terminating `'\0'`, ownership | a classic interview question |
 | 02 | `copyString`: your own `strdup` | allocate `len + 1`, independent copy | easy |
 | 03 | `reversed`: reverse a C string into a new one | indexing, off-by-one | easy |
 | 04 | `joinAll`: join many strings with a separator | two passes (measure, then copy), no repeated `strcat` | medium |

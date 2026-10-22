@@ -10,7 +10,7 @@
 <body data-topic="checklist" data-kind="checklist">
 <main>
 <h1>Study checklist</h1>
-<p class="lead">A step-by-step plan from Wednesday to the interview on Thursday at 4 PM. Tick each item when you finish it. Your ticks are saved on this device, and the lesson and quiz badges show your progress from the lessons themselves.</p>
+<p class="lead">A step-by-step plan, from the highest-value topics to the rest. Tick each item when you finish it. Your ticks are saved on this device, and the lesson and quiz badges show your progress from the lessons themselves.</p>
 
 <div class="ck-summary" id="ck-summary" role="group" aria-label="Checklist progress">
 <div class="ck-text" role="status" aria-live="polite">0 of 0 done</div>
@@ -29,7 +29,7 @@
 
 <section class="ck-section" data-ck-section>
 <h2>Step 1: multithreading (about 3 hours) <span class="ck-count"></span></h2>
-<p class="ck-note">The topic you knew least, and the one the job description names. Three lessons: the basics, tasks and parallelism, and atomics with the memory model.</p>
+<p class="ck-note">The highest-value topic for real-time and systems roles. Three lessons: the basics, tasks and parallelism, and atomics with the memory model.</p>
 <h3>Multithreading</h3>
 <p class="ck-note"><a href="07-multithreading.html">Lesson</a> <span class="badge" data-lesson="threads"></span> and <a href="07-multithreading-quiz.html">quiz</a> (28 questions) <span class="badge" data-quiz="threads"></span></p>
 <ul class="ck-list">
@@ -127,7 +127,7 @@
 
 <section class="ck-section" data-ck-section>
 <h2>Step 3: templates and design patterns (about 1.5 hours) <span class="ck-count"></span></h2>
-<p class="ck-note">Both are named in the job description.</p>
+<p class="ck-note">Both come up in most C++ interviews.</p>
 <h3>Templates</h3>
 <p class="ck-note"><a href="05-templates.html">Lesson</a> <span class="badge" data-lesson="templates"></span> and <a href="05-templates-quiz.html">quiz</a> (28 questions) <span class="badge" data-quiz="templates"></span></p>
 <ul class="ck-list">
@@ -164,31 +164,31 @@
 </section>
 
 <section class="ck-section" data-ck-section>
-<h2>Step 5: Thursday morning, before the interview <span class="ck-count"></span></h2>
+<h2>Step 5: the last day before an interview <span class="ck-count"></span></h2>
 <ul class="ck-list">
 <li><label><input type="checkbox" data-ck="final-retake"><span class="t">Retake every quiz where you scored under 80%</span></label></li>
 <li><label><input type="checkbox" data-ck="final-cheat"><span class="t">Open each lesson's "Interview cheat sheet" and say every answer aloud before opening it</span></label></li>
 <li><label><input type="checkbox" data-ck="final-queue"><span class="t">From memory, write a thread-safe queue (mutex and condition variable)</span></label></li>
 <li><label><input type="checkbox" data-ck="final-deadlock"><span class="t">From memory, write a deadlock, then fix it with <code>std::scoped_lock</code></span></label></li>
 <li><label><input type="checkbox" data-ck="final-explain"><span class="t">Explain in your own words: data race versus race condition, <code>mutex</code> versus <code>atomic</code>, and why <code>wait</code> needs a predicate</span></label></li>
-<li><label><input type="checkbox" data-ck="final-stop"><span class="t"><b>Stop studying about two hours before the interview.</b> Rest helps more than another cram session.</span></label></li>
+<li><label><input type="checkbox" data-ck="final-stop"><span class="t"><b>Stop studying about two hours before an interview.</b> Rest helps more than another cram session.</span></label></li>
 </ul>
 </section>
 
 <section class="ck-section" data-ck-section>
 <h2>Talking points to prepare (about 15 minutes) <span class="ck-count"></span></h2>
-<p class="ck-note">The job description mentions production bugs, unit tests and mentoring. Have one short example ready for each from your own experience, in the form: situation, what you did, result.</p>
+<p class="ck-note">Interviews often ask about production bugs, unit tests and mentoring. Have one short example ready for each from your own experience, in the form: situation, what you did, result.</p>
 <ul class="ck-list">
 <li><label><input type="checkbox" data-ck="talk-bug"><span class="t">A bug you investigated and debugged (what you looked at, the root cause, the fix)</span></label></li>
 <li><label><input type="checkbox" data-ck="talk-tests"><span class="t">How you write unit tests and keep code testable</span></label></li>
 <li><label><input type="checkbox" data-ck="talk-mentor"><span class="t">A time you helped or guided a teammate</span></label></li>
-<li><label><input type="checkbox" data-ck="talk-questions"><span class="t">A question or two to ask the interviewers (for example how they test changes, and how the teams across sites collaborate)</span></label></li>
+<li><label><input type="checkbox" data-ck="talk-questions"><span class="t">A question or two to ask the interviewers (for example how they test changes, and how their teams collaborate)</span></label></li>
 </ul>
 </section>
 
 <section class="ck-section" data-ck-section>
-<h2>Move semantics deep dive (after the interview) <span class="ck-count"></span></h2>
-<p class="ck-note">Not needed for Thursday. When you want to master move semantics, follow the two reading guides: <a href="https://github.com/Ghaith-Hamdi1/cpp-training/blob/main/docs/effective-modern-cpp-reading-guide.md#special-focus-move-semantics-and-perfect-forwarding"><i>Effective Modern C++</i> move semantics path</a> (<code>books/Effective-Modern-Cpp-Meyers.pdf</code>) and <a href="https://github.com/Ghaith-Hamdi1/cpp-training/blob/main/docs/move-semantics-complete-guide-reading-guide.md#tier-1-read-these-first-about-75-pages">the <i>C++ Move Semantics</i> guide, Tier 1</a> (<code>books/Cpp-Move-Semantics-The-Complete-Guide-Josuttis.pdf</code>). The Josuttis book covers what Meyers leaves out: the moved-from state, value categories and writing move operations. About 75 pages of Josuttis plus a few Meyers items.</p>
+<h2>Move semantics deep dive (optional) <span class="ck-count"></span></h2>
+<p class="ck-note">Not needed for a first pass. When you want to master move semantics, follow the two reading guides: <a href="https://github.com/Ghaith-Hamdi1/cpp-training/blob/main/docs/effective-modern-cpp-reading-guide.md#special-focus-move-semantics-and-perfect-forwarding"><i>Effective Modern C++</i> move semantics path</a> (<code>books/Effective-Modern-Cpp-Meyers.pdf</code>) and <a href="https://github.com/Ghaith-Hamdi1/cpp-training/blob/main/docs/move-semantics-complete-guide-reading-guide.md#tier-1-read-these-first-about-75-pages">the <i>C++ Move Semantics</i> guide, Tier 1</a> (<code>books/Cpp-Move-Semantics-The-Complete-Guide-Josuttis.pdf</code>). The Josuttis book covers what Meyers leaves out: the moved-from state, value categories and writing move operations. About 75 pages of Josuttis plus a few Meyers items.</p>
 <ul class="ck-list">
 <li><label><input type="checkbox" data-ck="mv-meyers-17"><span class="t">Meyers Item 17, special member function generation (PDF pages 127 to 133)</span></label></li>
 <li><label><input type="checkbox" data-ck="mv-meyers-24-28"><span class="t">Meyers Items 24 and 28, universal references and reference collapsing (PDF pages 182 to 186 and 215 to 221)</span></label></li>

@@ -878,7 +878,7 @@
       const q = store.get('quiz:' + t.id, null);
       const pct = total ? Math.round((done / total) * 100) : 0;
       return '<div class="card"><span class="num">TOPIC ' + t.n + '</span><h3>' + esc(t.title) + '</h3><p>' + esc(t.blurb) + '</p>' +
-        '<div class="meta"><span class="pill">' + t.time + '</span>' + (t.hot ? '<span class="pill hot">named in the job description</span>' : '') +
+        '<div class="meta"><span class="pill">' + t.time + '</span>' + (t.hot ? '<span class="pill hot">core interview topic</span>' : '') +
         '<span class="pill">' + (total ? done + '/' + total + ' sections' : 'not started') + '</span>' + (q ? '<span class="pill">quiz best ' + q.best + '%</span>' : '') +
         (Object.keys(store.get('weak:' + t.id, {})).length ? '<span class="pill hot">' + Object.keys(store.get('weak:' + t.id, {})).length + ' to review</span>' : '') + '</div>' +
         '<div class="bar-track"><span style="width:' + pct + '%"></span></div>' +
@@ -1084,7 +1084,7 @@
     function intro() {
       const total = Object.keys(ASSESS_COUNTS).reduce((n, k) => n + ASSESS_COUNTS[k], 0);
       const last = store.get('assess:last', null);
-      root.innerHTML = '<div class="result"><p><b>' + total + ' multiple-choice questions</b> from every topic, weighted towards the ones named in the job description (about 20 minutes). ' +
+      root.innerHTML = '<div class="result"><p><b>' + total + ' multiple-choice questions</b> from every topic, weighted towards the core interview topics (about 20 minutes). ' +
         'No explanations until the end, like a real test. If you would be guessing, press <b>I don&rsquo;t know</b> (or key 0) instead: a lucky guess would hide a gap, and it counts the same as a wrong answer. Go back and change answers freely with the buttons or the &larr; &rarr; keys. ' +
         'At the end you get your level, a score per topic, and the lesson section to review for every question.' +
         (last ? ' Last result: <b>' + last.pct + '%</b>.' : '') + '</p><div class="pickrow"><button class="btn" id="astart" type="button">Start</button></div></div>';
@@ -1172,7 +1172,7 @@
       const secList = Object.keys(secs).map((k) => secs[k]).sort((a, b) => b.missed - a.missed || a.t.n - b.t.n);
       root.innerHTML = '<div class="result ' + (pct >= 60 ? 'good' : 'bad') + '"><div class="score">' + right + ' / ' + order.length + ' (' + pct + '%): ' + level + '</div><p>' + advice + '</p>' +
         '<p style="color:var(--muted)">' + unknown + ' marked &ldquo;don&rsquo;t know&rdquo; or skipped, ' + (order.length - right - unknown) + ' answered wrongly. Honest gaps are the most useful result: start with the &ldquo;don&rsquo;t know&rdquo; ones.</p></div>' +
-        '<h3>By topic, weakest first</h3>' + rows.map((r) => { const t = topicOf(r.id); return '<div class="miss"><div class="qq">' + esc(t.n + '. ' + t.title) + (t.hot ? ' <span class="pill hot">in the job description</span>' : '') + ': ' + r.p.right + ' / ' + r.p.n + '</div>' +
+        '<h3>By topic, weakest first</h3>' + rows.map((r) => { const t = topicOf(r.id); return '<div class="miss"><div class="qq">' + esc(t.n + '. ' + t.title) + (t.hot ? ' <span class="pill hot">core topic</span>' : '') + ': ' + r.p.right + ' / ' + r.p.n + '</div>' +
           '<div class="bar-track"><span style="width:' + r.pc + '%"></span></div><div class="pickrow"><a class="btn sm" href="' + t.file + '">Lesson</a><a class="btn sm ghost" href="' + t.quiz + '">Topic quiz</a></div></div>'; }).join('') +
         '<p style="color:var(--muted)">Only 2 to 5 questions per topic, so treat each topic score as a hint, not a verdict.</p>' +
         '<h3>Sections to review</h3><p style="color:var(--muted)">Every section these questions drew on, missed ones first. Worth a read even when you answered correctly.</p>' +

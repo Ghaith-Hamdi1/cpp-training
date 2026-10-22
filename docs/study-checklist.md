@@ -1,6 +1,6 @@
-# Study checklist: C++ interview (Thursday, 4 PM)
+# Study checklist: C++ interview preparation
 
-A step-by-step plan from Wednesday to the interview.
+A step-by-step plan, from the highest-value topics to the rest.
 
 **Want ticks that save?** Use the interactive version: <https://ghaith-hamdi1.github.io/cpp-training/study-checklist.html> (also at [`interactive/study-checklist.html`](../interactive/study-checklist.html)). Its checkboxes are clickable, remember your progress on your device, show a progress bar, and work offline. The boxes below are for reading on GitHub or for editing the file yourself.
 
@@ -19,7 +19,7 @@ A step-by-step plan from Wednesday to the interview.
 
 ## Step 1: multithreading (about 3 hours)
 
-The topic you knew least, and the one the job description names. Three lessons: the basics, tasks and parallelism, and atomics with the memory model.
+The highest-value topic for real-time and systems roles. Three lessons: the basics, tasks and parallelism, and atomics with the memory model.
 
 **Multithreading:** [07-multithreading.html](../interactive/07-multithreading.html), quiz: [07-multithreading-quiz.html](../interactive/07-multithreading-quiz.html) (28 questions).
 
@@ -107,7 +107,7 @@ Five lessons, each short: RAII and exceptions, move semantics, smart pointers, l
 
 ## Step 3: templates and design patterns (about 1.5 hours)
 
-Both are named in the job description.
+Both come up in most C++ interviews.
 
 **Templates:** [05-templates.html](../interactive/05-templates.html), quiz: [05-templates-quiz.html](../interactive/05-templates-quiz.html) (28 questions).
 
@@ -138,27 +138,27 @@ Take each quiz **first**. Only read the lesson sections for questions you miss.
 - [ ] Basics and pointers: [lesson](../interactive/01-basics.html), [quiz](../interactive/01-basics-quiz.html) (22 questions)
 - [ ] OOP: [lesson](../interactive/02-oop.html), [quiz](../interactive/02-oop-quiz.html) (23 questions)
 
-## Step 5: Thursday morning, before the interview
+## Step 5: the last day before an interview
 
 - [ ] Retake every quiz where you scored under 80%.
 - [ ] Open each lesson's "Interview cheat sheet" and say every answer aloud before opening it.
 - [ ] From memory, write a thread-safe queue (mutex and condition variable).
 - [ ] From memory, write a deadlock, then fix it with `std::scoped_lock`.
 - [ ] Explain in your own words: data race versus race condition, `mutex` versus `atomic`, why `wait` needs a predicate.
-- [ ] **Stop studying about two hours before the interview.** Rest helps more than another cram session.
+- [ ] **Stop studying about two hours before an interview.** Rest helps more than another cram session.
 
 ## Talking points to prepare (about 15 minutes)
 
-The job description mentions production bugs, unit tests and mentoring. Have one short example ready for each from your own experience, in the form situation, what you did, result.
+Interviews often ask about production bugs, unit tests and mentoring. Have one short example ready for each from your own experience, in the form situation, what you did, result.
 
 - [ ] A bug you investigated and debugged (what you looked at, the root cause, the fix)
 - [ ] How you write unit tests and keep code testable
 - [ ] A time you helped or guided a teammate
-- [ ] A question or two to ask the interviewers (for example how they test changes, and how the teams across sites collaborate)
+- [ ] A question or two to ask the interviewers (for example how they test changes, and how their teams collaborate)
 
-## Move semantics deep dive (after the interview)
+## Move semantics deep dive (optional)
 
-Not needed for Thursday. When you want to master move semantics, follow the two guides below. The Josuttis book covers what Meyers leaves out: the moved-from state, value categories and writing move operations. About 75 pages of the Josuttis book plus a few Meyers items.
+Not needed for a first pass. When you want to master move semantics, follow the two guides below. The Josuttis book covers what Meyers leaves out: the moved-from state, value categories and writing move operations. About 75 pages of the Josuttis book plus a few Meyers items.
 
 - [Effective Modern C++ move semantics path](effective-modern-cpp-reading-guide.md#special-focus-move-semantics-and-perfect-forwarding) (`books/Effective-Modern-Cpp-Meyers.pdf`)
 - [C++ Move Semantics reading guide, Tier 1](move-semantics-complete-guide-reading-guide.md#tier-1-read-these-first-about-75-pages) (`books/Cpp-Move-Semantics-The-Complete-Guide-Josuttis.pdf`)

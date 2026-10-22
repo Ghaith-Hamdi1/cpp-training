@@ -185,7 +185,7 @@ The STL is Part III of the book (chapters 19 to 21). It is taught from the idea 
 
 1. Do the lesson and quiz for a topic first (for example, Lesson 1 for pointers).
 2. If a quiz question surprises you, read the matching Tier 1 section here for the longer, gentler explanation.
-3. Read Tier 2 as a longer-term path, not before the interview.
+3. Read Tier 2 as a longer-term path, not as part of a short interview prep.
 
 ## Notes on the edition
 
