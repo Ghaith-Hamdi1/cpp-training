@@ -1,6 +1,6 @@
 # Content audit of the interactive lessons
 
-Audit of `interactive/` (lessons 1 to 10, their quizzes, mock-interview and level-check data), done on 2026-10-22. It lists what is wrong, what is crammed together, what is duplicated and what is missing. Nothing here has been fixed yet.
+Audit of `interactive/` (lessons 1 to 10, their quizzes, mock-interview and level-check data), done on 2026-10-22. It lists what is wrong, what is crammed together, what is duplicated and what is missing. The first part of this file is the original audit; the result of re-running it after the rewrite is in the last section, "Re-audit".
 
 ## How it was checked
 
@@ -67,3 +67,44 @@ Terms below appear zero times in the lesson text.
 2. Split lesson 3, and merge lessons 5 and 9.
 3. Split the multithreading atomics section into atomics and memory ordering, and add the missing Concurrency in Action topics.
 4. Fill the smaller gaps (`decltype`, init-capture, `std::exchange`, functors, multiple inheritance).
+
+## Re-audit (after phases 0 to 6)
+
+Re-run on the finished rewrite. The site now has **20 lessons, 376 quiz questions, 169 interview cheat-sheet items (mock interview) and 40 step-throughs**; the level check draws 48 questions.
+
+### Original findings
+
+| Finding | Result |
+|---|---|
+| `[=]` and `this` | Fixed (Lambdas, with the C++20 deprecation). |
+| `NULL` "the integer 0 in disguise" | Fixed in phase 1. |
+| `string_view` explained four times | One owner: the Strings lesson; the others link to it. |
+| Lesson 3 was a grab-bag | Split into five lessons: Core (RAII and exceptions), Move Semantics, Smart Pointers, Lambdas, Types and Casts. |
+| Move semantics spread over three lessons | One lesson (value categories, elision, `noexcept`, sink parameters); the OOP and Templates lessons link to it. |
+| "Deduction and forwarding references" in one section | Split: Template argument deduction, then Forwarding references. |
+| "Atomics" mixed with the memory model | Separate lesson: Atomics and the Memory Model, with a memory-order simulator. |
+| Performance and lock-free in the multithreading lesson | Moved to Low-Latency; multithreading split into three lessons. |
+| Lesson 8: strings, regex and time unrelated | **Deliberately kept together** (9 sections): the strings content now has its own sections, and a split would have renumbered every lesson again. |
+| Lessons 5 and 9 duplicated | Lesson 15 owns traits, SFINAE, concepts and compile-time computation. |
+| Strings split over three lessons | Consolidated in lesson 14. |
+| Feed-handler gaps (wire formats, zero copy, order books, pools, queues, latency) | Lessons 17 (Wire Formats and Parsing) and 18 (Low-Latency C++), with compiled programs. |
+| Missing Effective Modern C++ terms | All present (`decltype(auto)`, init-capture, braced-init trap, `promise<void>`, `cbegin`). |
+| Missing Josuttis terms | `std::exchange`, `swap` and copy-and-swap present. |
+| Missing Concurrency in Action terms | Present: happens-before, synchronizes-with, `acq_rel`, fences, `compare_exchange_weak`/`strong`, latch, barrier, semaphore, `atomic_flag`, `shared_future`, work stealing, thread-safe data structures. |
+| Missing Principles and Practice terms | Present: `fstream` and `std::format`, `<random>`, `union`, bit manipulation. |
+| Other gaps (virtual inheritance, RTTI, functors, conversion operators, placement new, `std::bind`, ranges, literals, `extern "C"`, comparators and hashes, five patterns) | All present: lesson 19 (Object Model), lesson 20 (More Patterns), and short sections in Lambdas, the STL, OOP, Types and Low-Latency. |
+
+### Deliberately dropped
+
+- Splitting regex and `chrono` out of the strings lesson (see above).
+- A full treatment of ranges: the STL lesson has a first look, which matches what an interview asks.
+- Writing a lock-free pop or a work-stealing pool: explained and drawn, but not implemented, because both need memory reclamation or tuning beyond interview scope.
+
+### Checks run
+
+- All 40 programs in `examples/lessons` compile warning-free with `-std=c++20 -Wall -Wextra` and run with exit code 0.
+- Every step-through was stepped through and every arrow was tested against cells and other arrows: no crossings in any step.
+- `tools/check-links.mjs` (new): all 805 internal links, anchors included, resolve.
+- All lesson pages checked at phone width (375 px): no horizontal page scroll.
+- Progress: an old (schema 1) export code imported into a clean browser migrated through schema versions 2, 3 and 4 correctly; the migrations have unit tests and are idempotent.
+- The offline cache contains every page, quiz and data file.

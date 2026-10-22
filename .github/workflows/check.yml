@@ -2,9 +2,9 @@ name: Check interactive lessons
 
 on:
   push:
-    paths: ['interactive/**', 'tools/**', 'docs/study-checklist.md', 'docs/*-reading-guide.md']
+    paths: ['interactive/**', 'tools/**', 'README.md', 'docs/**/*.md', 'examples/**/README.md']
   pull_request:
-    paths: ['interactive/**', 'tools/**', 'docs/study-checklist.md', 'docs/*-reading-guide.md']
+    paths: ['interactive/**', 'tools/**', 'README.md', 'docs/**/*.md', 'examples/**/README.md']
 
 jobs:
   check:
@@ -15,6 +15,7 @@ jobs:
         with:
           node-version: 20
       - run: node tools/check-interactive.mjs
+      - run: node tools/check-links.mjs
       - run: node tools/build-search-index.mjs --check
       - run: node tools/build-mock-bank.mjs --check
       - run: node tools/build-precache.mjs --check

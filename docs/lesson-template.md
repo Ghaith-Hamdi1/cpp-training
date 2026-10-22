@@ -94,6 +94,7 @@ node tools/build-search-index.mjs
 node tools/build-mock-bank.mjs
 node tools/build-precache.mjs
 node tools/check-interactive.mjs
+node tools/check-links.mjs
 node tools/verify-checklist.mjs
 node tools/check-guides.mjs
 node tools/test-registry.mjs
