@@ -160,20 +160,7 @@ sizeof...(Args);                                          // number of elements 
 <section data-title="Type traits and if constexpr">
 <h2>Type traits and <code>if constexpr</code></h2>
 <figure class="fig"><svg viewBox="0 0 640 130" role="img" aria-label="if constexpr keeps only the branch that matches T and discards the others"><defs><marker id="f3" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path class="ah" d="M0 0L10 5L0 10z"/></marker></defs><rect class="acc" x="10" y="45" width="110" height="40" rx="8"/><text class="t" x="65" y="70" text-anchor="middle">describe&lt;int&gt;</text><path class="ar" d="M120 58L218 28" marker-end="url(#f3)"/><rect class="gd" x="220" y="10" width="250" height="32" rx="6"/><text x="345" y="31" text-anchor="middle">is_integral: compiled and kept</text><path class="ln" d="M120 65H218" stroke-dasharray="5 4"/><rect class="box" x="220" y="49" width="250" height="32" rx="6" stroke-dasharray="5 4"/><text class="m" x="345" y="70" text-anchor="middle">is_floating_point: discarded</text><path class="ln" d="M120 75L218 108" stroke-dasharray="5 4"/><rect class="box" x="220" y="88" width="250" height="32" rx="6" stroke-dasharray="5 4"/><text class="m" x="345" y="109" text-anchor="middle">else: discarded</text><text class="m" x="484" y="60">not even compiled, so</text><text class="m" x="484" y="76">they may use code that</text><text class="m" x="484" y="92">is invalid for T</text></svg><figcaption>A normal if would fail to compile as soon as one branch is invalid for T.</figcaption></figure>
-<p><code>&lt;type_traits&gt;</code>: ask questions about types <i>at compile time</i>.</p>
-<script type="text/x-cpp">
-#include <type_traits>
-
-std::is_integral_v<int>;                    // true      (C++17: _v suffix gives the bool directly)
-std::is_floating_point_v<double>;           // true
-std::is_same_v<int, int>;                   // true
-std::is_pointer_v<int*>;                    // true
-std::is_base_of_v<Animal, Dog>;             // true
-std::remove_reference_t<int&>;              // int       (_t suffix gives the type directly)
-std::decay_t<const int&>;                   // int
-std::conditional_t<(sizeof(int) > 2), long, short>;   // long
-</script>
-<h3><code>if constexpr</code> (C++17): compile-time branching</h3>
+<p>A template often needs to ask about its type. <code>&lt;type_traits&gt;</code> answers at compile time (<code>std::is_integral_v&lt;T&gt;</code>), and <code>if constexpr</code> (C++17) keeps only the matching branch:</p>
 <script type="text/x-cpp">
 template <typename T>
 std::string describe(const T& v) {
@@ -182,45 +169,10 @@ std::string describe(const T& v) {
     else                                            return "something else";
 }
 </script>
-<h3>SFINAE and enable_if (the older way)</h3>
-<p><b>S</b>ubstitution <b>F</b>ailure <b>I</b>s <b>N</b>ot <b>A</b>n <b>E</b>rror: a type that makes a template <i>signature</i> invalid silently drops that overload.</p>
-<script type="text/x-cpp">
-template <typename T, typename = std::enable_if_t<std::is_integral_v<T>>>
-T twice(T x) { return x * 2; }
-
-twice(21);      // OK
-// twice(2.5);  // the overload is removed: "no matching function" error
-</script>
-<h3>Concepts (C++20): the modern replacement</h3>
-<script type="text/x-cpp">
-template <std::integral T>              // or:  template <typename T> requires std::integral<T>
-T twice(T x) { return x * 2; }
-// twice(2.5);  // error: "constraint not satisfied: double is not integral": a readable message
-</script>
+<p>Traits, SFINAE and <code>enable_if</code>, concepts, <code>constexpr</code>, <code>consteval</code> and template metaprogramming have their own lesson: <a href="09-compile-time.html">Type Traits &amp; Compile-time C++</a>.</p>
 </section>
 
-<section data-title="Compile-time computation">
-<h2>Compile-time computation</h2>
-<p>Templates are accidentally a compile-time language. Factorial by recursion on the template argument:</p>
-<script type="text/x-cpp">
-template <unsigned N>
-struct Fact { static constexpr unsigned long value = N * Fact<N - 1>::value; };
-
-template <>
-struct Fact<0> { static constexpr unsigned long value = 1; };   // specialization ends the recursion
-
-static_assert(Fact<5>::value == 120);       // evaluated by the compiler, zero runtime cost
-</script>
-<p>Modern C++: a <code>constexpr</code> function.</p>
-<script type="text/x-cpp">
-constexpr unsigned long fact(unsigned n) { return n <= 1 ? 1 : n * fact(n - 1); }
-static_assert(fact(5) == 120);
-std::array<int, fact(4)> a;          // size 24, computed at compile time
-</script>
-<p><code>constexpr</code> for values; <code>if constexpr</code>, concepts, traits for decisions; template recursion only in old code or to compute a type.</p>
-</section>
-
-<section data-title="Pitfalls and good practice">
+<section id="s8" data-title="Pitfalls and good practice">
 <h2>Pitfalls and good practice</h2>
 <table>
 <tr><th>Pitfall</th><th>Explanation / fix</th></tr>
@@ -235,7 +187,7 @@ std::array<int, fact(4)> a;          // size 24, computed at compile time
 <p>Notes: <a href="https://github.com/Ghaith-Hamdi1/cpp-training/blob/main/docs/04-templates-and-design-patterns/README.md">Module 4</a>; <a href="https://github.com/AnthonyCalandra/modern-cpp-features">modern-cpp-features</a>.</p>
 </section>
 
-<section data-title="Interview cheat sheet">
+<section id="s9" data-title="Interview cheat sheet">
 <h2>Interview cheat sheet</h2>
 <details class="ex"><summary>What happens when you use a function template?</summary><div><p>The compiler deduces the template arguments from the call, then <b>instantiates</b> a concrete function for that combination of types (once per distinct combination across the program), and compiles it like normal code. The template itself generates no code.</p></div></details>
 <details class="ex"><summary>What is a forwarding reference?</summary><div><p>A <code>T&amp;&amp;</code> parameter where <code>T</code> is deduced for that very function template (or <code>auto&amp;&amp;</code>). It binds to lvalues and rvalues alike: for an lvalue <code>T</code> becomes <code>X&amp;</code> and reference collapsing makes the parameter <code>X&amp;</code>; for an rvalue <code>T</code> is <code>X</code> and the parameter is <code>X&amp;&amp;</code>. <code>std::forward</code> then preserves that category.</p></div></details>

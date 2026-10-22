@@ -36,7 +36,9 @@ CT.lessons = [
 /* When a section moves to another lesson, record where it went so old links keep working:
  *   'old-lesson.html#old-id': 'new-lesson.html#new-id'
  * app.js follows this when a link points at a section that is no longer on the page. */
-CT.moved = {};
+CT.moved = {
+  '05-templates.html#s7': '09-compile-time.html#s4'     // Compile-time computation: now Template metaprogramming
+};
 
 /* Saved progress is stored per lesson id and section id. When ids change (a lesson is split or renamed), add a
  * migration here. Each runs once per browser, in order of `to`, and MUST be idempotent (it can run again after

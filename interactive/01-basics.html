@@ -185,7 +185,7 @@ std::cout << p[2];     // 30   p[i] is exactly *(p + i)
 </script>
 <div class="callout warn"><span class="label">Careful</span>Never dereference <code>nullptr</code> and never read past the end of an array. Both are undefined behavior. C++ will not stop you.</div>
 <div class="callout tip"><span class="label">What a pointer does not know</span>Only an address and a type: not <b>how many</b> elements, nor <b>who</b> frees them. Root of most pointer bugs.</div>
-<div class="callout interview"><span class="label">Interview angle</span>"What is the difference between <code>NULL</code> and <code>nullptr</code>?" <code>NULL</code> is the integer 0 in disguise, so <code>f(NULL)</code> can call <code>f(int)</code> instead of <code>f(char*)</code>. <code>nullptr</code> has its own type and only converts to pointers.</div>
+<div class="callout interview"><span class="label">Interview angle</span>"What is the difference between <code>NULL</code> and <code>nullptr</code>?" <code>NULL</code> is a macro for a null pointer constant, usually plain <code>0</code> (an integer), so <code>f(NULL)</code> can call <code>f(int)</code> instead of <code>f(char*)</code>. <code>nullptr</code> has its own type and only converts to pointers.</div>
 </section>
 
 <section data-title="References">

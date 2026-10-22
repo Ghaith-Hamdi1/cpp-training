@@ -148,6 +148,10 @@ Widget b = std::move(a);`,
 
     { sec: 's1', q: 'What is a class invariant?',
       opts: ['A member that is declared const', 'A rule that must hold for every valid object, established by the constructors and preserved by every member function', 'A function that cannot be overridden', 'A static data member'], a: 1,
-      why: 'For `BankAccount` it might be "the balance never goes negative". Hiding the representation and checking inputs in the public functions is how a class protects its invariant. If you cannot state one, the type is probably plain data and should be a `struct`.' }
+      why: 'For `BankAccount` it might be "the balance never goes negative". Hiding the representation and checking inputs in the public functions is how a class protects its invariant. If you cannot state one, the type is probably plain data and should be a `struct`.' },
+
+    { sec: 's8', q: 'What does declaring `explicit operator bool() const` allow?',
+      opts: ['Nothing: conversion operators cannot be explicit', 'Use in conditions such as `if (obj)`, while blocking accidental conversions like `int n = obj;` or `obj + 1`', 'Implicit conversion to bool everywhere, including arithmetic', 'Converting a bool into the class'], a: 1,
+      why: 'An explicit conversion only applies where a bool is clearly wanted (if, while, !, &&, ||). Without explicit, a class convertible to bool also silently converts to int and takes part in arithmetic.' }
   ]
 };

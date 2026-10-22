@@ -71,14 +71,6 @@ f(1, 2, 3, 4);`,
       opts: ['It runs the condition at runtime but faster', 'The condition is evaluated at compile time and the untaken branch is discarded (not even compiled for that instantiation)', 'It can only be used outside templates', 'It always executes both branches'], a: 1,
       why: 'That is what lets one template body use operations that are valid for some types only, with a different branch chosen for each instantiation.' },
 
-    { sec: 's6', q: 'What does SFINAE stand for?',
-      opts: ['Static Function Inline And Not Evaluated', 'Substitution Failure Is Not An Error', 'Simple Function Instantiation And Name Expansion', 'Standard Failure In Non-type Argument Evaluation'], a: 1,
-      why: 'If substituting template arguments into a function template\'s signature produces invalid code, that overload is silently removed from the candidates instead of being a compile error.' },
-
-    { sec: 's6', q: 'What does `std::is_same_v<int, const int>` evaluate to?',
-      opts: ['true', 'false', 'It does not compile', 'Depends on the compiler'], a: 1,
-      why: 'Top-level `const` makes a different type, so they are not the same. `std::is_same_v<int, std::remove_const_t<const int>>` would be true.' },
-
     { sec: 's6', q: 'What is the main advantage of C++20 concepts over `enable_if`?',
       opts: ['They make code run faster', 'They state requirements directly and give clear, early error messages', 'They remove the need for templates', 'They work at runtime'], a: 1,
       why: '`template <std::integral T>` documents the constraint in the signature and produces "constraint not satisfied" instead of a wall of instantiation errors.' },

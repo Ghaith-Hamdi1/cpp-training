@@ -87,6 +87,11 @@ public:
 
 Buffer make() { Buffer b(1000); return b; }   // fine: NO std::move needed on return
 </script>
+<p><code>std::exchange(x, v)</code> returns the old <code>x</code> and sets it to <code>v</code>: the idiom for "steal and reset", so the move constructor shrinks to one line.</p>
+<script type="text/x-cpp">
+Buffer(Buffer&& o) noexcept
+    : data_(std::exchange(o.data_, nullptr)), n_(std::exchange(o.n_, 0)) {}
+</script>
 <div class="callout warn"><span class="label">The const trap</span>
 <script type="text/x-cpp">
 const std::string s = "abc";
@@ -151,6 +156,7 @@ Never build a second <code>shared_ptr</code> from a raw pointer or from <code>th
 <table>
 <tr><th>Feature</th><th>Instead of</th><th>Example</th></tr>
 <tr><td><code>auto</code></td><td>long type names</td><td><code>auto it = m.find(k);</code></td></tr>
+<tr><td><code>decltype(expr)</code></td><td>repeating a type by hand</td><td><code>decltype(a + b) sum = a + b;</code></td></tr>
 <tr><td>Range-based <code>for</code></td><td>index / iterator loops</td><td><code>for (const auto&amp; x : v) {}</code></td></tr>
 <tr><td><code>nullptr</code></td><td><code>NULL</code> / <code>0</code></td><td><code>int* p = nullptr;</code></td></tr>
 <tr><td><code>enum class</code></td><td>plain <code>enum</code></td><td><code>enum class Color { Red, Green };</code> scoped, no implicit int</td></tr>
@@ -164,6 +170,13 @@ Never build a second <code>shared_ptr</code> from a raw pointer or from <code>th
 <tr><td><code>if</code> with initializer (C++17)</td><td>variable leaking into outer scope</td><td><code>if (auto it = m.find(k); it != m.end()) {}</code></td></tr>
 <tr><td><code>[[nodiscard]]</code></td><td>ignored error codes</td><td><code>[[nodiscard]] bool open();</code></td></tr>
 </table>
+<script type="text/x-cpp">
+int x = 0;
+const int& r = x;
+auto a = r;               // int           auto drops const and the reference
+decltype(r) b = x;        // const int&    decltype gives the exact declared type
+decltype(auto) c = r;     // const int&    decltype(auto) = "deduce like auto, but keep it exact"
+</script>
 <div class="callout warn"><span class="label">auto traps</span>
 <p><code>auto x = {1,2,3};</code> is an <code>initializer_list</code>, not a vector. <code>auto</code> drops references and <code>const</code>: <code>auto y = v[0];</code> <i>copies</i>; write <code>const auto&amp;</code>. Same for <code>for (auto [k, v] : map)</code>.</p></div>
 </section>
@@ -185,6 +198,10 @@ auto byValue = [factor](int x) { return x * factor; };    // copies factor now
 auto byRef   = [&factor](int x) { return x * factor; };   // refers to the live variable
 auto all     = [=] (int x) { return x * factor; };        // [=] all by value, [&] all by reference
 auto generic = [](const auto& a, const auto& b) { return a < b; };   // C++14: works for any type
+
+auto owned = std::make_unique<int>(5);
+auto init  = [p = std::move(owned)] { return *p; };    // C++14 init-capture: MOVE a move-only object in
+auto count = [n = 0]() mutable { return ++n; };        // the lambda's own state; mutable lets it change
 </script>
 <details class="ex"><summary><span class="ex-tag">Predict</span>Capture by value vs by reference</summary><div>
 <script type="text/x-cpp">
@@ -200,6 +217,7 @@ std::cout << byVal() << byRef();
 <p><code>byVal</code> took a snapshot of <code>x</code> (1) when it was created. <code>byRef</code> sees the variable itself, so it reads the new value 2. A by-value capture is <i>const</i> inside the lambda unless you add <code>mutable</code>.</p>
 </div></details>
 <div class="callout warn"><span class="label">Dangling captures</span>A lambda that captures a local by reference and then outlives it (returned from the function, or run later on another thread) reads destroyed memory. When a lambda escapes its scope, capture by value.</div>
+<div class="callout warn"><span class="label"><code>[=]</code> and <code>this</code></span>Inside a member function <code>[=]</code> also captures <code>this</code> (the pointer), so the lambda uses the object through that pointer and dangles if the object dies. This implicit capture is deprecated in C++20: write <code>[=, this]</code> to say so, or <code>[*this]</code> to copy the object.</div>
 <p><code>std::function</code> type-erases and may allocate. Prefer <code>auto</code> locally and a template parameter for functions taking a callable.</p>
 <p>Step through the two capture modes:</p>
 <div id="st-lambda"></div>
@@ -298,8 +316,8 @@ if (auto n = parse("42")) { use(*n); }
 std::variant<int, std::string> v = "hi";                 // type-safe union
 std::visit([](auto&& x) { std::cout << x; }, v);
 
-void print(std::string_view sv);                         // non-owning view, no copy, accepts literals and strings
-// WARNING: a string_view must not outlive the string it views
+void print(std::string_view sv);                         // non-owning pointer + length: no copy, accepts literals and strings
+// it must not outlive the text it views, see Strings, Regex & Time
 </script>
 <p>Full lists: <a href="https://github.com/AnthonyCalandra/modern-cpp-features">modern-cpp-features</a>, <a href="https://github.com/changkun/modern-cpp-tutorial">modern-cpp-tutorial</a>. Your notes: <a href="https://github.com/Ghaith-Hamdi1/cpp-training/blob/main/docs/03-cpp-standard-library/README.md">Module 3</a>.</p>
 </section>

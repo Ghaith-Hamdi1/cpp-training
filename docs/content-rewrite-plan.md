@@ -2,6 +2,14 @@
 
 Plan for fixing everything listed in [content-audit.md](content-audit.md), in phases that can each be shipped on their own. Nothing is started. Effort figures are rough working sessions (one session is about 2 to 3 hours of focused work).
 
+## Status
+
+| Phase | State |
+|---|---|
+| 0 Foundations | done (branch `rewrite/phase-0`) |
+| 1 Quick fixes and de-duplication | done (branch `rewrite/phase-1`): the three imprecisions fixed, lessons 5 and 9 de-duplicated (lesson 9 owns traits, SFINAE, concepts and compile-time computation; the old lesson 5 section moved via `CT.moved`), strings consolidated in lesson 8, and the cheap gaps added (`decltype`, init-capture, `std::exchange`, functors, `explicit operator bool`, the braced-init trap, `cbegin`) |
+| 2 to 6 | not started |
+
 ## Ground rules for every phase
 
 - **Each phase ends shippable.** The site works, all checks pass, and the work is committed and pushed before the next phase starts. Work on a branch per phase and merge when the exit criteria are met.

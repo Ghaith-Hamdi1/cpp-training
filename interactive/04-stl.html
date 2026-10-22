@@ -52,6 +52,12 @@ v.front(); v.back(); v.data();   // data() is the raw int* for C APIs
 v.size(); v.capacity(); v.empty();
 </script>
 <div class="callout warn"><span class="label">reserve vs resize</span><code>reserve(n)</code> only allocates; <code>resize(n)</code> creates elements. <code>v[5] = x</code> after only <code>reserve(10)</code> is UB.</div>
+<div class="callout warn"><span class="label">Braces vs parentheses</span>
+<script type="text/x-cpp">
+std::vector<int> a(3, 7);   // parentheses: size 3, every element 7   ->  {7, 7, 7}
+std::vector<int> b{3, 7};   // braces: the initializer_list constructor wins  ->  {3, 7}
+</script>
+With braces, a constructor taking <code>std::initializer_list</code> is preferred whenever it can match.</div>
 </section>
 
 <section data-title="Other sequence containers">
@@ -136,6 +142,7 @@ std::vector<int> v{1, 2, 3};
 for (auto it = v.begin(); it != v.end(); ++it) std::cout << *it;   // use != not <, it works for every container
 for (int x : v) std::cout << x;           // range-for is exactly this loop in disguise
 for (auto it = v.rbegin(); it != v.rend(); ++it) { }   // reverse iterators
+for (auto it = v.cbegin(); it != v.cend(); ++it) { }   // cbegin/cend: read-only, *it cannot be modified
 auto it2 = std::next(v.begin(), 2);       // advance without assuming random access
 </script>
 <table>
@@ -224,11 +231,7 @@ std::stoi("123");                           // 123 (throws std::invalid_argument
 std::string_view sv = s;                    // non-owning view: no allocation, no copy
 void log(std::string_view msg);             // accepts string, literal and substring views cheaply
 </script>
-<ul>
-<li>Small strings (about 15 chars) live <b>inline</b>: small string optimisation.</li>
-<li><code>string_view</code> must not outlive its string (returning one to a local dangles).</li>
-<li><code>std::stringstream</code> / <code>std::getline</code> for parsing and formatting.</li>
-</ul>
+<p>Small-string optimisation, the rules for <code>string_view</code> and parsing are in <a href="08-strings-regex-time.html">Strings, Regex &amp; Time</a>.</p>
 </section>
 
 <section data-title="Useful companions and pitfalls">

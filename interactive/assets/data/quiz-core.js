@@ -97,13 +97,6 @@ std::cout << byVal() << byRef();`,
       opts: ['It does not compile', 'It copies each pair every iteration; use `const auto&` to avoid it', 'It modifies the map', 'It skips the first element'], a: 1,
       why: '`auto` deduces a value type, so each element is copied. Write `for (const auto& [key, value] : myMap)`.' },
 
-    { sec: 's10', q: 'What is the danger here?',
-      code: String.raw`
-std::string_view sv = std::string("hello");
-std::cout << sv;`,
-      opts: ['None', 'The temporary std::string is destroyed, so sv dangles (undefined behavior)', 'string_view cannot hold a string', 'It prints twice'], a: 1,
-      why: '`string_view` does not own its data. The temporary string dies at the end of the statement and `sv` points to freed memory.' },
-
     { sec: 's9', q: 'What is the difference between `const` and `constexpr`?',
       opts: ['None', '`constexpr` guarantees the value can be computed at compile time; `const` only means read-only after initialization', '`const` is for functions, `constexpr` for variables', '`constexpr` values live on the heap'], a: 1,
       why: 'A `const int` may be initialized at runtime. A `constexpr` variable must be a compile-time constant, usable in template arguments and array sizes.' },
@@ -133,6 +126,10 @@ std::shared_ptr<Widget> b(raw);`,
 
     { sec: 's2', q: 'What is the value category of the expression `std::move(x)`?',
       opts: ['lvalue', 'prvalue', 'xvalue', 'It is not an expression'], a: 2,
-      why: 'An xvalue is an object marked as movable, and `std::move` produces one. A prvalue is an unnamed temporary like `5` or `a + b`. "Rvalue" means a prvalue or an xvalue.' }
+      why: 'An xvalue is an object marked as movable, and `std::move` produces one. A prvalue is an unnamed temporary like `5` or `a + b`. "Rvalue" means a prvalue or an xvalue.' },
+
+    { sec: 's6', q: 'How do you move a `std::unique_ptr` into a lambda (C++14)?',
+      opts: ['`[p]`: capture by value', '`[p = std::move(p)]`: an init-capture', '`[&p]`: capture by reference', 'It is not possible: lambdas cannot hold move-only objects'], a: 1,
+      why: 'A unique_ptr cannot be copied, so `[p]` does not compile. An init-capture creates the lambda\'s own member initialised with `std::move(p)`. A lambda that owns a unique_ptr is itself move-only.' }
   ]
 };

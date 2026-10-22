@@ -244,6 +244,23 @@ std::ostream& operator<<(std::ostream& os, const Vec2& v) {   // MUST be non-mem
 <li>Keep usual semantics: <code>==</code> with <code>!=</code>, <code>&lt;</code> a strict weak ordering. C++20 <code>&lt;=&gt;</code> generates all comparisons.</li>
 <li>No new operators; <code>::</code> <code>.</code> <code>.*</code> <code>?:</code> cannot be overloaded.</li>
 </ul>
+<h3>Callable objects and conversions</h3>
+<script type="text/x-cpp">
+struct Greater {                                        // a functor: an object you can call like a function
+    bool operator()(int a, int b) const { return a > b; }
+};
+std::sort(v.begin(), v.end(), Greater{});               // a lambda is a compiler-made functor
+
+class Handle {
+    int id_ = 0;
+public:
+    explicit operator bool() const { return id_ != 0; } // allowed in conditions only
+};
+Handle h;
+if (h) { }                                              // OK: contextual conversion
+// bool ok = h;   int n = h;   h + 1;                   // ERROR: explicit blocks accidental conversions
+</script>
+<p><code>operator()</code> makes a class callable (the idea behind lambdas, <code>std::function</code> and comparators). Mark single-argument conversions <code>explicit</code>, as for constructors.</p>
 </section>
 
 <section data-title="Composition, relationships and design">

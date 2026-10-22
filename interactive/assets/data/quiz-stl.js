@@ -75,10 +75,6 @@ for (std::size_t i = 0; i < v.size() - 1; ++i) { /* ... */ }`,
       opts: ['It must contain unique elements', 'It must be sorted according to the same ordering', 'It must be a vector', 'It must be non-empty'], a: 1,
       why: 'Binary search only makes sense on sorted data. On unsorted data the result is meaningless (and the precondition violation is undefined behavior).' },
 
-    { sec: 's8', q: 'What does `std::string::find` return when the substring is not found?',
-      opts: ['-1', '0', '`std::string::npos`', 'It throws'], a: 2,
-      why: '`npos` is the largest `size_t` value (it equals `-1` converted to unsigned). Compare against `npos`, never against `-1` or `0`.' },
-
     { sec: 's4', q: 'What is the worst-case cost of a lookup in `std::unordered_map`?',
       opts: ['O(1)', 'O(log n)', 'O(n), when many keys collide into the same bucket', 'O(n log n)'], a: 2,
       why: 'Average O(1) relies on a good hash function and low load factor. Heavy collisions degrade a bucket toward a linear scan.' },
@@ -105,6 +101,10 @@ for (const auto& w : {"apple", "pear", "apple"})
 
     { sec: 's5', q: 'Why does a `std::vector` often beat a `std::list` even for insertions in the middle?',
       opts: ['Lists are always slower to insert', 'Contiguous memory is cache-friendly and a list allocates a node per element, so the O(n) shift of a vector is often cheaper in practice', 'Vectors never move elements', 'Lists cannot insert in the middle'], a: 1,
-      why: 'Big-O hides constants. A vector\'s memmove-style shift is fast on modern CPUs, while pointer-chasing through scattered list nodes causes cache misses. Always measure.' }
+      why: 'Big-O hides constants. A vector\'s memmove-style shift is fast on modern CPUs, while pointer-chasing through scattered list nodes causes cache misses. Always measure.' },
+
+    { sec: 's2', q: 'What is the difference between `std::vector<int> a(3, 7);` and `std::vector<int> b{3, 7};`?',
+      opts: ['Both hold three elements equal to 7', '`a` holds {7, 7, 7}; `b` holds {3, 7}, because the initializer_list constructor wins for braces', '`a` does not compile', '`b` holds three elements'], a: 1,
+      why: 'Parentheses call the (count, value) constructor. Braces prefer a constructor taking std::initializer_list whenever one can match, so the two numbers become the elements.' }
   ]
 };
