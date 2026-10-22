@@ -117,6 +117,8 @@ std::cout << m.size();
 std::priority_queue<int> maxHeap;                                  // largest first
 std::priority_queue<int, std::vector<int>, std::greater<int>> minHeap;   // smallest first
 </script>
+<p>Step through <code>operator[]</code>:</p>
+<div id="st-map"></div>
 </section>
 
 <section data-title="Which container should I use?">
@@ -171,6 +173,8 @@ for (auto it = v.begin(); it != v.end(); ) {
 std::erase_if(v, [](int x) { return x % 2 == 0; });
 </script>
 </div></details>
+<p>Step through a correct erase loop:</p>
+<div id="st-erase"></div>
 </section>
 
 <section data-title="Algorithms">
@@ -347,6 +351,51 @@ v.push_back(30);
   document.getElementById('as').addEventListener('change', show);
   show();
 })();
+
+CT.stepper('#st-erase', {
+  title: 'Erasing inside a loop: use the iterator erase returns',
+  code: String.raw`
+std::vector<int> v{1, 2, 3, 4};
+for (auto it = v.begin(); it != v.end(); ) {
+    if (*it % 2 == 0) it = v.erase(it);
+    else ++it;
+}
+`,
+  steps: [
+    { line: 1, mem: [{ n: 'v[0]', v: '1' }, { n: 'v[1]', v: '2' }, { n: 'v[2]', v: '3' }, { n: 'v[3]', v: '4' }], note: 'The vector holds 1, 2, 3, 4. We want to remove the even numbers.' },
+    { line: 2, mem: [{ n: 'v[0]', v: '1' }, { n: 'v[1]', v: '2' }, { n: 'v[2]', v: '3' }, { n: 'v[3]', v: '4' }, { n: 'it', t: 'iterator', v: '-> v[0]', to: 'v[0]' }],
+      note: '<b>it</b> starts at the first element.' },
+    { line: 5, mem: [{ n: 'v[0]', v: '1' }, { n: 'v[1]', v: '2' }, { n: 'v[2]', v: '3' }, { n: 'v[3]', v: '4' }, { n: 'it', t: 'iterator', v: '-> v[1]', to: 'v[1]' }],
+      note: '1 is odd, so <code>++it</code>. Now it points at 2.' },
+    { line: 3, mem: [{ n: 'v[0]', v: '1' }, { n: 'v[1]', v: '3', }, { n: 'v[2]', v: '4' }, { n: 'v[3]', v: 'gone', dead: true }, { n: 'it', t: 'iterator', v: '-> v[1]', to: 'v[1]' }],
+      note: '2 is even: <code>v.erase(it)</code> shifts the later elements down and <b>returns an iterator to the next element</b> (now 3). The old <code>it</code> is invalid, so we must overwrite it with the return value.' },
+    { line: 5, mem: [{ n: 'v[0]', v: '1' }, { n: 'v[1]', v: '3' }, { n: 'v[2]', v: '4' }, { n: 'it', t: 'iterator', v: '-> v[2]', to: 'v[2]' }],
+      note: '3 is odd: <code>++it</code>. Note that after an erase we did <b>not</b> advance: the next element had already moved into that slot.' },
+    { line: 3, mem: [{ n: 'v[0]', v: '1' }, { n: 'v[1]', v: '3' }, { n: 'v[2]', v: 'gone', dead: true }, { n: 'it', t: 'iterator', v: 'end()' }],
+      note: '4 is even: erase it. The returned iterator is <code>end()</code>, so the loop stops. Result: <b>1, 3</b>.' },
+    { line: 3, mem: [{ n: 'v[0]', v: '1' }, { n: 'v[1]', v: '3' }, { n: 'it', t: 'iterator', v: 'end()' }],
+      note: 'The buggy version <code>v.erase(it)</code> followed by <code>++it</code> uses a dead iterator (undefined behavior) and also skips an element. C++20 shortcut: <code>std::erase_if(v, pred)</code>.' }
+  ]
+});
+
+CT.stepper('#st-map', {
+  title: 'std::map::operator[] inserts, find does not',
+  code: String.raw`
+std::map<std::string, int> m;
+if (m["x"] == 0) { }
+m.contains("y");
+std::cout << m.size();
+`,
+  steps: [
+    { line: 1, mem: [{ n: 'm', t: 'map', v: 'size 0 (empty)' }], note: 'An empty map.' },
+    { line: 2, mem: [{ n: 'm', t: 'map', v: 'size 1' }, { n: 'node "x"', t: 'pair', v: '"x" -> 0', k: 'heap' }],
+      note: '<code>m["x"]</code> on a missing key <b>inserts</b> a node with a default-constructed value (0) and returns a reference to it. The comparison then sees 0.' },
+    { line: 3, mem: [{ n: 'm', t: 'map', v: 'size 1' }, { n: 'node "x"', t: 'pair', v: '"x" -> 0', k: 'heap' }],
+      note: '<code>contains("y")</code> (or <code>find</code>, <code>count</code>) only <b>looks</b>: nothing is inserted.' },
+    { line: 4, mem: [{ n: 'm', t: 'map', v: 'size 1' }, { n: 'node "x"', t: 'pair', v: '"x" -> 0', k: 'heap' }], out: '1\n',
+      note: 'Prints <b>1</b>. A lookup that grew the map: use <code>find</code>/<code>contains</code> to test, <code>at()</code> to read-or-throw.' }
+  ]
+});
 </script>
 </body>
 </html>

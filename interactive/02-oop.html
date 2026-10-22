@@ -166,6 +166,8 @@ public:
 </script>
 <div class="callout warn"><span class="label">Object slicing</span><code>Animal a = Dog("Rex");</code> chops off the Dog part and its virtual behaviour. Use pointers or references.</div>
 <p><code>final</code> forbids deriving. Prefer <b>composition</b> unless it is truly is-a.</p>
+<p>Step through slicing:</p>
+<div id="st-slice"></div>
 </section>
 
 <section data-title="Polymorphism and virtual functions">
@@ -195,6 +197,8 @@ struct Circle : Shape {
 <div class="callout warn"><span class="label">Two famous traps</span>
 <p><b>1.</b> Always write <code>override</code>. If you mistype the signature (forget <code>const</code>), without it you silently create a <i>new</i> function instead of overriding.</p>
 <p><b>2.</b> Virtual calls inside a constructor or destructor do <b>not</b> reach the derived class. While <code>Base</code>'s constructor runs, the object's dynamic type is <code>Base</code>, so <code>Base::init()</code> is called even if <code>Derived</code> overrides it.</p></div>
+<p>Step through a virtual call:</p>
+<div id="st-vptr"></div>
 </section>
 
 <section data-title="Abstract classes and interfaces">
@@ -365,6 +369,45 @@ struct Buffer {
   ['vo', 'vv', 'vd'].forEach((id) => $(id).addEventListener('change', update));
   update();
 })();
+
+CT.stepper('#st-vptr', {
+  title: 'How a virtual call finds the right function',
+  code: String.raw`
+struct Animal { virtual void speak(); };
+struct Dog : Animal { void speak() override; };
+
+Dog rex;
+Animal* p = &rex;
+p->speak();
+`,
+  steps: [
+    { line: 5, mem: [{ n: 'Dog vtable @0x7000', t: 'static', v: 'speak() -> Dog::speak', k: 'static' }, { n: 'rex @0x1000', t: 'Dog', v: 'vptr = 0x7000' }],
+      note: 'Creating a <b>Dog</b>: the constructor stores a hidden <b>vptr</b> in the object. It points to the Dog <b>vtable</b>, a table of function pointers that exists once per class.' },
+    { line: 6, mem: [{ n: 'Dog vtable @0x7000', t: 'static', v: 'speak() -> Dog::speak', k: 'static' }, { n: 'rex @0x1000', t: 'Dog', v: 'vptr = 0x7000' }, { n: 'p @0x1008', t: 'Animal*', v: '0x1000', p: 'static type: Animal' }],
+      note: '<b>p</b> has the static type <code>Animal*</code> but points at a real Dog. The compiler only knows the static type.' },
+    { line: 7, mem: [{ n: 'Dog vtable @0x7000', t: 'static', v: 'speak() -> Dog::speak', k: 'static' }, { n: 'rex @0x1000', t: 'Dog', v: 'vptr = 0x7000' }, { n: 'p @0x1008', t: 'Animal*', v: '0x1000', p: 'follow p to the object' }],
+      note: '<b>Step 1 of the call:</b> follow p to the object and read its <b>vptr</b> (0x7000).' },
+    { line: 7, mem: [{ n: 'Dog vtable @0x7000', t: 'static', v: 'speak() -> Dog::speak', k: 'static' }, { n: 'rex @0x1000', t: 'Dog', v: 'vptr = 0x7000' }, { n: 'p @0x1008', t: 'Animal*', v: '0x1000', p: 'dynamic type: Dog' }], out: 'Woof\n',
+      note: '<b>Step 2:</b> index the vtable at the <code>speak</code> slot and jump to <b>Dog::speak</b>. The object\'s <i>dynamic</i> type decided, not the pointer\'s. Cost: one extra pointer per object and one indirection per call.' }
+  ]
+});
+
+CT.stepper('#st-slice', {
+  title: 'Object slicing',
+  code: String.raw`
+Dog rex("Rex");
+Animal a = rex;
+a.speak();
+`,
+  steps: [
+    { line: 1, mem: [{ n: 'rex', t: 'Dog', v: 'Animal part {name} + Dog part {tricks}' }],
+      note: 'A <b>Dog</b> object holds its Animal part (base members and the vptr) <i>and</i> its own Dog part.' },
+    { line: 2, mem: [{ n: 'rex', t: 'Dog', v: 'Animal part {name} + Dog part {tricks}' }, { n: 'a', t: 'Animal', v: 'Animal part {name} only', p: 'Dog part sliced off' }],
+      note: '<code>Animal a = rex;</code> copies into a variable that has room only for an <b>Animal</b>. The Dog part is chopped off, and a\'s vptr is the Animal one.' },
+    { line: 3, mem: [{ n: 'rex', t: 'Dog', v: 'Animal part {name} + Dog part {tricks}' }, { n: 'a', t: 'Animal', v: 'Animal part {name} only', p: 'Dog part sliced off' }], out: '...\n',
+      note: '<code>a.speak()</code> runs <b>Animal::speak</b>: the object really is an Animal now. Fix: keep polymorphic objects behind a <b>pointer or reference</b> (or <code>unique_ptr</code>), never by value.' }
+  ]
+});
 </script>
 </body>
 </html>

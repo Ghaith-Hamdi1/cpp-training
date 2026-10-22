@@ -160,6 +160,8 @@ listeners.push_back([](double t) { std::cout << "temp = " << t << '\n'; });
 <p><b>Dangling observer:</b> subject calls a destroyed object. Detach in the destructor (RAII) or store <code>weak_ptr</code>.</p>
 <p><b>Modifying the list while notifying:</b> iterate a copy.</p>
 <p><b>Threads:</b> lock, but never while calling observers (deadlock risk).</p></div>
+<p>Step through a notification:</p>
+<div id="st-observer"></div>
 </section>
 
 <section data-title="State">
@@ -362,6 +364,27 @@ Logger& b = Logger::instance();
   });
   render();
 })();
+
+CT.stepper('#st-observer', {
+  title: 'Observer: notify everyone, even if one detaches itself',
+  code: String.raw`
+Subject s;
+s.attach(&display);
+s.attach(&once);
+s.set(21.5);
+s.set(30);
+`,
+  steps: [
+    { line: 1, mem: [{ n: 'observers', t: 'vector', v: '[ ]' }], note: 'A subject with no observers yet.' },
+    { line: 2, mem: [{ n: 'observers', t: 'vector', v: '[ display ]' }, { n: 'display', t: 'Display', v: 'listening' }], note: 'The Display attaches. The subject stores a pointer and knows nothing else about it.' },
+    { line: 3, mem: [{ n: 'observers', t: 'vector', v: '[ display, once ]' }, { n: 'display', t: 'Display', v: 'listening' }, { n: 'once', t: 'OneShot', v: 'listening' }], note: 'A <b>OneShot</b> observer attaches too. It will detach itself the first time it is notified.' },
+    { line: 4, mem: [{ n: 'observers', t: 'vector', v: '[ display, once ]' }, { n: 'copy', t: 'vector', v: '[ display, once ]', p: 'iterate this copy' }, { n: 'display', t: 'Display', v: 'got 21.5' }, { n: 'once', t: 'OneShot', v: 'got 21.5' }], out: 'Display shows 21.5\nOneShot saw 21.5 and detaches\n',
+      note: '<code>set(21.5)</code> first <b>copies</b> the list, then calls <code>update</code> on each. OneShot detaches while we are looping; because we iterate the copy, nothing is skipped or invalidated.' },
+    { line: 4, mem: [{ n: 'observers', t: 'vector', v: '[ display ]' }, { n: 'display', t: 'Display', v: 'listening' }, { n: 'once', t: 'OneShot', v: 'detached', dead: true }], note: 'After the notification the real list is <b>[ display ]</b>.' },
+    { line: 5, mem: [{ n: 'observers', t: 'vector', v: '[ display ]' }, { n: 'display', t: 'Display', v: 'got 30' }, { n: 'once', t: 'OneShot', v: 'detached', dead: true }], out: 'Display shows 30\n',
+      note: 'Only Display is told about 30. Remaining hazards: an observer destroyed while still registered (dangling pointer: detach in the destructor or store <code>weak_ptr</code>), and notifying from several threads (lock, but not while calling out).' }
+  ]
+});
 </script>
 </body>
 </html>

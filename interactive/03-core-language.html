@@ -141,6 +141,8 @@ Never build a second <code>shared_ptr</code> from a raw pointer or from <code>th
 <div class="callout tip"><span class="label">Ownership rules of thumb</span>
 <p>Default to <code>unique_ptr</code> (or a plain value member); <code>shared_ptr</code> only for truly shared ownership. A raw pointer or reference means "I use it, I do not own it". Pass smart pointers by value only to transfer or share ownership.</p></div>
 <div class="callout interview"><span class="label">Interview angle</span><code>make_unique</code>/<code>make_shared</code>: no naked <code>new</code> (exception safe), less typing, and <code>make_shared</code> allocates once instead of twice.</div>
+<p>Step through <code>unique_ptr</code> ownership:</p>
+<div id="st-unique"></div>
 </section>
 
 <section data-title="Modern syntax tour">
@@ -199,6 +201,8 @@ std::cout << byVal() << byRef();
 </div></details>
 <div class="callout warn"><span class="label">Dangling captures</span>A lambda that captures a local by reference and then outlives it (returned from the function, or run later on another thread) reads destroyed memory. When a lambda escapes its scope, capture by value.</div>
 <p><code>std::function</code> type-erases and may allocate. Prefer <code>auto</code> locally and a template parameter for functions taking a callable.</p>
+<p>Step through the two capture modes:</p>
+<div id="st-lambda"></div>
 </section>
 
 <section data-title="Exceptions and exception safety">
@@ -375,6 +379,45 @@ a.reset();
       note: '<b>b.reset()</b> drops one owner. The count falls to 1 and Foo is still alive because <b>a</b> owns it.' },
     { line: 4, mem: [{ n: 'a', t: 'shared_ptr', v: 'nullptr' }, { n: 'b', t: 'shared_ptr', v: 'nullptr' }, { n: 'Foo @0x5000', t: 'use_count', v: '0 (destroyed)', k: 'heap', dead: true }],
       note: 'The last owner is gone: the count hits 0 and <b>Foo is destroyed and its memory freed automatically</b>. If a and b had pointed at each other\'s owners (a cycle), this would never happen: use <code>weak_ptr</code>.' }
+  ]
+});
+
+CT.stepper('#st-lambda', {
+  title: 'Lambda captures: by value vs by reference',
+  code: String.raw`
+int x = 1;
+auto byVal = [x]  { return x; };
+auto byRef = [&x] { return x; };
+x = 2;
+std::cout << byVal() << byRef();
+`,
+  steps: [
+    { line: 1, mem: [{ n: 'x', t: 'int', v: '1' }], note: 'A local <b>x</b> holds 1.' },
+    { line: 2, mem: [{ n: 'x', t: 'int', v: '1' }, { n: 'byVal.x', t: 'int (member)', v: '1', p: 'a snapshot' }],
+      note: '<code>[x]</code>: the lambda is a small object with its own <b>member copy</b> of x, taken <i>now</i>.' },
+    { line: 3, mem: [{ n: 'x', t: 'int', v: '1' }, { n: 'byVal.x', t: 'int (member)', v: '1' }, { n: 'byRef.x', t: 'int& (member)', v: 'alias', to: 'x' }],
+      note: '<code>[&amp;x]</code>: the lambda stores a <b>reference</b> to the live x. Follow the arrow.' },
+    { line: 4, mem: [{ n: 'x', t: 'int', v: '2' }, { n: 'byVal.x', t: 'int (member)', v: '1' }, { n: 'byRef.x', t: 'int& (member)', v: 'alias', to: 'x' }],
+      note: 'x changes to 2. The snapshot inside <b>byVal</b> is still 1. <b>byRef</b> sees the change.' },
+    { line: 5, mem: [{ n: 'x', t: 'int', v: '2' }, { n: 'byVal.x', t: 'int (member)', v: '1' }, { n: 'byRef.x', t: 'int& (member)', v: 'alias', to: 'x' }], out: '12\n',
+      note: 'Prints <b>12</b>. A reference capture that outlives x (returned, or run later on another thread) <b>dangles</b>: capture by value when a lambda escapes its scope.' }
+  ]
+});
+
+CT.stepper('#st-unique', {
+  title: 'unique_ptr: ownership moves, it is never copied',
+  code: String.raw`
+auto p = std::make_unique<Widget>();
+auto q = std::move(p);
+q.reset();
+`,
+  steps: [
+    { line: 1, mem: [{ n: 'p @0x1000', t: 'unique_ptr', v: '0x5000' }, { n: 'Widget @0x5000', t: 'Widget', v: 'alive', k: 'heap' }],
+      note: '<b>p</b> owns the Widget. It is the only owner, and its destructor will free the object.' },
+    { line: 2, mem: [{ n: 'p @0x1000', t: 'unique_ptr', v: 'nullptr' }, { n: 'q @0x1008', t: 'unique_ptr', v: '0x5000' }, { n: 'Widget @0x5000', t: 'Widget', v: 'alive', k: 'heap' }],
+      note: '<code>std::move(p)</code> hands ownership to <b>q</b>. p is now <b>null</b>. Copying (<code>auto q = p;</code>) does not compile: there can be only one owner.' },
+    { line: 3, mem: [{ n: 'p @0x1000', t: 'unique_ptr', v: 'nullptr' }, { n: 'q @0x1008', t: 'unique_ptr', v: 'nullptr' }, { n: 'Widget @0x5000', t: 'Widget', v: 'destroyed', dead: true, k: 'heap' }],
+      note: '<code>q.reset()</code> destroys the Widget now. Without it, the destructor of q would do the same at the closing brace. No <code>delete</code>, no leak, same cost as a raw pointer.' }
   ]
 });
 </script>

@@ -480,6 +480,8 @@ std::cout << f.get();                        // 42
 t.join();
 </script>
 <p><code>std::packaged_task</code> routes a function's result into a future (how pools return results).</p>
+<p>Step through a promise and its future:</p>
+<div id="st-future"></div>
 </section>
 
 <section id="s9" data-title="Thread pools and producer/consumer">
@@ -534,6 +536,8 @@ pool.submit([] { std::cout << "task runs on some worker\n"; });
 </script>
 <p>It combines everything: mutex, condition variable, stop flag, RAII shutdown. The task runs <b>outside</b> the lock, or only one could run at a time.</p>
 <p>Sizing: CPU-bound, about <code>hardware_concurrency()</code> workers (more is <b>oversubscription</b>); I/O-bound, more.</p>
+<p>Step through the pool:</p>
+<div id="st-pool"></div>
 </section>
 
 <section id="s10" data-title="Performance and real-time concerns">
@@ -731,6 +735,58 @@ cv.notify_one();
       note: 'On waking, the consumer <b>re-acquires the mutex and checks the predicate again</b>. It is now true (this check is also what protects against spurious wakeups). Only then does <code>wait</code> return.' },
     { line: 4, mem: [{ n: 'queue q', t: 'empty', v: '[ ]' }, { n: 'mutex m', v: 'held by consumer' }, { n: 'consumer', v: 'x = 42' }, { n: 'producer', v: 'done' }],
       note: 'The consumer takes the item, safely, still holding the lock. When <code>lk</code> goes out of scope the mutex is released.' }
+  ]
+});
+
+CT.stepper('#st-pool', {
+  title: 'A thread pool: tasks in, workers out',
+  code: String.raw`
+ThreadPool pool(2);
+pool.submit(taskA);
+pool.submit(taskB);
+pool.submit(taskC);
+// ... later, pool goes out of scope
+`,
+  steps: [
+    { line: 1, mem: [{ n: 'queue', v: '[ ]', k: 'queue' }, { n: 'worker 1', t: 'thread', v: 'sleeping on cv', k: 'threads' }, { n: 'worker 2', t: 'thread', v: 'sleeping on cv', k: 'threads' }],
+      note: 'The pool starts <b>2 workers once</b>. Each one waits on the condition variable: no CPU used while idle.' },
+    { line: 2, mem: [{ n: 'queue', v: '[ A ]', k: 'queue' }, { n: 'worker 1', t: 'thread', v: 'woken by notify_one', k: 'threads' }, { n: 'worker 2', t: 'thread', v: 'sleeping on cv', k: 'threads' }],
+      note: '<code>submit(A)</code> pushes under the lock, then <code>notify_one()</code> wakes <b>one</b> worker.' },
+    { line: 2, mem: [{ n: 'queue', v: '[ ]', k: 'queue' }, { n: 'worker 1', t: 'thread', v: 'RUNNING A', k: 'threads' }, { n: 'worker 2', t: 'thread', v: 'sleeping on cv', k: 'threads' }],
+      note: 'Worker 1 takes A off the queue <b>under the lock</b>, releases the lock, and only then runs A. Running outside the lock is what lets tasks run in parallel.' },
+    { line: 3, mem: [{ n: 'queue', v: '[ ]', k: 'queue' }, { n: 'worker 1', t: 'thread', v: 'RUNNING A', k: 'threads' }, { n: 'worker 2', t: 'thread', v: 'RUNNING B', k: 'threads' }],
+      note: '<code>submit(B)</code> wakes worker 2, which runs B at the same time as A.' },
+    { line: 4, mem: [{ n: 'queue', v: '[ C ]', k: 'queue' }, { n: 'worker 1', t: 'thread', v: 'RUNNING A', k: 'threads' }, { n: 'worker 2', t: 'thread', v: 'RUNNING B', k: 'threads' }],
+      note: '<code>submit(C)</code>: both workers are busy, so C <b>waits in the queue</b>. The thread count stays bounded however many tasks arrive.' },
+    { line: 4, mem: [{ n: 'queue', v: '[ ]', k: 'queue' }, { n: 'worker 1', t: 'thread', v: 'RUNNING C', k: 'threads' }, { n: 'worker 2', t: 'thread', v: 'RUNNING B', k: 'threads' }],
+      note: 'Worker 1 finishes A, finds C waiting, and takes it.' },
+    { line: 5, mem: [{ n: 'stop_', t: 'bool', v: 'true', p: 'set under the lock' }, { n: 'queue', v: '[ ]', k: 'queue' }, { n: 'worker 1', t: 'thread', v: 'exited (joined)', k: 'threads', dead: true }, { n: 'worker 2', t: 'thread', v: 'exited (joined)', k: 'threads', dead: true }],
+      note: 'The destructor sets <b>stop_ = true</b> under the lock, calls <code>notify_all()</code>, and joins. Workers finish the remaining tasks, see "stop and queue empty", and return. RAII shutdown.' }
+  ]
+});
+
+CT.stepper('#st-future', {
+  title: 'promise and future: a one-shot channel between threads',
+  code: String.raw`
+std::promise<int> p;
+std::future<int> f = p.get_future();
+std::thread t([&p] { p.set_value(42); });
+int r = f.get();
+t.join();
+`,
+  steps: [
+    { line: 1, mem: [{ n: 'p', t: 'promise', v: '0x5000', p: 'writer end' }, { n: 'shared state @0x5000', t: 'internal', v: 'empty', k: 'heap' }],
+      note: 'Creating a <b>promise</b> allocates a hidden <b>shared state</b> that will hold the value or an exception.' },
+    { line: 2, mem: [{ n: 'p', t: 'promise', v: '0x5000', p: 'writer end' }, { n: 'f', t: 'future', v: '0x5000', p: 'reader end' }, { n: 'shared state @0x5000', t: 'internal', v: 'empty', k: 'heap' }],
+      note: '<code>get_future()</code> gives the <b>reader end</b>. Both ends now point at the same shared state.' },
+    { line: 3, mem: [{ n: 'p', t: 'promise', v: '0x5000', p: 'writer end' }, { n: 'f', t: 'future', v: '0x5000', p: 'reader end' }, { n: 'shared state @0x5000', t: 'internal', v: 'empty', k: 'heap' }, { n: 'worker thread', t: 'thread', v: 'running', k: 'threads' }],
+      note: 'A worker thread starts. It captured the promise by reference to fulfil it.' },
+    { line: 4, mem: [{ n: 'p', t: 'promise', v: '0x5000', p: 'writer end' }, { n: 'f', t: 'future', v: '0x5000', p: 'reader end' }, { n: 'shared state @0x5000', t: 'internal', v: 'empty', k: 'heap' }, { n: 'main thread', t: 'thread', v: 'BLOCKED in f.get()', k: 'threads' }, { n: 'worker thread', t: 'thread', v: 'running', k: 'threads' }],
+      note: '<code>f.get()</code> <b>blocks</b> the main thread until a value is ready (no busy waiting).' },
+    { line: 3, mem: [{ n: 'p', t: 'promise', v: '0x5000', p: 'writer end' }, { n: 'f', t: 'future', v: '0x5000', p: 'reader end' }, { n: 'shared state @0x5000', t: 'internal', v: 'READY: 42', k: 'heap' }, { n: 'main thread', t: 'thread', v: 'woken', k: 'threads' }, { n: 'worker thread', t: 'thread', v: 'finished', k: 'threads' }],
+      note: '<code>p.set_value(42)</code> stores 42 in the shared state and wakes the waiter. (<code>set_exception</code> would store an error that <code>get()</code> rethrows.)' },
+    { line: 5, mem: [{ n: 'r', t: 'int', v: '42' }, { n: 'shared state @0x5000', t: 'internal', v: 'consumed (get works once)', k: 'heap', dead: true }, { n: 'worker thread', t: 'thread', v: 'joined', k: 'threads', dead: true }],
+      note: 'main resumes with <b>r = 42</b>, then joins the finished worker. <code>std::async</code> and <code>packaged_task</code> are this same mechanism with the promise hidden.' }
   ]
 });
 </script>

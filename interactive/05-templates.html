@@ -126,6 +126,8 @@ auto a = makeUnique<Widget>(s);              // s is an lvalue  -> Widget copies
 auto b = makeUnique<Widget>(std::string("x"));// temporary rvalue -> Widget MOVES it
 </script>
 <div class="callout warn"><span class="label">std::move vs std::forward</span><code>move</code> <i>always</i> casts to rvalue. <code>forward&lt;T&gt;</code> casts to rvalue <i>only if</i> the argument was one. Use <code>forward</code> only on a forwarding reference, once.</div>
+<p>Step through perfect forwarding:</p>
+<div id="st-forward"></div>
 </section>
 
 <section data-title="Variadic templates and fold expressions">
@@ -328,6 +330,29 @@ sum(1, 2, 3);
   ['dp', 'da'].forEach((id) => document.getElementById(id).addEventListener('change', show));
   show();
 })();
+
+CT.stepper('#st-forward', {
+  title: 'Perfect forwarding: copy for lvalues, move for rvalues',
+  code: String.raw`
+template <typename T>
+void wrap(T&& arg) { target(std::forward<T>(arg)); }
+
+std::string s = "abc";
+wrap(s);
+wrap(std::string("x"));
+`,
+  steps: [
+    { line: 5, mem: [{ n: 's', t: 'string', v: '"abc"' }], note: 'An ordinary named string: an <b>lvalue</b>.' },
+    { line: 6, mem: [{ n: 's', t: 'string', v: '"abc"' }, { n: 'T', t: 'deduced', v: 'string&' }, { n: 'arg', t: 'string&', v: 'alias', to: 's' }],
+      note: '<code>wrap(s)</code>: s is an lvalue, so <b>T = string&amp;</b>. The parameter <code>T&amp;&amp;</code> collapses to <code>string&amp;</code> and binds to s without copying.' },
+    { line: 2, mem: [{ n: 's', t: 'string', v: '"abc"' }, { n: 'T', t: 'deduced', v: 'string&' }, { n: 'arg', t: 'string&', v: 'alias', to: 's' }], out: 'target(const string&): COPY\n',
+      note: '<code>std::forward&lt;string&amp;&gt;(arg)</code> keeps it an <b>lvalue</b>, so target picks the copying overload. Inside wrap, arg has a name and is always an lvalue; forward restores what the caller passed.' },
+    { line: 7, mem: [{ n: 's', t: 'string', v: '"abc"' }, { n: 'temp', t: 'string', v: '"x"', p: 'unnamed temporary' }, { n: 'T', t: 'deduced', v: 'string' }, { n: 'arg', t: 'string&&', v: 'alias', to: 'temp' }],
+      note: '<code>wrap(std::string("x"))</code>: a temporary is an <b>rvalue</b>, so <b>T = string</b> and the parameter is a true <code>string&amp;&amp;</code> bound to the temporary.' },
+    { line: 2, mem: [{ n: 's', t: 'string', v: '"abc"' }, { n: 'temp', t: 'string', v: 'moved-from', p: 'unnamed temporary' }, { n: 'T', t: 'deduced', v: 'string' }, { n: 'arg', t: 'string&&', v: 'alias', to: 'temp' }], out: 'target(string&&): MOVE\n',
+      note: '<code>std::forward&lt;string&gt;(arg)</code> casts to an <b>rvalue</b>, so target picks the move overload. Same wrapper, correct behaviour for both: that is perfect forwarding. (<code>std::move</code> would have moved in <i>both</i> cases.)' }
+  ]
+});
 </script>
 </body>
 </html>

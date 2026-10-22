@@ -364,23 +364,81 @@
   function stepper(sel, cfg) {
     const root = typeof sel === 'string' ? $(sel) : sel;
     root.className = 'widget stepper';
+    root.tabIndex = 0;
     const code = clean(cfg.code).split('\n');
     const lines = code.map((l, i) => '<span class="ln" data-l="' + (i + 1) + '"><i>' + (i + 1) + '</i>' + (highlight(l) || ' ') + '</span>').join('');
+    const N = cfg.steps.length;
     root.innerHTML = '<div class="w-head"><span class="tag">Step through</span>' + esc(cfg.title || '') + '</div>' +
-      '<div class="st-body"><pre class="st-code">' + lines + '</pre><div class="st-side"><div class="st-mem"></div><div class="st-out" aria-label="Program output"></div></div></div>' +
+      '<div class="st-body"><div class="st-pane st-codepane"><div class="st-label">Code</div><pre class="st-code">' + lines + '</pre></div>' +
+      '<div class="st-pane st-side"><div class="st-label">Memory</div><div class="st-mem"></div><div class="st-label">Output</div><div class="st-out" aria-label="Program output"></div></div></div>' +
       '<div class="st-note" role="status" aria-live="polite"></div>' +
+      '<div class="st-dots" role="group" aria-label="Jump to a step">' + Array.from({ length: N }, (_, k) => '<button type="button" class="st-dot" data-j="' + k + '" aria-label="Step ' + (k + 1) + '"></button>').join('') + '</div>' +
       '<div class="w-foot" role="group" aria-label="Step controls"><button class="btn sm ghost" data-a="back" type="button">&#9664; Back</button>' +
       '<button class="btn sm" data-a="next" type="button">Next &#9654;</button>' +
+      '<button class="btn sm ghost" data-a="play" type="button">&#9654;&#9654; Play</button>' +
       '<button class="btn sm ghost" data-a="reset" type="button">Reset</button><span class="info"></span></div>';
-    let i = -1;
-    const N = cfg.steps.length;
-    const GROUPS = [['stack', 'Stack'], ['heap', 'Heap'], ['static', 'Static / global'], ['call', 'Call stack'], ['inst', 'Compiler-generated functions']];
+    const uid = Math.random().toString(36).slice(2, 8);
+    let i = -1, timer = null;
+    const GROUPS = [['stack', 'Stack'], ['heap', 'Heap'], ['static', 'Static / global'], ['call', 'Call stack'], ['inst', 'Compiler-generated functions'], ['queue', 'Shared queue'], ['threads', 'Threads']];
+    const addrOf = (v) => { const m = /0x[0-9a-fA-F]+/.exec(v || ''); return m ? m[0] : null; };
+
+    function arrows() {
+      const memEl = $('.st-mem', root);
+      const old = $('svg.st-arrows', memEl);
+      if (old) old.remove();
+      const cells = $$('.cell[data-n]', memEl);
+      if (!cells.length) return;
+      const box = memEl.getBoundingClientRect();
+      const ns = 'http://www.w3.org/2000/svg';
+      const svg = document.createElementNS(ns, 'svg');
+      svg.setAttribute('class', 'st-arrows');
+      svg.setAttribute('width', box.width);
+      svg.setAttribute('height', box.height);
+      svg.innerHTML = '<defs><marker id="sa' + root.id + '" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10z" class="st-ah"/></marker></defs>';
+      const s = cfg.steps[i];
+      let drawn = 0;
+      (s.mem || []).forEach((e) => {
+        const src = cells.find((c) => c.dataset.n === e.n);
+        if (!src) return;
+        let dst = null;
+        if (e.to) dst = cells.find((c) => c.dataset.n === e.to || c.dataset.n.split(' ')[0] === e.to);
+        const a = addrOf(e.v);
+        if (!dst && a) dst = cells.find((c) => c !== src && c.dataset.n.indexOf('@' + a) >= 0);
+        if (!dst) return;
+        const r1 = src.getBoundingClientRect(), r2 = dst.getBoundingClientRect();
+        const c1 = { x: r1.left - box.left + r1.width / 2, y: r1.top - box.top + r1.height / 2 };
+        const c2 = { x: r2.left - box.left + r2.width / 2, y: r2.top - box.top + r2.height / 2 };
+        let p1, p2, d;
+        if (Math.abs(c1.y - c2.y) < r1.height * 0.6) {                    // same row: side to side
+          const right = c2.x > c1.x;
+          p1 = { x: right ? r1.right - box.left : r1.left - box.left, y: c1.y };
+          p2 = { x: right ? r2.left - box.left : r2.right - box.left, y: c2.y };
+          const dx = (p2.x - p1.x) / 2;
+          d = 'M' + p1.x + ' ' + p1.y + ' C' + (p1.x + dx) + ' ' + (p1.y - 30) + ' ' + (p2.x - dx) + ' ' + (p2.y - 30) + ' ' + p2.x + ' ' + p2.y;
+        } else {                                                          // different rows: bottom to top (or top to bottom)
+          const down = c2.y > c1.y;
+          p1 = { x: c1.x, y: (down ? r1.bottom : r1.top) - box.top };
+          p2 = { x: c2.x, y: (down ? r2.top : r2.bottom) - box.top };
+          const dy = Math.max(18, Math.abs(p2.y - p1.y) / 2);
+          d = 'M' + p1.x + ' ' + p1.y + ' C' + p1.x + ' ' + (p1.y + (down ? dy : -dy)) + ' ' + p2.x + ' ' + (p2.y + (down ? -dy : dy)) + ' ' + p2.x + ' ' + p2.y;
+        }
+        const path = document.createElementNS(ns, 'path');
+        path.setAttribute('d', d);
+        path.setAttribute('class', 'st-arrow' + (dst.classList.contains('dead') ? ' dead' : ''));
+        path.setAttribute('marker-end', 'url(#sa' + uid + ')');
+        svg.appendChild(path);
+        drawn++;
+      });
+      if (drawn) memEl.appendChild(svg);
+    }
 
     function render() {
       const s = i >= 0 ? cfg.steps[i] : null;
       const p = i > 0 ? cfg.steps[i - 1] : null;
       const cur = s ? [].concat(s.line) : [];
       $$('.ln', root).forEach((el) => el.classList.toggle('cur', cur.indexOf(+el.dataset.l) >= 0));
+      const curEl = $('.ln.cur', root);
+      if (curEl && curEl.scrollIntoView && false) curEl.scrollIntoView({ block: 'nearest' });
       let mem = '';
       if (s && s.mem && s.mem.length) {
         GROUPS.forEach((g) => {
@@ -389,27 +447,52 @@
           mem += '<div class="mem-group"><h5>' + g[1] + '</h5><div class="mem">' + es.map((e) => {
             const before = p && p.mem ? p.mem.find((x) => x.n === e.n) : null;
             const chg = !before || before.v !== e.v || !!before.dead !== !!e.dead;
-            return '<div class="cell' + (chg ? ' chg' : '') + (e.dead ? ' dead' : '') + (g[0] === 'heap' ? ' heap' : '') + '">' +
-              '<div class="nm">' + esc(e.n) + (e.t ? ' &middot; ' + esc(e.t) : '') + '</div><div class="vl">' + esc(e.v) + '</div>' +
+            return '<div class="cell' + (chg ? ' chg' : '') + (e.dead ? ' dead' : '') + (g[0] === 'heap' ? ' heap' : '') + (e.t && /\*|&|ptr/.test(e.t) ? ' ptr' : '') + '" data-n="' + esc(e.n) + '">' +
+              '<div class="nm">' + esc(e.n) + (e.t ? ' <span class="ty">' + esc(e.t) + '</span>' : '') + '</div><div class="vl">' + esc(e.v) + '</div>' +
               (e.p ? '<div class="tg">&rarr; ' + esc(e.p) + '</div>' : '') + '</div>';
           }).join('') + '</div></div>';
         });
       }
-      $('.st-mem', root).innerHTML = mem || '<div class="mem-group"><h5>Memory</h5><div class="mem"><span class="cell">(nothing yet)</span></div></div>';
+      $('.st-mem', root).innerHTML = mem || '<div class="mem-group"><div class="mem"><span class="cell empty">(nothing yet)</span></div></div>';
+      if (s) arrows();
       $('.st-out', root).textContent = cfg.steps.slice(0, i + 1).map((x) => x.out || '').join('');
-      $('.st-note', root).innerHTML = s ? s.note : (cfg.intro || 'Press <b>Next</b> to run the first line.');
+      $('.st-note', root).innerHTML = s ? '<span class="st-badge">' + (i + 1) + '</span>' + s.note : (cfg.intro || 'Press <b>Next</b> (or the right arrow key) to run the first line.');
       $('[data-a="back"]', root).disabled = i < 0;
       $('[data-a="next"]', root).disabled = i >= N - 1;
+      $$('.st-dot', root).forEach((d, k) => { d.classList.toggle('done', k < i); d.classList.toggle('cur', k === i); });
       $('.info', root).textContent = 'Step ' + (i + 1) + ' of ' + N;
+      if (i >= N - 1) stop();
+    }
+    function stop() {
+      if (timer) { clearInterval(timer); timer = null; }
+      const b = $('[data-a="play"]', root);
+      if (b) b.innerHTML = '&#9654;&#9654; Play';
+    }
+    function play() {
+      if (timer) { stop(); return; }
+      if (i >= N - 1) i = -1;
+      $('[data-a="play"]', root).innerHTML = '&#10074;&#10074; Pause';
+      i++; render();
+      timer = setInterval(() => { if (i < N - 1) { i++; render(); } else stop(); }, 1800);
     }
     root.addEventListener('click', (e) => {
+      const dot = e.target.closest('.st-dot');
+      if (dot) { stop(); i = +dot.dataset.j; render(); return; }
       const b = e.target.closest('button[data-a]');
       if (!b) return;
+      if (b.dataset.a === 'play') { play(); return; }
+      stop();
       if (b.dataset.a === 'next' && i < N - 1) i++;
       else if (b.dataset.a === 'back' && i >= 0) i--;
       else if (b.dataset.a === 'reset') i = -1;
       render();
     });
+    root.addEventListener('keydown', (e) => {                      // arrow keys while the widget has focus
+      if (e.target.closest && e.target.closest('input, select, textarea')) return;
+      if (e.key === 'ArrowRight' && i < N - 1) { e.preventDefault(); e.stopPropagation(); stop(); i++; render(); }
+      else if (e.key === 'ArrowLeft' && i >= 0) { e.preventDefault(); e.stopPropagation(); stop(); i--; render(); }
+    });
+    window.addEventListener('resize', () => { if (i >= 0) arrows(); });
     render();
   }
 
