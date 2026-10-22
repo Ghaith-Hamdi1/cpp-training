@@ -39,6 +39,42 @@ public:
 <!-- read-more:end -->
 </section>
 
+<section id="s7" data-title="Exceptions and stack unwinding">
+<h2>Exceptions and stack unwinding</h2>
+<script type="text/x-cpp">
+double divide(double a, double b) {
+    if (b == 0) throw std::invalid_argument("division by zero");
+    return a / b;
+}
+
+try {
+    divide(1, 0);
+} catch (const std::invalid_argument& e) {        // catch by const reference
+    std::cerr << e.what() << '\n';
+} catch (const std::exception& e) {               // more general handler goes AFTER specific ones
+    std::cerr << "other: " << e.what() << '\n';
+}
+</script>
+<ul>
+<li><b>Throw by value, catch by <code>const&amp;</code></b> (catching by value slices a derived exception).</li>
+<li><b>Stack unwinding</b>: leaving scopes runs destructors, in reverse order of construction, until a <code>catch</code> matches. This is why RAII is exception-safe.</li>
+<li>A <b>destructor must never throw</b>: if it throws while another exception is unwinding, <code>std::terminate</code> is called. Destructors are implicitly <code>noexcept</code>.</li>
+<li>A constructor that throws leaves no object: the destructors of already-built members and bases run, its own does not.</li>
+<li><code>catch (...)</code> catches everything; rethrow with a bare <code>throw;</code> (never <code>throw e;</code>, which copies and slices).</li>
+<li>Derive your own exceptions from <code>std::exception</code> (or a standard subclass) so generic handlers still work.</li>
+</ul>
+<div class="callout warn"><span class="label">Cost</span>The no-throw path is almost free, but a throw is orders of magnitude slower than a return and its latency is unpredictable. Do not throw on a hot path or as ordinary control flow (see <a href="#errors">Exceptions, error codes and optional</a>).</div>
+<!-- read-more:start -->
+<div class="callout tip"><span class="label">Read more</span>
+<p><b>Programming: Principles and Practice (Stroustrup)</b></p>
+<ul>
+<li>4.5 to 4.6 Run-time errors and exceptions (PDF pages 102 to 111)</li>
+<li>18.4 to 18.5 Resources and exceptions; resource-management pointers (RAII, unique_ptr) (PDF pages 542 to 553)</li>
+</ul>
+</div>
+<!-- read-more:end -->
+</section>
+
 <section id="raii-types" data-title="RAII everywhere: guards and standard wrappers">
 <h2>RAII everywhere: guards and standard wrappers</h2>
 <p>Almost every resource has a standard RAII wrapper. Use it instead of a manual acquire/release pair.</p>
@@ -73,48 +109,11 @@ void transfer() {
 <ul>
 <li>A RAII class owns <b>one</b> resource. Copying it must be <b>deleted</b> (one owner) or a <b>deep copy</b>; moving transfers ownership (the Rule of Five, <a href="02-oop.html">OOP lesson</a>; <a href="13-move-semantics.html">Move Semantics</a>).</li>
 <li>Prefer the <b>Rule of Zero</b>: hold resources in members that are already RAII, and you write no destructor at all.</li>
-<li><b>Destructors must not throw</b> (next sections).</li>
+<li><b>Destructors must not throw</b> (see <a href="#s7">Exceptions and stack unwinding</a> and <a href="#guarantees">Exception-safety guarantees</a>).</li>
 <li>Avoid a naked <code>new</code>: before C++17, <code>f(std::unique_ptr&lt;A&gt;(new A), g())</code> could leak if <code>g()</code> threw between the <code>new</code> and the <code>unique_ptr</code> constructor. C++17 closed that gap, but <code>std::make_unique</code> is still the idiom: no raw <code>new</code>, no repeated type.</li>
 </ul>
 <div class="callout interview"><span class="label">Interview angle</span>"What is RAII?" The resource's lifetime is tied to an object: acquire in the constructor, release in the destructor. Destructors run on every exit path, including exceptions, so nothing leaks and no <code>finally</code> is needed.</div>
 </section>
-
-<section id="s7" data-title="Exceptions and stack unwinding">
-<h2>Exceptions and stack unwinding</h2>
-<script type="text/x-cpp">
-double divide(double a, double b) {
-    if (b == 0) throw std::invalid_argument("division by zero");
-    return a / b;
-}
-
-try {
-    divide(1, 0);
-} catch (const std::invalid_argument& e) {        // catch by const reference
-    std::cerr << e.what() << '\n';
-} catch (const std::exception& e) {               // more general handler goes AFTER specific ones
-    std::cerr << "other: " << e.what() << '\n';
-}
-</script>
-<ul>
-<li><b>Throw by value, catch by <code>const&amp;</code></b> (catching by value slices a derived exception).</li>
-<li><b>Stack unwinding</b>: leaving scopes runs destructors, in reverse order of construction, until a <code>catch</code> matches. This is why RAII is exception-safe.</li>
-<li>A <b>destructor must never throw</b>: if it throws while another exception is unwinding, <code>std::terminate</code> is called. Destructors are implicitly <code>noexcept</code>.</li>
-<li>A constructor that throws leaves no object: the destructors of already-built members and bases run, its own does not.</li>
-<li><code>catch (...)</code> catches everything; rethrow with a bare <code>throw;</code> (never <code>throw e;</code>, which copies and slices).</li>
-<li>Derive your own exceptions from <code>std::exception</code> (or a standard subclass) so generic handlers still work.</li>
-</ul>
-<div class="callout warn"><span class="label">Cost</span>The no-throw path is almost free, but a throw is orders of magnitude slower than a return and its latency is unpredictable. Do not throw on a hot path or as ordinary control flow (<a href="#errors">next sections</a>).</div>
-<!-- read-more:start -->
-<div class="callout tip"><span class="label">Read more</span>
-<p><b>Programming: Principles and Practice (Stroustrup)</b></p>
-<ul>
-<li>4.5 to 4.6 Run-time errors and exceptions (PDF pages 102 to 111)</li>
-<li>18.4 to 18.5 Resources and exceptions; resource-management pointers (RAII, unique_ptr) (PDF pages 542 to 553)</li>
-</ul>
-</div>
-<!-- read-more:end -->
-</section>
-
 
 <section id="guarantees" data-title="Exception-safety guarantees and noexcept">
 <h2>Exception-safety guarantees and noexcept</h2>

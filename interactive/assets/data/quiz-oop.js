@@ -152,6 +152,18 @@ Widget b = std::move(a);`,
 
     { sec: 's8', q: 'What does declaring `explicit operator bool() const` allow?',
       opts: ['Nothing: conversion operators cannot be explicit', 'Use in conditions such as `if (obj)`, while blocking accidental conversions like `int n = obj;` or `obj + 1`', 'Implicit conversion to bool everywhere, including arithmetic', 'Converting a bool into the class'], a: 1,
-      why: 'An explicit conversion only applies where a bool is clearly wanted (if, while, !, &&, ||). Without explicit, a class convertible to bool also silently converts to int and takes part in arithmetic.' }
+      why: 'An explicit conversion only applies where a bool is clearly wanted (if, while, !, &&, ||). Without explicit, a class convertible to bool also silently converts to int and takes part in arithmetic.' },
+
+    { sec: 'conversions', q: 'What does `explicit` on a single-argument constructor prevent?',
+      opts: ['Copying the object', 'Implicit conversions from the argument type, such as `Feet f = 3.0;` or passing `3.0` where `Feet` is expected', 'Inheritance from the class', 'Use in templates'], a: 1,
+      why: 'The conversion must be written out (`Feet(3.0)`). Mark single-argument constructors `explicit` by default.' },
+
+    { sec: 'conversions', q: 'Why is `explicit operator bool()` better than a plain `operator bool()`?',
+      opts: ['It is faster', 'It works in `if` and `while` but not silently in arithmetic or comparisons with other types', 'It allows more conversions', 'It avoids a vtable'], a: 1,
+      why: 'A non-explicit `operator bool` converts to `int` and so lets `h + 1` or `h == 2` compile.' },
+
+    { sec: 'conversions', q: 'What is the main benefit of copy-and-swap for `operator=`?',
+      opts: ['It is the fastest possible implementation', 'The copy is made before `*this` is modified, so it gives the strong exception guarantee and safe self-assignment with one function', 'It avoids the copy constructor', 'It makes the class final'], a: 1,
+      why: 'The by-value parameter is the copy. If the copy throws, nothing has changed; then a non-throwing swap commits.' }
   ]
 };

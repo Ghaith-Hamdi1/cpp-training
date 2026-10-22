@@ -12,7 +12,7 @@
 <h1>The C++ Standard Template Library</h1>
 <p class="lead">Containers hold data, algorithms work on it, iterators connect them. Container choice, operation costs and iterator invalidation are interview staples.</p>
 
-<section data-title="The big picture">
+<section id="s1" data-title="The big picture">
 <h2>The big picture</h2>
 <figure class="fig"><svg viewBox="0 0 640 120" role="img" aria-label="Algorithms reach containers only through iterators"><defs><marker id="e1" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path class="ah" d="M0 0L10 5L0 10z"/></marker></defs><rect class="acc" x="10" y="30" width="170" height="60" rx="8"/><text class="t" x="95" y="56" text-anchor="middle">Containers</text><text class="m" x="95" y="74" text-anchor="middle">vector, map, list</text><rect class="wn" x="235" y="30" width="170" height="60" rx="8"/><text class="t" x="320" y="56" text-anchor="middle">Iterators</text><text class="m" x="320" y="74" text-anchor="middle">[begin, end)</text><rect class="gd" x="460" y="30" width="170" height="60" rx="8"/><text class="t" x="545" y="56" text-anchor="middle">Algorithms</text><text class="m" x="545" y="74" text-anchor="middle">sort, find, accumulate</text><path class="ar" d="M180 60H233M460 60H407" marker-end="url(#e1)"/><text class="m" x="320" y="112" text-anchor="middle">Algorithms never touch containers, only iterator ranges.</text></svg><figcaption>One sort works on any container that offers the right iterators.</figcaption></figure>
 <table>
@@ -42,7 +42,7 @@
 <!-- read-more:end -->
 </section>
 
-<section data-title="vector: the workhorse">
+<section id="s2" data-title="vector: the workhorse">
 <h2><code>vector</code>: the workhorse</h2>
 <figure class="fig"><svg viewBox="0 0 640 120" role="img" aria-label="A vector buffer with size elements in use and spare capacity"><text class="t" x="10" y="20">buffer on the heap</text><rect class="acc" x="10" y="32" width="64" height="36" rx="4"/><rect class="acc" x="78" y="32" width="64" height="36" rx="4"/><rect class="acc" x="146" y="32" width="64" height="36" rx="4"/><text x="42" y="55" text-anchor="middle">10</text><text x="110" y="55" text-anchor="middle">20</text><text x="178" y="55" text-anchor="middle">30</text><rect class="box" x="214" y="32" width="64" height="36" rx="4" stroke-dasharray="4 3"/><rect class="box" x="282" y="32" width="64" height="36" rx="4" stroke-dasharray="4 3"/><text class="m" x="246" y="55" text-anchor="middle">spare</text><text class="m" x="314" y="55" text-anchor="middle">spare</text><path class="ln" d="M10 80H210M214 80H346"/><text class="m" x="110" y="98" text-anchor="middle">size = 3 (elements in use)</text><text class="m" x="280" y="114" text-anchor="middle">capacity = 5 (slots allocated)</text><text class="t" x="380" y="48">push_back, buffer full:</text><text class="m" x="380" y="68">allocate bigger, move all, free old</text><text class="m" x="380" y="86">= amortised O(1), but every iterator</text><text class="m" x="380" y="104">and pointer into it is invalidated</text></svg><figcaption>reserve() grows capacity only; resize() changes size.</figcaption></figure>
 <p>A <code>vector</code> is one contiguous heap array with a <b>size</b> and a <b>capacity</b>. When full, <code>push_back</code> allocates a bigger buffer, moves everything and frees the old one: occasional O(n), <b>amortised O(1)</b>.</p>
@@ -85,7 +85,83 @@ With braces, a constructor taking <code>std::initializer_list</code> is preferre
 <!-- read-more:end -->
 </section>
 
-<section data-title="Other sequence containers">
+<section id="s6" data-title="Iterators">
+<h2>Iterators</h2>
+<p>An iterator acts like a pointer: <code>*it</code>, <code>++it</code>, <code>it == end</code>. <code>end()</code> is <b>one past the last</b>; ranges are half-open <code>[begin, end)</code>.</p>
+<script type="text/x-cpp">
+std::vector<int> v{1, 2, 3};
+for (auto it = v.begin(); it != v.end(); ++it) std::cout << *it;   // use != not <, it works for every container
+for (int x : v) std::cout << x;           // range-for is exactly this loop in disguise
+for (auto it = v.rbegin(); it != v.rend(); ++it) { }   // reverse iterators
+for (auto it = v.cbegin(); it != v.cend(); ++it) { }   // cbegin/cend: read-only, *it cannot be modified
+auto it2 = std::next(v.begin(), 2);       // advance without assuming random access
+</script>
+<table>
+<tr><th>Category</th><th>Can do</th><th>Containers</th></tr>
+<tr><td>Forward</td><td><code>++</code>, read (multi-pass)</td><td><code>forward_list</code>, unordered containers</td></tr>
+<tr><td>Bidirectional</td><td>also <code>--</code></td><td><code>list</code>, <code>map</code>, <code>set</code></td></tr>
+<tr><td>Random access</td><td>also <code>it + n</code>, <code>it[i]</code>, <code>it1 - it2</code>, <code>&lt;</code></td><td><code>vector</code>, <code>deque</code>, <code>array</code>, <code>string</code></td></tr>
+</table>
+<p>So <code>std::sort</code> needs random access and fails on <code>std::list</code> (use <code>list.sort()</code>).</p>
+
+<h3>Iterator adaptors: filling a container</h3>
+<p>An algorithm like <code>std::copy</code> <b>assigns</b> through its output iterator, so the destination must already be big enough. An <b>inserter</b> turns each assignment into an insertion instead:</p>
+<table>
+<tr><th>Adaptor</th><th>Each assignment does</th></tr>
+<tr><td><code>std::back_inserter(c)</code></td><td><code>c.push_back(x)</code></td></tr>
+<tr><td><code>std::front_inserter(c)</code></td><td><code>c.push_front(x)</code> (so the order reverses; needs <code>deque</code>/<code>list</code>)</td></tr>
+<tr><td><code>std::inserter(c, pos)</code></td><td><code>c.insert(pos, x)</code> (works for <code>set</code> and <code>map</code>)</td></tr>
+</table>
+<script type="text/x-cpp">
+std::vector<int> src{3, 1, 2}, out;
+std::copy(src.begin(), src.end(), std::back_inserter(out));      // out is {3, 1, 2}: it grew
+// std::copy(src.begin(), src.end(), out.begin());               // BUG if out is empty: writes past the end
+
+std::set<int> sorted;
+std::copy(src.begin(), src.end(), std::inserter(sorted, sorted.begin()));
+</script>
+<p><code>std::reverse_iterator</code> (what <code>rbegin()</code> returns) and <code>std::move_iterator</code> (moves instead of copying) are the other two adaptors worth knowing.</p>
+<h3>Iterator invalidation</h3>
+<p>Changing a container can <b>invalidate</b> iterators, pointers and references; using one is UB.</p>
+<table>
+<tr><th>Container</th><th>Operation</th><th>What is invalidated</th></tr>
+<tr><td><code>vector</code></td><td><code>push_back</code>, <code>insert</code></td><td><b>all</b> if it reallocated; otherwise those at or after the insertion point</td></tr>
+<tr><td><code>vector</code></td><td><code>erase</code></td><td>the erased element and everything after it</td></tr>
+<tr><td><code>deque</code></td><td>insert/erase in the middle</td><td>everything; push at either end invalidates iterators but not references</td></tr>
+<tr><td><code>list</code>, <code>map</code>, <code>set</code></td><td>insert</td><td>nothing</td></tr>
+<tr><td><code>list</code>, <code>map</code>, <code>set</code></td><td>erase</td><td>only the erased element</td></tr>
+<tr><td><code>unordered_*</code></td><td>insert that triggers a rehash</td><td>all iterators (references stay valid)</td></tr>
+</table>
+<details class="ex"><summary><span class="ex-tag">Spot the bug</span>Erasing inside a loop</summary><div>
+<script type="text/x-cpp">
+std::vector<int> v{1, 2, 3, 4};
+for (auto it = v.begin(); it != v.end(); ++it)
+    if (*it % 2 == 0) v.erase(it);          // BUG
+</script>
+<p><code>erase</code> invalidates <code>it</code>, and the loop then does <code>++it</code> on a dead iterator. The correct idiom uses the iterator <code>erase</code> returns:</p>
+<script type="text/x-cpp">
+for (auto it = v.begin(); it != v.end(); ) {
+    if (*it % 2 == 0) it = v.erase(it);     // erase returns the next valid iterator
+    else ++it;
+}
+// or, in C++20:
+std::erase_if(v, [](int x) { return x % 2 == 0; });
+</script>
+</div></details>
+<p>Step through a correct erase loop:</p>
+<div id="st-erase"></div>
+<!-- read-more:start -->
+<div class="callout tip"><span class="label">Read more</span>
+<p><b>Programming: Principles and Practice (Stroustrup)</b></p>
+<ul>
+<li>19.1 to 19.3, 19.6 Containers, sequences and iterators, linked lists, vector/list/string (PDF pages 559 to 572 and 585 to 586)</li>
+<li>20.7.1 Iterator categories (PDF pages 610 to 612)</li>
+</ul>
+</div>
+<!-- read-more:end -->
+</section>
+
+<section id="s3" data-title="Other sequence containers">
 <h2>Other sequence containers</h2>
 <table>
 <tr><th>Container</th><th>Storage</th><th>Best at</th><th>Watch out</th></tr>
@@ -113,7 +189,7 @@ With braces, a constructor taking <code>std::initializer_list</code> is preferre
 <!-- read-more:end -->
 </section>
 
-<section data-title="Associative and unordered containers">
+<section id="s4" data-title="Associative and unordered containers">
 <h2>Associative and unordered containers</h2>
 <figure class="fig"><svg viewBox="0 0 640 160" role="img" aria-label="A sorted tree versus a hash table with buckets"><text class="t" x="10" y="20">map / set: balanced tree, sorted, O(log n)</text><rect class="acc" x="130" y="32" width="50" height="28" rx="14"/><text x="155" y="51" text-anchor="middle">20</text><rect class="acc" x="70" y="84" width="50" height="28" rx="14"/><text x="95" y="103" text-anchor="middle">10</text><rect class="acc" x="190" y="84" width="50" height="28" rx="14"/><text x="215" y="103" text-anchor="middle">30</text><path class="ln" d="M142 60L102 86M168 60L208 86"/><text class="m" x="10" y="140">in-order walk = sorted order</text><text class="t" x="340" y="20">unordered_map: hash table, average O(1)</text><rect class="box" x="340" y="32" width="50" height="22" rx="3"/><text class="m" x="365" y="48" text-anchor="middle">0</text><rect class="wn" x="394" y="32" width="70" height="22" rx="3"/><text x="429" y="48" text-anchor="middle">"Ana"</text><rect class="box" x="340" y="58" width="50" height="22" rx="3"/><text class="m" x="365" y="74" text-anchor="middle">1</text><rect class="box" x="340" y="84" width="50" height="22" rx="3"/><text class="m" x="365" y="100" text-anchor="middle">2</text><rect class="wn" x="394" y="84" width="70" height="22" rx="3"/><text x="429" y="100" text-anchor="middle">"Bob"</text><rect class="wn" x="468" y="84" width="70" height="22" rx="3"/><text x="503" y="100" text-anchor="middle">"Eve"</text><text class="m" x="340" y="140">hash(key) picks a bucket; collisions chain (Bob, Eve)</text></svg><figcaption>Need order or range queries: map. Plain lookup: unordered_map.</figcaption></figure>
 <table>
@@ -190,7 +266,46 @@ std::priority_queue<int, std::vector<int>, std::greater<int>> minHeap;   // smal
 <!-- read-more:end -->
 </section>
 
-<section data-title="Which container should I use?">
+<section id="keys" data-title="Custom keys: comparators and hashes">
+<h2>Custom keys: comparators and hashes</h2>
+<p>A <code>map</code>/<code>set</code> needs an <b>ordering</b>; an <code>unordered_map</code>/<code>unordered_set</code> needs a <b>hash and equality</b>. For your own key types, you provide them.</p>
+<script type="text/x-cpp">
+struct NoCase {                                          // an ordering that ignores case
+    bool operator()(const std::string& a, const std::string& b) const {
+        return std::lexicographical_compare(a.begin(), a.end(), b.begin(), b.end(),
+            [](unsigned char x, unsigned char y) { return std::tolower(x) < std::tolower(y); });
+    }
+};
+std::map<std::string, int, NoCase> m;                    // the comparator is part of the TYPE
+m["Alpha"] = 1; m["ALPHA"] = 2;                          // the same key: size is 1 (compiled: 2 keys with "beta")
+
+struct Instrument { std::string venue; int id; bool operator==(const Instrument&) const = default; };
+struct InstrumentHash {
+    std::size_t operator()(const Instrument& i) const {
+        std::size_t h = std::hash<std::string>{}(i.venue);
+        h ^= std::hash<int>{}(i.id) + 0x9e3779b97f4a7c15ULL + (h << 6) + (h >> 2);   // combine the member hashes
+        return h;
+    }
+};
+std::unordered_map<Instrument, double, InstrumentHash> px;
+px[{"CME", 7}] = 101.5;
+</script>
+<table>
+<tr><th>Container</th><th>Key must provide</th><th>Rule</th></tr>
+<tr><td><code>map</code>, <code>set</code></td><td>a <b>strict weak ordering</b> (<code>operator&lt;</code> or a comparator)</td><td>irreflexive and transitive; equivalence means "neither is less". <code>&lt;=</code> is <b>not</b> valid: undefined behaviour</td></tr>
+<tr><td><code>unordered_map</code>, <code>unordered_set</code></td><td>a hash and <code>operator==</code></td><td>equal keys <b>must</b> have equal hashes; a poor hash makes every lookup O(n)</td></tr>
+</table>
+<ul>
+<li><b>Transparent comparators:</b> <code>std::map&lt;std::string, int, std::less&lt;&gt;&gt;</code> lets <code>find</code> take a <code>string_view</code> or <code>const char*</code> without building a temporary <code>std::string</code> (compiled: it found <code>"apple"</code> from a <code>string_view</code>). C++20 adds the same for unordered containers.</li>
+<li><b>Never change a key</b> while it is in the container: its position or bucket would be wrong. Keys are <code>const</code> for that reason.</li>
+<li><b>Hash quality:</b> combine <i>all</i> fields; avoid returning just one field. <code>std::hash</code> for <code>int</code> is the identity in libstdc++, which is fine.</li>
+<li>A <code>rehash</code> (growth beyond <code>max_load_factor</code>) invalidates iterators; <code>reserve(n)</code> up front avoids it, and avoids the allocations on a hot path.</li>
+<li>Ordered or hashed? Ordered when you need sorted iteration or range queries (<code>lower_bound</code>); hashed for plain lookup. For a few dozen keys a sorted <code>vector</code> and binary search often beats both.</li>
+</ul>
+<div class="callout interview"><span class="label">Interview angle</span>"How do you use your own type as a key in <code>unordered_map</code>?" Provide <code>operator==</code> and a hash functor (or specialise <code>std::hash</code>), combining all members, and make sure equal objects hash equally.</div>
+</section>
+
+<section id="s5" data-title="Which container should I use?">
 <h2>Which container should I use?</h2>
 <p>Pick what you mostly do:</p>
 <div id="w-choose"></div>
@@ -206,83 +321,7 @@ std::priority_queue<int, std::vector<int>, std::greater<int>> minHeap;   // smal
 <!-- read-more:end -->
 </section>
 
-<section data-title="Iterators">
-<h2>Iterators</h2>
-<p>An iterator acts like a pointer: <code>*it</code>, <code>++it</code>, <code>it == end</code>. <code>end()</code> is <b>one past the last</b>; ranges are half-open <code>[begin, end)</code>.</p>
-<script type="text/x-cpp">
-std::vector<int> v{1, 2, 3};
-for (auto it = v.begin(); it != v.end(); ++it) std::cout << *it;   // use != not <, it works for every container
-for (int x : v) std::cout << x;           // range-for is exactly this loop in disguise
-for (auto it = v.rbegin(); it != v.rend(); ++it) { }   // reverse iterators
-for (auto it = v.cbegin(); it != v.cend(); ++it) { }   // cbegin/cend: read-only, *it cannot be modified
-auto it2 = std::next(v.begin(), 2);       // advance without assuming random access
-</script>
-<table>
-<tr><th>Category</th><th>Can do</th><th>Containers</th></tr>
-<tr><td>Forward</td><td><code>++</code>, read (multi-pass)</td><td><code>forward_list</code>, unordered containers</td></tr>
-<tr><td>Bidirectional</td><td>also <code>--</code></td><td><code>list</code>, <code>map</code>, <code>set</code></td></tr>
-<tr><td>Random access</td><td>also <code>it + n</code>, <code>it[i]</code>, <code>it1 - it2</code>, <code>&lt;</code></td><td><code>vector</code>, <code>deque</code>, <code>array</code>, <code>string</code></td></tr>
-</table>
-<p>So <code>std::sort</code> needs random access and fails on <code>std::list</code> (use <code>list.sort()</code>).</p>
-
-<h3>Iterator adaptors: filling a container</h3>
-<p>An algorithm like <code>std::copy</code> <b>assigns</b> through its output iterator, so the destination must already be big enough. An <b>inserter</b> turns each assignment into an insertion instead:</p>
-<table>
-<tr><th>Adaptor</th><th>Each assignment does</th></tr>
-<tr><td><code>std::back_inserter(c)</code></td><td><code>c.push_back(x)</code></td></tr>
-<tr><td><code>std::front_inserter(c)</code></td><td><code>c.push_front(x)</code> (so the order reverses; needs <code>deque</code>/<code>list</code>)</td></tr>
-<tr><td><code>std::inserter(c, pos)</code></td><td><code>c.insert(pos, x)</code> (works for <code>set</code> and <code>map</code>)</td></tr>
-</table>
-<script type="text/x-cpp">
-std::vector<int> src{3, 1, 2}, out;
-std::copy(src.begin(), src.end(), std::back_inserter(out));      // out is {3, 1, 2}: it grew
-// std::copy(src.begin(), src.end(), out.begin());               // BUG if out is empty: writes past the end
-
-std::set<int> sorted;
-std::copy(src.begin(), src.end(), std::inserter(sorted, sorted.begin()));
-</script>
-<p><code>std::reverse_iterator</code> (what <code>rbegin()</code> returns) and <code>std::move_iterator</code> (moves instead of copying) are the other two adaptors worth knowing.</p>
-<h3>Iterator invalidation</h3>
-<p>Changing a container can <b>invalidate</b> iterators, pointers and references; using one is UB.</p>
-<table>
-<tr><th>Container</th><th>Operation</th><th>What is invalidated</th></tr>
-<tr><td><code>vector</code></td><td><code>push_back</code>, <code>insert</code></td><td><b>all</b> if it reallocated; otherwise those at or after the insertion point</td></tr>
-<tr><td><code>vector</code></td><td><code>erase</code></td><td>the erased element and everything after it</td></tr>
-<tr><td><code>deque</code></td><td>insert/erase in the middle</td><td>everything; push at either end invalidates iterators but not references</td></tr>
-<tr><td><code>list</code>, <code>map</code>, <code>set</code></td><td>insert</td><td>nothing</td></tr>
-<tr><td><code>list</code>, <code>map</code>, <code>set</code></td><td>erase</td><td>only the erased element</td></tr>
-<tr><td><code>unordered_*</code></td><td>insert that triggers a rehash</td><td>all iterators (references stay valid)</td></tr>
-</table>
-<details class="ex"><summary><span class="ex-tag">Spot the bug</span>Erasing inside a loop</summary><div>
-<script type="text/x-cpp">
-std::vector<int> v{1, 2, 3, 4};
-for (auto it = v.begin(); it != v.end(); ++it)
-    if (*it % 2 == 0) v.erase(it);          // BUG
-</script>
-<p><code>erase</code> invalidates <code>it</code>, and the loop then does <code>++it</code> on a dead iterator. The correct idiom uses the iterator <code>erase</code> returns:</p>
-<script type="text/x-cpp">
-for (auto it = v.begin(); it != v.end(); ) {
-    if (*it % 2 == 0) it = v.erase(it);     // erase returns the next valid iterator
-    else ++it;
-}
-// or, in C++20:
-std::erase_if(v, [](int x) { return x % 2 == 0; });
-</script>
-</div></details>
-<p>Step through a correct erase loop:</p>
-<div id="st-erase"></div>
-<!-- read-more:start -->
-<div class="callout tip"><span class="label">Read more</span>
-<p><b>Programming: Principles and Practice (Stroustrup)</b></p>
-<ul>
-<li>19.1 to 19.3, 19.6 Containers, sequences and iterators, linked lists, vector/list/string (PDF pages 559 to 572 and 585 to 586)</li>
-<li>20.7.1 Iterator categories (PDF pages 610 to 612)</li>
-</ul>
-</div>
-<!-- read-more:end -->
-</section>
-
-<section data-title="Algorithms">
+<section id="s7" data-title="Algorithms">
 <h2>Algorithms</h2>
 <p>Over a hundred generic functions in <code>&lt;algorithm&gt;</code>/<code>&lt;numeric&gt;</code>. Prefer them to loops: named, tested, often faster. Most take a lambda.</p>
 <p>Try some on <code>{5, 2, 9, 2, 7, 4}</code>:</p>
@@ -343,46 +382,7 @@ for (int x : evenSquares) use(x);                             // computed on dem
 <!-- read-more:end -->
 </section>
 
-<section id="keys" data-title="Custom keys: comparators and hashes">
-<h2>Custom keys: comparators and hashes</h2>
-<p>A <code>map</code>/<code>set</code> needs an <b>ordering</b>; an <code>unordered_map</code>/<code>unordered_set</code> needs a <b>hash and equality</b>. For your own key types, you provide them.</p>
-<script type="text/x-cpp">
-struct NoCase {                                          // an ordering that ignores case
-    bool operator()(const std::string& a, const std::string& b) const {
-        return std::lexicographical_compare(a.begin(), a.end(), b.begin(), b.end(),
-            [](unsigned char x, unsigned char y) { return std::tolower(x) < std::tolower(y); });
-    }
-};
-std::map<std::string, int, NoCase> m;                    // the comparator is part of the TYPE
-m["Alpha"] = 1; m["ALPHA"] = 2;                          // the same key: size is 1 (compiled: 2 keys with "beta")
-
-struct Instrument { std::string venue; int id; bool operator==(const Instrument&) const = default; };
-struct InstrumentHash {
-    std::size_t operator()(const Instrument& i) const {
-        std::size_t h = std::hash<std::string>{}(i.venue);
-        h ^= std::hash<int>{}(i.id) + 0x9e3779b97f4a7c15ULL + (h << 6) + (h >> 2);   // combine the member hashes
-        return h;
-    }
-};
-std::unordered_map<Instrument, double, InstrumentHash> px;
-px[{"CME", 7}] = 101.5;
-</script>
-<table>
-<tr><th>Container</th><th>Key must provide</th><th>Rule</th></tr>
-<tr><td><code>map</code>, <code>set</code></td><td>a <b>strict weak ordering</b> (<code>operator&lt;</code> or a comparator)</td><td>irreflexive and transitive; equivalence means "neither is less". <code>&lt;=</code> is <b>not</b> valid: undefined behaviour</td></tr>
-<tr><td><code>unordered_map</code>, <code>unordered_set</code></td><td>a hash and <code>operator==</code></td><td>equal keys <b>must</b> have equal hashes; a poor hash makes every lookup O(n)</td></tr>
-</table>
-<ul>
-<li><b>Transparent comparators:</b> <code>std::map&lt;std::string, int, std::less&lt;&gt;&gt;</code> lets <code>find</code> take a <code>string_view</code> or <code>const char*</code> without building a temporary <code>std::string</code> (compiled: it found <code>"apple"</code> from a <code>string_view</code>). C++20 adds the same for unordered containers.</li>
-<li><b>Never change a key</b> while it is in the container: its position or bucket would be wrong. Keys are <code>const</code> for that reason.</li>
-<li><b>Hash quality:</b> combine <i>all</i> fields; avoid returning just one field. <code>std::hash</code> for <code>int</code> is the identity in libstdc++, which is fine.</li>
-<li>A <code>rehash</code> (growth beyond <code>max_load_factor</code>) invalidates iterators; <code>reserve(n)</code> up front avoids it, and avoids the allocations on a hot path.</li>
-<li>Ordered or hashed? Ordered when you need sorted iteration or range queries (<code>lower_bound</code>); hashed for plain lookup. For a few dozen keys a sorted <code>vector</code> and binary search often beats both.</li>
-</ul>
-<div class="callout interview"><span class="label">Interview angle</span>"How do you use your own type as a key in <code>unordered_map</code>?" Provide <code>operator==</code> and a hash functor (or specialise <code>std::hash</code>), combining all members, and make sure equal objects hash equally.</div>
-</section>
-
-<section data-title="Useful companions and pitfalls">
+<section id="s9" data-title="Useful companions and pitfalls">
 <h2>Useful companions and pitfalls</h2>
 <script type="text/x-cpp">
 std::pair<int, std::string> p{1, "a"};              p.first; p.second;

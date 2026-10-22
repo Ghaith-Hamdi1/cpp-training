@@ -10,7 +10,7 @@
 <body data-topic="objmodel" data-kind="lesson">
 <main>
 <h1>The Object Model in Depth</h1>
-<p class="lead">What lies beneath inheritance: multiple inheritance and object layout, the diamond and virtual inheritance, RTTI, private inheritance, <code>explicit</code> conversions and copy-and-swap. Builds on <a href="02-oop.html">Object-Oriented Programming</a>.</p>
+<p class="lead">What lies beneath inheritance: multiple inheritance and object layout, the diamond and virtual inheritance, RTTI and private inheritance. Builds on <a href="02-oop.html">Object-Oriented Programming</a>.</p>
 
 <section id="multiple" data-title="Multiple inheritance and object layout">
 <h2>Multiple inheritance and object layout</h2>
@@ -141,47 +141,6 @@ struct Car : private Engine {
 </ul>
 </section>
 
-<section id="conversions" data-title="explicit, conversion operators and copy-and-swap">
-<h2><code>explicit</code>, conversion operators and copy-and-swap</h2>
-<script type="text/x-cpp">
-struct Meters { double v; Meters(double x) : v(x) {} };              // implicit: a double silently becomes Meters
-struct Feet   { double v; explicit Feet(double x) : v(x) {} };       // explicit: must be written out
-takeMeters(3.0);                                                     // compiles: surprising
-// takeFeet(3.0);                                                    // ERROR
-takeFeet(Feet(3.0));                                                 // OK
-
-struct Handle {
-    int fd;
-    explicit operator bool() const { return fd >= 0; }               // a conversion operator, but explicit
-};
-if (Handle h{3}) { }                                                 // OK: an if is a "contextual" conversion to bool
-// int n = h + 1;                                                    // ERROR: no implicit conversion to bool or int
-</script>
-<ul>
-<li><b>Mark single-argument constructors <code>explicit</code></b> unless an implicit conversion is clearly wanted (compiled: <code>double</code> converts to <code>Meters</code> but not to <code>Feet</code>).</li>
-<li><b><code>explicit operator bool</code></b> is the safe way to say "valid": it works in <code>if</code>, <code>while</code>, <code>&amp;&amp;</code> and <code>!</code>, but not in arithmetic or in comparisons with other types (the old "safe bool idiom" is obsolete). The standard streams and <code>std::optional</code> use it.</li>
-<li>A non-explicit <code>operator int()</code> lets your class take part in arithmetic and overload resolution in ways you did not plan.</li>
-</ul>
-<h3>Copy-and-swap</h3>
-<script type="text/x-cpp">
-class Buffer {
-    std::size_t n_; int* p_;
-public:
-    Buffer(const Buffer& o);                                         // deep copy (written once)
-    friend void swap(Buffer& a, Buffer& b) noexcept { std::swap(a.n_, b.n_); std::swap(a.p_, b.p_); }
-    Buffer& operator=(Buffer other) noexcept {                       // by VALUE: the copy is made before we touch *this
-        swap(*this, other);                                          // steal the copy's resources
-        return *this;                                                // `other` dies and frees our OLD resources
-    }
-};
-</script>
-<ul>
-<li><b>Strong exception guarantee:</b> if the copy throws, it happens before <code>*this</code> is touched.</li>
-<li><b>Self-assignment safe</b> without an <code>if (this != &amp;o)</code> check (compiled: <code>b1 = b1</code> worked).</li>
-<li>One operator serves copy <i>and</i> move assignment (<a href="13-move-semantics.html">Move Semantics</a>). Cost: a move-assignment written by hand can be a little faster.</li>
-</ul>
-</section>
-
 <section id="cheat" data-title="Interview cheat sheet">
 <h2>Interview cheat sheet</h2>
 <p>Say each answer aloud, then open it.</p>
@@ -190,8 +149,6 @@ public:
 <details class="ex"><summary>What does <code>dynamic_cast</code> need and what does it cost?</summary><div><p>A polymorphic class (a virtual function) because it reads the type information next to the vtable. It checks the real type at run time: null for pointers, <code>std::bad_cast</code> for references. It is slower than a virtual call, so avoid it on hot paths; repeated use suggests a missing virtual function or a Visitor.</p></div></details>
 <details class="ex"><summary><code>typeid</code> on a polymorphic versus non-polymorphic type?</summary><div><p>On a polymorphic object <code>typeid(*p)</code> gives the dynamic type. On a type with no virtual function it gives the static type, known at compile time. <code>type_info::name()</code> is implementation-defined and only for diagnostics.</p></div></details>
 <details class="ex"><summary>When is private inheritance appropriate?</summary><div><p>For "implemented in terms of": to override a virtual function of the base, access its protected members, or use the empty base optimisation. Otherwise prefer composition. It does not allow conversion to the base outside the class.</p></div></details>
-<details class="ex"><summary>What does <code>explicit</code> do on a constructor and on <code>operator bool</code>?</summary><div><p>On a constructor it forbids implicit conversions from the argument type (<code>Feet f = 3.0</code> fails). On <code>operator bool</code> it allows the conversion only in contexts such as <code>if</code> and <code>while</code>, not in arithmetic. Mark single-argument constructors <code>explicit</code> by default.</p></div></details>
-<details class="ex"><summary>What is copy-and-swap?</summary><div><p>Write the copy constructor and a non-throwing <code>swap</code>, then implement <code>operator=(T other)</code> by value that swaps with the parameter. The copy happens before <code>*this</code> is modified, giving the strong exception guarantee and safe self-assignment with one function.</p></div></details>
 </section>
 </main>
 

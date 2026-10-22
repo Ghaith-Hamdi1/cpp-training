@@ -138,4 +138,16 @@ test('the real v5 migration forgets the removed read-more section ticks', () => 
   assert.equal(s.get('lastinfo', 'gone'), null);
 });
 
+test('the real v6 migration moves the conversions tick and weak question from the object model to OOP', () => {
+  const CT = loadRegistry();
+  const key = "What does `explicit` on a single-argument constructor prevent?";
+  const s = makeStore({ 'schema': 5, 'done:objmodel': ['multiple', 'conversions'], 'done:oop': ['s1'], 'weak:objmodel': { [key]: 0, 'a question that stayed': 1 }, 'mock:missed': ['objmodel-1', 'oop-2', 'wire-1'] });
+  assert.equal(CT.migrate(s), CT.schemaVersion());
+  assert.deepEqual(s.get('done:objmodel'), ['multiple']);
+  assert.deepEqual(s.get('done:oop'), ['s1', 'conversions']);
+  assert.deepEqual(s.get('weak:oop'), { [key]: 0 });
+  assert.deepEqual(s.get('weak:objmodel'), { 'a question that stayed': 1 });
+  assert.deepEqual(s.get('mock:missed'), ['wire-1']);
+});
+
 console.log(passed + ' tests passed');

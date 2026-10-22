@@ -59,8 +59,8 @@ Five lessons, each short: RAII and exceptions, move semantics, smart pointers, l
 **RAII and exceptions:** [03-core-language.html](../interactive/03-core-language.html), quiz: [03-core-language-quiz.html](../interactive/03-core-language-quiz.html) (17 questions).
 
 - [ ] RAII: the central idea (step through the stack unwinding)
-- [ ] RAII everywhere: scope guards and the standard wrappers
 - [ ] Exceptions and stack unwinding
+- [ ] RAII everywhere: scope guards and the standard wrappers
 - [ ] Exception-safety guarantees and `noexcept`
 - [ ] Exceptions, error codes and `optional`
 - [ ] Interview cheat sheet (say each answer aloud)
@@ -113,10 +113,10 @@ Both come up in most C++ interviews.
 
 - [ ] Function templates and class templates
 - [ ] Template argument deduction (by value, by reference) and class template argument deduction
-- [ ] Forwarding references and perfect forwarding (use the explorer, step through it)
 - [ ] Variadic templates and fold expressions (step through the recursion)
-- [ ] Type traits, `if constexpr` and concepts
+- [ ] Forwarding references and perfect forwarding (use the explorer, step through it)
 - [ ] Alias templates, variable templates, template template parameters and `std::index_sequence`
+- [ ] Type traits, `if constexpr` and concepts
 - [ ] Interview cheat sheet (say each answer aloud)
 - [ ] Take the quiz, then retry the missed questions
 
@@ -136,7 +136,7 @@ Take each quiz **first**. Only read the lesson sections for questions you miss.
 
 - [ ] STL: [lesson](../interactive/04-stl.html), [quiz](../interactive/04-stl-quiz.html) (29 questions)
 - [ ] Basics and pointers: [lesson](../interactive/01-basics.html), [quiz](../interactive/01-basics-quiz.html) (22 questions)
-- [ ] OOP: [lesson](../interactive/02-oop.html), [quiz](../interactive/02-oop-quiz.html) (23 questions)
+- [ ] OOP: [lesson](../interactive/02-oop.html), [quiz](../interactive/02-oop-quiz.html) (26 questions)
 
 ## Step 5: the last day before an interview
 
@@ -191,5 +191,5 @@ Do not read any of these books front to back. Use the reading guides to find the
 - [ ] [10-coding-rules.html](../interactive/10-coding-rules.html) and [quiz](../interactive/10-coding-rules-quiz.html) (14 questions)
 - [ ] [11-wire-formats.html](../interactive/11-wire-formats.html) and [quiz](../interactive/11-wire-formats-quiz.html) (21 questions)
 - [ ] [12-low-latency.html](../interactive/12-low-latency.html) and [quiz](../interactive/12-low-latency-quiz.html) (23 questions)
-- [ ] [19-object-model.html](../interactive/19-object-model.html) and [quiz](../interactive/19-object-model-quiz.html) (14 questions): multiple and virtual inheritance, RTTI, private inheritance, copy-and-swap
+- [ ] [19-object-model.html](../interactive/19-object-model.html) and [quiz](../interactive/19-object-model-quiz.html) (11 questions): multiple and virtual inheritance, RTTI, private inheritance, copy-and-swap
 - [ ] [20-more-patterns.html](../interactive/20-more-patterns.html) and [quiz](../interactive/20-more-patterns-quiz.html) (11 questions): Command, Decorator, Adapter, Builder, Visitor, session state machine

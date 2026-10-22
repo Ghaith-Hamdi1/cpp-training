@@ -12,7 +12,7 @@
 <h1>Object-Oriented Programming in C++</h1>
 <p class="lead">Classes, object lifetime, copying, inheritance and polymorphism: what interviewers use to test whether you understand what a C++ object is. Assumes <a href="01-basics.html">C++ Basics</a>.</p>
 
-<section data-title="Classes and encapsulation">
+<section id="s1" data-title="Classes and encapsulation">
 <h2>Classes and encapsulation</h2>
 <figure class="fig"><svg viewBox="0 0 640 150" role="img" aria-label="Access specifiers as nested circles of visibility"><rect class="bd" x="10" y="10" width="620" height="130" rx="12"/><text class="t" x="24" y="32">private: only the class (and friends)</text><rect class="wn" x="150" y="44" width="470" height="86" rx="10"/><text class="t" x="164" y="66">protected: plus derived classes</text><rect class="gd" x="330" y="78" width="280" height="42" rx="8"/><text class="t" x="344" y="104">public: everyone</text><text class="m" x="24" y="64">balance_</text><text class="m" x="24" y="84">(the data)</text><text class="m" x="164" y="100">name_ in a base</text><text class="m" x="450" y="104">withdraw(), balance()</text></svg><figcaption>Hide the data, expose operations that keep the invariant true.</figcaption></figure>
 <p>A <b>class</b> bundles data with the functions that use it. <b>Encapsulation</b>: keep data private, expose only operations that keep it valid.</p>
@@ -57,7 +57,48 @@ acc.withdraw(30);          // fine
 <!-- read-more:end -->
 </section>
 
-<section data-title="Constructors and destructors">
+<section id="s4" data-title="Member functions: this, const, static, friend">
+<h2>Member functions: <code>this</code>, <code>const</code>, <code>static</code>, <code>friend</code></h2>
+<script type="text/x-cpp">
+class Counter {
+    int n_ = 0;
+    static int instances_;                 // ONE copy shared by all Counter objects
+public:
+    Counter() { ++instances_; }
+    ~Counter() { --instances_; }
+
+    Counter& add(int k) { n_ += k; return *this; }   // `this` is a pointer to the current object
+    int get() const { return n_; }                   // const: promises not to modify the object
+    static int instances() { return instances_; }    // no `this`: callable as Counter::instances()
+
+    friend std::ostream& operator<<(std::ostream&, const Counter&);   // may touch private members
+};
+int Counter::instances_ = 0;               // a static data member must be defined once
+
+Counter c;
+c.add(1).add(2);                           // chaining works because add returns *this
+</script>
+<ul>
+<li><b><code>const</code> member function</b>: callable on const objects, cannot modify members (except <code>mutable</code>). Make getters const.</li>
+<li><b>static member function</b>: belongs to the class, no <code>this</code>.</li>
+<li><b><code>friend</code></b>: access to privates. Use sparingly.</li>
+</ul>
+<!-- read-more:start -->
+<div class="callout tip"><span class="label">Read more</span>
+<p><b>Programming: Principles and Practice (Stroustrup)</b></p>
+<ul>
+<li>8.7 Class interfaces (PDF pages 250 to 258)</li>
+<li>15.6 to 15.8 Element access, an example list, the this pointer (PDF pages 464 to 473)</li>
+</ul>
+<p><b>C++ Move Semantics (Josuttis)</b></p>
+<ul>
+<li>Chapter 5 Overloading on reference qualifiers (PDF pages 97 to 106)</li>
+</ul>
+</div>
+<!-- read-more:end -->
+</section>
+
+<section id="s2" data-title="Constructors and destructors">
 <h2>Constructors and destructors</h2>
 <p>A <b>constructor</b> sets an object up; the <b>destructor</b> (<code>~Name()</code>) runs automatically when its lifetime ends. This is the basis of RAII.</p>
 <script type="text/x-cpp">
@@ -92,7 +133,7 @@ public:
 <!-- read-more:end -->
 </section>
 
-<section data-title="Copying and the Rule of 3, 5 and 0">
+<section id="s3" data-title="Copying and the Rule of 3, 5 and 0">
 <h2>Copying and the Rule of 3, 5 and 0</h2>
 <p>The compiler generates copy operations that copy every member. For a raw pointer that copies only the <i>address</i>: a <b>shallow copy</b>, and a bug:</p>
 <div id="st-copy"></div>
@@ -156,163 +197,48 @@ public:
 <!-- read-more:end -->
 </section>
 
-<section data-title="Member functions: this, const, static, friend">
-<h2>Member functions: <code>this</code>, <code>const</code>, <code>static</code>, <code>friend</code></h2>
+<section id="conversions" data-title="explicit, conversion operators and copy-and-swap">
+<h2><code>explicit</code>, conversion operators and copy-and-swap</h2>
 <script type="text/x-cpp">
-class Counter {
-    int n_ = 0;
-    static int instances_;                 // ONE copy shared by all Counter objects
+struct Meters { double v; Meters(double x) : v(x) {} };              // implicit: a double silently becomes Meters
+struct Feet   { double v; explicit Feet(double x) : v(x) {} };       // explicit: must be written out
+takeMeters(3.0);                                                     // compiles: surprising
+// takeFeet(3.0);                                                    // ERROR
+takeFeet(Feet(3.0));                                                 // OK
+
+struct Handle {
+    int fd;
+    explicit operator bool() const { return fd >= 0; }               // a conversion operator, but explicit
+};
+if (Handle h{3}) { }                                                 // OK: an if is a "contextual" conversion to bool
+// int n = h + 1;                                                    // ERROR: no implicit conversion to bool or int
+</script>
+<ul>
+<li><b>Mark single-argument constructors <code>explicit</code></b> unless an implicit conversion is clearly wanted (compiled: <code>double</code> converts to <code>Meters</code> but not to <code>Feet</code>).</li>
+<li><b><code>explicit operator bool</code></b> is the safe way to say "valid": it works in <code>if</code>, <code>while</code>, <code>&amp;&amp;</code> and <code>!</code>, but not in arithmetic or in comparisons with other types (the old "safe bool idiom" is obsolete). The standard streams and <code>std::optional</code> use it.</li>
+<li>A non-explicit <code>operator int()</code> lets your class take part in arithmetic and overload resolution in ways you did not plan.</li>
+</ul>
+<h3>Copy-and-swap</h3>
+<script type="text/x-cpp">
+class Buffer {
+    std::size_t n_; int* p_;
 public:
-    Counter() { ++instances_; }
-    ~Counter() { --instances_; }
-
-    Counter& add(int k) { n_ += k; return *this; }   // `this` is a pointer to the current object
-    int get() const { return n_; }                   // const: promises not to modify the object
-    static int instances() { return instances_; }    // no `this`: callable as Counter::instances()
-
-    friend std::ostream& operator<<(std::ostream&, const Counter&);   // may touch private members
-};
-int Counter::instances_ = 0;               // a static data member must be defined once
-
-Counter c;
-c.add(1).add(2);                           // chaining works because add returns *this
-</script>
-<ul>
-<li><b><code>const</code> member function</b>: callable on const objects, cannot modify members (except <code>mutable</code>). Make getters const.</li>
-<li><b>static member function</b>: belongs to the class, no <code>this</code>.</li>
-<li><b><code>friend</code></b>: access to privates. Use sparingly.</li>
-</ul>
-<!-- read-more:start -->
-<div class="callout tip"><span class="label">Read more</span>
-<p><b>Programming: Principles and Practice (Stroustrup)</b></p>
-<ul>
-<li>8.7 Class interfaces (PDF pages 250 to 258)</li>
-<li>15.6 to 15.8 Element access, an example list, the this pointer (PDF pages 464 to 473)</li>
-</ul>
-<p><b>C++ Move Semantics (Josuttis)</b></p>
-<ul>
-<li>Chapter 5 Overloading on reference qualifiers (PDF pages 97 to 106)</li>
-</ul>
-</div>
-<!-- read-more:end -->
-</section>
-
-<section data-title="Inheritance">
-<h2>Inheritance</h2>
-<p>Public inheritance models <b>is-a</b>: a <code>Dog</code> works anywhere an <code>Animal</code> is expected.</p>
-<script type="text/x-cpp">
-class Animal {
-public:
-    explicit Animal(std::string name) : name_(std::move(name)) {}
-    const std::string& name() const { return name_; }
-protected:
-    std::string name_;                    // visible to Dog, hidden from the outside world
-};
-
-class Dog : public Animal {
-public:
-    explicit Dog(std::string name) : Animal(std::move(name)) {}   // call the base constructor
-    void fetch() const { std::cout << name_ << " fetches\n"; }
+    Buffer(const Buffer& o);                                         // deep copy (written once)
+    friend void swap(Buffer& a, Buffer& b) noexcept { std::swap(a.n_, b.n_); std::swap(a.p_, b.p_); }
+    Buffer& operator=(Buffer other) noexcept {                       // by VALUE: the copy is made before we touch *this
+        swap(*this, other);                                          // steal the copy's resources
+        return *this;                                                // `other` dies and frees our OLD resources
+    }
 };
 </script>
-<div class="callout warn"><span class="label">Object slicing</span><code>Animal a = Dog("Rex");</code> chops off the Dog part and its virtual behaviour. Use pointers or references.</div>
-<p><code>final</code> forbids deriving. Prefer <b>composition</b> unless it is truly is-a.</p>
-<p>Step through slicing:</p>
-<div id="st-slice"></div>
-<!-- read-more:start -->
-<div class="callout tip"><span class="label">Read more</span>
-<p><b>Programming: Principles and Practice (Stroustrup)</b></p>
 <ul>
-<li>12.3, 12.5 Base and derived classes; benefits of object-oriented programming (PDF pages 380 to 387 and 389 to 390)</li>
+<li><b>Strong exception guarantee:</b> if the copy throws, it happens before <code>*this</code> is touched.</li>
+<li><b>Self-assignment safe</b> without an <code>if (this != &amp;o)</code> check (compiled: <code>b1 = b1</code> worked).</li>
+<li>One operator serves copy <i>and</i> move assignment (<a href="13-move-semantics.html">Move Semantics</a>). Cost: a move-assignment written by hand can be a little faster.</li>
 </ul>
-<p><b>C++ Move Semantics (Josuttis)</b></p>
-<ul>
-<li>4.4 Move semantics in class hierarchies (PDF pages 93 to 96)</li>
-</ul>
-</div>
-<!-- read-more:end -->
 </section>
 
-<section data-title="Polymorphism and virtual functions">
-<h2>Polymorphism and virtual functions</h2>
-<figure class="fig"><svg viewBox="0 0 640 160" role="img" aria-label="An object holds a vptr that points to its class vtable of function pointers"><defs><marker id="c1" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path class="ah" d="M0 0L10 5L0 10z"/></marker></defs><rect class="acc" x="10" y="30" width="150" height="90" rx="8"/><text class="t" x="85" y="52" text-anchor="middle">Dog object</text><rect class="wn" x="24" y="64" width="122" height="24" rx="4"/><text x="85" y="81" text-anchor="middle">vptr</text><rect class="box" x="24" y="92" width="122" height="22" rx="4"/><text class="m" x="85" y="108" text-anchor="middle">name_ ...</text><path class="ar" d="M146 76H258" marker-end="url(#c1)"/><rect class="box" x="260" y="30" width="190" height="90" rx="8"/><text class="t" x="355" y="50" text-anchor="middle">Dog vtable</text><rect class="gd" x="274" y="60" width="162" height="26" rx="4"/><text x="355" y="78" text-anchor="middle">speak() : Dog::speak</text><rect class="gd" x="274" y="90" width="162" height="26" rx="4"/><text x="355" y="108" text-anchor="middle">~Dog()</text><path class="ar" d="M436 73H518" marker-end="url(#c1)"/><rect class="box" x="520" y="52" width="110" height="42" rx="6"/><text x="575" y="78" text-anchor="middle">Dog::speak code</text><text class="m" x="10" y="146">A virtual call: follow vptr, index the table, jump. Cost: one pointer per object, one indirection per call.</text></svg><figcaption>One vtable per class, one vptr per object.</figcaption></figure>
-<p><code>p-&gt;speak()</code> through a base pointer reaches the <i>derived</i> behaviour only if <code>speak</code> is <code>virtual</code>. Without it the <b>static type</b> decides (compile time); with it the <b>dynamic type</b> (runtime). Try it:</p>
-<div id="w-virtual"></div>
-<h3>How it works: vtable and vptr</h3>
-<p>Each class with virtuals has a <b>vtable</b>; each object has a hidden <b>vptr</b> to it. Cost: a pointer per object, an indirection per call, usually no inlining.</p>
-<table>
-<tr><th>Term</th><th>Meaning</th></tr>
-<tr><td><b>Overloading</b></td><td>same name, different parameters, resolved at compile time</td></tr>
-<tr><td><b>Overriding</b></td><td>a derived class replaces a <i>virtual</i> base function with the same signature, resolved at runtime</td></tr>
-<tr><td><b>Hiding</b></td><td>a derived function with the same name (but not virtual / different signature) hides the base one</td></tr>
-</table>
-<script type="text/x-cpp">
-struct Shape {
-    virtual double area() const = 0;
-    virtual ~Shape() = default;           // ALWAYS virtual in a polymorphic base
-};
-struct Circle : Shape {
-    double r;
-    explicit Circle(double r) : r(r) {}
-    double area() const override { return 3.14159 * r * r; }   // `override`: the compiler checks you really override
-};
-</script>
-<div class="callout warn"><span class="label">Two famous traps</span>
-<p><b>1.</b> Always write <code>override</code>. If you mistype the signature (forget <code>const</code>), without it you silently create a <i>new</i> function instead of overriding.</p>
-<p><b>2.</b> Virtual calls inside a constructor or destructor do <b>not</b> reach the derived class. While <code>Base</code>'s constructor runs, the object's dynamic type is <code>Base</code>, so <code>Base::init()</code> is called even if <code>Derived</code> overrides it.</p></div>
-<p>Step through a virtual call:</p>
-<div id="st-vptr"></div>
-<!-- read-more:start -->
-<div class="callout tip"><span class="label">Read more</span>
-<p><b>Programming: Principles and Practice (Stroustrup)</b></p>
-<ul>
-<li>12.3, 12.5 Base and derived classes; benefits of object-oriented programming (PDF pages 380 to 387 and 389 to 390)</li>
-<li>15.3 to 15.5 Memory, addresses and pointers; free store; destructors (PDF pages 452 to 463)</li>
-</ul>
-<p><b>Effective Modern C++ (Meyers)</b></p>
-<ul>
-<li>Item 12, Declare overriding functions override (PDF pages 97 to 104)</li>
-</ul>
-<p><b>C++ Move Semantics (Josuttis)</b></p>
-<ul>
-<li>4.4 Move semantics in class hierarchies (PDF pages 93 to 96)</li>
-</ul>
-</div>
-<!-- read-more:end -->
-</section>
-
-<section data-title="Abstract classes and interfaces">
-<h2>Abstract classes and interfaces</h2>
-<p><code>= 0</code> makes a function <b>pure virtual</b>; a class with one is <b>abstract</b> (cannot be instantiated). Only pure virtuals and no data: an <b>interface</b>.</p>
-<script type="text/x-cpp">
-struct Logger {                                   // interface
-    virtual void log(const std::string& msg) = 0;
-    virtual ~Logger() = default;
-};
-struct ConsoleLogger : Logger {
-    void log(const std::string& msg) override { std::cout << msg << '\n'; }
-};
-
-// Code depends on the abstraction, not the concrete class:
-void run(Logger& out) { out.log("started"); }
-
-// Polymorphic collection: unique_ptr owns the objects, no slicing, no manual delete
-std::vector<std::unique_ptr<Shape>> shapes;
-shapes.push_back(std::make_unique<Circle>(2.0));
-for (const auto& s : shapes) std::cout << s->area() << '\n';
-</script>
-<!-- read-more:start -->
-<div class="callout tip"><span class="label">Read more</span>
-<p><b>Programming: Principles and Practice (Stroustrup)</b></p>
-<ul>
-<li>12.1 to 12.2 Design principles; Shape: an abstract class and access control (PDF pages 369 to 379)</li>
-<li>12.3, 12.5 Base and derived classes; benefits of object-oriented programming (PDF pages 380 to 387 and 389 to 390)</li>
-</ul>
-</div>
-<!-- read-more:end -->
-</section>
-
-<section data-title="Operator overloading">
+<section id="s8" data-title="Operator overloading">
 <h2>Operator overloading</h2>
 <p>Overload operators only when the meaning is obvious (<code>+</code> on vectors, <code>==</code> on values, <code>&lt;&lt;</code> to print).</p>
 <script type="text/x-cpp">
@@ -371,7 +297,122 @@ auto name = "abc"s;      // std::string; also 5ms, 2s (chrono) and "view"sv
 <!-- read-more:end -->
 </section>
 
-<section data-title="Composition, relationships and design">
+<section id="s5" data-title="Inheritance">
+<h2>Inheritance</h2>
+<p>Public inheritance models <b>is-a</b>: a <code>Dog</code> works anywhere an <code>Animal</code> is expected.</p>
+<script type="text/x-cpp">
+class Animal {
+public:
+    explicit Animal(std::string name) : name_(std::move(name)) {}
+    const std::string& name() const { return name_; }
+protected:
+    std::string name_;                    // visible to Dog, hidden from the outside world
+};
+
+class Dog : public Animal {
+public:
+    explicit Dog(std::string name) : Animal(std::move(name)) {}   // call the base constructor
+    void fetch() const { std::cout << name_ << " fetches\n"; }
+};
+</script>
+<div class="callout warn"><span class="label">Object slicing</span><code>Animal a = Dog("Rex");</code> chops off the Dog part and its virtual behaviour. Use pointers or references.</div>
+<p><code>final</code> forbids deriving. Prefer <b>composition</b> unless it is truly is-a.</p>
+<p>Step through slicing:</p>
+<div id="st-slice"></div>
+<!-- read-more:start -->
+<div class="callout tip"><span class="label">Read more</span>
+<p><b>Programming: Principles and Practice (Stroustrup)</b></p>
+<ul>
+<li>12.3, 12.5 Base and derived classes; benefits of object-oriented programming (PDF pages 380 to 387 and 389 to 390)</li>
+</ul>
+<p><b>C++ Move Semantics (Josuttis)</b></p>
+<ul>
+<li>4.4 Move semantics in class hierarchies (PDF pages 93 to 96)</li>
+</ul>
+</div>
+<!-- read-more:end -->
+</section>
+
+<section id="s6" data-title="Polymorphism and virtual functions">
+<h2>Polymorphism and virtual functions</h2>
+<figure class="fig"><svg viewBox="0 0 640 160" role="img" aria-label="An object holds a vptr that points to its class vtable of function pointers"><defs><marker id="c1" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path class="ah" d="M0 0L10 5L0 10z"/></marker></defs><rect class="acc" x="10" y="30" width="150" height="90" rx="8"/><text class="t" x="85" y="52" text-anchor="middle">Dog object</text><rect class="wn" x="24" y="64" width="122" height="24" rx="4"/><text x="85" y="81" text-anchor="middle">vptr</text><rect class="box" x="24" y="92" width="122" height="22" rx="4"/><text class="m" x="85" y="108" text-anchor="middle">name_ ...</text><path class="ar" d="M146 76H258" marker-end="url(#c1)"/><rect class="box" x="260" y="30" width="190" height="90" rx="8"/><text class="t" x="355" y="50" text-anchor="middle">Dog vtable</text><rect class="gd" x="274" y="60" width="162" height="26" rx="4"/><text x="355" y="78" text-anchor="middle">speak() : Dog::speak</text><rect class="gd" x="274" y="90" width="162" height="26" rx="4"/><text x="355" y="108" text-anchor="middle">~Dog()</text><path class="ar" d="M436 73H518" marker-end="url(#c1)"/><rect class="box" x="520" y="52" width="110" height="42" rx="6"/><text x="575" y="78" text-anchor="middle">Dog::speak code</text><text class="m" x="10" y="146">A virtual call: follow vptr, index the table, jump. Cost: one pointer per object, one indirection per call.</text></svg><figcaption>One vtable per class, one vptr per object.</figcaption></figure>
+<p><code>p-&gt;speak()</code> through a base pointer reaches the <i>derived</i> behaviour only if <code>speak</code> is <code>virtual</code>. Without it the <b>static type</b> decides (compile time); with it the <b>dynamic type</b> (runtime). Try it:</p>
+<div id="w-virtual"></div>
+<h3>How it works: vtable and vptr</h3>
+<p>Each class with virtuals has a <b>vtable</b>; each object has a hidden <b>vptr</b> to it. Cost: a pointer per object, an indirection per call, usually no inlining.</p>
+<table>
+<tr><th>Term</th><th>Meaning</th></tr>
+<tr><td><b>Overloading</b></td><td>same name, different parameters, resolved at compile time</td></tr>
+<tr><td><b>Overriding</b></td><td>a derived class replaces a <i>virtual</i> base function with the same signature, resolved at runtime</td></tr>
+<tr><td><b>Hiding</b></td><td>a derived function with the same name (but not virtual / different signature) hides the base one</td></tr>
+</table>
+<script type="text/x-cpp">
+struct Shape {
+    virtual double area() const = 0;
+    virtual ~Shape() = default;           // ALWAYS virtual in a polymorphic base
+};
+struct Circle : Shape {
+    double r;
+    explicit Circle(double r) : r(r) {}
+    double area() const override { return 3.14159 * r * r; }   // `override`: the compiler checks you really override
+};
+</script>
+<div class="callout warn"><span class="label">Two famous traps</span>
+<p><b>1.</b> Always write <code>override</code>. If you mistype the signature (forget <code>const</code>), without it you silently create a <i>new</i> function instead of overriding.</p>
+<p><b>2.</b> Virtual calls inside a constructor or destructor do <b>not</b> reach the derived class. While <code>Base</code>'s constructor runs, the object's dynamic type is <code>Base</code>, so <code>Base::init()</code> is called even if <code>Derived</code> overrides it.</p></div>
+<p>Step through a virtual call:</p>
+<div id="st-vptr"></div>
+<!-- read-more:start -->
+<div class="callout tip"><span class="label">Read more</span>
+<p><b>Programming: Principles and Practice (Stroustrup)</b></p>
+<ul>
+<li>12.3, 12.5 Base and derived classes; benefits of object-oriented programming (PDF pages 380 to 387 and 389 to 390)</li>
+<li>15.3 to 15.5 Memory, addresses and pointers; free store; destructors (PDF pages 452 to 463)</li>
+</ul>
+<p><b>Effective Modern C++ (Meyers)</b></p>
+<ul>
+<li>Item 12, Declare overriding functions override (PDF pages 97 to 104)</li>
+</ul>
+<p><b>C++ Move Semantics (Josuttis)</b></p>
+<ul>
+<li>4.4 Move semantics in class hierarchies (PDF pages 93 to 96)</li>
+</ul>
+</div>
+<!-- read-more:end -->
+</section>
+
+<section id="s7" data-title="Abstract classes and interfaces">
+<h2>Abstract classes and interfaces</h2>
+<p><code>= 0</code> makes a function <b>pure virtual</b>; a class with one is <b>abstract</b> (cannot be instantiated). Only pure virtuals and no data: an <b>interface</b>.</p>
+<script type="text/x-cpp">
+struct Logger {                                   // interface
+    virtual void log(const std::string& msg) = 0;
+    virtual ~Logger() = default;
+};
+struct ConsoleLogger : Logger {
+    void log(const std::string& msg) override { std::cout << msg << '\n'; }
+};
+
+// Code depends on the abstraction, not the concrete class:
+void run(Logger& out) { out.log("started"); }
+
+// Polymorphic collection: unique_ptr owns the objects, no slicing, no manual delete
+std::vector<std::unique_ptr<Shape>> shapes;
+shapes.push_back(std::make_unique<Circle>(2.0));
+for (const auto& s : shapes) std::cout << s->area() << '\n';
+</script>
+<!-- read-more:start -->
+<div class="callout tip"><span class="label">Read more</span>
+<p><b>Programming: Principles and Practice (Stroustrup)</b></p>
+<ul>
+<li>12.1 to 12.2 Design principles; Shape: an abstract class and access control (PDF pages 369 to 379)</li>
+<li>12.3, 12.5 Base and derived classes; benefits of object-oriented programming (PDF pages 380 to 387 and 389 to 390)</li>
+</ul>
+</div>
+<!-- read-more:end -->
+</section>
+
+<section id="s9" data-title="Composition, relationships and design">
 <h2>Composition, relationships and design</h2>
 <figure class="fig"><svg viewBox="0 0 640 170" role="img" aria-label="Inheritance, composition, aggregation and association drawn as boxes and arrows"><defs><marker id="c2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path class="ah" d="M0 0L10 5L0 10z"/></marker></defs><rect class="box" x="10" y="10" width="110" height="34" rx="6"/><text x="65" y="32" text-anchor="middle">Animal</text><path class="ln" d="M65 100V46"/><path class="ah" d="M65 46L58 58H72z" style="fill:var(--card);stroke:var(--accent);stroke-width:1.5"/><rect class="box" x="10" y="100" width="110" height="34" rx="6"/><text x="65" y="122" text-anchor="middle">Dog</text><text class="m" x="65" y="156" text-anchor="middle">is-a (inherits)</text><rect class="box" x="170" y="10" width="110" height="34" rx="6"/><text x="225" y="32" text-anchor="middle">Car</text><path class="ln" d="M225 44V100"/><path d="M225 44L218 56L225 68L232 56z" style="fill:var(--accent)"/><rect class="box" x="170" y="100" width="110" height="34" rx="6"/><text x="225" y="122" text-anchor="middle">Engine</text><text class="m" x="225" y="156" text-anchor="middle">owns: dies with Car</text><rect class="box" x="330" y="10" width="110" height="34" rx="6"/><text x="385" y="32" text-anchor="middle">Team</text><path class="ln" d="M385 44V100"/><path d="M385 44L378 56L385 68L392 56z" style="fill:var(--card);stroke:var(--accent);stroke-width:1.5"/><rect class="box" x="330" y="100" width="110" height="34" rx="6"/><text x="385" y="122" text-anchor="middle">Player</text><text class="m" x="385" y="156" text-anchor="middle">uses: lives on its own</text><rect class="box" x="490" y="10" width="110" height="34" rx="6"/><text x="545" y="32" text-anchor="middle">Doctor</text><path class="ar" d="M545 44V98" marker-end="url(#c2)"/><rect class="box" x="490" y="100" width="110" height="34" rx="6"/><text x="545" y="122" text-anchor="middle">Patient</text><text class="m" x="545" y="156" text-anchor="middle">association (a pointer)</text></svg><figcaption>Prefer composition; inheritance is the strongest coupling.</figcaption></figure>
 <p>"Is it a, or does it have a?" Prefer <b>composition</b> unless you need polymorphism.</p>
@@ -383,7 +424,7 @@ auto name = "abc"s;      // std::string; also 5ms, 2s (chrono) and "view"sv
 <tr><td><b>Association</b></td><td>Doctor treats Patients</td><td>reference or pointer parameter</td><td>independent</td></tr>
 </table>
 <div class="callout interview"><span class="label">Liskov Substitution</span>Code using a base must keep working with any derived type. If <code>Square : Rectangle</code> breaks on setting the width, inheritance was the wrong model: it must mean "behaves like", not "shares code".</div>
-<div class="callout tip"><span class="label">Going deeper</span>Multiple and virtual inheritance, the diamond problem, RTTI, private inheritance and copy-and-swap are in <a href="19-object-model.html">The Object Model in Depth</a>.</div>
+<div class="callout tip"><span class="label">Going deeper</span>Multiple and virtual inheritance, the diamond problem, RTTI and private inheritance are in <a href="19-object-model.html">The Object Model in Depth</a>.</div>
 <p>Related notes in your repo: <a href="https://github.com/Ghaith-Hamdi1/cpp-training/blob/main/docs/02-cpp-oop/README.md">Module 2: C++ OOP</a>, <a href="https://github.com/Ghaith-Hamdi1/cpp-training/blob/main/docs/02-cpp-oop/13_objects_relationships.md">objects relationships</a>, and the learncpp.com recaps for chapters 14, 15, 21, 23, 24 and 25.</p>
 </section>
 
@@ -397,6 +438,8 @@ auto name = "abc"s;      // std::string; also 5ms, 2s (chrono) and "view"sv
 <details class="ex"><summary>What does <code>explicit</code> do?</summary><div><p>It stops a constructor (or conversion operator) from being used for implicit conversions. Without it, <code>void f(Account); f(5);</code> could silently build an <code>Account</code> from 5.</p></div></details>
 <details class="ex"><summary>Can a constructor be virtual? Can a destructor be pure virtual?</summary><div><p>A constructor cannot be virtual: the vptr is set up by the constructor, so there is no dynamic type yet. A destructor <i>can</i> be pure virtual to make a class abstract, but it still needs a body because derived destructors call it.</p></div></details>
 <details class="ex"><summary>Composition or inheritance?</summary><div><p>Prefer composition. Use public inheritance only for a true is-a relationship where you need runtime polymorphism, and make sure it satisfies Liskov substitution.</p></div></details>
+<details class="ex"><summary>What does <code>explicit</code> do on a constructor and on <code>operator bool</code>?</summary><div><p>On a constructor it forbids implicit conversions from the argument type (<code>Feet f = 3.0</code> fails). On <code>operator bool</code> it allows the conversion only in contexts such as <code>if</code> and <code>while</code>, not in arithmetic. Mark single-argument constructors <code>explicit</code> by default.</p></div></details>
+<details class="ex"><summary>What is copy-and-swap?</summary><div><p>Write the copy constructor and a non-throwing <code>swap</code>, then implement <code>operator=(T other)</code> by value that swaps with the parameter. The copy happens before <code>*this</code> is modified, giving the strong exception guarantee and safe self-assignment with one function.</p></div></details>
 </section>
 </main>
 

@@ -18,7 +18,7 @@ CT.lessons = [
   { id: 'oop', file: '02-oop.html', quiz: '02-oop-quiz.html', title: 'Object-Oriented Programming', time: '60 min', assess: 2,
     blurb: 'Classes, constructors, rule of 3/5/0, inheritance, virtual functions, abstract classes, operator overloading.' },
   { id: 'objmodel', file: '19-object-model.html', quiz: '19-object-model-quiz.html', title: 'The Object Model in Depth', time: '40 min', assess: 2,
-    blurb: 'Multiple inheritance and layout, the diamond and virtual inheritance, RTTI, private inheritance, explicit conversions and copy-and-swap.' },
+    blurb: 'Multiple inheritance and layout, the diamond and virtual inheritance, RTTI and private inheritance.' },
   { id: 'core', file: '03-core-language.html', quiz: '03-core-language-quiz.html', title: 'Core Language: RAII & Exceptions', time: '35 min', assess: 2,
     blurb: 'RAII and scope guards, stack unwinding, the exception-safety guarantees, noexcept, and exceptions versus return values.' },
   { id: 'moves', file: '13-move-semantics.html', quiz: '13-move-semantics-quiz.html', title: 'Move Semantics', time: '45 min', assess: 2,
@@ -70,6 +70,7 @@ CT.moved = {
   '07-multithreading.html#s8': '17-tasks-parallelism.html#futures',
   '07-multithreading.html#s9': '17-tasks-parallelism.html#pool',
   '07-multithreading.html#s10': '12-low-latency.html#s8',
+  '19-object-model.html#conversions': '02-oop.html#conversions',          // explicit, conversion operators and copy-and-swap moved to OOP
   '04-stl.html#s8': '08-strings-regex-time.html#s1'       // the STL strings section is covered by the Strings lesson
 };
 
@@ -161,6 +162,32 @@ CT.progressMigrations = [
     });
     var li = store.get('lastinfo', null);
     if (li && li.sec === 'read-more') store.set('lastinfo', null);
+  } },
+  /* v6: the explicit / conversion operators / copy-and-swap section moved from the Object Model lesson to OOP; the
+     cheat sheets of both lessons changed. */
+  { to: 6, run: function (store) {
+    var done = store.get('done:objmodel', []);
+    if (done.indexOf('conversions') >= 0) {
+      store.set('done:objmodel', done.filter(function (id) { return id !== 'conversions'; }));
+      var o = store.get('done:oop', []);
+      if (o.indexOf('conversions') < 0) o.push('conversions');
+      store.set('done:oop', o);
+    }
+    if (store.get('last:objmodel', '') === 'conversions') store.set('last:objmodel', '');
+    var li = store.get('lastinfo', null);
+    if (li && li.id === 'objmodel' && li.sec === 'conversions') store.set('lastinfo', null);
+    var WHERE = {'1e726nt': 'oop', 'cwsz48': 'oop', '19icvtn': 'oop'};
+    var hash = function (s) { var x = 5381, i; for (i = 0; i < s.length; i++) x = ((x * 33) ^ s.charCodeAt(i)) >>> 0; return x.toString(36); };
+    var weak = store.get('weak:objmodel', {}), stay = {};
+    Object.keys(weak).forEach(function (k) {
+      var to = WHERE[hash(k)];
+      if (!to) { stay[k] = weak[k]; return; }
+      var w = store.get('weak:' + to, {});
+      w[k] = weak[k];
+      store.set('weak:' + to, w);
+    });
+    store.set('weak:objmodel', stay);
+    store.set('mock:missed', store.get('mock:missed', []).filter(function (id) { return id.indexOf('objmodel-') !== 0 && id.indexOf('oop-') !== 0; }));
   } }
 ];
 
