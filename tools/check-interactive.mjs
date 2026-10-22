@@ -14,6 +14,7 @@ for (const f of readdirSync(root).filter((n) => n.endsWith('.html'))) {
   for (const m of html.matchAll(/(?:href|src)="([^"#?]+)(?:#[^"]*)?"/g)) {
     const t = m[1];
     if (/^(https?:|mailto:|data:)/.test(t)) continue;
+    if (t.startsWith('../')) { err(`${f}: ${t} leaves interactive/, which GitHub Pages does not publish: use a github.com/.../blob/main/ URL`); continue; }
     if (!existsSync(resolve(dirname(join(root, f)), t))) err(`${f}: missing local target ${t}`);
   }
 }

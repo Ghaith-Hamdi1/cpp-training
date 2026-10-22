@@ -258,7 +258,7 @@ std::ostream& operator<<(std::ostream& os, const Vec2& v) {   // MUST be non-mem
 <tr><td><b>Association</b></td><td>Doctor treats Patients</td><td>reference or pointer parameter</td><td>independent</td></tr>
 </table>
 <div class="callout interview"><span class="label">Liskov Substitution</span>Code using a base must keep working with any derived type. If <code>Square : Rectangle</code> breaks on setting the width, inheritance was the wrong model: it must mean "behaves like", not "shares code".</div>
-<p>Related notes in your repo: <a href="../docs/02-cpp-oop/README.md">Module 2: C++ OOP</a>, <a href="../docs/02-cpp-oop/13_objects_relationships.md">objects relationships</a>, and the learncpp.com recaps for chapters 14, 15, 21, 23, 24 and 25.</p>
+<p>Related notes in your repo: <a href="https://github.com/Ghaith-Hamdi1/cpp-training/blob/main/docs/02-cpp-oop/README.md">Module 2: C++ OOP</a>, <a href="https://github.com/Ghaith-Hamdi1/cpp-training/blob/main/docs/02-cpp-oop/13_objects_relationships.md">objects relationships</a>, and the learncpp.com recaps for chapters 14, 15, 21, 23, 24 and 25.</p>
 </section>
 
 <section data-title="Interview cheat sheet">
@@ -335,7 +335,7 @@ struct Buffer {
   const root = document.getElementById('w-virtual');
   root.className = 'widget';
   root.innerHTML = '<div class="w-head"><span class="tag">Try it</span>Does <code>virtual</code> matter?</div><div class="w-body">' +
-    '<div class="pickrow"><label>Object created:</label><select id="vo"><option>Animal</option><option selected>Dog</option><option>Cat</option></select>' +
+    '<div class="pickrow"><label>Object created:</label><select id="vo"><option>Animal</option><option selected>Cat</option></select>' +
     '<label><input type="checkbox" id="vv" checked> <code>speak()</code> is virtual</label>' +
     '<label><input type="checkbox" id="vd"> destructor is virtual</label></div>' +
     '<figure class="code"><pre><code id="vcode"></code></pre></figure><div class="result" id="vres"></div></div>';
@@ -345,11 +345,10 @@ struct Buffer {
     const code = 'struct Animal {\n' +
       '    ' + (vs ? 'virtual ' : '') + 'void speak() { std::cout << "..."; }\n' +
       '    ' + (vd ? 'virtual ' : '') + '~Animal() { std::cout << "~Animal"; }\n};\n' +
-      'struct Dog : Animal { void speak() { std::cout << "Woof"; }  ~Dog() { std::cout << "~Dog "; } };\n' +
       'struct Cat : Animal { void speak() { std::cout << "Meow"; }  ~Cat() { std::cout << "~Cat "; } };\n\n' +
       'Animal* p = new ' + obj + ';\np->speak();\ndelete p;';
     $('vcode').innerHTML = CT.highlight(code);
-    const says = { Animal: '...', Dog: 'Woof', Cat: 'Meow' };
+    const says = { Animal: '...', Cat: 'Meow' };
     const spoke = vs ? says[obj] : '...';
     let html = '<b>p-&gt;speak()</b> prints <code>' + spoke + '</code>. ';
     html += vs ? 'Virtual dispatch: the call goes to the <b>real object\'s</b> class (' + obj + ').'
