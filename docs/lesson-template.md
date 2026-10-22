@@ -51,6 +51,7 @@ The search index, mock-interview bank, offline cache, home page, menus, pager an
 - `data-topic` must equal the registry `id`. The registry script goes **before** `app.js`.
 - Each `<section>` is one page on screen. Keep sections short: one idea, ideally under about 250 words of prose plus code.
 - Section ids are `s1`, `s2`... by position unless you give one explicitly (`<section id="interface-races">`). Anything that links to a section by id (quiz tags, checklist links, reading guides, other lessons) depends on it. **Moving or renumbering sections breaks those links**, so pin an explicit `id` on a section before inserting sections ahead of it.
+- The section before the cheat sheet is `Read more in the books`: it is generated from the reading guides by `node tools/build-read-more.mjs` (do not edit it by hand; add rows to the guides, or to EXTRA in the tool).
 - The last section must be titled exactly `Interview cheat sheet`; the mock interview is built from its `<details>` elements.
 
 ## 3. Writing style
@@ -94,6 +95,7 @@ node tools/build-mock-bank.mjs
 node tools/build-precache.mjs
 node tools/check-interactive.mjs
 node tools/check-links.mjs
+node tools/build-read-more.mjs
 node tools/verify-checklist.mjs
 node tools/check-guides.mjs
 node tools/test-registry.mjs

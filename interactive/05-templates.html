@@ -253,6 +253,24 @@ applyTuple([](int x, int y, int z) { return x + y + z; }, std::tuple{1, 2, 3}); 
 <p>Notes: <a href="https://github.com/Ghaith-Hamdi1/cpp-training/blob/main/docs/04-templates-and-design-patterns/README.md">Module 4</a>; <a href="https://github.com/AnthonyCalandra/modern-cpp-features">modern-cpp-features</a>.</p>
 </section>
 
+<section id="read-more" data-title="Read more in the books">
+<h2>Read more in the books</h2>
+<p>These book sections explain the same ideas in more depth. Page numbers are <b>PDF pages</b>, the number your PDF reader shows, in the files under <code>books/</code>. Each book's reading guide in <code>docs/</code> has its full plan.</p>
+<table>
+<tr><th>Book</th><th>Chapter or section</th><th>PDF pages</th><th>Deepens</th></tr>
+<tr><td><a href="https://github.com/Ghaith-Hamdi1/cpp-training/blob/main/docs/programming-principles-and-practice-reading-guide.md">Programming: Principles and Practice Using C++, 3rd ed. (Stroustrup)</a></td><td>18.1 to 18.3 Templates, generalizing Vector, range checking and exceptions</td><td>527 to 541</td><td>Function and class templates; Why templates, and function templates; Class templates; Why templates (the interview note on templates versus virtual functions); Type traits and if constexpr (the "Concepts (C++20)" part); Class templates (non-type parameters); Pitfalls and good practice</td></tr>
+<tr><td><a href="https://github.com/Ghaith-Hamdi1/cpp-training/blob/main/docs/programming-principles-and-practice-reading-guide.md">Programming: Principles and Practice Using C++, 3rd ed. (Stroustrup)</a></td><td>19.4 and 21.1 Generalizing Vector again; standard algorithms</td><td>573 to 578 and 617 to 622</td><td>Type traits and if constexpr</td></tr>
+<tr><td><a href="https://github.com/Ghaith-Hamdi1/cpp-training/blob/main/docs/effective-modern-cpp-reading-guide.md">Effective Modern C++ (Meyers)</a></td><td>1 Understand template type deduction</td><td>27 to 36</td><td>Template argument deduction</td></tr>
+<tr><td><a href="https://github.com/Ghaith-Hamdi1/cpp-training/blob/main/docs/effective-modern-cpp-reading-guide.md">Effective Modern C++ (Meyers)</a></td><td>23 Understand std::move and std::forward</td><td>176 to 182</td><td>Forwarding references and perfect forwarding</td></tr>
+<tr><td><a href="https://github.com/Ghaith-Hamdi1/cpp-training/blob/main/docs/effective-modern-cpp-reading-guide.md">Effective Modern C++ (Meyers)</a></td><td>24 Distinguish universal references from rvalue references</td><td>182 to 186</td><td>Forwarding references and perfect forwarding</td></tr>
+<tr><td><a href="https://github.com/Ghaith-Hamdi1/cpp-training/blob/main/docs/effective-modern-cpp-reading-guide.md">Effective Modern C++ (Meyers)</a></td><td>26 to 27 and 30 Overloading on universal references; perfect forwarding failure cases</td><td>195 to 215 and 225 to 232</td><td>Type traits and if constexpr; Forwarding references and perfect forwarding</td></tr>
+<tr><td><a href="https://github.com/Ghaith-Hamdi1/cpp-training/blob/main/docs/move-semantics-complete-guide-reading-guide.md">C++ Move Semantics: The Complete Guide (Josuttis)</a></td><td>9.1 to 9.3 Perfect forwarding; universal versus rvalue references</td><td>159 to 166</td><td>Forwarding references and perfect forwarding</td></tr>
+<tr><td><a href="https://github.com/Ghaith-Hamdi1/cpp-training/blob/main/docs/move-semantics-complete-guide-reading-guide.md">C++ Move Semantics: The Complete Guide (Josuttis)</a></td><td>9.4 to 9.5 Overload resolution with universal references; perfect forwarding in lambdas</td><td>167 to 170</td><td>Forwarding references and perfect forwarding</td></tr>
+<tr><td><a href="https://github.com/Ghaith-Hamdi1/cpp-training/blob/main/docs/move-semantics-complete-guide-reading-guide.md">C++ Move Semantics: The Complete Guide (Josuttis)</a></td><td>Chapter 11 Perfect passing with auto&amp;&amp;</td><td>191 to 202</td><td>Forwarding references and perfect forwarding</td></tr>
+<tr><td><a href="https://github.com/Ghaith-Hamdi1/cpp-training/blob/main/docs/move-semantics-complete-guide-reading-guide.md">C++ Move Semantics: The Complete Guide (Josuttis)</a></td><td>Chapter 12 Perfect returning with decltype(auto)</td><td>203 to 210</td><td>Type traits and if constexpr</td></tr>
+</table>
+</section>
+
 <section id="s9" data-title="Interview cheat sheet">
 <h2>Interview cheat sheet</h2>
 <details class="ex"><summary>How are template arguments deduced?</summary><div><p>From the arguments of the call, by the shape of the parameter. By value (<code>T x</code>): <code>const</code> and references are dropped and arrays decay to pointers. By reference (<code>T&amp; x</code>): <code>const</code> and the array size are kept. <code>T&amp;&amp;</code> is a forwarding reference. No conversions take part, so <code>maxOf(3, 2.5)</code> fails; name <code>T</code> explicitly.</p></div></details>

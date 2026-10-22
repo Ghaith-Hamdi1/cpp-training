@@ -120,7 +120,17 @@ static_assert(Fact<5>::value == 120);
 </table>
 </section>
 
-<section data-title="Interview cheat sheet">
+<section id="read-more" data-title="Read more in the books">
+<h2>Read more in the books</h2>
+<p>These book sections explain the same ideas in more depth. Page numbers are <b>PDF pages</b>, the number your PDF reader shows, in the files under <code>books/</code>. Each book's reading guide in <code>docs/</code> has its full plan.</p>
+<table>
+<tr><th>Book</th><th>Chapter or section</th><th>PDF pages</th><th>Deepens</th></tr>
+<tr><td><a href="https://github.com/Ghaith-Hamdi1/cpp-training/blob/main/docs/effective-modern-cpp-reading-guide.md">Effective Modern C++ (Meyers)</a></td><td>Item 15 Use constexpr whenever possible</td><td>115 to 121</td><td>constexpr, consteval, constinit</td></tr>
+<tr><td><a href="https://github.com/Ghaith-Hamdi1/cpp-training/blob/main/docs/effective-modern-cpp-reading-guide.md">Effective Modern C++ (Meyers)</a></td><td>Items 26 to 27 Overloading on universal references and its alternatives (tag dispatch, enable_if)</td><td>195 to 215</td><td>enable_if and SFINAE</td></tr>
+</table>
+</section>
+
+<section id="s5" data-title="Interview cheat sheet">
 <h2>Interview cheat sheet</h2>
 <details><summary>What does SFINAE stand for and why does it exist?</summary>Substitution Failure Is Not An Error: an invalid substitution while deducing a template removes that candidate from overload resolution instead of causing a hard error. It is what makes <code>enable_if</code> overload selection work.</details>
 <details><summary><code>std::is_same_v&lt;int, const int&gt;</code>?</summary>False. They are different types. <code>const</code> and references are part of the type, which is why traits like <code>std::decay_t</code> and <code>std::remove_cvref_t</code> exist.</details>

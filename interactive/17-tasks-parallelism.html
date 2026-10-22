@@ -221,6 +221,26 @@ std::transform(std::execution::par_unseq, a.begin(), a.end(), out.begin(), f);
 <div class="callout tip"><span class="label">Choose</span>Parallel algorithms for data parallelism over a container; a pool or <code>std::async</code> for independent tasks; a queue and a pinned thread for a latency-critical pipeline (<a href="12-low-latency.html">Low-Latency C++</a>).</div>
 </section>
 
+<section id="read-more" data-title="Read more in the books">
+<h2>Read more in the books</h2>
+<p>These book sections explain the same ideas in more depth. Page numbers are <b>PDF pages</b>, the number your PDF reader shows, in the files under <code>books/</code>. Each book's reading guide in <code>docs/</code> has its full plan.</p>
+<table>
+<tr><th>Book</th><th>Chapter or section</th><th>PDF pages</th><th>Deepens</th></tr>
+<tr><td><a href="https://github.com/Ghaith-Hamdi1/cpp-training/blob/main/docs/effective-modern-cpp-reading-guide.md">Effective Modern C++ (Meyers)</a></td><td>35 Prefer task-based programming to thread-based</td><td>259 to 263</td><td>Futures and async</td></tr>
+<tr><td><a href="https://github.com/Ghaith-Hamdi1/cpp-training/blob/main/docs/effective-modern-cpp-reading-guide.md">Effective Modern C++ (Meyers)</a></td><td>36 Specify std::launch::async if asynchronicity is essential</td><td>263 to 268</td><td>Futures and async</td></tr>
+<tr><td><a href="https://github.com/Ghaith-Hamdi1/cpp-training/blob/main/docs/effective-modern-cpp-reading-guide.md">Effective Modern C++ (Meyers)</a></td><td>38 Be aware of varying thread handle destructor behavior</td><td>276 to 280</td><td>Futures and async</td></tr>
+<tr><td><a href="https://github.com/Ghaith-Hamdi1/cpp-training/blob/main/docs/move-semantics-complete-guide-reading-guide.md">C++ Move Semantics: The Complete Guide (Josuttis)</a></td><td>Chapter 15 Move semantics in standard library types</td><td>229 to 250</td><td>Futures and async</td></tr>
+<tr><td><a href="https://github.com/Ghaith-Hamdi1/cpp-training/blob/main/docs/concurrency-in-action-reading-guide.md">C++ Concurrency in Action, 2nd ed. (Williams)</a></td><td>2.4 Choosing the number of threads at runtime</td><td>54 to 56</td><td>Work stealing and sizing a pool</td></tr>
+<tr><td><a href="https://github.com/Ghaith-Hamdi1/cpp-training/blob/main/docs/concurrency-in-action-reading-guide.md">C++ Concurrency in Action, 2nd ed. (Williams)</a></td><td>4.2 Waiting for one-off events with futures (std::async, packaged_task, promise, shared_future)</td><td>104 to 115</td><td>Futures and async; promise, shared_future and packaged_task</td></tr>
+<tr><td><a href="https://github.com/Ghaith-Hamdi1/cpp-training/blob/main/docs/concurrency-in-action-reading-guide.md">C++ Concurrency in Action, 2nd ed. (Williams)</a></td><td>4.3 Waiting with a time limit</td><td>116 to 121</td><td>Futures and async</td></tr>
+<tr><td><a href="https://github.com/Ghaith-Hamdi1/cpp-training/blob/main/docs/concurrency-in-action-reading-guide.md">C++ Concurrency in Action, 2nd ed. (Williams)</a></td><td>4.4.7 to 4.4.10 Latches and barriers (the Concurrency TS versions of C++20 std::latch and std::barrier)</td><td>141 to 147</td><td>latch, barrier, semaphore and stop_token (C++20)</td></tr>
+<tr><td><a href="https://github.com/Ghaith-Hamdi1/cpp-training/blob/main/docs/concurrency-in-action-reading-guide.md">C++ Concurrency in Action, 2nd ed. (Williams)</a></td><td>8.1 Techniques for dividing work between threads</td><td>275 to 282</td><td>Work stealing and sizing a pool</td></tr>
+<tr><td><a href="https://github.com/Ghaith-Hamdi1/cpp-training/blob/main/docs/concurrency-in-action-reading-guide.md">C++ Concurrency in Action, 2nd ed. (Williams)</a></td><td>9.1 Thread pools (a simple pool, waiting for tasks, work stealing in 9.1.5)</td><td>324 to 337</td><td>Thread pools and producer/consumer; Work stealing and sizing a pool</td></tr>
+<tr><td><a href="https://github.com/Ghaith-Hamdi1/cpp-training/blob/main/docs/concurrency-in-action-reading-guide.md">C++ Concurrency in Action, 2nd ed. (Williams)</a></td><td>9.2 Interrupting threads (the idea behind std::stop_token)</td><td>338 to 349</td><td>latch, barrier, semaphore and stop_token (C++20)</td></tr>
+<tr><td><a href="https://github.com/Ghaith-Hamdi1/cpp-training/blob/main/docs/concurrency-in-action-reading-guide.md">C++ Concurrency in Action, 2nd ed. (Williams)</a></td><td>10.1 to 10.3 Parallel algorithms: execution policies and the parallel standard algorithms</td><td>350 to 362</td><td>Parallel algorithms</td></tr>
+</table>
+</section>
+
 <section id="cheat" data-title="Interview cheat sheet">
 <h2>Interview cheat sheet</h2>
 <p>Say each answer aloud, then open it.</p>

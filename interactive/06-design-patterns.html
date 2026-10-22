@@ -234,7 +234,18 @@ struct Circle : Shape<Circle> {
 <p>Notes: <a href="https://github.com/Ghaith-Hamdi1/cpp-training/blob/main/docs/04-templates-and-design-patterns/06-design-patterns/README.md">Module 4</a>, <a href="https://github.com/Ghaith-Hamdi1/cpp-training/tree/main/examples/04-templates-and-design-patterns/06-design-patterns/">examples</a>.</p>
 </section>
 
-<section data-title="Interview cheat sheet">
+<section id="read-more" data-title="Read more in the books">
+<h2>Read more in the books</h2>
+<p>These book sections explain the same ideas in more depth. Page numbers are <b>PDF pages</b>, the number your PDF reader shows, in the files under <code>books/</code>. Each book's reading guide in <code>docs/</code> has its full plan.</p>
+<table>
+<tr><th>Book</th><th>Chapter or section</th><th>PDF pages</th><th>Deepens</th></tr>
+<tr><td><a href="https://github.com/Ghaith-Hamdi1/cpp-training/blob/main/docs/effective-modern-cpp-reading-guide.md">Effective Modern C++ (Meyers)</a></td><td>20 Use std::weak_ptr for shared_ptr-like pointers that can dangle</td><td>152 to 157</td><td>Observer</td></tr>
+<tr><td><a href="https://github.com/Ghaith-Hamdi1/cpp-training/blob/main/docs/effective-modern-cpp-reading-guide.md">Effective Modern C++ (Meyers)</a></td><td>22 Pimpl: define special member functions in the implementation file</td><td>165 to 174</td><td>Other patterns</td></tr>
+</table>
+<p>The books in <code>books/</code> touch patterns only in passing (the rows above). For a full treatment in modern C++, <i>C++ Software Design</i> by Klaus Iglberger covers Strategy, Observer, Decorator, Visitor and more; it is not in <code>books/</code>, so there are no page numbers here.</p>
+</section>
+
+<section id="s9" data-title="Interview cheat sheet">
 <h2>Interview cheat sheet</h2>
 <details class="ex"><summary>How do you make a Singleton thread-safe in C++?</summary><div><p>Use a function-local static (Meyers Singleton). Since C++11 its initialization is guaranteed thread-safe and happens exactly once. Alternatives are <code>std::call_once</code> with an <code>std::once_flag</code>, or creating it before threads start. Hand-written double-checked locking is easy to get wrong. Remember the object's own methods still need locking if they mutate shared state.</p></div></details>
 <details class="ex"><summary>What is wrong with Singleton?</summary><div><p>It is global mutable state with a nice name: hidden dependencies, tight coupling, hard to test or mock, awkward lifetime and destruction order, and a problem for multithreading. Prefer passing a reference (dependency injection) unless a single shared instance is truly inherent.</p></div></details>

@@ -305,7 +305,17 @@ pthread_setaffinity_np(pthread_self(), sizeof(set), &set);
 <div class="callout tip"><span class="label">Interview angle</span>"How would you design a market-data feed handler?" Reader thread pinned to a core, reading the socket and parsing with zero copy into preallocated structures; an SPSC queue to a book-builder thread, which updates array-based books and publishes; no allocation, locks, exceptions or logging on the path; bounded queues with a stated drop or recovery policy; sequence-number gap detection; and p99.9 latency measured under realistic load.</div>
 </section>
 
-<section data-title="Interview cheat sheet">
+<section id="read-more" data-title="Read more in the books">
+<h2>Read more in the books</h2>
+<p>These book sections explain the same ideas in more depth. Page numbers are <b>PDF pages</b>, the number your PDF reader shows, in the files under <code>books/</code>. Each book's reading guide in <code>docs/</code> has its full plan.</p>
+<table>
+<tr><th>Book</th><th>Chapter or section</th><th>PDF pages</th><th>Deepens</th></tr>
+<tr><td><a href="https://github.com/Ghaith-Hamdi1/cpp-training/blob/main/docs/concurrency-in-action-reading-guide.md">C++ Concurrency in Action, 2nd ed. (Williams)</a></td><td>8.2 Factors affecting the performance of concurrent code (cache ping-pong, false sharing, oversubscription)</td><td>283 to 289</td><td>Threads, cores and busy-polling</td></tr>
+<tr><td><a href="https://github.com/Ghaith-Hamdi1/cpp-training/blob/main/docs/concurrency-in-action-reading-guide.md">C++ Concurrency in Action, 2nd ed. (Williams)</a></td><td>8.3 Designing data structures for multithreaded performance</td><td>289 to 292</td><td>Threads, cores and busy-polling</td></tr>
+</table>
+</section>
+
+<section id="s9" data-title="Interview cheat sheet">
 <h2>Interview cheat sheet</h2>
 <p>Answer aloud, then open.</p>
 <details class="ex"><summary>Why does tail latency matter more than the average in a feed handler?</summary><div><p>The rare slow case (p99.9) is what produces a stale book or a missed trade, and the average hides it: a mean of 281 ns can coexist with a p99.9 of 80 microseconds. Measure and report percentiles, and remove sources of unpredictable delay.</p></div></details>

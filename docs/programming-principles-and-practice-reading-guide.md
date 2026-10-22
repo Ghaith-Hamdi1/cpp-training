@@ -35,7 +35,7 @@ These are the ownership and memory chapters that every other C++ topic builds on
 | 15.3 to 15.5 Memory, addresses and pointers; free store; destructors | 452 to 463 | 1. Pointers, Dynamic memory; 3. Constructors and destructors |
 | 16.1 to 16.2 Arrays, pointers and references | 477 to 483 | 1. Arrays, Pointers, References |
 | 17.4 to 17.5 Copying and moving; essential operations | 501 to 512 | 3. Rule of 3, 5 and 0; 6. Move semantics |
-| 18.4 to 18.5 Resources and exceptions; resource-management pointers (RAII, `unique_ptr`) | 542 to 553 | 5. RAII, Smart pointers, Exceptions |
+| 18.4 to 18.5 Resources and exceptions; resource-management pointers (RAII, `unique_ptr`) | 542 to 553 | 5. RAII; 5. Exceptions and stack unwinding; 7. Smart pointers |
 
 ## Tier 2: read next if you have time (about 130 pages)
 
@@ -49,7 +49,7 @@ These are the ownership and memory chapters that every other C++ topic builds on
 | 12.3, 12.5 Base and derived classes; benefits of object-oriented programming | 380 to 387 and 389 to 390 | 3. Inheritance, Polymorphism |
 | 15.6 to 15.8 Element access, an example list, the `this` pointer | 464 to 473 | 3. Member functions: `this` |
 | 16.3 to 16.4 C-style strings; alternatives to pointer use | 484 to 487 | 1. Arrays, C-strings and `std::string` |
-| 17.6 to 17.9 Other operations, remaining `Vector` problems, changing size | 513 to 523 | 6. Move semantics; 10. How `vector` grows |
+| 17.6 to 17.9 Other operations, remaining `Vector` problems, changing size | 513 to 523 | 6. Move semantics; 10. vector: the workhorse |
 | 18.1 to 18.3 Templates, generalizing `Vector`, range checking and exceptions | 527 to 541 | 11. Function and class templates |
 | 19.1 to 19.3, 19.6 Containers, sequences and iterators, linked lists, `vector`/`list`/`string` | 559 to 572 and 585 to 586 | 10. Iterators, Sequence containers |
 | 20.1 to 20.6 `map`, `unordered_map`, `set`, container overview | 591 to 609 | 10. Associative and unordered containers; Which container should I use? |
@@ -153,7 +153,7 @@ The STL is Part III of the book (chapters 19 to 21). It is taught from the idea 
 | 7 | 20.3 and 20.5 `unordered_map` and `set` | 598 to 599 and 602 to 604 | Hash tables, and sets for tracking individual values. | Associative and unordered containers |
 | 8 | 20.4 Timing | 599 to 602 | Measuring a linear `find` in a `vector` against a `map` lookup with `<chrono>`. Make no efficiency claim without measuring, and use the result so the optimizer cannot delete the code. | Which container should I use? |
 | 9 | **21.1 Standard algorithms** | 617 to 622 | About 125 algorithms; a summary table (`find`, `find_if`, `count`, `count_if`, `sort`, `copy`, `merge`, `equal_range`, `accumulate`, `max_element`, `iota`). Input sequences are iterator pairs, and failure is reported by returning `end()`. | Algorithms |
-| 10 | 21.2 Function objects and lambdas | 623 to 626 | Function objects, predicates on class members, lambda expressions. | Algorithms; Core Language: Lambdas |
+| 10 | 21.2 Function objects and lambdas | 623 to 626 | Function objects, predicates on class members, lambda expressions. | 10. Algorithms; 8. Lambdas |
 | 11 | 21.5 Sorting and searching | 633 to 635 | `sort` with a custom comparator. `binary_search` and `equal_range`, which require a sorted sequence and are much faster than `find` on long ones. | Algorithms |
 | optional | 19.3, 19.4, 19.6 Linked lists, making `Vector` act like an STL container, `vector`/`list`/`string` | 568 to 572, 573 to 578 and 585 to 586 | Building a list and a container that fits the STL. | Other sequence containers |
 | optional | 21.3 to 21.4 Numerical algorithms and copying | 627 to 632 | `accumulate`, `inner_product`, `copy` and `copy_if`. | Algorithms |

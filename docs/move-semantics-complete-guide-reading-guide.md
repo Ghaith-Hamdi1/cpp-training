@@ -47,7 +47,7 @@ The book has 15 chapters in three parts. The summaries below come from its table
 | **Chapter 12** Perfect returning with `decltype(auto)` | 203 to 210 | Returning a value or a reference exactly as given. Never put parentheses around the whole return expression. | 11. Type traits and if constexpr |
 | **Chapter 13** Move-only types | 213 to 218 | Declaring and using move-only types; they cannot go in `std::initializer_list` or be iterated by value. | 7. Smart pointers |
 | **Chapter 14** Moving algorithms and iterators | 219 to 228 | `std::move` and `std::move_backward` as algorithms, removing algorithms that leave moved-from elements, and move iterators. | 10. Algorithms |
-| **Chapter 15** Move semantics in standard library types | 229 to 250 | Strings (moved-from is usually, but not guaranteed to be, empty), containers, `std::array`, `pair`, `optional`, smart pointers, IOStreams, threads and futures. | 10. The STL; 15. Futures and async |
+| **Chapter 15** Move semantics in standard library types | 229 to 250 | Strings (moved-from is usually, but not guaranteed to be, empty), containers, `std::array`, `pair`, `optional`, smart pointers, IOStreams, threads and futures. | 10. The STL; 16. Futures and async |
 
 ## Reference: read when you need it (about 25 pages)
 

@@ -16,6 +16,7 @@ jobs:
           node-version: 20
       - run: node tools/check-interactive.mjs
       - run: node tools/check-links.mjs
+      - run: node tools/build-read-more.mjs --check
       - run: node tools/build-search-index.mjs --check
       - run: node tools/build-mock-bank.mjs --check
       - run: node tools/build-precache.mjs --check

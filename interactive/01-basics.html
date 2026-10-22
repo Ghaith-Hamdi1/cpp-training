@@ -314,7 +314,24 @@ int good() {
 <div class="callout warn"><span class="label">Tooling</span>Test with <code>-fsanitize=address,undefined</code>: it reports leaks, out-of-bounds, use-after-free and overflow with the exact line.</div>
 </section>
 
-<section data-title="Interview cheat sheet">
+<section id="read-more" data-title="Read more in the books">
+<h2>Read more in the books</h2>
+<p>These book sections explain the same ideas in more depth. Page numbers are <b>PDF pages</b>, the number your PDF reader shows, in the files under <code>books/</code>. Each book's reading guide in <code>docs/</code> has its full plan.</p>
+<table>
+<tr><th>Book</th><th>Chapter or section</th><th>PDF pages</th><th>Deepens</th></tr>
+<tr><td><a href="https://github.com/Ghaith-Hamdi1/cpp-training/blob/main/docs/programming-principles-and-practice-reading-guide.md">Programming: Principles and Practice Using C++, 3rd ed. (Stroustrup)</a></td><td>2.5 Assignment and initialization</td><td>49 to 52</td><td>Variables and types</td></tr>
+<tr><td><a href="https://github.com/Ghaith-Hamdi1/cpp-training/blob/main/docs/programming-principles-and-practice-reading-guide.md">Programming: Principles and Practice Using C++, 3rd ed. (Stroustrup)</a></td><td>2.8 to 2.10 Type safety, conversions, type deduction with auto</td><td>56 to 60</td><td>Variables and types</td></tr>
+<tr><td><a href="https://github.com/Ghaith-Hamdi1/cpp-training/blob/main/docs/programming-principles-and-practice-reading-guide.md">Programming: Principles and Practice Using C++, 3rd ed. (Stroustrup)</a></td><td>3.5 to 3.6 Functions; vector introduced</td><td>81 to 89</td><td>Functions</td></tr>
+<tr><td><a href="https://github.com/Ghaith-Hamdi1/cpp-training/blob/main/docs/programming-principles-and-practice-reading-guide.md">Programming: Principles and Practice Using C++, 3rd ed. (Stroustrup)</a></td><td>7.2 to 7.3 Declarations and definitions; scope</td><td>194 to 202</td><td>Functions; where variables live</td></tr>
+<tr><td><a href="https://github.com/Ghaith-Hamdi1/cpp-training/blob/main/docs/programming-principles-and-practice-reading-guide.md">Programming: Principles and Practice Using C++, 3rd ed. (Stroustrup)</a></td><td>7.4 Function call and return (pass by value, by reference, by const reference)</td><td>203 to 218</td><td>Functions and passing arguments</td></tr>
+<tr><td><a href="https://github.com/Ghaith-Hamdi1/cpp-training/blob/main/docs/programming-principles-and-practice-reading-guide.md">Programming: Principles and Practice Using C++, 3rd ed. (Stroustrup)</a></td><td>15.3 to 15.5 Memory, addresses and pointers; free store; destructors</td><td>452 to 463</td><td>Pointers, Dynamic memory</td></tr>
+<tr><td><a href="https://github.com/Ghaith-Hamdi1/cpp-training/blob/main/docs/programming-principles-and-practice-reading-guide.md">Programming: Principles and Practice Using C++, 3rd ed. (Stroustrup)</a></td><td>16.1 to 16.2 Arrays, pointers and references</td><td>477 to 483</td><td>Arrays, Pointers, References</td></tr>
+<tr><td><a href="https://github.com/Ghaith-Hamdi1/cpp-training/blob/main/docs/programming-principles-and-practice-reading-guide.md">Programming: Principles and Practice Using C++, 3rd ed. (Stroustrup)</a></td><td>16.3 to 16.4 C-style strings; alternatives to pointer use</td><td>484 to 487</td><td>Arrays, C-strings and std::string</td></tr>
+<tr><td><a href="https://github.com/Ghaith-Hamdi1/cpp-training/blob/main/docs/effective-modern-cpp-reading-guide.md">Effective Modern C++ (Meyers)</a></td><td>7 Distinguish () and {} when creating objects</td><td>67 to 76</td><td>Variables and types</td></tr>
+</table>
+</section>
+
+<section id="s12" data-title="Interview cheat sheet">
 <h2>Interview cheat sheet</h2>
 <p>Answer aloud, then open.</p>
 <details class="ex"><summary>Pointer vs reference?</summary><div><p>A pointer holds an address, can be null, can be re-pointed, and needs <code>*</code> to use. A reference is a permanent alias that must be initialized and cannot be null. Use references for parameters, pointers when "nothing" is a valid value or you need to re-point.</p></div></details>

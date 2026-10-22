@@ -348,7 +348,25 @@ std::normal_distribution<double> noise(0.0, 1.0);
 <p>Notes: <a href="https://github.com/Ghaith-Hamdi1/cpp-training/blob/main/docs/03-cpp-standard-library/README.md">Module 3</a>.</p>
 </section>
 
-<section data-title="Interview cheat sheet">
+<section id="read-more" data-title="Read more in the books">
+<h2>Read more in the books</h2>
+<p>These book sections explain the same ideas in more depth. Page numbers are <b>PDF pages</b>, the number your PDF reader shows, in the files under <code>books/</code>. Each book's reading guide in <code>docs/</code> has its full plan.</p>
+<table>
+<tr><th>Book</th><th>Chapter or section</th><th>PDF pages</th><th>Deepens</th></tr>
+<tr><td><a href="https://github.com/Ghaith-Hamdi1/cpp-training/blob/main/docs/programming-principles-and-practice-reading-guide.md">Programming: Principles and Practice Using C++, 3rd ed. (Stroustrup)</a></td><td>3.5 to 3.6 Functions; vector introduced</td><td>81 to 89</td><td>vector</td></tr>
+<tr><td><a href="https://github.com/Ghaith-Hamdi1/cpp-training/blob/main/docs/programming-principles-and-practice-reading-guide.md">Programming: Principles and Practice Using C++, 3rd ed. (Stroustrup)</a></td><td>17.6 to 17.9 Other operations, remaining Vector problems, changing size</td><td>513 to 523</td><td>vector: the workhorse</td></tr>
+<tr><td><a href="https://github.com/Ghaith-Hamdi1/cpp-training/blob/main/docs/programming-principles-and-practice-reading-guide.md">Programming: Principles and Practice Using C++, 3rd ed. (Stroustrup)</a></td><td>19.1 to 19.3, 19.6 Containers, sequences and iterators, linked lists, vector/list/string</td><td>559 to 572 and 585 to 586</td><td>Iterators, Sequence containers; The big picture; Iterators</td></tr>
+<tr><td><a href="https://github.com/Ghaith-Hamdi1/cpp-training/blob/main/docs/programming-principles-and-practice-reading-guide.md">Programming: Principles and Practice Using C++, 3rd ed. (Stroustrup)</a></td><td>20.1 to 20.6 map, unordered_map, set, container overview</td><td>591 to 609</td><td>Associative and unordered containers; Which container should I use?</td></tr>
+<tr><td><a href="https://github.com/Ghaith-Hamdi1/cpp-training/blob/main/docs/programming-principles-and-practice-reading-guide.md">Programming: Principles and Practice Using C++, 3rd ed. (Stroustrup)</a></td><td>20.6 Container overview</td><td>604 to 610</td><td>Other sequence containers; Which container should I use?</td></tr>
+<tr><td><a href="https://github.com/Ghaith-Hamdi1/cpp-training/blob/main/docs/programming-principles-and-practice-reading-guide.md">Programming: Principles and Practice Using C++, 3rd ed. (Stroustrup)</a></td><td>20.7.1 Iterator categories</td><td>610 to 612</td><td>Iterators</td></tr>
+<tr><td><a href="https://github.com/Ghaith-Hamdi1/cpp-training/blob/main/docs/programming-principles-and-practice-reading-guide.md">Programming: Principles and Practice Using C++, 3rd ed. (Stroustrup)</a></td><td>21.1 to 21.2, 21.5 Standard algorithms, function objects, sorting and searching</td><td>617 to 626 and 633 to 635</td><td>Algorithms</td></tr>
+<tr><td><a href="https://github.com/Ghaith-Hamdi1/cpp-training/blob/main/docs/effective-modern-cpp-reading-guide.md">Effective Modern C++ (Meyers)</a></td><td>42 Consider emplacement instead of insertion</td><td>310 to 320</td><td>vector: the workhorse</td></tr>
+<tr><td><a href="https://github.com/Ghaith-Hamdi1/cpp-training/blob/main/docs/move-semantics-complete-guide-reading-guide.md">C++ Move Semantics: The Complete Guide (Josuttis)</a></td><td>Chapter 14 Moving algorithms and iterators</td><td>219 to 228</td><td>Algorithms</td></tr>
+<tr><td><a href="https://github.com/Ghaith-Hamdi1/cpp-training/blob/main/docs/move-semantics-complete-guide-reading-guide.md">C++ Move Semantics: The Complete Guide (Josuttis)</a></td><td>Chapter 15 Move semantics in standard library types</td><td>229 to 250</td><td>The STL</td></tr>
+</table>
+</section>
+
+<section id="s10" data-title="Interview cheat sheet">
 <h2>Interview cheat sheet</h2>
 <details class="ex"><summary>How do you use your own type as a key in <code>unordered_map</code>, and in <code>map</code>?</summary><div><p><code>unordered_map</code>: provide <code>operator==</code> and a hash functor (or specialise <code>std::hash</code>) that combines all members; equal objects must hash equally. <code>map</code>: provide a strict weak ordering (<code>operator&lt;</code> or a comparator type). Never <code>&lt;=</code>, and never modify a key while it is stored.</p></div></details>
 <details class="ex"><summary>Why use <code>try_emplace</code> instead of <code>emplace</code> or <code>insert</code>?</summary><div><p>If the key exists, <code>try_emplace</code> does nothing and does not touch its arguments, so a moved-in value is not lost. <code>emplace</code> and <code>insert</code> may already have built or moved from the value. It is the right call for "insert if absent" with expensive or move-only values.</p></div></details>

@@ -270,7 +270,13 @@ SeqResult classify(std::uint32_t expected, std::uint32_t received) {
 <p><b>Wrap-around:</b> a 32-bit counter returns to 0 after 4294967295. Comparing with <code>&lt;</code> breaks at that point; the unsigned subtraction followed by a signed reinterpretation keeps working as long as the two values are within 2<sup>31</sup> of each other. Expecting 4294967295 and receiving 0 is a <b>gap of one</b>, not a duplicate.</p>
 </section>
 
-<section data-title="Interview cheat sheet">
+<section id="read-more" data-title="Read more in the books">
+<h2>Read more in the books</h2>
+<p>These book sections explain the same ideas in more depth. Page numbers are <b>PDF pages</b>, the number your PDF reader shows, in the files under <code>books/</code>. Each book's reading guide in <code>docs/</code> has its full plan.</p>
+<p>None of the four books in <code>books/</code> covers binary wire formats, endianness or zero-copy parsing in depth. The lesson and its programs are the main source.</p>
+</section>
+
+<section id="s9" data-title="Interview cheat sheet">
 <h2>Interview cheat sheet</h2>
 <p>Answer aloud, then open.</p>
 <details class="ex"><summary>Why not cast the receive buffer to a struct pointer?</summary><div><p>Four problems at once: it violates strict aliasing (undefined behavior), the buffer address may not be aligned for the struct, struct padding may not match the wire layout, and the byte order may differ. Check the length, then copy each field out with <code>memcpy</code> or assemble it with shifts.</p></div></details>
