@@ -57,8 +57,13 @@ Each lesson has step-through memory visualizers or simulators, predict-the-outpu
 
 ```bash
 node tools/build-search-index.mjs   # rebuilds the lesson search index
+node tools/build-mock-bank.mjs      # rebuilds the mock-interview questions
 node tools/build-precache.mjs       # rebuilds the offline cache list in sw.js
-node tools/check-interactive.mjs    # checks links and quiz data
+node tools/check-interactive.mjs    # registry, quiz data and section tags
+node tools/check-links.mjs          # every internal link and anchor
+node tools/verify-checklist.mjs     # study checklist against the lessons
+node tools/check-guides.mjs         # reading guides against the lessons
+node tools/test-registry.mjs        # progress migrations
 ```
 
 ## Further reading
@@ -69,13 +74,13 @@ After the two books in this repo (see their reading guides above), these are the
 
 | # | Book | Why read it | Lessons |
 |---|---|---|---|
-| 1 | **Effective Modern C++**, Scott Meyers ([reading guide](docs/effective-modern-cpp-reading-guide.md)) | Short, self-contained items on move semantics, smart pointers, lambdas, `auto`, forwarding references and a concurrency chapter (C++11/14). The best interview-style book on the list. | 3, 5, 7 |
-| 2 | **[C++ Move Semantics: The Complete Guide](https://leanpub.com/cppmove)**, Nicolai Josuttis ([reading guide](docs/move-semantics-complete-guide-reading-guide.md)) | A whole book on one topic (about 260 pages, 2020): `std::move`, rvalue references, moved-from states, value categories, `std::forward`, forwarding references and `decltype(auto)`. The deepest treatment of move semantics. | 2, 3, 5 |
-| 3 | **A Tour of C++**, Bjarne Stroustrup | A short whole-language overview by the language's creator, including the C++20 features (concepts, ranges, modules, coroutines). | 3, 4, 5 |
-| 4 | **C++ Templates: The Complete Guide**, Vandevoorde, Josuttis and Gregor | The definitive templates book: variadic templates, forwarding, type traits, SFINAE and `if constexpr`. Large, so use it as a reference. | 5, 9 |
-| 5 | **Hands-On Design Patterns with C++**, Fedor Pikus | Design patterns in modern C++, including templates, concurrency and performance. | 6 |
-| 6 | **C++ High Performance**, Björn Andrist and Viktor Sehr | Performance, STL algorithms, memory and concurrency, relevant to real-time and low-latency work. | 4, 7 |
-| 7 | **The Art of Multiprocessor Programming**, Maurice Herlihy and Nir Shavit | The theory behind locks, lock-free structures and memory models. Heavy and academic; read it only if lock-free work interests you. | 7 |
+| 1 | **Effective Modern C++**, Scott Meyers ([reading guide](docs/effective-modern-cpp-reading-guide.md)) | Short, self-contained items on move semantics, smart pointers, lambdas, `auto`, forwarding references and a concurrency chapter (C++11/14). The best interview-style book on the list. | 3 to 7, 9, 11, 12 |
+| 2 | **[C++ Move Semantics: The Complete Guide](https://leanpub.com/cppmove)**, Nicolai Josuttis ([reading guide](docs/move-semantics-complete-guide-reading-guide.md)) | A whole book on one topic (about 260 pages, 2020): `std::move`, rvalue references, moved-from states, value categories, `std::forward`, forwarding references and `decltype(auto)`. The deepest treatment of move semantics. | 2, 4, 5, 9 |
+| 3 | **A Tour of C++**, Bjarne Stroustrup | A short whole-language overview by the language's creator, including the C++20 features (concepts, ranges, modules, coroutines). | 4, 6, 7, 8, 9 |
+| 4 | **C++ Templates: The Complete Guide**, Vandevoorde, Josuttis and Gregor | The definitive templates book: variadic templates, forwarding, type traits, SFINAE and `if constexpr`. Large, so use it as a reference. | 9, 15 |
+| 5 | **Hands-On Design Patterns with C++**, Fedor Pikus | Design patterns in modern C++, including templates, concurrency and performance. | 10, 20 |
+| 6 | **C++ High Performance**, Björn Andrist and Viktor Sehr | Performance, STL algorithms, memory and concurrency, relevant to real-time and low-latency work. | 8, 11, 13, 18 |
+| 7 | **The Art of Multiprocessor Programming**, Maurice Herlihy and Nir Shavit | The theory behind locks, lock-free structures and memory models. Heavy and academic; read it only if lock-free work interests you. | 13 |
 
 "Lessons" refers to the [lessons](#the-lessons) above.
 
