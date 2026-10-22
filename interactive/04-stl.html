@@ -32,6 +32,12 @@
 #include <string>       // std::string
 </script>
 <div class="callout tip"><span class="label">Default choice</span><code>std::vector</code>. Contiguous memory is so cache-friendly it often beats "better" containers.</div>
+<!-- read-more:start -->
+<div class="callout tip"><span class="label">Read more</span>This section goes deeper in:
+<ul>
+<li><i>Programming: Principles and Practice (Stroustrup)</i>: 19.1 to 19.3, 19.6 Containers, sequences and iterators, linked lists, vector/list/string, PDF pages 559 to 572 and 585 to 586.</li>
+</ul></div>
+<!-- read-more:end -->
 </section>
 
 <section data-title="vector: the workhorse">
@@ -58,6 +64,15 @@ std::vector<int> a(3, 7);   // parentheses: size 3, every element 7   ->  {7, 7,
 std::vector<int> b{3, 7};   // braces: the initializer_list constructor wins  ->  {3, 7}
 </script>
 With braces, a constructor taking <code>std::initializer_list</code> is preferred whenever it can match.</div>
+<!-- read-more:start -->
+<div class="callout tip"><span class="label">Read more</span>This section goes deeper in:
+<ul>
+<li><i>Programming: Principles and Practice (Stroustrup)</i>: 3.5 to 3.6 Functions; vector introduced, PDF pages 81 to 89.</li>
+<li><i>Programming: Principles and Practice (Stroustrup)</i>: 17.6 to 17.9 Other operations, remaining Vector problems, changing size, PDF pages 513 to 523.</li>
+<li><i>Effective Modern C++ (Meyers)</i>: Item 42, Consider emplacement instead of insertion, PDF pages 310 to 320.</li>
+<li><i>C++ Move Semantics (Josuttis)</i>: Chapter 15 Move semantics in standard library types, PDF pages 229 to 250.</li>
+</ul></div>
+<!-- read-more:end -->
 </section>
 
 <section data-title="Other sequence containers">
@@ -78,6 +93,12 @@ With braces, a constructor taking <code>std::initializer_list</code> is preferre
 <tr><td>insert / erase in the middle</td><td>O(n)</td><td>O(n)</td><td>O(1) at a known position</td></tr>
 <tr><td>find a value</td><td>O(n)</td><td>O(n)</td><td>O(n)</td></tr>
 </table>
+<!-- read-more:start -->
+<div class="callout tip"><span class="label">Read more</span>This section goes deeper in:
+<ul>
+<li><i>Programming: Principles and Practice (Stroustrup)</i>: 20.6 Container overview, PDF pages 604 to 610.</li>
+</ul></div>
+<!-- read-more:end -->
 </section>
 
 <section data-title="Associative and unordered containers">
@@ -147,6 +168,12 @@ std::priority_queue<int, std::vector<int>, std::greater<int>> minHeap;   // smal
 </script>
 <p>Step through <code>operator[]</code>:</p>
 <div id="st-map"></div>
+<!-- read-more:start -->
+<div class="callout tip"><span class="label">Read more</span>This section goes deeper in:
+<ul>
+<li><i>Programming: Principles and Practice (Stroustrup)</i>: 20.1 to 20.6 map, unordered_map, set, container overview, PDF pages 591 to 609.</li>
+</ul></div>
+<!-- read-more:end -->
 </section>
 
 <section data-title="Which container should I use?">
@@ -154,6 +181,13 @@ std::priority_queue<int, std::vector<int>, std::greater<int>> minHeap;   // smal
 <p>Pick what you mostly do:</p>
 <div id="w-choose"></div>
 <div class="callout interview"><span class="label">Interview angle</span>"vector vs list?" Answer with <i>memory</i>: contiguous means cache-friendly, so vector wins even for middle inserts at modest sizes. List wins for stable iterators and cheap splicing.</div>
+<!-- read-more:start -->
+<div class="callout tip"><span class="label">Read more</span>This section goes deeper in:
+<ul>
+<li><i>Programming: Principles and Practice (Stroustrup)</i>: 20.1 to 20.6 map, unordered_map, set, container overview, PDF pages 591 to 609.</li>
+<li><i>Programming: Principles and Practice (Stroustrup)</i>: 20.6 Container overview, PDF pages 604 to 610.</li>
+</ul></div>
+<!-- read-more:end -->
 </section>
 
 <section data-title="Iterators">
@@ -221,6 +255,13 @@ std::erase_if(v, [](int x) { return x % 2 == 0; });
 </div></details>
 <p>Step through a correct erase loop:</p>
 <div id="st-erase"></div>
+<!-- read-more:start -->
+<div class="callout tip"><span class="label">Read more</span>This section goes deeper in:
+<ul>
+<li><i>Programming: Principles and Practice (Stroustrup)</i>: 19.1 to 19.3, 19.6 Containers, sequences and iterators, linked lists, vector/list/string, PDF pages 559 to 572 and 585 to 586.</li>
+<li><i>Programming: Principles and Practice (Stroustrup)</i>: 20.7.1 Iterator categories, PDF pages 610 to 612.</li>
+</ul></div>
+<!-- read-more:end -->
 </section>
 
 <section data-title="Algorithms">
@@ -270,6 +311,13 @@ for (int x : evenSquares) use(x);                             // computed on dem
 <li>A view does not own its data: if the container dies or reallocates, the view dangles, like <code>string_view</code>.</li>
 <li>Good to know for interviews: ranges make pipelines readable; you are not expected to know every view.</li>
 </ul>
+<!-- read-more:start -->
+<div class="callout tip"><span class="label">Read more</span>This section goes deeper in:
+<ul>
+<li><i>Programming: Principles and Practice (Stroustrup)</i>: 21.1 to 21.2, 21.5 Standard algorithms, function objects, sorting and searching, PDF pages 617 to 626 and 633 to 635.</li>
+<li><i>C++ Move Semantics (Josuttis)</i>: Chapter 14 Moving algorithms and iterators, PDF pages 219 to 228.</li>
+</ul></div>
+<!-- read-more:end -->
 </section>
 
 <section id="keys" data-title="Custom keys: comparators and hashes">
@@ -346,24 +394,6 @@ std::normal_distribution<double> noise(0.0, 1.0);
 <li>Keep one engine per thread; engines are not thread-safe.</li>
 </ul>
 <p>Notes: <a href="https://github.com/Ghaith-Hamdi1/cpp-training/blob/main/docs/03-cpp-standard-library/README.md">Module 3</a>.</p>
-</section>
-
-<section id="read-more" data-title="Read more in the books">
-<h2>Read more in the books</h2>
-<p>These book sections explain the same ideas in more depth. Page numbers are <b>PDF pages</b>, the number your PDF reader shows, in the files under <code>books/</code>. Each book's reading guide in <code>docs/</code> has its full plan.</p>
-<table>
-<tr><th>Book</th><th>Chapter or section</th><th>PDF pages</th><th>Deepens</th></tr>
-<tr><td><a href="https://github.com/Ghaith-Hamdi1/cpp-training/blob/main/docs/programming-principles-and-practice-reading-guide.md">Programming: Principles and Practice Using C++, 3rd ed. (Stroustrup)</a></td><td>3.5 to 3.6 Functions; vector introduced</td><td>81 to 89</td><td>vector</td></tr>
-<tr><td><a href="https://github.com/Ghaith-Hamdi1/cpp-training/blob/main/docs/programming-principles-and-practice-reading-guide.md">Programming: Principles and Practice Using C++, 3rd ed. (Stroustrup)</a></td><td>17.6 to 17.9 Other operations, remaining Vector problems, changing size</td><td>513 to 523</td><td>vector: the workhorse</td></tr>
-<tr><td><a href="https://github.com/Ghaith-Hamdi1/cpp-training/blob/main/docs/programming-principles-and-practice-reading-guide.md">Programming: Principles and Practice Using C++, 3rd ed. (Stroustrup)</a></td><td>19.1 to 19.3, 19.6 Containers, sequences and iterators, linked lists, vector/list/string</td><td>559 to 572 and 585 to 586</td><td>Iterators, Sequence containers; The big picture; Iterators</td></tr>
-<tr><td><a href="https://github.com/Ghaith-Hamdi1/cpp-training/blob/main/docs/programming-principles-and-practice-reading-guide.md">Programming: Principles and Practice Using C++, 3rd ed. (Stroustrup)</a></td><td>20.1 to 20.6 map, unordered_map, set, container overview</td><td>591 to 609</td><td>Associative and unordered containers; Which container should I use?</td></tr>
-<tr><td><a href="https://github.com/Ghaith-Hamdi1/cpp-training/blob/main/docs/programming-principles-and-practice-reading-guide.md">Programming: Principles and Practice Using C++, 3rd ed. (Stroustrup)</a></td><td>20.6 Container overview</td><td>604 to 610</td><td>Other sequence containers; Which container should I use?</td></tr>
-<tr><td><a href="https://github.com/Ghaith-Hamdi1/cpp-training/blob/main/docs/programming-principles-and-practice-reading-guide.md">Programming: Principles and Practice Using C++, 3rd ed. (Stroustrup)</a></td><td>20.7.1 Iterator categories</td><td>610 to 612</td><td>Iterators</td></tr>
-<tr><td><a href="https://github.com/Ghaith-Hamdi1/cpp-training/blob/main/docs/programming-principles-and-practice-reading-guide.md">Programming: Principles and Practice Using C++, 3rd ed. (Stroustrup)</a></td><td>21.1 to 21.2, 21.5 Standard algorithms, function objects, sorting and searching</td><td>617 to 626 and 633 to 635</td><td>Algorithms</td></tr>
-<tr><td><a href="https://github.com/Ghaith-Hamdi1/cpp-training/blob/main/docs/effective-modern-cpp-reading-guide.md">Effective Modern C++ (Meyers)</a></td><td>42 Consider emplacement instead of insertion</td><td>310 to 320</td><td>vector: the workhorse</td></tr>
-<tr><td><a href="https://github.com/Ghaith-Hamdi1/cpp-training/blob/main/docs/move-semantics-complete-guide-reading-guide.md">C++ Move Semantics: The Complete Guide (Josuttis)</a></td><td>Chapter 14 Moving algorithms and iterators</td><td>219 to 228</td><td>Algorithms</td></tr>
-<tr><td><a href="https://github.com/Ghaith-Hamdi1/cpp-training/blob/main/docs/move-semantics-complete-guide-reading-guide.md">C++ Move Semantics: The Complete Guide (Josuttis)</a></td><td>Chapter 15 Move semantics in standard library types</td><td>229 to 250</td><td>The STL</td></tr>
-</table>
 </section>
 
 <section id="s10" data-title="Interview cheat sheet">

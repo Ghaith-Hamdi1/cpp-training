@@ -81,6 +81,14 @@ const int limit = [&] { return fast ? 100 : 10; }();
 <li>A lambda cannot name itself. For recursion, pass it to itself: <code>auto fact = [](auto self, int n) -&gt; int { return n &lt;= 1 ? 1 : n * self(self, n - 1); };</code> (compiled: 5! = 120), or use <code>std::function</code>.</li>
 <li><code>[this]</code> in a member function captures the pointer; <code>[*this]</code> copies the object.</li>
 </ul>
+<!-- read-more:start -->
+<div class="callout tip"><span class="label">Read more</span>This section goes deeper in:
+<ul>
+<li><i>Programming: Principles and Practice (Stroustrup)</i>: 21.1 to 21.2, 21.5 Standard algorithms, function objects, sorting and searching, PDF pages 617 to 626 and 633 to 635.</li>
+<li><i>Effective Modern C++ (Meyers)</i>: Item 31, Avoid default capture modes, PDF pages 234 to 242.</li>
+<li><i>Effective Modern C++ (Meyers)</i>: Item 32, Use init capture to move objects into closures, PDF pages 242 to 247.</li>
+</ul></div>
+<!-- read-more:end -->
 </section>
 
 <section id="callables" data-title="Function pointer, functor, lambda, std::function">
@@ -117,17 +125,6 @@ auto h = [](int b, int c) { return add3(1, b, c); };   // the same as f, and eas
 </script>
 <p>Compiled: <code>f(2, 3)</code> gave 123, <code>g(4, 5)</code> gave 549 and the lambda gave 123. <code>std::bind</code> predates lambdas (C++11); it copies its arguments, hides overloads and produces unreadable errors. You will see it in older code, so be able to read it; in new code write a lambda, which also inlines better.</p>
 <div class="callout interview"><span class="label">Interview angle</span>"Lambda vs <code>std::function</code>?" A lambda has its own type and is inlined; <code>std::function</code> erases the type, costs an indirect call and maybe an allocation. Use it only when you must store different callables in one place.</div>
-</section>
-
-<section id="read-more" data-title="Read more in the books">
-<h2>Read more in the books</h2>
-<p>These book sections explain the same ideas in more depth. Page numbers are <b>PDF pages</b>, the number your PDF reader shows, in the files under <code>books/</code>. Each book's reading guide in <code>docs/</code> has its full plan.</p>
-<table>
-<tr><th>Book</th><th>Chapter or section</th><th>PDF pages</th><th>Deepens</th></tr>
-<tr><td><a href="https://github.com/Ghaith-Hamdi1/cpp-training/blob/main/docs/programming-principles-and-practice-reading-guide.md">Programming: Principles and Practice Using C++, 3rd ed. (Stroustrup)</a></td><td>21.1 to 21.2, 21.5 Standard algorithms, function objects, sorting and searching</td><td>617 to 626 and 633 to 635</td><td>Lambdas</td></tr>
-<tr><td><a href="https://github.com/Ghaith-Hamdi1/cpp-training/blob/main/docs/effective-modern-cpp-reading-guide.md">Effective Modern C++ (Meyers)</a></td><td>31 Avoid default capture modes</td><td>234 to 242</td><td>Lambdas</td></tr>
-<tr><td><a href="https://github.com/Ghaith-Hamdi1/cpp-training/blob/main/docs/effective-modern-cpp-reading-guide.md">Effective Modern C++ (Meyers)</a></td><td>32 Use init capture to move objects into closures</td><td>242 to 247</td><td>Lambdas</td></tr>
-</table>
 </section>
 
 <section id="cheat" data-title="Interview cheat sheet">

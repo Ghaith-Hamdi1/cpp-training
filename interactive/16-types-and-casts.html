@@ -67,6 +67,14 @@ auto t = {1, 2, 3};       // std::initializer_list<int>, NOT a vector
 <tr><td><code>if</code> with initializer (C++17)</td><td>variable leaking into outer scope</td><td><code>if (auto it = m.find(k); it != m.end()) {}</code></td></tr>
 <tr><td><code>[[nodiscard]]</code></td><td>ignored error codes</td><td><code>[[nodiscard]] bool open();</code></td></tr>
 </table>
+<!-- read-more:start -->
+<div class="callout tip"><span class="label">Read more</span>This section goes deeper in:
+<ul>
+<li><i>Programming: Principles and Practice (Stroustrup)</i>: 2.8 to 2.10 Type safety, conversions, type deduction with auto, PDF pages 56 to 60.</li>
+<li><i>Effective Modern C++ (Meyers)</i>: Item 2, Understand auto type deduction, PDF pages 36 to 41.</li>
+<li><i>Effective Modern C++ (Meyers)</i>: Item 5, Prefer auto to explicit type declarations, PDF pages 55 to 61.</li>
+</ul></div>
+<!-- read-more:end -->
 </section>
 
 <section id="conversions" data-title="Implicit conversions and enum class">
@@ -94,6 +102,12 @@ enum class Level { Info = 1, Error = 2 };// scoped: Level::Error, no implicit co
 int m = static_cast<int>(Level::Error);  // an explicit cast is required (compiled: 2)
 </script>
 <p>Prefer <code>enum class</code>, with an explicit underlying type when the size matters: <code>enum class Side : std::uint8_t { Buy, Sell };</code></p>
+<!-- read-more:start -->
+<div class="callout tip"><span class="label">Read more</span>This section goes deeper in:
+<ul>
+<li><i>Programming: Principles and Practice (Stroustrup)</i>: 8.4 to 8.6 Evolving a class (Date), enumerations, operator overloading, PDF pages 238 to 249.</li>
+</ul></div>
+<!-- read-more:end -->
 </section>
 
 <section id="casts" data-title="Casts and type conversion">
@@ -155,6 +169,12 @@ extern "C" {                                                    // a whole heade
 <li>Pointers to <code>extern "C"</code> functions are technically a different type from C++ function pointers; compilers accept them for C callbacks in practice.</li>
 <li><b>Linkage rules:</b> a non-<code>static</code>, non-<code>inline</code> function defined in a header and included twice gives a "multiple definition" link error; mark it <code>inline</code>. <code>extern</code> on a variable declares it without defining it.</li>
 </ul>
+<!-- read-more:start -->
+<div class="callout tip"><span class="label">Read more</span>This section goes deeper in:
+<ul>
+<li><i>Effective Modern C++ (Meyers)</i>: Item 15, Use constexpr whenever possible, PDF pages 115 to 121.</li>
+</ul></div>
+<!-- read-more:end -->
 </section>
 
 <section id="standards" data-title="What C++14, 17 and 20 added">
@@ -178,19 +198,6 @@ void print(std::string_view sv);                         // non-owning pointer +
 // it must not outlive the text it views, see Strings, Regex & Time
 </script>
 <p>Full lists: <a href="https://github.com/AnthonyCalandra/modern-cpp-features">modern-cpp-features</a>, <a href="https://github.com/changkun/modern-cpp-tutorial">modern-cpp-tutorial</a>. Your notes: <a href="https://github.com/Ghaith-Hamdi1/cpp-training/blob/main/docs/03-cpp-standard-library/README.md">Module 3</a>.</p>
-</section>
-
-<section id="read-more" data-title="Read more in the books">
-<h2>Read more in the books</h2>
-<p>These book sections explain the same ideas in more depth. Page numbers are <b>PDF pages</b>, the number your PDF reader shows, in the files under <code>books/</code>. Each book's reading guide in <code>docs/</code> has its full plan.</p>
-<table>
-<tr><th>Book</th><th>Chapter or section</th><th>PDF pages</th><th>Deepens</th></tr>
-<tr><td><a href="https://github.com/Ghaith-Hamdi1/cpp-training/blob/main/docs/programming-principles-and-practice-reading-guide.md">Programming: Principles and Practice Using C++, 3rd ed. (Stroustrup)</a></td><td>2.8 to 2.10 Type safety, conversions, type deduction with auto</td><td>56 to 60</td><td>auto, decltype and modern syntax (auto traps)</td></tr>
-<tr><td><a href="https://github.com/Ghaith-Hamdi1/cpp-training/blob/main/docs/programming-principles-and-practice-reading-guide.md">Programming: Principles and Practice Using C++, 3rd ed. (Stroustrup)</a></td><td>8.4 to 8.6 Evolving a class (Date), enumerations, operator overloading</td><td>238 to 249</td><td>enum class</td></tr>
-<tr><td><a href="https://github.com/Ghaith-Hamdi1/cpp-training/blob/main/docs/effective-modern-cpp-reading-guide.md">Effective Modern C++ (Meyers)</a></td><td>2 Understand auto type deduction</td><td>36 to 41</td><td>auto, decltype and modern syntax (the auto traps)</td></tr>
-<tr><td><a href="https://github.com/Ghaith-Hamdi1/cpp-training/blob/main/docs/effective-modern-cpp-reading-guide.md">Effective Modern C++ (Meyers)</a></td><td>5 Prefer auto to explicit type declarations</td><td>55 to 61</td><td>auto, decltype and modern syntax</td></tr>
-<tr><td><a href="https://github.com/Ghaith-Hamdi1/cpp-training/blob/main/docs/effective-modern-cpp-reading-guide.md">Effective Modern C++ (Meyers)</a></td><td>15 Use constexpr whenever possible</td><td>115 to 121</td><td>const, constexpr and static</td></tr>
-</table>
 </section>
 
 <section id="cheat" data-title="Interview cheat sheet">

@@ -176,6 +176,12 @@ for (std::string field; std::getline(csv, field, ',');) { /* "ESZ5", "5000.25", 
 <li>Files are closed by the destructor, so a plain scope is the RAII way to flush and close.</li>
 <li><code>std::endl</code> flushes every time (slow). Use <code>'\n'</code>.</li>
 </ul>
+<!-- read-more:start -->
+<div class="callout tip"><span class="label">Read more</span>This section goes deeper in:
+<ul>
+<li><i>Programming: Principles and Practice (Stroustrup)</i>: 9.11 String streams, PDF pages 296 to 297.</li>
+</ul></div>
+<!-- read-more:end -->
 </section>
 
 <section id="s2" data-title="Regular expressions: the basics">
@@ -273,15 +279,6 @@ std::chrono::milliseconds ms = s;                          // implicit: lossless
 auto m = std::chrono::duration_cast<std::chrono::minutes>(s);   // 1 (truncates)
 </script>
 <div class="callout warn"><span class="label">steady_clock for intervals</span><code>system_clock</code> can jump, giving negative or wrong intervals: bad for timeouts.</div>
-</section>
-
-<section id="read-more" data-title="Read more in the books">
-<h2>Read more in the books</h2>
-<p>These book sections explain the same ideas in more depth. Page numbers are <b>PDF pages</b>, the number your PDF reader shows, in the files under <code>books/</code>. Each book's reading guide in <code>docs/</code> has its full plan.</p>
-<table>
-<tr><th>Book</th><th>Chapter or section</th><th>PDF pages</th><th>Deepens</th></tr>
-<tr><td><a href="https://github.com/Ghaith-Hamdi1/cpp-training/blob/main/docs/programming-principles-and-practice-reading-guide.md">Programming: Principles and Practice Using C++, 3rd ed. (Stroustrup)</a></td><td>9.11 String streams</td><td>296 to 297</td><td>Strings, Regex &amp; Time</td></tr>
-</table>
 </section>
 
 <section id="s5" data-title="Interview cheat sheet">

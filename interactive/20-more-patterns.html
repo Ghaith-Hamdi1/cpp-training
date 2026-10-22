@@ -186,12 +186,6 @@ Session onEvent(const Session& s, const std::string& ev) {
 <p>Compiled trace: <code>msg</code> while disconnected stayed <b>Disconnected</b>; after <code>logon</code> the state was <b>LoggedOn(next 1)</b>, two <code>msg</code> events moved it to <b>next 3</b>, <code>logout</code> gave <b>Stopped</b>, and a later <code>msg</code> stayed Stopped. Data such as the sequence number lives <b>in the state that needs it</b>, so it cannot be misused in another state. This is the State pattern without virtual functions (<a href="06-design-patterns.html">Design Patterns</a> shows the virtual version).</p>
 </section>
 
-<section id="read-more" data-title="Read more in the books">
-<h2>Read more in the books</h2>
-<p>These book sections explain the same ideas in more depth. Page numbers are <b>PDF pages</b>, the number your PDF reader shows, in the files under <code>books/</code>. Each book's reading guide in <code>docs/</code> has its full plan.</p>
-<p>None of the four books in <code>books/</code> covers these patterns. <i>C++ Software Design</i> by Klaus Iglberger covers Command, Decorator, Adapter, Visitor and type erasure in modern C++; it is not in <code>books/</code>, so there are no page numbers here.</p>
-</section>
-
 <section id="cheat" data-title="Interview cheat sheet">
 <h2>Interview cheat sheet</h2>
 <p>Say each answer aloud, then open it.</p>

@@ -39,6 +39,12 @@ struct File : Reader, Writer {                 // implements both interfaces
 <li><b>Name clashes:</b> if both bases have a member <code>f</code>, calling <code>obj.f()</code> is ambiguous. Qualify it (<code>obj.Reader::f()</code>) or override it in the derived class.</li>
 <li>Multiple inheritance of <i>implementation</i> (bases with data) is where trouble starts: the diamond.</li>
 </ul>
+<!-- read-more:start -->
+<div class="callout tip"><span class="label">Read more</span>This section goes deeper in:
+<ul>
+<li><i>Programming: Principles and Practice (Stroustrup)</i>: 12.3 Base and derived classes (object layout, the vptr and vtbl, overriding), PDF pages 380 to 387.</li>
+</ul></div>
+<!-- read-more:end -->
 </section>
 
 <section id="diamond" data-title="The diamond problem and virtual inheritance">
@@ -77,6 +83,12 @@ struct Diamond : Left, Right {};         // one Base inside; d.id is not ambiguo
 <li><b>Advice:</b> avoid diamonds. Use interfaces without data, or composition. When you need virtual inheritance, put the data in one place and let the most derived class initialize the base.</li>
 </ul>
 <div class="callout interview"><span class="label">Interview angle</span>"What is the diamond problem and how do you solve it?" Two paths to one base duplicate its members and make access ambiguous. <code>virtual</code> inheritance shares one copy; the most derived class constructs it first. It costs memory and indirection, so prefer interfaces and composition.</div>
+<!-- read-more:start -->
+<div class="callout tip"><span class="label">Read more</span>This section goes deeper in:
+<ul>
+<li><i>Programming: Principles and Practice (Stroustrup)</i>: 15.5 Destructors, including 15.5.2 Virtual destructors, PDF pages 460 to 463.</li>
+</ul></div>
+<!-- read-more:end -->
 </section>
 
 <section id="rtti" data-title="RTTI: typeid and dynamic_cast">
@@ -164,16 +176,6 @@ public:
 <li><b>Self-assignment safe</b> without an <code>if (this != &amp;o)</code> check (compiled: <code>b1 = b1</code> worked).</li>
 <li>One operator serves copy <i>and</i> move assignment (<a href="13-move-semantics.html">Move Semantics</a>). Cost: a move-assignment written by hand can be a little faster.</li>
 </ul>
-</section>
-
-<section id="read-more" data-title="Read more in the books">
-<h2>Read more in the books</h2>
-<p>These book sections explain the same ideas in more depth. Page numbers are <b>PDF pages</b>, the number your PDF reader shows, in the files under <code>books/</code>. Each book's reading guide in <code>docs/</code> has its full plan.</p>
-<table>
-<tr><th>Book</th><th>Chapter or section</th><th>PDF pages</th><th>Deepens</th></tr>
-<tr><td><a href="https://github.com/Ghaith-Hamdi1/cpp-training/blob/main/docs/programming-principles-and-practice-reading-guide.md">Programming: Principles and Practice Using C++, 3rd ed. (Stroustrup)</a></td><td>12.3 Base and derived classes (object layout, the vptr and vtbl, overriding)</td><td>380 to 387</td><td>Multiple inheritance and object layout (single-inheritance layout)</td></tr>
-<tr><td><a href="https://github.com/Ghaith-Hamdi1/cpp-training/blob/main/docs/programming-principles-and-practice-reading-guide.md">Programming: Principles and Practice Using C++, 3rd ed. (Stroustrup)</a></td><td>15.5 Destructors, including 15.5.2 Virtual destructors</td><td>460 to 463</td><td>The diamond problem and virtual inheritance (why a polymorphic base needs a virtual destructor)</td></tr>
-</table>
 </section>
 
 <section id="cheat" data-title="Interview cheat sheet">

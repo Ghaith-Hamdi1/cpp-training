@@ -30,6 +30,12 @@ maxOf<double>(3, 2.5);// explicit: T = double, the int is converted
 <p>Pick a type:</p>
 <div id="w-inst"></div>
 <div class="callout interview"><span class="label">Interview angle</span>Templates: <b>compile-time</b> (static) polymorphism, fastest, inlinable, more code, types known at compile time. Virtual: <b>runtime</b>, one code path, mixed objects, a vtable indirection.</div>
+<!-- read-more:start -->
+<div class="callout tip"><span class="label">Read more</span>This section goes deeper in:
+<ul>
+<li><i>Programming: Principles and Practice (Stroustrup)</i>: 18.1 to 18.3 Templates, generalizing Vector, range checking and exceptions, PDF pages 527 to 541.</li>
+</ul></div>
+<!-- read-more:end -->
 </section>
 
 <section data-title="Class templates">
@@ -61,6 +67,12 @@ std::vector v{1, 2, 3};     // std::vector<int>
 <li>Each instantiation is a separate, unrelated class. Members are instantiated only if called.</li>
 </ul>
 <div class="callout warn"><span class="label">Why templates live in headers</span>The compiler needs the body at instantiation. In a <code>.cpp</code>, others see only a declaration: linker errors. Use headers, or explicit instantiation (<code>template class Stack&lt;int&gt;;</code>).</div>
+<!-- read-more:start -->
+<div class="callout tip"><span class="label">Read more</span>This section goes deeper in:
+<ul>
+<li><i>Programming: Principles and Practice (Stroustrup)</i>: 18.1 to 18.3 Templates, generalizing Vector, range checking and exceptions, PDF pages 527 to 541.</li>
+</ul></div>
+<!-- read-more:end -->
 </section>
 
 <section data-title="Specialization">
@@ -120,6 +132,12 @@ Box b{std::string("x")};                // Box<std::string>
 </script>
 <p>The compiler deduces the class's arguments from the constructor call. A <b>deduction guide</b> tells it how when the constructors alone are not enough. All of the above was compiled and checked.</p>
 <div class="callout tip"><span class="label">When deduction fails</span>The error says "couldn't deduce template parameter". Look for conflicting arguments, a braced list, or a parameter that does not mention <code>T</code> at all (e.g. only the return type does).</div>
+<!-- read-more:start -->
+<div class="callout tip"><span class="label">Read more</span>This section goes deeper in:
+<ul>
+<li><i>Effective Modern C++ (Meyers)</i>: Item 1, Understand template type deduction, PDF pages 27 to 36.</li>
+</ul></div>
+<!-- read-more:end -->
 </section>
 
 <section id="s4" data-title="Forwarding references and perfect forwarding">
@@ -160,6 +178,17 @@ auto b = makeUnique<Widget>(std::string("x"));// temporary rvalue -> Widget MOVE
 <div class="callout warn"><span class="label">std::move vs std::forward</span><code>move</code> <i>always</i> casts to rvalue. <code>forward&lt;T&gt;</code> casts to rvalue <i>only if</i> the argument was one. Use <code>forward</code> only on a forwarding reference, once.</div>
 <p>Step through perfect forwarding:</p>
 <div id="st-forward"></div>
+<!-- read-more:start -->
+<div class="callout tip"><span class="label">Read more</span>This section goes deeper in:
+<ul>
+<li><i>Effective Modern C++ (Meyers)</i>: Item 23, Understand std::move and std::forward, PDF pages 176 to 182.</li>
+<li><i>Effective Modern C++ (Meyers)</i>: Item 24, Distinguish universal references from rvalue references, PDF pages 182 to 186.</li>
+<li><i>Effective Modern C++ (Meyers)</i>: Items 26 to 27, and 30 Overloading on universal references; perfect forwarding failure cases, PDF pages 195 to 215 and 225 to 232.</li>
+<li><i>C++ Move Semantics (Josuttis)</i>: 9.1 to 9.3 Perfect forwarding; universal versus rvalue references, PDF pages 159 to 166.</li>
+<li><i>C++ Move Semantics (Josuttis)</i>: 9.4 to 9.5 Overload resolution with universal references; perfect forwarding in lambdas, PDF pages 167 to 170.</li>
+<li><i>C++ Move Semantics (Josuttis)</i>: Chapter 11 Perfect passing with auto&amp;&amp;, PDF pages 191 to 202.</li>
+</ul></div>
+<!-- read-more:end -->
 </section>
 
 <section id="s5" data-title="Variadic templates and fold expressions">
@@ -202,6 +231,15 @@ std::string describe(const T& v) {
 }
 </script>
 <p>Traits, SFINAE and <code>enable_if</code>, concepts, <code>constexpr</code>, <code>consteval</code> and template metaprogramming have their own lesson: <a href="09-compile-time.html">Type Traits &amp; Compile-time C++</a>.</p>
+<!-- read-more:start -->
+<div class="callout tip"><span class="label">Read more</span>This section goes deeper in:
+<ul>
+<li><i>Programming: Principles and Practice (Stroustrup)</i>: 18.1 to 18.3 Templates, generalizing Vector, range checking and exceptions, PDF pages 527 to 541.</li>
+<li><i>Programming: Principles and Practice (Stroustrup)</i>: 19.4 and 21.1 Generalizing Vector again; standard algorithms, PDF pages 573 to 578 and 617 to 622.</li>
+<li><i>Effective Modern C++ (Meyers)</i>: Items 26 to 27, and 30 Overloading on universal references; perfect forwarding failure cases, PDF pages 195 to 215 and 225 to 232.</li>
+<li><i>C++ Move Semantics (Josuttis)</i>: Chapter 12 Perfect returning with decltype(auto), PDF pages 203 to 210.</li>
+</ul></div>
+<!-- read-more:end -->
 </section>
 
 <section id="tools" data-title="Alias, variable and template template parameters">
@@ -251,24 +289,12 @@ applyTuple([](int x, int y, int z) { return x + y + z; }, std::tuple{1, 2, 3}); 
 <tr><td><code>maxOf("a", "b")</code> with <code>const char*</code></td><td>Compares pointer addresses, not text. Use <code>std::string</code> or <code>std::string_view</code>.</td></tr>
 </table>
 <p>Notes: <a href="https://github.com/Ghaith-Hamdi1/cpp-training/blob/main/docs/04-templates-and-design-patterns/README.md">Module 4</a>; <a href="https://github.com/AnthonyCalandra/modern-cpp-features">modern-cpp-features</a>.</p>
-</section>
-
-<section id="read-more" data-title="Read more in the books">
-<h2>Read more in the books</h2>
-<p>These book sections explain the same ideas in more depth. Page numbers are <b>PDF pages</b>, the number your PDF reader shows, in the files under <code>books/</code>. Each book's reading guide in <code>docs/</code> has its full plan.</p>
-<table>
-<tr><th>Book</th><th>Chapter or section</th><th>PDF pages</th><th>Deepens</th></tr>
-<tr><td><a href="https://github.com/Ghaith-Hamdi1/cpp-training/blob/main/docs/programming-principles-and-practice-reading-guide.md">Programming: Principles and Practice Using C++, 3rd ed. (Stroustrup)</a></td><td>18.1 to 18.3 Templates, generalizing Vector, range checking and exceptions</td><td>527 to 541</td><td>Function and class templates; Why templates, and function templates; Class templates; Why templates (the interview note on templates versus virtual functions); Type traits and if constexpr (the "Concepts (C++20)" part); Class templates (non-type parameters); Pitfalls and good practice</td></tr>
-<tr><td><a href="https://github.com/Ghaith-Hamdi1/cpp-training/blob/main/docs/programming-principles-and-practice-reading-guide.md">Programming: Principles and Practice Using C++, 3rd ed. (Stroustrup)</a></td><td>19.4 and 21.1 Generalizing Vector again; standard algorithms</td><td>573 to 578 and 617 to 622</td><td>Type traits and if constexpr</td></tr>
-<tr><td><a href="https://github.com/Ghaith-Hamdi1/cpp-training/blob/main/docs/effective-modern-cpp-reading-guide.md">Effective Modern C++ (Meyers)</a></td><td>1 Understand template type deduction</td><td>27 to 36</td><td>Template argument deduction</td></tr>
-<tr><td><a href="https://github.com/Ghaith-Hamdi1/cpp-training/blob/main/docs/effective-modern-cpp-reading-guide.md">Effective Modern C++ (Meyers)</a></td><td>23 Understand std::move and std::forward</td><td>176 to 182</td><td>Forwarding references and perfect forwarding</td></tr>
-<tr><td><a href="https://github.com/Ghaith-Hamdi1/cpp-training/blob/main/docs/effective-modern-cpp-reading-guide.md">Effective Modern C++ (Meyers)</a></td><td>24 Distinguish universal references from rvalue references</td><td>182 to 186</td><td>Forwarding references and perfect forwarding</td></tr>
-<tr><td><a href="https://github.com/Ghaith-Hamdi1/cpp-training/blob/main/docs/effective-modern-cpp-reading-guide.md">Effective Modern C++ (Meyers)</a></td><td>26 to 27 and 30 Overloading on universal references; perfect forwarding failure cases</td><td>195 to 215 and 225 to 232</td><td>Type traits and if constexpr; Forwarding references and perfect forwarding</td></tr>
-<tr><td><a href="https://github.com/Ghaith-Hamdi1/cpp-training/blob/main/docs/move-semantics-complete-guide-reading-guide.md">C++ Move Semantics: The Complete Guide (Josuttis)</a></td><td>9.1 to 9.3 Perfect forwarding; universal versus rvalue references</td><td>159 to 166</td><td>Forwarding references and perfect forwarding</td></tr>
-<tr><td><a href="https://github.com/Ghaith-Hamdi1/cpp-training/blob/main/docs/move-semantics-complete-guide-reading-guide.md">C++ Move Semantics: The Complete Guide (Josuttis)</a></td><td>9.4 to 9.5 Overload resolution with universal references; perfect forwarding in lambdas</td><td>167 to 170</td><td>Forwarding references and perfect forwarding</td></tr>
-<tr><td><a href="https://github.com/Ghaith-Hamdi1/cpp-training/blob/main/docs/move-semantics-complete-guide-reading-guide.md">C++ Move Semantics: The Complete Guide (Josuttis)</a></td><td>Chapter 11 Perfect passing with auto&amp;&amp;</td><td>191 to 202</td><td>Forwarding references and perfect forwarding</td></tr>
-<tr><td><a href="https://github.com/Ghaith-Hamdi1/cpp-training/blob/main/docs/move-semantics-complete-guide-reading-guide.md">C++ Move Semantics: The Complete Guide (Josuttis)</a></td><td>Chapter 12 Perfect returning with decltype(auto)</td><td>203 to 210</td><td>Type traits and if constexpr</td></tr>
-</table>
+<!-- read-more:start -->
+<div class="callout tip"><span class="label">Read more</span>This section goes deeper in:
+<ul>
+<li><i>Programming: Principles and Practice (Stroustrup)</i>: 18.1 to 18.3 Templates, generalizing Vector, range checking and exceptions, PDF pages 527 to 541.</li>
+</ul></div>
+<!-- read-more:end -->
 </section>
 
 <section id="s9" data-title="Interview cheat sheet">

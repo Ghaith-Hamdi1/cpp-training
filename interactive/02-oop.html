@@ -44,6 +44,15 @@ acc.withdraw(30);          // fine
 </table>
 <p>"Valid" is the class <b>invariant</b> (here: balance never negative). Hide the representation, let constructors build only valid objects, keep the public interface small. No invariant to protect? Use a plain <code>struct</code>.</p>
 <div class="callout tip"><span class="label">struct vs class</span>Only the default access differs: <code>struct</code> public, <code>class</code> private. Use <code>struct</code> for plain data.</div>
+<!-- read-more:start -->
+<div class="callout tip"><span class="label">Read more</span>This section goes deeper in:
+<ul>
+<li><i>Programming: Principles and Practice (Stroustrup)</i>: 8.1 to 8.3 User-defined types, classes and members, interface and implementation, PDF pages 235 to 237.</li>
+<li><i>Programming: Principles and Practice (Stroustrup)</i>: 8.2, 8.3 Classes and members, interface and implementation, PDF pages 236 to 238.</li>
+<li><i>Programming: Principles and Practice (Stroustrup)</i>: 8.4 to 8.6 Evolving a class (Date), enumerations, operator overloading, PDF pages 238 to 249.</li>
+<li><i>Programming: Principles and Practice (Stroustrup)</i>: 8.7 Class interfaces, PDF pages 250 to 258.</li>
+</ul></div>
+<!-- read-more:end -->
 </section>
 
 <section data-title="Constructors and destructors">
@@ -70,6 +79,13 @@ public:
 <p>Construction: base, members, derived body. Destruction: the exact reverse.</p>
 <div id="st-order"></div>
 <div class="callout interview"><span class="label">Interview angle</span>Construct: base, members, derived body. Destruct: reverse.</div>
+<!-- read-more:start -->
+<div class="callout tip"><span class="label">Read more</span>This section goes deeper in:
+<ul>
+<li><i>Programming: Principles and Practice (Stroustrup)</i>: 8.7 Class interfaces, PDF pages 250 to 258.</li>
+<li><i>Programming: Principles and Practice (Stroustrup)</i>: 15.3 to 15.5 Memory, addresses and pointers; free store; destructors, PDF pages 452 to 463.</li>
+</ul></div>
+<!-- read-more:end -->
 </section>
 
 <section data-title="Copying and the Rule of 3, 5 and 0">
@@ -116,6 +132,16 @@ public:
 <li><b>Never <code>= delete</code> a move</b>: it kills the copy fallback too. For a move-only type, delete the <i>copy</i> operations.</li>
 </ul>
 <div class="callout tip"><span class="label">Best interview answer</span>"Rule of Zero: <code>vector</code> and smart pointers make the generated members correct. Rule of Five only when wrapping a raw resource."</div>
+<!-- read-more:start -->
+<div class="callout tip"><span class="label">Read more</span>This section goes deeper in:
+<ul>
+<li><i>Programming: Principles and Practice (Stroustrup)</i>: 17.4 to 17.5 Copying and moving; essential operations, PDF pages 501 to 512.</li>
+<li><i>Effective Modern C++ (Meyers)</i>: Item 17, Understand special member function generation, PDF pages 127 to 133.</li>
+<li><i>C++ Move Semantics (Josuttis)</i>: 3.1 and 3.1.1 to 3.1.2 Move semantics in ordinary classes, PDF pages 53 to 58.</li>
+<li><i>C++ Move Semantics (Josuttis)</i>: 3.2 Implementing the special copy and move member functions, PDF pages 58 to 66.</li>
+<li><i>C++ Move Semantics (Josuttis)</i>: 3.3 to 3.4 Rules for special member functions; the Rule of Five or Three, PDF pages 66 to 76.</li>
+</ul></div>
+<!-- read-more:end -->
 </section>
 
 <section data-title="Member functions: this, const, static, friend">
@@ -144,6 +170,14 @@ c.add(1).add(2);                           // chaining works because add returns
 <li><b>static member function</b>: belongs to the class, no <code>this</code>.</li>
 <li><b><code>friend</code></b>: access to privates. Use sparingly.</li>
 </ul>
+<!-- read-more:start -->
+<div class="callout tip"><span class="label">Read more</span>This section goes deeper in:
+<ul>
+<li><i>Programming: Principles and Practice (Stroustrup)</i>: 8.7 Class interfaces, PDF pages 250 to 258.</li>
+<li><i>Programming: Principles and Practice (Stroustrup)</i>: 15.6 to 15.8 Element access, an example list, the this pointer, PDF pages 464 to 473.</li>
+<li><i>C++ Move Semantics (Josuttis)</i>: Chapter 5 Overloading on reference qualifiers, PDF pages 97 to 106.</li>
+</ul></div>
+<!-- read-more:end -->
 </section>
 
 <section data-title="Inheritance">
@@ -168,6 +202,13 @@ public:
 <p><code>final</code> forbids deriving. Prefer <b>composition</b> unless it is truly is-a.</p>
 <p>Step through slicing:</p>
 <div id="st-slice"></div>
+<!-- read-more:start -->
+<div class="callout tip"><span class="label">Read more</span>This section goes deeper in:
+<ul>
+<li><i>Programming: Principles and Practice (Stroustrup)</i>: 12.3, 12.5 Base and derived classes; benefits of object-oriented programming, PDF pages 380 to 387 and 389 to 390.</li>
+<li><i>C++ Move Semantics (Josuttis)</i>: 4.4 Move semantics in class hierarchies, PDF pages 93 to 96.</li>
+</ul></div>
+<!-- read-more:end -->
 </section>
 
 <section data-title="Polymorphism and virtual functions">
@@ -199,6 +240,15 @@ struct Circle : Shape {
 <p><b>2.</b> Virtual calls inside a constructor or destructor do <b>not</b> reach the derived class. While <code>Base</code>'s constructor runs, the object's dynamic type is <code>Base</code>, so <code>Base::init()</code> is called even if <code>Derived</code> overrides it.</p></div>
 <p>Step through a virtual call:</p>
 <div id="st-vptr"></div>
+<!-- read-more:start -->
+<div class="callout tip"><span class="label">Read more</span>This section goes deeper in:
+<ul>
+<li><i>Programming: Principles and Practice (Stroustrup)</i>: 12.3, 12.5 Base and derived classes; benefits of object-oriented programming, PDF pages 380 to 387 and 389 to 390.</li>
+<li><i>Programming: Principles and Practice (Stroustrup)</i>: 15.3 to 15.5 Memory, addresses and pointers; free store; destructors, PDF pages 452 to 463.</li>
+<li><i>Effective Modern C++ (Meyers)</i>: Item 12, Declare overriding functions override, PDF pages 97 to 104.</li>
+<li><i>C++ Move Semantics (Josuttis)</i>: 4.4 Move semantics in class hierarchies, PDF pages 93 to 96.</li>
+</ul></div>
+<!-- read-more:end -->
 </section>
 
 <section data-title="Abstract classes and interfaces">
@@ -221,6 +271,13 @@ std::vector<std::unique_ptr<Shape>> shapes;
 shapes.push_back(std::make_unique<Circle>(2.0));
 for (const auto& s : shapes) std::cout << s->area() << '\n';
 </script>
+<!-- read-more:start -->
+<div class="callout tip"><span class="label">Read more</span>This section goes deeper in:
+<ul>
+<li><i>Programming: Principles and Practice (Stroustrup)</i>: 12.1 to 12.2 Design principles; Shape: an abstract class and access control, PDF pages 369 to 379.</li>
+<li><i>Programming: Principles and Practice (Stroustrup)</i>: 12.3, 12.5 Base and derived classes; benefits of object-oriented programming, PDF pages 380 to 387 and 389 to 390.</li>
+</ul></div>
+<!-- read-more:end -->
 </section>
 
 <section data-title="Operator overloading">
@@ -272,6 +329,12 @@ using namespace std::literals;
 auto name = "abc"s;      // std::string; also 5ms, 2s (chrono) and "view"sv
 </script>
 <p>A literal suffix is an <b>operator</b> you define: <code>operator""_name</code>. User suffixes must start with an underscore (the others are reserved for the standard library). Use them for units (ticks, basis points, bytes) so the meaning is in the code, not in a comment.</p>
+<!-- read-more:start -->
+<div class="callout tip"><span class="label">Read more</span>This section goes deeper in:
+<ul>
+<li><i>Programming: Principles and Practice (Stroustrup)</i>: 8.4 to 8.6 Evolving a class (Date), enumerations, operator overloading, PDF pages 238 to 249.</li>
+</ul></div>
+<!-- read-more:end -->
 </section>
 
 <section data-title="Composition, relationships and design">
@@ -288,30 +351,6 @@ auto name = "abc"s;      // std::string; also 5ms, 2s (chrono) and "view"sv
 <div class="callout interview"><span class="label">Liskov Substitution</span>Code using a base must keep working with any derived type. If <code>Square : Rectangle</code> breaks on setting the width, inheritance was the wrong model: it must mean "behaves like", not "shares code".</div>
 <div class="callout tip"><span class="label">Going deeper</span>Multiple and virtual inheritance, the diamond problem, RTTI, private inheritance and copy-and-swap are in <a href="19-object-model.html">The Object Model in Depth</a>.</div>
 <p>Related notes in your repo: <a href="https://github.com/Ghaith-Hamdi1/cpp-training/blob/main/docs/02-cpp-oop/README.md">Module 2: C++ OOP</a>, <a href="https://github.com/Ghaith-Hamdi1/cpp-training/blob/main/docs/02-cpp-oop/13_objects_relationships.md">objects relationships</a>, and the learncpp.com recaps for chapters 14, 15, 21, 23, 24 and 25.</p>
-</section>
-
-<section id="read-more" data-title="Read more in the books">
-<h2>Read more in the books</h2>
-<p>These book sections explain the same ideas in more depth. Page numbers are <b>PDF pages</b>, the number your PDF reader shows, in the files under <code>books/</code>. Each book's reading guide in <code>docs/</code> has its full plan.</p>
-<table>
-<tr><th>Book</th><th>Chapter or section</th><th>PDF pages</th><th>Deepens</th></tr>
-<tr><td><a href="https://github.com/Ghaith-Hamdi1/cpp-training/blob/main/docs/programming-principles-and-practice-reading-guide.md">Programming: Principles and Practice Using C++, 3rd ed. (Stroustrup)</a></td><td>8.1 to 8.3 User-defined types, classes and members, interface and implementation</td><td>235 to 237</td><td>Classes and encapsulation</td></tr>
-<tr><td><a href="https://github.com/Ghaith-Hamdi1/cpp-training/blob/main/docs/programming-principles-and-practice-reading-guide.md">Programming: Principles and Practice Using C++, 3rd ed. (Stroustrup)</a></td><td>8.2, 8.3 Classes and members, interface and implementation</td><td>236 to 238</td><td>Classes and encapsulation</td></tr>
-<tr><td><a href="https://github.com/Ghaith-Hamdi1/cpp-training/blob/main/docs/programming-principles-and-practice-reading-guide.md">Programming: Principles and Practice Using C++, 3rd ed. (Stroustrup)</a></td><td>8.4 to 8.6 Evolving a class (Date), enumerations, operator overloading</td><td>238 to 249</td><td>Operator overloading; Classes and encapsulation</td></tr>
-<tr><td><a href="https://github.com/Ghaith-Hamdi1/cpp-training/blob/main/docs/programming-principles-and-practice-reading-guide.md">Programming: Principles and Practice Using C++, 3rd ed. (Stroustrup)</a></td><td>8.7 Class interfaces</td><td>250 to 258</td><td>Classes and encapsulation; Constructors and destructors; Member functions</td></tr>
-<tr><td><a href="https://github.com/Ghaith-Hamdi1/cpp-training/blob/main/docs/programming-principles-and-practice-reading-guide.md">Programming: Principles and Practice Using C++, 3rd ed. (Stroustrup)</a></td><td>12.1 to 12.2 Design principles; Shape: an abstract class and access control</td><td>369 to 379</td><td>Abstract classes and interfaces</td></tr>
-<tr><td><a href="https://github.com/Ghaith-Hamdi1/cpp-training/blob/main/docs/programming-principles-and-practice-reading-guide.md">Programming: Principles and Practice Using C++, 3rd ed. (Stroustrup)</a></td><td>12.3, 12.5 Base and derived classes; benefits of object-oriented programming</td><td>380 to 387 and 389 to 390</td><td>Inheritance, Polymorphism; Inheritance; Polymorphism and virtual functions; Abstract classes</td></tr>
-<tr><td><a href="https://github.com/Ghaith-Hamdi1/cpp-training/blob/main/docs/programming-principles-and-practice-reading-guide.md">Programming: Principles and Practice Using C++, 3rd ed. (Stroustrup)</a></td><td>15.3 to 15.5 Memory, addresses and pointers; free store; destructors</td><td>452 to 463</td><td>Constructors and destructors; Polymorphism and virtual functions</td></tr>
-<tr><td><a href="https://github.com/Ghaith-Hamdi1/cpp-training/blob/main/docs/programming-principles-and-practice-reading-guide.md">Programming: Principles and Practice Using C++, 3rd ed. (Stroustrup)</a></td><td>15.6 to 15.8 Element access, an example list, the this pointer</td><td>464 to 473</td><td>Member functions: this</td></tr>
-<tr><td><a href="https://github.com/Ghaith-Hamdi1/cpp-training/blob/main/docs/programming-principles-and-practice-reading-guide.md">Programming: Principles and Practice Using C++, 3rd ed. (Stroustrup)</a></td><td>17.4 to 17.5 Copying and moving; essential operations</td><td>501 to 512</td><td>Rule of 3, 5 and 0; Copying and the Rule of 3, 5 and 0</td></tr>
-<tr><td><a href="https://github.com/Ghaith-Hamdi1/cpp-training/blob/main/docs/effective-modern-cpp-reading-guide.md">Effective Modern C++ (Meyers)</a></td><td>12 Declare overriding functions override</td><td>97 to 104</td><td>Polymorphism and virtual functions</td></tr>
-<tr><td><a href="https://github.com/Ghaith-Hamdi1/cpp-training/blob/main/docs/effective-modern-cpp-reading-guide.md">Effective Modern C++ (Meyers)</a></td><td>17 Understand special member function generation</td><td>127 to 133</td><td>Copying and the Rule of 3, 5 and 0</td></tr>
-<tr><td><a href="https://github.com/Ghaith-Hamdi1/cpp-training/blob/main/docs/move-semantics-complete-guide-reading-guide.md">C++ Move Semantics: The Complete Guide (Josuttis)</a></td><td>3.1 and 3.1.1 to 3.1.2 Move semantics in ordinary classes</td><td>53 to 58</td><td>Copying and the Rule of 3, 5 and 0</td></tr>
-<tr><td><a href="https://github.com/Ghaith-Hamdi1/cpp-training/blob/main/docs/move-semantics-complete-guide-reading-guide.md">C++ Move Semantics: The Complete Guide (Josuttis)</a></td><td>3.2 Implementing the special copy and move member functions</td><td>58 to 66</td><td>Copying and the Rule of 3, 5 and 0</td></tr>
-<tr><td><a href="https://github.com/Ghaith-Hamdi1/cpp-training/blob/main/docs/move-semantics-complete-guide-reading-guide.md">C++ Move Semantics: The Complete Guide (Josuttis)</a></td><td>3.3 to 3.4 Rules for special member functions; the Rule of Five or Three</td><td>66 to 76</td><td>Copying and the Rule of 3, 5 and 0</td></tr>
-<tr><td><a href="https://github.com/Ghaith-Hamdi1/cpp-training/blob/main/docs/move-semantics-complete-guide-reading-guide.md">C++ Move Semantics: The Complete Guide (Josuttis)</a></td><td>4.4 Move semantics in class hierarchies</td><td>93 to 96</td><td>Inheritance; Polymorphism</td></tr>
-<tr><td><a href="https://github.com/Ghaith-Hamdi1/cpp-training/blob/main/docs/move-semantics-complete-guide-reading-guide.md">C++ Move Semantics: The Complete Guide (Josuttis)</a></td><td>Chapter 5 Overloading on reference qualifiers</td><td>97 to 106</td><td>Member functions</td></tr>
-</table>
 </section>
 
 <section id="s10" data-title="Interview cheat sheet">

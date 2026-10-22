@@ -128,4 +128,14 @@ test('the real v4 migration drops the replaced STL strings tick and stale cheat-
   assert.deepEqual(s.get('mock:missed'), ['wire-1']);
 });
 
+test('the real v5 migration forgets the removed read-more section ticks', () => {
+  const CT = loadRegistry();
+  const s = makeStore({ 'schema': 4, 'done:core': ['s1', 'read-more'], 'done:stl': ['s2'], 'last:core': 'read-more', 'lastinfo': { id: 'core', sec: 'read-more' } });
+  assert.equal(CT.migrate(s), CT.schemaVersion());
+  assert.deepEqual(s.get('done:core'), ['s1']);
+  assert.deepEqual(s.get('done:stl'), ['s2']);
+  assert.equal(s.get('last:core'), '');
+  assert.equal(s.get('lastinfo', 'gone'), null);
+});
+
 console.log(passed + ' tests passed');

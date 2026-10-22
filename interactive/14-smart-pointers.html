@@ -39,6 +39,13 @@ auto w = makeWidget("alpha");
 use(*w);
 take(std::move(w));                                       // w is now null
 </script>
+<!-- read-more:start -->
+<div class="callout tip"><span class="label">Read more</span>This section goes deeper in:
+<ul>
+<li><i>Programming: Principles and Practice (Stroustrup)</i>: 18.4 to 18.5 Resources and exceptions; resource-management pointers (RAII, unique_ptr), PDF pages 542 to 553.</li>
+<li><i>C++ Move Semantics (Josuttis)</i>: Chapter 13 Move-only types, PDF pages 213 to 218.</li>
+</ul></div>
+<!-- read-more:end -->
 </section>
 
 <section id="unique" data-title="unique_ptr in detail">
@@ -57,6 +64,13 @@ auto q = std::move(p);                       // OK: ownership moves, p is now nu
 <li><code>.get()</code> returns the raw pointer without giving up ownership; <code>.release()</code> gives it up (you must delete it); <code>.reset()</code> destroys the object now.</li>
 </ul>
 <div class="callout interview"><span class="label">Interview angle</span>Why <code>make_unique</code>? No naked <code>new</code>, the type is written once, and before C++17 <code>f(unique_ptr&lt;A&gt;(new A), g())</code> could leak when <code>g()</code> threw between the two steps.</div>
+<!-- read-more:start -->
+<div class="callout tip"><span class="label">Read more</span>This section goes deeper in:
+<ul>
+<li><i>Effective Modern C++ (Meyers)</i>: Item 18, Use std::unique_ptr for exclusive-ownership resource management, PDF pages 136 to 143.</li>
+<li><i>Effective Modern C++ (Meyers)</i>: Item 21, Prefer make_unique and make_shared to new, PDF pages 157 to 165.</li>
+</ul></div>
+<!-- read-more:end -->
 </section>
 
 <section id="shared" data-title="shared_ptr and the control block">
@@ -74,6 +88,12 @@ auto s2 = s1;                                // two owners, use_count() == 2
 <li>The counts are <b>atomic</b>: copying or destroying <code>shared_ptr</code>s on several threads is safe. The <b>object</b> is not protected, and changing the same <code>shared_ptr</code> variable from two threads is a race.</li>
 <li>Copying costs an atomic increment. On hot paths pass <code>const shared_ptr&amp;</code> or the object itself, not a copy per call.</li>
 </ul>
+<!-- read-more:start -->
+<div class="callout tip"><span class="label">Read more</span>This section goes deeper in:
+<ul>
+<li><i>Effective Modern C++ (Meyers)</i>: Item 19, Use std::shared_ptr for shared-ownership resource management, PDF pages 143 to 152.</li>
+</ul></div>
+<!-- read-more:end -->
 </section>
 
 <section id="weak" data-title="Reference cycles and weak_ptr">
@@ -93,6 +113,12 @@ w.expired();                                           // true once every owner 
 <li>Typical uses: parent links, caches, observer lists that must not keep subscribers alive.</li>
 <li>A <code>weak_ptr</code> keeps the <b>control block</b> alive (not the object) until the last weak reference goes.</li>
 </ul>
+<!-- read-more:start -->
+<div class="callout tip"><span class="label">Read more</span>This section goes deeper in:
+<ul>
+<li><i>Effective Modern C++ (Meyers)</i>: Item 20, Use std::weak_ptr for shared_ptr-like pointers that can dangle, PDF pages 152 to 157.</li>
+</ul></div>
+<!-- read-more:end -->
 </section>
 
 <section id="pitfalls" data-title="Pitfalls and enable_shared_from_this">
@@ -120,20 +146,6 @@ Session raw; raw.self();               // throws std::bad_weak_ptr: no shared_pt
 <tr><td><code>shared_ptr</code> by default "to be safe"</td><td><code>unique_ptr</code>: you can always convert to shared later</td></tr>
 <tr><td>storing <code>.get()</code> somewhere that outlives the owner</td><td>keep the smart pointer, or a <code>weak_ptr</code></td></tr>
 <tr><td><code>delete</code> on a <code>.get()</code> result</td><td>never: the smart pointer will delete it again</td></tr>
-</table>
-</section>
-
-<section id="read-more" data-title="Read more in the books">
-<h2>Read more in the books</h2>
-<p>These book sections explain the same ideas in more depth. Page numbers are <b>PDF pages</b>, the number your PDF reader shows, in the files under <code>books/</code>. Each book's reading guide in <code>docs/</code> has its full plan.</p>
-<table>
-<tr><th>Book</th><th>Chapter or section</th><th>PDF pages</th><th>Deepens</th></tr>
-<tr><td><a href="https://github.com/Ghaith-Hamdi1/cpp-training/blob/main/docs/programming-principles-and-practice-reading-guide.md">Programming: Principles and Practice Using C++, 3rd ed. (Stroustrup)</a></td><td>18.4 to 18.5 Resources and exceptions; resource-management pointers (RAII, unique_ptr)</td><td>542 to 553</td><td>Smart pointers</td></tr>
-<tr><td><a href="https://github.com/Ghaith-Hamdi1/cpp-training/blob/main/docs/effective-modern-cpp-reading-guide.md">Effective Modern C++ (Meyers)</a></td><td>18 Use std::unique_ptr for exclusive-ownership resource management</td><td>136 to 143</td><td>Smart pointers</td></tr>
-<tr><td><a href="https://github.com/Ghaith-Hamdi1/cpp-training/blob/main/docs/effective-modern-cpp-reading-guide.md">Effective Modern C++ (Meyers)</a></td><td>19 Use std::shared_ptr for shared-ownership resource management</td><td>143 to 152</td><td>Smart pointers</td></tr>
-<tr><td><a href="https://github.com/Ghaith-Hamdi1/cpp-training/blob/main/docs/effective-modern-cpp-reading-guide.md">Effective Modern C++ (Meyers)</a></td><td>20 Use std::weak_ptr for shared_ptr-like pointers that can dangle</td><td>152 to 157</td><td>Smart pointers</td></tr>
-<tr><td><a href="https://github.com/Ghaith-Hamdi1/cpp-training/blob/main/docs/effective-modern-cpp-reading-guide.md">Effective Modern C++ (Meyers)</a></td><td>21 Prefer make_unique and make_shared to new</td><td>157 to 165</td><td>Smart pointers</td></tr>
-<tr><td><a href="https://github.com/Ghaith-Hamdi1/cpp-training/blob/main/docs/move-semantics-complete-guide-reading-guide.md">C++ Move Semantics: The Complete Guide (Josuttis)</a></td><td>Chapter 13 Move-only types</td><td>213 to 218</td><td>Smart pointers</td></tr>
 </table>
 </section>
 

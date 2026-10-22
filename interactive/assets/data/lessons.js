@@ -152,6 +152,15 @@ CT.progressMigrations = [
     var li = store.get('lastinfo', null);
     if (li && li.id === 'stl' && li.sec === 's8') store.set('lastinfo', null);
     store.set('mock:missed', store.get('mock:missed', []).filter(function (id) { return id.indexOf('stl-') !== 0 && id.indexOf('strings-') !== 0; }));
+  } },
+  /* v5: the generated 'Read more in the books' section was replaced by notes inside the lesson sections: forget its ticks. */
+  { to: 5, run: function (store) {
+    CT.lessons.forEach(function (l) {
+      store.set('done:' + l.id, store.get('done:' + l.id, []).filter(function (id) { return id !== 'read-more'; }));
+      if (store.get('last:' + l.id, '') === 'read-more') store.set('last:' + l.id, '');
+    });
+    var li = store.get('lastinfo', null);
+    if (li && li.sec === 'read-more') store.set('lastinfo', null);
   } }
 ];
 

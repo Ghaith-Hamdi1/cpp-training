@@ -61,7 +61,7 @@ node tools/build-mock-bank.mjs      # rebuilds the mock-interview questions
 node tools/build-precache.mjs       # rebuilds the offline cache list in sw.js
 node tools/check-interactive.mjs    # registry, quiz data and section tags
 node tools/check-links.mjs          # every internal link and anchor
-node tools/build-read-more.mjs      # rebuilds the "Read more in the books" sections from the reading guides
+node tools/build-read-more.mjs      # rebuilds the "Read more" notes in the lessons from the reading guides
 node tools/verify-checklist.mjs     # study checklist against the lessons
 node tools/check-guides.mjs         # reading guides against the lessons
 node tools/test-registry.mjs        # progress migrations

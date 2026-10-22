@@ -44,6 +44,13 @@ static_assert(std::is_same_v<decltype((std::move(x))), int&&>);   // lvalue int&
 static_assert(std::is_same_v<decltype((x + 1)),        int>);
 </script>
 <div class="callout warn"><span class="label">A name is always an lvalue</span>Inside <code>g</code>, <code>s</code> is an lvalue despite its <code>&amp;&amp;</code> type. Pass it on with <code>std::move(s)</code> (or <code>std::forward</code>, see <a href="05-templates.html">Templates</a>).</div>
+<!-- read-more:start -->
+<div class="callout tip"><span class="label">Read more</span>This section goes deeper in:
+<ul>
+<li><i>C++ Move Semantics (Josuttis)</i>: 8.1.2 to 8.1.3 and 8.4 to 8.5 Value categories since C++11 and C++17; when lvalues become rvalues and the reverse, PDF pages 145 to 148 and 153 to 154.</li>
+<li><i>C++ Move Semantics (Josuttis)</i>: 8.2 to 8.3 and 8.6 Special value-category rules; binding references; checking with decltype, PDF pages 148 to 153 and 154 to 156.</li>
+</ul></div>
+<!-- read-more:end -->
 </section>
 
 <section id="copy-move" data-title="Copy versus move">
@@ -57,6 +64,16 @@ static_assert(std::is_same_v<decltype((x + 1)),        int>);
 <li>A moved-from object is <b>valid but unspecified</b>: destroy it or assign a new value, do not read it. Compiled: a moved-from <code>std::string</code> had size 0, and assigning to it worked.</li>
 </ul>
 <div class="callout interview"><span class="label">Interview angle</span>"What does <code>std::move</code> do?" Nothing at runtime: an unconditional cast to an rvalue reference. The move constructor does the work.</div>
+<!-- read-more:start -->
+<div class="callout tip"><span class="label">Read more</span>This section goes deeper in:
+<ul>
+<li><i>Effective Modern C++ (Meyers)</i>: Item 23, Understand std::move and std::forward, PDF pages 176 to 182.</li>
+<li><i>C++ Move Semantics (Josuttis)</i>: 1.1 Motivation for move semantics, PDF pages 21 to 36.</li>
+<li><i>C++ Move Semantics (Josuttis)</i>: 1.2 to 1.4 Implementing move semantics; copying as a fallback; const objects, PDF pages 36 to 41.</li>
+<li><i>C++ Move Semantics (Josuttis)</i>: Chapter 2 Core features of move semantics, PDF pages 43 to 52.</li>
+<li><i>C++ Move Semantics (Josuttis)</i>: 6.1 to 6.2 Moved-from states (required and guaranteed states; destructible and assignable), PDF pages 107 to 115.</li>
+</ul></div>
+<!-- read-more:end -->
 </section>
 
 <section id="writing" data-title="Writing move operations">
@@ -82,6 +99,15 @@ public:
 <li>The by-value <code>operator=</code> handles self-assignment and gives the strong guarantee. The classic pair <code>operator=(const T&amp;)</code> and <code>operator=(T&amp;&amp;)</code> is faster when you can reuse the existing storage.</li>
 <li>If you can avoid owning a raw resource, do (Rule of Zero): <code>vector</code> and <code>unique_ptr</code> members make the compiler-generated moves correct.</li>
 </ul>
+<!-- read-more:start -->
+<div class="callout tip"><span class="label">Read more</span>This section goes deeper in:
+<ul>
+<li><i>Programming: Principles and Practice (Stroustrup)</i>: 17.4 to 17.5 Copying and moving; essential operations, PDF pages 501 to 512.</li>
+<li><i>Programming: Principles and Practice (Stroustrup)</i>: 17.6 to 17.9 Other operations, remaining Vector problems, changing size, PDF pages 513 to 523.</li>
+<li><i>Effective Modern C++ (Meyers)</i>: Item 14, Declare functions noexcept if they won't emit exceptions, PDF pages 108 to 115.</li>
+<li><i>C++ Move Semantics (Josuttis)</i>: 6.3 Dealing with broken invariants, PDF pages 115 to 124.</li>
+</ul></div>
+<!-- read-more:end -->
 </section>
 
 <section id="returning" data-title="Returning objects: elision and std::move">
@@ -101,6 +127,12 @@ Buffer make()          { Buffer b(1000); return b; }               // fine: elid
 Buffer take(Source& s) { return std::move(s.buffer); }             // member of an object that outlives the call: move it out
 </script>
 <div class="callout warn"><span class="label">Rule</span>Return locals and temporaries plainly. Use <code>std::move</code> on a <b>member</b>, or on something that is not the local you are returning by name.</div>
+<!-- read-more:start -->
+<div class="callout tip"><span class="label">Read more</span>This section goes deeper in:
+<ul>
+<li><i>Effective Modern C++ (Meyers)</i>: Item 25, Use std::move on rvalue references, std::forward on universal references, PDF pages 186 to 195.</li>
+</ul></div>
+<!-- read-more:end -->
 </section>
 
 <section id="traps" data-title="Sink parameters and move traps">
@@ -125,31 +157,16 @@ public:
 </table>
 <p><code>push_back(lvalue)</code> copies, <code>push_back(temporary)</code> moves, <code>emplace_back(args...)</code> builds in place (compiled together: 1 copy, 1 move).</p>
 <div class="callout warn"><span class="label">Move only the last use</span>After <code>auto b = std::move(a);</code> treat <code>a</code> as empty. Never return <code>const</code> values by value: it disables the move.</div>
-</section>
-
-<section id="read-more" data-title="Read more in the books">
-<h2>Read more in the books</h2>
-<p>These book sections explain the same ideas in more depth. Page numbers are <b>PDF pages</b>, the number your PDF reader shows, in the files under <code>books/</code>. Each book's reading guide in <code>docs/</code> has its full plan.</p>
-<table>
-<tr><th>Book</th><th>Chapter or section</th><th>PDF pages</th><th>Deepens</th></tr>
-<tr><td><a href="https://github.com/Ghaith-Hamdi1/cpp-training/blob/main/docs/programming-principles-and-practice-reading-guide.md">Programming: Principles and Practice Using C++, 3rd ed. (Stroustrup)</a></td><td>17.4 to 17.5 Copying and moving; essential operations</td><td>501 to 512</td><td>Move semantics</td></tr>
-<tr><td><a href="https://github.com/Ghaith-Hamdi1/cpp-training/blob/main/docs/programming-principles-and-practice-reading-guide.md">Programming: Principles and Practice Using C++, 3rd ed. (Stroustrup)</a></td><td>17.6 to 17.9 Other operations, remaining Vector problems, changing size</td><td>513 to 523</td><td>Move semantics</td></tr>
-<tr><td><a href="https://github.com/Ghaith-Hamdi1/cpp-training/blob/main/docs/effective-modern-cpp-reading-guide.md">Effective Modern C++ (Meyers)</a></td><td>14 Declare functions noexcept if they won't emit exceptions</td><td>108 to 115</td><td>Move semantics</td></tr>
-<tr><td><a href="https://github.com/Ghaith-Hamdi1/cpp-training/blob/main/docs/effective-modern-cpp-reading-guide.md">Effective Modern C++ (Meyers)</a></td><td>23 Understand std::move and std::forward</td><td>176 to 182</td><td>Move semantics</td></tr>
-<tr><td><a href="https://github.com/Ghaith-Hamdi1/cpp-training/blob/main/docs/effective-modern-cpp-reading-guide.md">Effective Modern C++ (Meyers)</a></td><td>25 Use std::move on rvalue references, std::forward on universal references</td><td>186 to 195</td><td>Move semantics</td></tr>
-<tr><td><a href="https://github.com/Ghaith-Hamdi1/cpp-training/blob/main/docs/effective-modern-cpp-reading-guide.md">Effective Modern C++ (Meyers)</a></td><td>29 Assume move operations are not present, not cheap, and not used</td><td>221 to 225</td><td>Move semantics</td></tr>
-<tr><td><a href="https://github.com/Ghaith-Hamdi1/cpp-training/blob/main/docs/effective-modern-cpp-reading-guide.md">Effective Modern C++ (Meyers)</a></td><td>41 Consider pass by value for copyable, cheap-to-move parameters that are always copied</td><td>299 to 310</td><td>Move semantics</td></tr>
-<tr><td><a href="https://github.com/Ghaith-Hamdi1/cpp-training/blob/main/docs/move-semantics-complete-guide-reading-guide.md">C++ Move Semantics: The Complete Guide (Josuttis)</a></td><td>1.1 Motivation for move semantics</td><td>21 to 36</td><td>Move semantics</td></tr>
-<tr><td><a href="https://github.com/Ghaith-Hamdi1/cpp-training/blob/main/docs/move-semantics-complete-guide-reading-guide.md">C++ Move Semantics: The Complete Guide (Josuttis)</a></td><td>1.2 to 1.4 Implementing move semantics; copying as a fallback; const objects</td><td>36 to 41</td><td>Move semantics</td></tr>
-<tr><td><a href="https://github.com/Ghaith-Hamdi1/cpp-training/blob/main/docs/move-semantics-complete-guide-reading-guide.md">C++ Move Semantics: The Complete Guide (Josuttis)</a></td><td>Chapter 2 Core features of move semantics</td><td>43 to 52</td><td>Lvalues, rvalues and value categories; Move semantics</td></tr>
-<tr><td><a href="https://github.com/Ghaith-Hamdi1/cpp-training/blob/main/docs/move-semantics-complete-guide-reading-guide.md">C++ Move Semantics: The Complete Guide (Josuttis)</a></td><td>4.1 to 4.2 Avoid objects with names; avoid unnecessary std::move</td><td>77 to 79</td><td>Move semantics</td></tr>
-<tr><td><a href="https://github.com/Ghaith-Hamdi1/cpp-training/blob/main/docs/move-semantics-complete-guide-reading-guide.md">C++ Move Semantics: The Complete Guide (Josuttis)</a></td><td>4.3.1 to 4.3.4 Initializing members with move semantics</td><td>79 to 90</td><td>Move semantics</td></tr>
-<tr><td><a href="https://github.com/Ghaith-Hamdi1/cpp-training/blob/main/docs/move-semantics-complete-guide-reading-guide.md">C++ Move Semantics: The Complete Guide (Josuttis)</a></td><td>4.3.5 to 4.3.6 Member initialization summary; always pass by value and move?</td><td>90 to 93</td><td>Move semantics</td></tr>
-<tr><td><a href="https://github.com/Ghaith-Hamdi1/cpp-training/blob/main/docs/move-semantics-complete-guide-reading-guide.md">C++ Move Semantics: The Complete Guide (Josuttis)</a></td><td>6.1 to 6.2 Moved-from states (required and guaranteed states; destructible and assignable)</td><td>107 to 115</td><td>Move semantics (the moved-from rule)</td></tr>
-<tr><td><a href="https://github.com/Ghaith-Hamdi1/cpp-training/blob/main/docs/move-semantics-complete-guide-reading-guide.md">C++ Move Semantics: The Complete Guide (Josuttis)</a></td><td>6.3 Dealing with broken invariants</td><td>115 to 124</td><td>Move semantics</td></tr>
-<tr><td><a href="https://github.com/Ghaith-Hamdi1/cpp-training/blob/main/docs/move-semantics-complete-guide-reading-guide.md">C++ Move Semantics: The Complete Guide (Josuttis)</a></td><td>8.1.2 to 8.1.3 and 8.4 to 8.5 Value categories since C++11 and C++17; when lvalues become rvalues and the reverse</td><td>145 to 148 and 153 to 154</td><td>Lvalues, rvalues and value categories</td></tr>
-<tr><td><a href="https://github.com/Ghaith-Hamdi1/cpp-training/blob/main/docs/move-semantics-complete-guide-reading-guide.md">C++ Move Semantics: The Complete Guide (Josuttis)</a></td><td>8.2 to 8.3 and 8.6 Special value-category rules; binding references; checking with decltype</td><td>148 to 153 and 154 to 156</td><td>Lvalues, rvalues and value categories</td></tr>
-</table>
+<!-- read-more:start -->
+<div class="callout tip"><span class="label">Read more</span>This section goes deeper in:
+<ul>
+<li><i>Effective Modern C++ (Meyers)</i>: Item 29, Assume move operations are not present, not cheap, and not used, PDF pages 221 to 225.</li>
+<li><i>Effective Modern C++ (Meyers)</i>: Item 41, Consider pass by value for copyable, cheap-to-move parameters that are always copied, PDF pages 299 to 310.</li>
+<li><i>C++ Move Semantics (Josuttis)</i>: 4.1 to 4.2 Avoid objects with names; avoid unnecessary std::move, PDF pages 77 to 79.</li>
+<li><i>C++ Move Semantics (Josuttis)</i>: 4.3.1 to 4.3.4 Initializing members with move semantics, PDF pages 79 to 90.</li>
+<li><i>C++ Move Semantics (Josuttis)</i>: 4.3.5 to 4.3.6 Member initialization summary; always pass by value and move?, PDF pages 90 to 93.</li>
+</ul></div>
+<!-- read-more:end -->
 </section>
 
 <section id="cheat" data-title="Interview cheat sheet">

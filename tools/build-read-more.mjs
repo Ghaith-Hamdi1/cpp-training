@@ -1,7 +1,8 @@
-// Builds the "Read more in the books" section of every lesson from the reading guides (docs/*-reading-guide.md).
-// Each row of a guide's tables that ends in a "Matching lesson section" column names a book section, its PDF pages and the
-// lesson sections it deepens. This tool groups those rows by lesson and writes one table into each lesson page, just
-// before the interview cheat sheet. A few rows the guides do not carry are listed in EXTRA below.
+// Adds a "Read more" note at the end of the lesson sections that a book explains in more depth.
+// Each row of a reading guide's tables (docs/*-reading-guide.md) that ends in a "Matching lesson section" column names a
+// book section, its PDF pages and the lesson sections it deepens. This tool groups those rows by lesson section and writes
+// one note per section, between <!-- read-more:start --> and <!-- read-more:end --> markers. Rows the guides do not carry
+// are listed in EXTRA below. Sections no book covers get no note.
 // Usage: node tools/build-read-more.mjs [--check]
 import { readFileSync, writeFileSync } from 'node:fs';
 import { join, resolve } from 'node:path';
@@ -9,21 +10,21 @@ import { fileURLToPath } from 'node:url';
 import { loadRegistry, root as interactive } from './lib/registry.mjs';
 
 const repo = resolve(fileURLToPath(new URL('..', import.meta.url)));
-const GH = 'https://github.com/Ghaith-Hamdi1/cpp-training/blob/main/';
 const BOOKS = {
-  ppp: { order: 0, title: 'Programming: Principles and Practice Using C++, 3rd ed. (Stroustrup)', file: 'Programming-Principles-and-Practice-Using-Cpp-3rd-Edition-Stroustrup.pdf', guide: 'programming-principles-and-practice-reading-guide.md' },
-  emc: { order: 1, title: 'Effective Modern C++ (Meyers)', file: 'Effective-Modern-Cpp-Meyers.pdf', guide: 'effective-modern-cpp-reading-guide.md' },
-  mv: { order: 2, title: 'C++ Move Semantics: The Complete Guide (Josuttis)', file: 'Cpp-Move-Semantics-The-Complete-Guide-Josuttis.pdf', guide: 'move-semantics-complete-guide-reading-guide.md' },
-  cia: { order: 3, title: 'C++ Concurrency in Action, 2nd ed. (Williams)', file: 'Cpp-Concurrency-in-Action-2nd-Edition-Williams.pdf', guide: 'concurrency-in-action-reading-guide.md' }
+  ppp: { order: 0, title: 'Programming: Principles and Practice (Stroustrup)', guide: 'programming-principles-and-practice-reading-guide.md' },
+  emc: { order: 1, title: 'Effective Modern C++ (Meyers)', guide: 'effective-modern-cpp-reading-guide.md' },
+  mv: { order: 2, title: 'C++ Move Semantics (Josuttis)', guide: 'move-semantics-complete-guide-reading-guide.md' },
+  cia: { order: 3, title: 'C++ Concurrency in Action (Williams)', guide: 'concurrency-in-action-reading-guide.md' }
 };
 const clean = (s) => s.replace(/\*\*/g, '').replace(/`/g, '').trim();
 const esc = (s) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+const norm = (s) => s.replace(/\([^)]*\)/g, ' ').replace(/<[^>]+>/g, '').toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim();
 
 /* rows the guides do not carry: lesson id -> [{ book, label, pages, deepens }] */
 const EXTRA = {
   objmodel: [
-    { book: 'ppp', label: '12.3 Base and derived classes (object layout, the vptr and vtbl, overriding)', pages: '380 to 387', deepens: ['Multiple inheritance and object layout (single-inheritance layout)'] },
-    { book: 'ppp', label: '15.5 Destructors, including 15.5.2 Virtual destructors', pages: '460 to 463', deepens: ['The diamond problem and virtual inheritance (why a polymorphic base needs a virtual destructor)'] }
+    { book: 'ppp', label: '12.3 Base and derived classes (object layout, the vptr and vtbl, overriding)', pages: '380 to 387', deepens: ['Multiple inheritance and object layout'] },
+    { book: 'ppp', label: '15.5 Destructors, including 15.5.2 Virtual destructors', pages: '460 to 463', deepens: ['The diamond problem and virtual inheritance'] }
   ],
   threads: [
     { book: 'cia', label: '2.3 Transferring ownership of a thread; 2.5 Identifying threads', pages: '50 to 53 and 57 to 59', deepens: ['Your first thread'] },
@@ -33,10 +34,10 @@ const EXTRA = {
     { book: 'cia', label: '2.4 Choosing the number of threads at runtime', pages: '54 to 56', deepens: ['Work stealing and sizing a pool'] },
     { book: 'cia', label: '4.2 Waiting for one-off events with futures (std::async, packaged_task, promise, shared_future)', pages: '104 to 115', deepens: ['Futures and async', 'promise, shared_future and packaged_task'] },
     { book: 'cia', label: '4.3 Waiting with a time limit', pages: '116 to 121', deepens: ['Futures and async'] },
-    { book: 'cia', label: '4.4.7 to 4.4.10 Latches and barriers (the Concurrency TS versions of C++20 std::latch and std::barrier)', pages: '141 to 147', deepens: ['latch, barrier, semaphore and stop_token (C++20)'] },
+    { book: 'cia', label: '4.4.7 to 4.4.10 Latches and barriers (the Concurrency TS versions of C++20 std::latch and std::barrier)', pages: '141 to 147', deepens: ['latch, barrier, semaphore and stop_token'] },
     { book: 'cia', label: '8.1 Techniques for dividing work between threads', pages: '275 to 282', deepens: ['Work stealing and sizing a pool'] },
     { book: 'cia', label: '9.1 Thread pools (a simple pool, waiting for tasks, work stealing in 9.1.5)', pages: '324 to 337', deepens: ['Thread pools and producer/consumer', 'Work stealing and sizing a pool'] },
-    { book: 'cia', label: '9.2 Interrupting threads (the idea behind std::stop_token)', pages: '338 to 349', deepens: ['latch, barrier, semaphore and stop_token (C++20)'] },
+    { book: 'cia', label: '9.2 Interrupting threads (the idea behind std::stop_token)', pages: '338 to 349', deepens: ['latch, barrier, semaphore and stop_token'] },
     { book: 'cia', label: '10.1 to 10.3 Parallel algorithms: execution policies and the parallel standard algorithms', pages: '350 to 362', deepens: ['Parallel algorithms'] }
   ],
   atomics: [
@@ -57,23 +58,29 @@ const EXTRA = {
 /* lessons whose guide rows for a book are replaced by the fuller list in EXTRA (the guides pick interview essentials, these lessons go deeper) */
 const REPLACE = { tasks: ['cia'], atomics: ['cia'] };
 
-const NONE = {
-  patterns: 'The books in <code>books/</code> touch patterns only in passing (the rows above). For a full treatment in modern C++, <i>C++ Software Design</i> by Klaus Iglberger covers Strategy, Observer, Decorator, Visitor and more; it is not in <code>books/</code>, so there are no page numbers here.',
-  patterns2: 'None of the four books in <code>books/</code> covers these patterns. <i>C++ Software Design</i> by Klaus Iglberger covers Command, Decorator, Adapter, Visitor and type erasure in modern C++; it is not in <code>books/</code>, so there are no page numbers here.',
-  wire: 'None of the four books in <code>books/</code> covers binary wire formats, endianness or zero-copy parsing in depth. The lesson and its programs are the main source.',
-  rules: 'None of the four books in <code>books/</code> covers MISRA, AUTOSAR or static-analysis practice. The lesson is the main source; the rules themselves are published by the MISRA and AUTOSAR bodies.'
+/* guide rows that name a whole lesson ("Move semantics", "Smart pointers") are placed by a hint on the row's book and label:
+   lesson id -> [[regex over "<book> <label>", text of the section title]] */
+const HINTS = {
+  moves: [
+    [/^emc 14 /, 'writing move operations'], [/^emc 23 /, 'copy versus move'], [/^emc 25 /, 'returning objects'], [/^emc (29|41) /, 'sink parameters'],
+    [/^mv (1\.|Chapter 2)/, 'copy versus move'], [/^mv 4\./, 'sink parameters'], [/^mv 6\.1/, 'copy versus move'], [/^mv 6\.3/, 'writing move operations'], [/^ppp 17\./, 'writing move operations']
+  ],
+  smartptr: [
+    [/^emc (18|21|22) /, 'unique ptr in detail'], [/^emc 19 /, 'shared ptr and the control block'], [/^emc 20 /, 'reference cycles'], [/^ppp 18\.4/, 'who owns it']
+  ],
+  strings: [[/^ppp 9\.11/, 'string streams and files']],
+  stl: [[/^mv Chapter 15/, 'vector the workhorse']]
 };
 
 const REG = loadRegistry();
-const normName = (s) => s.replace(/\([^)]*\)/g, ' ').replace(/<[^>]+>/g, '').toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim();
 const titleCache = {};
-function hasSection(no, name) {                                                  // does lesson number `no` have a section (or title) like `name`?
+const sectionTitles = (no) => {
   const l = REG.lessons[no - 1];
-  if (!l) return false;
-  if (!titleCache[no]) titleCache[no] = [...readFileSync(join(interactive, l.file), 'utf8').matchAll(/data-title="([^"]+)"/g)].map((m) => normName(m[1])).concat(normName(l.title));
-  const n = normName(name);
-  return !!n && titleCache[no].some((x) => x.includes(n) || n.includes(x));
-}
+  if (!l) return [];
+  if (!titleCache[no]) titleCache[no] = [...readFileSync(join(interactive, l.file), 'utf8').matchAll(/data-title="([^"]+)"/g)].map((m) => norm(m[1])).concat(norm(l.title));
+  return titleCache[no];
+};
+const hasSection = (no, name) => { const n = norm(name); return !!n && sectionTitles(no).some((x) => x.includes(n) || n.includes(x)); };
 
 function parseGuides(lessonNo, id) {
   const rows = [];
@@ -92,11 +99,11 @@ function parseGuides(lessonNo, id) {
       if (!refs || /^not in the lessons/i.test(refs)) return;
       const pi = cells.findIndex((c, k) => k > 0 && /^\d+( to \d+)?( and \d+( to \d+)?)*(, \d+ to \d+)*$/.test(c));
       if (pi < 1) return;
-      const per = {}; let cur = null;                                         // lesson number -> section names, carrying the prefix forward
+      const per = {}; let cur = null;                                             // lesson number -> section names, carrying the prefix forward
       for (const piece of refs.split(';')) {
         const m = /^\s*(\d+)\.\s*(.+)$/.exec(piece);
         if (m) cur = +m[1];
-        if (cur === null) {                                                      // an unnumbered cell: find which default lesson has a section of that name
+        if (cur === null) {                                                       // an unnumbered cell: find which default lesson has a section of that name
           const n = defaults.find((d) => hasSection(d, clean(piece)));
           if (n === undefined) continue;
           (per[n] = per[n] || []).push(clean(piece));
@@ -110,76 +117,76 @@ function parseGuides(lessonNo, id) {
   return rows;
 }
 
-const firstPage = (p) => +(/\d+/.exec(p) || [0])[0];
-function sectionFor(lessonNo, id) {
-  const rows = [...parseGuides(lessonNo, id), ...(EXTRA[id] || [])];
-  const merged = new Map();                                                    // the same book pages listed twice become one row
-  for (const r of rows) {
+const bounds = (p) => { const n = (p.match(/\d+/g) || []).map(Number); return [Math.min(...n), Math.max(...n)]; };
+function rowsFor(lessonNo, id) {
+  const merged = new Map();                                                       // the same book pages listed twice become one row
+  for (const r of [...parseGuides(lessonNo, id), ...(EXTRA[id] || [])]) {
     const k = r.book + '|' + r.pages;
     if (!merged.has(k)) merged.set(k, { ...r, deepens: [...r.deepens] });
     else for (const d of r.deepens) if (!merged.get(k).deepens.includes(d)) merged.get(k).deepens.push(d);
   }
-  const bounds = (p) => { const n = (p.match(/\d+/g) || []).map(Number); return [Math.min(...n), Math.max(...n)]; };
-  let rowsLeft = [...merged.values()];
-  rowsLeft = rowsLeft.filter((a) => {                                        // a row whose pages lie inside a bigger row of the same book is folded into it
+  let rows = [...merged.values()];
+  rows = rows.filter((a) => {                                                     // a row whose pages lie inside a bigger row of the same book is folded into it
     const [as, ae] = bounds(a.pages);
-    const big = rowsLeft.find((b) => b !== a && b.book === a.book && bounds(b.pages)[0] <= as && bounds(b.pages)[1] >= ae && (bounds(b.pages)[1] - bounds(b.pages)[0] > ae - as));
+    const big = rows.find((b) => b !== a && b.book === a.book && bounds(b.pages)[0] <= as && bounds(b.pages)[1] >= ae && bounds(b.pages)[1] - bounds(b.pages)[0] > ae - as);
     if (!big) return true;
     for (const d of a.deepens) if (!big.deepens.includes(d)) big.deepens.push(d);
     return false;
   });
-  const list = rowsLeft.sort((a, b) => BOOKS[a.book].order - BOOKS[b.book].order || firstPage(a.pages) - firstPage(b.pages));
-  let body;
-  if (!list.length) body = `<p>${NONE[id] || 'None of the four books in <code>books/</code> covers this topic in depth. The lesson and its programs are the main source.'}</p>`;
-  else {
-    const trs = list.map((r) => `<tr><td><a href="${GH}docs/${BOOKS[r.book].guide}">${esc(BOOKS[r.book].title)}</a></td><td>${esc(r.label)}</td><td>${esc(r.pages)}</td><td>${r.deepens.map(esc).join('; ')}</td></tr>`).join('\n');
-    body = `<table>\n<tr><th>Book</th><th>Chapter or section</th><th>PDF pages</th><th>Deepens</th></tr>\n${trs}\n</table>` + (NONE[id] ? `\n<p>${NONE[id]}</p>` : '');
-  }
-  return `<section id="read-more" data-title="Read more in the books">
-<h2>Read more in the books</h2>
-<p>These book sections explain the same ideas in more depth. Page numbers are <b>PDF pages</b>, the number your PDF reader shows, in the files under <code>books/</code>. Each book's reading guide in <code>docs/</code> has its full plan.</p>
-${body}
-</section>`;
+  return rows.sort((a, b) => BOOKS[a.book].order - BOOKS[b.book].order || bounds(a.pages)[0] - bounds(b.pages)[0]);
 }
 
-/* every "Deepens" name must be a real section of the lesson (loosely, as in check-guides) */
-const norm = (s) => s.replace(/\([^)]*\)/g, ' ').replace(/<[^>]+>/g, '').toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim();
-function checkNames(l, html, block) {
-  const titles = [...html.matchAll(/data-title="([^"]+)"/g)].map((m) => norm(m[1])).concat(norm(l.title));
-  for (const m of block.matchAll(/<td>([^<]*)<\/td><\/tr>/g)) {
-    for (const plain of m[1].replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>').split('; ')) {
-      const name = plain;
-      const hit = (s) => { const n = norm(s); return !n || titles.some((x) => x.includes(n) || n.includes(x)); };
-      if (!hit(plain) && !plain.split(',').every(hit)) throw new Error(l.file + ': "Deepens" names no section: ' + name);
+function label(r) {                                                               // Effective Modern C++ rows start with the item number
+  let l = r.label;
+  if (r.book === 'emc') l = l.replace(/^(\d+) to (\d+)\s+/, 'Items $1 to $2, ').replace(/^(\d+)\s+/, 'Item $1, ').replace(/^Item (\d+) /, 'Item $1, ').replace(/^(Items? [\d to]+) ([A-Z])/, '$1, $2');
+  return l;
+}
+function note(rows) {
+  const items = rows.map((r) => `<li><i>${esc(BOOKS[r.book].title)}</i>: ${esc(label(r))}, PDF pages ${esc(r.pages)}.</li>`).join('\n');
+  return `<!-- read-more:start -->\n<div class="callout tip"><span class="label">Read more</span>This section goes deeper in:\n<ul>\n${items}\n</ul></div>\n<!-- read-more:end -->\n`;
+}
+
+function build(l, lessonNo, source) {
+  let html = source.replace(/<section id="read-more"[\s\S]*?<\/section>\n\n?/, '').replace(/<!-- read-more:start -->[\s\S]*?<!-- read-more:end -->\n/g, '');
+  const secs = [...html.matchAll(/<section[^>]*data-title="([^"]+)"[^>]*>/g)].map((m) => ({ start: m.index, title: norm(m[1]), raw: m[1] }));
+  secs.forEach((s) => { s.end = html.indexOf('</section>', s.start); });
+  const byIdx = new Map();
+  for (const r of rowsFor(lessonNo, l.id)) {
+    const targets = new Set();
+    const hint = (HINTS[l.id] || []).find(([re]) => re.test(r.book + ' ' + r.label));
+    if (hint) {
+      const hi = secs.findIndex((s) => s.title.includes(norm(hint[1])));
+      if (hi < 0) throw new Error(`${l.file}: no section for the hint "${hint[1]}"`);
+      targets.add(hi);
+    } else for (const name of r.deepens) {
+      const parts = hasSection(lessonNo, name) ? [name] : name.split(',');
+      for (const p of parts) {
+        const n = norm(p);
+        let i = secs.findIndex((s) => n && (s.title.includes(n) || n.includes(s.title)) && s.title !== 'interview cheat sheet');
+        if (i < 0) i = 0;                                                         // a lesson-level name: the note goes under the first section
+        targets.add(i);
+      }
     }
+    for (const i of targets) { if (!byIdx.has(i)) byIdx.set(i, []); if (!byIdx.get(i).includes(r)) byIdx.get(i).push(r); }
   }
+  for (const i of [...byIdx.keys()].sort((a, b) => b - a)) {
+    const end = secs[i].end;
+    html = html.slice(0, end) + note(byIdx.get(i)) + html.slice(end);
+  }
+  return html;
 }
 
 const check = process.argv.includes('--check');
-const reg = loadRegistry();
 let changed = 0;
-reg.lessons.forEach((l, i) => {
+REG.lessons.forEach((l, i) => {
   const path = join(interactive, l.file);
   const raw = readFileSync(path, 'utf8'); const crlf = raw.includes('\r\n');
-  let html = raw.replace(/\r\n/g, '\n');
-  const block = sectionFor(i + 1, l.id);
-  checkNames(l, html, block);
-  const old = html.match(/<section id="read-more"[\s\S]*?<\/section>\n\n?/);
-  if (old) html = html.replace(old[0], block + '\n\n');
-  else {
-    const m = /<section([^>]*)data-title="Interview cheat sheet">/.exec(html);
-    if (!m) throw new Error(l.file + ': no cheat sheet section');
-    let cheat = m[0];
-    if (!/\sid="/.test(m[1])) {                                                // keep the cheat sheet's positional id (s<position>) stable
-      const pos = (html.slice(0, m.index).match(/<section[\s>]/g) || []).length + 1;
-      cheat = cheat.replace('<section', `<section id="s${pos}"`);
-    }
-    html = html.slice(0, m.index) + block + '\n\n' + cheat + html.slice(m.index + m[0].length);
-  }
-  if (html !== raw.replace(/\r\n/g, '\n')) {
+  const before = raw.replace(/\r\n/g, '\n');
+  const html = build(l, i + 1, before);
+  if (html !== before) {
     changed++;
     if (!check) writeFileSync(path, crlf ? html.replace(/\n/g, '\r\n') : html);
   }
 });
-if (check) { console.log(changed ? `read-more sections are out of date in ${changed} lesson(s): run node tools/build-read-more.mjs` : 'read-more sections are up to date'); process.exit(changed ? 1 : 0); }
+if (check) { console.log(changed ? `read-more notes are out of date in ${changed} lesson(s): run node tools/build-read-more.mjs` : 'read-more notes are up to date'); process.exit(changed ? 1 : 0); }
 console.log(`updated ${changed} lesson page(s)`);

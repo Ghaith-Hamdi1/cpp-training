@@ -162,6 +162,12 @@ listeners.push_back([](double t) { std::cout << "temp = " << t << '\n'; });
 <p><b>Threads:</b> lock, but never while calling observers (deadlock risk).</p></div>
 <p>Step through a notification:</p>
 <div id="st-observer"></div>
+<!-- read-more:start -->
+<div class="callout tip"><span class="label">Read more</span>This section goes deeper in:
+<ul>
+<li><i>Effective Modern C++ (Meyers)</i>: Item 20, Use std::weak_ptr for shared_ptr-like pointers that can dangle, PDF pages 152 to 157.</li>
+</ul></div>
+<!-- read-more:end -->
 </section>
 
 <section data-title="State">
@@ -218,6 +224,12 @@ struct Circle : Shape<Circle> {
 };
 </script>
 <div class="callout tip"><span class="label">With real code</span>Command, Decorator, Adapter, Builder, Visitor with <code>std::variant</code> and a session state machine are in <a href="20-more-patterns.html">More Patterns and Feed-Handler Designs</a>.</div>
+<!-- read-more:start -->
+<div class="callout tip"><span class="label">Read more</span>This section goes deeper in:
+<ul>
+<li><i>Effective Modern C++ (Meyers)</i>: Item 22, Pimpl: define special member functions in the implementation file, PDF pages 165 to 174.</li>
+</ul></div>
+<!-- read-more:end -->
 </section>
 
 <section data-title="SOLID principles">
@@ -232,17 +244,6 @@ struct Circle : Shape<Circle> {
 <tr><td><b>D</b></td><td>Dependency Inversion</td><td>depend on abstractions, not concrete classes; inject dependencies</td><td>Strategy, Observer, dependency injection (instead of Singleton)</td></tr>
 </table>
 <p>Notes: <a href="https://github.com/Ghaith-Hamdi1/cpp-training/blob/main/docs/04-templates-and-design-patterns/06-design-patterns/README.md">Module 4</a>, <a href="https://github.com/Ghaith-Hamdi1/cpp-training/tree/main/examples/04-templates-and-design-patterns/06-design-patterns/">examples</a>.</p>
-</section>
-
-<section id="read-more" data-title="Read more in the books">
-<h2>Read more in the books</h2>
-<p>These book sections explain the same ideas in more depth. Page numbers are <b>PDF pages</b>, the number your PDF reader shows, in the files under <code>books/</code>. Each book's reading guide in <code>docs/</code> has its full plan.</p>
-<table>
-<tr><th>Book</th><th>Chapter or section</th><th>PDF pages</th><th>Deepens</th></tr>
-<tr><td><a href="https://github.com/Ghaith-Hamdi1/cpp-training/blob/main/docs/effective-modern-cpp-reading-guide.md">Effective Modern C++ (Meyers)</a></td><td>20 Use std::weak_ptr for shared_ptr-like pointers that can dangle</td><td>152 to 157</td><td>Observer</td></tr>
-<tr><td><a href="https://github.com/Ghaith-Hamdi1/cpp-training/blob/main/docs/effective-modern-cpp-reading-guide.md">Effective Modern C++ (Meyers)</a></td><td>22 Pimpl: define special member functions in the implementation file</td><td>165 to 174</td><td>Other patterns</td></tr>
-</table>
-<p>The books in <code>books/</code> touch patterns only in passing (the rows above). For a full treatment in modern C++, <i>C++ Software Design</i> by Klaus Iglberger covers Strategy, Observer, Decorator, Visitor and more; it is not in <code>books/</code>, so there are no page numbers here.</p>
 </section>
 
 <section id="s9" data-title="Interview cheat sheet">
