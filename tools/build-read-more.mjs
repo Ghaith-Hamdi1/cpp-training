@@ -142,8 +142,12 @@ function label(r) {                                                             
   return l;
 }
 function note(rows) {
-  const items = rows.map((r) => `<li><i>${esc(BOOKS[r.book].title)}</i>: ${esc(label(r))}, PDF pages ${esc(r.pages)}.</li>`).join('\n');
-  return `<!-- read-more:start -->\n<div class="callout tip"><span class="label">Read more</span>This section goes deeper in:\n<ul>\n${items}\n</ul></div>\n<!-- read-more:end -->\n`;
+  const byBook = [...new Set(rows.map((r) => r.book))].sort((a, b) => BOOKS[a].order - BOOKS[b].order);
+  const blocks = byBook.map((k) => {                                              // the book's name once, then its parts as bullets
+    const items = rows.filter((r) => r.book === k).map((r) => `<li>${esc(label(r))} (PDF pages ${esc(r.pages)})</li>`).join('\n');
+    return `<p><b>${esc(BOOKS[k].title)}</b></p>\n<ul>\n${items}\n</ul>`;
+  }).join('\n');
+  return `<!-- read-more:start -->\n<div class="callout tip"><span class="label">Read more</span>\n${blocks}\n</div>\n<!-- read-more:end -->\n`;
 }
 
 function build(l, lessonNo, source) {

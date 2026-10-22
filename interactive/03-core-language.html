@@ -30,10 +30,12 @@ public:
 <p><code>vector</code>, <code>unique_ptr</code>, <code>lock_guard</code>, <code>fstream</code> are all RAII. Never manage a resource with a bare <code>new</code>/<code>delete</code>, <code>lock()</code>/<code>unlock()</code> or <code>fopen</code>/<code>fclose</code>: wrap it.</p>
 <div class="callout interview"><span class="label">Interview angle</span>RAII binds resource lifetime to object lifetime: automatic, exception-safe cleanup. It replaces <code>try/finally</code> and removes the need for a garbage collector.</div>
 <!-- read-more:start -->
-<div class="callout tip"><span class="label">Read more</span>This section goes deeper in:
+<div class="callout tip"><span class="label">Read more</span>
+<p><b>Programming: Principles and Practice (Stroustrup)</b></p>
 <ul>
-<li><i>Programming: Principles and Practice (Stroustrup)</i>: 18.4 to 18.5 Resources and exceptions; resource-management pointers (RAII, unique_ptr), PDF pages 542 to 553.</li>
-</ul></div>
+<li>18.4 to 18.5 Resources and exceptions; resource-management pointers (RAII, unique_ptr) (PDF pages 542 to 553)</li>
+</ul>
+</div>
 <!-- read-more:end -->
 </section>
 
@@ -103,11 +105,13 @@ try {
 </ul>
 <div class="callout warn"><span class="label">Cost</span>The no-throw path is almost free, but a throw is orders of magnitude slower than a return and its latency is unpredictable. Do not throw on a hot path or as ordinary control flow (<a href="#errors">next sections</a>).</div>
 <!-- read-more:start -->
-<div class="callout tip"><span class="label">Read more</span>This section goes deeper in:
+<div class="callout tip"><span class="label">Read more</span>
+<p><b>Programming: Principles and Practice (Stroustrup)</b></p>
 <ul>
-<li><i>Programming: Principles and Practice (Stroustrup)</i>: 4.5 to 4.6 Run-time errors and exceptions, PDF pages 102 to 111.</li>
-<li><i>Programming: Principles and Practice (Stroustrup)</i>: 18.4 to 18.5 Resources and exceptions; resource-management pointers (RAII, unique_ptr), PDF pages 542 to 553.</li>
-</ul></div>
+<li>4.5 to 4.6 Run-time errors and exceptions (PDF pages 102 to 111)</li>
+<li>18.4 to 18.5 Resources and exceptions; resource-management pointers (RAII, unique_ptr) (PDF pages 542 to 553)</li>
+</ul>
+</div>
 <!-- read-more:end -->
 </section>
 
@@ -137,11 +141,16 @@ void Table::replaceAll(const std::vector<Row>& fresh) {
 <li>Do not mark a function <code>noexcept</code> just to be fast: a wrong promise turns an error into a crash.</li>
 </ul>
 <!-- read-more:start -->
-<div class="callout tip"><span class="label">Read more</span>This section goes deeper in:
+<div class="callout tip"><span class="label">Read more</span>
+<p><b>Effective Modern C++ (Meyers)</b></p>
 <ul>
-<li><i>Effective Modern C++ (Meyers)</i>: Item 14, Declare functions noexcept if they won't emit exceptions, PDF pages 108 to 115.</li>
-<li><i>C++ Move Semantics (Josuttis)</i>: 7.1 and 7.4 Move constructors with and without noexcept; when and where to use noexcept, PDF pages 125 to 134 and 140 to 141.</li>
-</ul></div>
+<li>Item 14, Declare functions noexcept if they won't emit exceptions (PDF pages 108 to 115)</li>
+</ul>
+<p><b>C++ Move Semantics (Josuttis)</b></p>
+<ul>
+<li>7.1 and 7.4 Move constructors with and without noexcept; when and where to use noexcept (PDF pages 125 to 134 and 140 to 141)</li>
+</ul>
+</div>
 <!-- read-more:end -->
 </section>
 

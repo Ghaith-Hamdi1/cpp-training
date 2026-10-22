@@ -43,15 +43,23 @@ t.join();
 <p>Step through a promise and its future:</p>
 <div id="st-future"></div>
 <!-- read-more:start -->
-<div class="callout tip"><span class="label">Read more</span>This section goes deeper in:
+<div class="callout tip"><span class="label">Read more</span>
+<p><b>Effective Modern C++ (Meyers)</b></p>
 <ul>
-<li><i>Effective Modern C++ (Meyers)</i>: Item 35, Prefer task-based programming to thread-based, PDF pages 259 to 263.</li>
-<li><i>Effective Modern C++ (Meyers)</i>: Item 36, Specify std::launch::async if asynchronicity is essential, PDF pages 263 to 268.</li>
-<li><i>Effective Modern C++ (Meyers)</i>: Item 38, Be aware of varying thread handle destructor behavior, PDF pages 276 to 280.</li>
-<li><i>C++ Move Semantics (Josuttis)</i>: Chapter 15 Move semantics in standard library types, PDF pages 229 to 250.</li>
-<li><i>C++ Concurrency in Action (Williams)</i>: 4.2 Waiting for one-off events with futures (std::async, packaged_task, promise, shared_future), PDF pages 104 to 115.</li>
-<li><i>C++ Concurrency in Action (Williams)</i>: 4.3 Waiting with a time limit, PDF pages 116 to 121.</li>
-</ul></div>
+<li>Item 35, Prefer task-based programming to thread-based (PDF pages 259 to 263)</li>
+<li>Item 36, Specify std::launch::async if asynchronicity is essential (PDF pages 263 to 268)</li>
+<li>Item 38, Be aware of varying thread handle destructor behavior (PDF pages 276 to 280)</li>
+</ul>
+<p><b>C++ Move Semantics (Josuttis)</b></p>
+<ul>
+<li>Chapter 15 Move semantics in standard library types (PDF pages 229 to 250)</li>
+</ul>
+<p><b>C++ Concurrency in Action (Williams)</b></p>
+<ul>
+<li>4.2 Waiting for one-off events with futures (std::async, packaged_task, promise, shared_future) (PDF pages 104 to 115)</li>
+<li>4.3 Waiting with a time limit (PDF pages 116 to 121)</li>
+</ul>
+</div>
 <!-- read-more:end -->
 </section>
 
@@ -85,10 +93,12 @@ t.join();
 <li>A future is a <i>one-way, one-time</i> channel. If you need many messages, use a queue.</li>
 </ul>
 <!-- read-more:start -->
-<div class="callout tip"><span class="label">Read more</span>This section goes deeper in:
+<div class="callout tip"><span class="label">Read more</span>
+<p><b>C++ Concurrency in Action (Williams)</b></p>
 <ul>
-<li><i>C++ Concurrency in Action (Williams)</i>: 4.2 Waiting for one-off events with futures (std::async, packaged_task, promise, shared_future), PDF pages 104 to 115.</li>
-</ul></div>
+<li>4.2 Waiting for one-off events with futures (std::async, packaged_task, promise, shared_future) (PDF pages 104 to 115)</li>
+</ul>
+</div>
 <!-- read-more:end -->
 </section>
 
@@ -146,10 +156,12 @@ pool.submit([] { std::cout << "task runs on some worker\n"; });
 <p>Step through the pool:</p>
 <div id="st-pool"></div>
 <!-- read-more:start -->
-<div class="callout tip"><span class="label">Read more</span>This section goes deeper in:
+<div class="callout tip"><span class="label">Read more</span>
+<p><b>C++ Concurrency in Action (Williams)</b></p>
 <ul>
-<li><i>C++ Concurrency in Action (Williams)</i>: 9.1 Thread pools (a simple pool, waiting for tasks, work stealing in 9.1.5), PDF pages 324 to 337.</li>
-</ul></div>
+<li>9.1 Thread pools (a simple pool, waiting for tasks, work stealing in 9.1.5) (PDF pages 324 to 337)</li>
+</ul>
+</div>
 <!-- read-more:end -->
 </section>
 
@@ -179,12 +191,14 @@ pool.submit([] { std::cout << "task runs on some worker\n"; });
 </table>
 <div class="callout warn"><span class="label">Pool deadlock</span>A task that submits a subtask to the same pool and <b>waits</b> for it can block every worker: all N workers wait for subtasks nobody is free to run. Do not block a pool thread on work that needs the same pool.</div>
 <!-- read-more:start -->
-<div class="callout tip"><span class="label">Read more</span>This section goes deeper in:
+<div class="callout tip"><span class="label">Read more</span>
+<p><b>C++ Concurrency in Action (Williams)</b></p>
 <ul>
-<li><i>C++ Concurrency in Action (Williams)</i>: 2.4 Choosing the number of threads at runtime, PDF pages 54 to 56.</li>
-<li><i>C++ Concurrency in Action (Williams)</i>: 8.1 Techniques for dividing work between threads, PDF pages 275 to 282.</li>
-<li><i>C++ Concurrency in Action (Williams)</i>: 9.1 Thread pools (a simple pool, waiting for tasks, work stealing in 9.1.5), PDF pages 324 to 337.</li>
-</ul></div>
+<li>2.4 Choosing the number of threads at runtime (PDF pages 54 to 56)</li>
+<li>8.1 Techniques for dividing work between threads (PDF pages 275 to 282)</li>
+<li>9.1 Thread pools (a simple pool, waiting for tasks, work stealing in 9.1.5) (PDF pages 324 to 337)</li>
+</ul>
+</div>
 <!-- read-more:end -->
 </section>
 
@@ -225,11 +239,13 @@ std::jthread worker([](std::stop_token st) {
 </script>
 <p>There is no safe way to <i>kill</i> a thread; you ask it to stop and it finishes its loop. <code>std::stop_token</code> is the standard channel for that request, and <code>std::jthread</code> joins in its destructor, which removes the "forgot to join" crash.</p>
 <!-- read-more:start -->
-<div class="callout tip"><span class="label">Read more</span>This section goes deeper in:
+<div class="callout tip"><span class="label">Read more</span>
+<p><b>C++ Concurrency in Action (Williams)</b></p>
 <ul>
-<li><i>C++ Concurrency in Action (Williams)</i>: 4.4.7 to 4.4.10 Latches and barriers (the Concurrency TS versions of C++20 std::latch and std::barrier), PDF pages 141 to 147.</li>
-<li><i>C++ Concurrency in Action (Williams)</i>: 9.2 Interrupting threads (the idea behind std::stop_token), PDF pages 338 to 349.</li>
-</ul></div>
+<li>4.4.7 to 4.4.10 Latches and barriers (the Concurrency TS versions of C++20 std::latch and std::barrier) (PDF pages 141 to 147)</li>
+<li>9.2 Interrupting threads (the idea behind std::stop_token) (PDF pages 338 to 349)</li>
+</ul>
+</div>
 <!-- read-more:end -->
 </section>
 
@@ -258,10 +274,12 @@ std::transform(std::execution::par_unseq, a.begin(), a.end(), out.begin(), f);
 </ul>
 <div class="callout tip"><span class="label">Choose</span>Parallel algorithms for data parallelism over a container; a pool or <code>std::async</code> for independent tasks; a queue and a pinned thread for a latency-critical pipeline (<a href="12-low-latency.html">Low-Latency C++</a>).</div>
 <!-- read-more:start -->
-<div class="callout tip"><span class="label">Read more</span>This section goes deeper in:
+<div class="callout tip"><span class="label">Read more</span>
+<p><b>C++ Concurrency in Action (Williams)</b></p>
 <ul>
-<li><i>C++ Concurrency in Action (Williams)</i>: 10.1 to 10.3 Parallel algorithms: execution policies and the parallel standard algorithms, PDF pages 350 to 362.</li>
-</ul></div>
+<li>10.1 to 10.3 Parallel algorithms: execution policies and the parallel standard algorithms (PDF pages 350 to 362)</li>
+</ul>
+</div>
 <!-- read-more:end -->
 </section>
 

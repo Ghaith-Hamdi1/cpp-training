@@ -304,11 +304,13 @@ pthread_setaffinity_np(pthread_self(), sizeof(set), &set);
 </script>
 <div class="callout tip"><span class="label">Interview angle</span>"How would you design a market-data feed handler?" Reader thread pinned to a core, reading the socket and parsing with zero copy into preallocated structures; an SPSC queue to a book-builder thread, which updates array-based books and publishes; no allocation, locks, exceptions or logging on the path; bounded queues with a stated drop or recovery policy; sequence-number gap detection; and p99.9 latency measured under realistic load.</div>
 <!-- read-more:start -->
-<div class="callout tip"><span class="label">Read more</span>This section goes deeper in:
+<div class="callout tip"><span class="label">Read more</span>
+<p><b>C++ Concurrency in Action (Williams)</b></p>
 <ul>
-<li><i>C++ Concurrency in Action (Williams)</i>: 8.2 Factors affecting the performance of concurrent code (cache ping-pong, false sharing, oversubscription), PDF pages 283 to 289.</li>
-<li><i>C++ Concurrency in Action (Williams)</i>: 8.3 Designing data structures for multithreaded performance, PDF pages 289 to 292.</li>
-</ul></div>
+<li>8.2 Factors affecting the performance of concurrent code (cache ping-pong, false sharing, oversubscription) (PDF pages 283 to 289)</li>
+<li>8.3 Designing data structures for multithreaded performance (PDF pages 289 to 292)</li>
+</ul>
+</div>
 <!-- read-more:end -->
 </section>
 

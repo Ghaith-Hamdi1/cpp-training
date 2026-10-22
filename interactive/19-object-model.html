@@ -40,10 +40,12 @@ struct File : Reader, Writer {                 // implements both interfaces
 <li>Multiple inheritance of <i>implementation</i> (bases with data) is where trouble starts: the diamond.</li>
 </ul>
 <!-- read-more:start -->
-<div class="callout tip"><span class="label">Read more</span>This section goes deeper in:
+<div class="callout tip"><span class="label">Read more</span>
+<p><b>Programming: Principles and Practice (Stroustrup)</b></p>
 <ul>
-<li><i>Programming: Principles and Practice (Stroustrup)</i>: 12.3 Base and derived classes (object layout, the vptr and vtbl, overriding), PDF pages 380 to 387.</li>
-</ul></div>
+<li>12.3 Base and derived classes (object layout, the vptr and vtbl, overriding) (PDF pages 380 to 387)</li>
+</ul>
+</div>
 <!-- read-more:end -->
 </section>
 
@@ -84,10 +86,12 @@ struct Diamond : Left, Right {};         // one Base inside; d.id is not ambiguo
 </ul>
 <div class="callout interview"><span class="label">Interview angle</span>"What is the diamond problem and how do you solve it?" Two paths to one base duplicate its members and make access ambiguous. <code>virtual</code> inheritance shares one copy; the most derived class constructs it first. It costs memory and indirection, so prefer interfaces and composition.</div>
 <!-- read-more:start -->
-<div class="callout tip"><span class="label">Read more</span>This section goes deeper in:
+<div class="callout tip"><span class="label">Read more</span>
+<p><b>Programming: Principles and Practice (Stroustrup)</b></p>
 <ul>
-<li><i>Programming: Principles and Practice (Stroustrup)</i>: 15.5 Destructors, including 15.5.2 Virtual destructors, PDF pages 460 to 463.</li>
-</ul></div>
+<li>15.5 Destructors, including 15.5.2 Virtual destructors (PDF pages 460 to 463)</li>
+</ul>
+</div>
 <!-- read-more:end -->
 </section>
 

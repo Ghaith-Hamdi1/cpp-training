@@ -72,12 +72,17 @@ std::cout << (-1 < 1u);
 <p>It prints <code>0</code>: <code>-1</code> becomes 4294967295. Beware comparing an <code>int</code> index with <code>vector::size()</code>.</p>
 </div></details>
 <!-- read-more:start -->
-<div class="callout tip"><span class="label">Read more</span>This section goes deeper in:
+<div class="callout tip"><span class="label">Read more</span>
+<p><b>Programming: Principles and Practice (Stroustrup)</b></p>
 <ul>
-<li><i>Programming: Principles and Practice (Stroustrup)</i>: 2.5 Assignment and initialization, PDF pages 49 to 52.</li>
-<li><i>Programming: Principles and Practice (Stroustrup)</i>: 2.8 to 2.10 Type safety, conversions, type deduction with auto, PDF pages 56 to 60.</li>
-<li><i>Effective Modern C++ (Meyers)</i>: Item 7, Distinguish () and {} when creating objects, PDF pages 67 to 76.</li>
-</ul></div>
+<li>2.5 Assignment and initialization (PDF pages 49 to 52)</li>
+<li>2.8 to 2.10 Type safety, conversions, type deduction with auto (PDF pages 56 to 60)</li>
+</ul>
+<p><b>Effective Modern C++ (Meyers)</b></p>
+<ul>
+<li>Item 7, Distinguish () and {} when creating objects (PDF pages 67 to 76)</li>
+</ul>
+</div>
 <!-- read-more:end -->
 </section>
 
@@ -145,12 +150,14 @@ std::cout << a;
 <p>Step through what a call does to the argument:</p>
 <div id="st-pass"></div>
 <!-- read-more:start -->
-<div class="callout tip"><span class="label">Read more</span>This section goes deeper in:
+<div class="callout tip"><span class="label">Read more</span>
+<p><b>Programming: Principles and Practice (Stroustrup)</b></p>
 <ul>
-<li><i>Programming: Principles and Practice (Stroustrup)</i>: 3.5 to 3.6 Functions; vector introduced, PDF pages 81 to 89.</li>
-<li><i>Programming: Principles and Practice (Stroustrup)</i>: 7.2 to 7.3 Declarations and definitions; scope, PDF pages 194 to 202.</li>
-<li><i>Programming: Principles and Practice (Stroustrup)</i>: 7.4 Function call and return (pass by value, by reference, by const reference), PDF pages 203 to 218.</li>
-</ul></div>
+<li>3.5 to 3.6 Functions; vector introduced (PDF pages 81 to 89)</li>
+<li>7.2 to 7.3 Declarations and definitions; scope (PDF pages 194 to 202)</li>
+<li>7.4 Function call and return (pass by value, by reference, by const reference) (PDF pages 203 to 218)</li>
+</ul>
+</div>
 <!-- read-more:end -->
 </section>
 
@@ -176,10 +183,12 @@ void f() {
 </script>
 <div class="callout tip"><span class="label">Mental model</span>Stack: a pile of plates, popped automatically. Heap: a storage unit you rent until you hand the key back.</div>
 <!-- read-more:start -->
-<div class="callout tip"><span class="label">Read more</span>This section goes deeper in:
+<div class="callout tip"><span class="label">Read more</span>
+<p><b>Programming: Principles and Practice (Stroustrup)</b></p>
 <ul>
-<li><i>Programming: Principles and Practice (Stroustrup)</i>: 7.2 to 7.3 Declarations and definitions; scope, PDF pages 194 to 202.</li>
-</ul></div>
+<li>7.2 to 7.3 Declarations and definitions; scope (PDF pages 194 to 202)</li>
+</ul>
+</div>
 <!-- read-more:end -->
 </section>
 
@@ -209,10 +218,12 @@ std::cout << p[2];     // 30   p[i] is exactly *(p + i)
 <div class="callout tip"><span class="label">What a pointer does not know</span>Only an address and a type: not <b>how many</b> elements, nor <b>who</b> frees them. Root of most pointer bugs.</div>
 <div class="callout interview"><span class="label">Interview angle</span>"What is the difference between <code>NULL</code> and <code>nullptr</code>?" <code>NULL</code> is a macro for a null pointer constant, usually plain <code>0</code> (an integer), so <code>f(NULL)</code> can call <code>f(int)</code> instead of <code>f(char*)</code>. <code>nullptr</code> has its own type and only converts to pointers.</div>
 <!-- read-more:start -->
-<div class="callout tip"><span class="label">Read more</span>This section goes deeper in:
+<div class="callout tip"><span class="label">Read more</span>
+<p><b>Programming: Principles and Practice (Stroustrup)</b></p>
 <ul>
-<li><i>Programming: Principles and Practice (Stroustrup)</i>: 15.3 to 15.5 Memory, addresses and pointers; free store; destructors, PDF pages 452 to 463.</li>
-</ul></div>
+<li>15.3 to 15.5 Memory, addresses and pointers; free store; destructors (PDF pages 452 to 463)</li>
+</ul>
+</div>
 <!-- read-more:end -->
 </section>
 
@@ -247,10 +258,12 @@ std::cout << a << b;
 <p>Step through the reference trap:</p>
 <div id="st-ref"></div>
 <!-- read-more:start -->
-<div class="callout tip"><span class="label">Read more</span>This section goes deeper in:
+<div class="callout tip"><span class="label">Read more</span>
+<p><b>Programming: Principles and Practice (Stroustrup)</b></p>
 <ul>
-<li><i>Programming: Principles and Practice (Stroustrup)</i>: 16.1 to 16.2 Arrays, pointers and references, PDF pages 477 to 483.</li>
-</ul></div>
+<li>16.1 to 16.2 Arrays, pointers and references (PDF pages 477 to 483)</li>
+</ul>
+</div>
 <!-- read-more:end -->
 </section>
 
@@ -292,10 +305,12 @@ int*  arr = new int[100];    delete[] arr;      // array: new[] / delete[]  (mus
 <div class="callout tip"><span class="label">Modern C++</span>Avoid raw <code>new</code>/<code>delete</code>: use <code>std::vector</code> and <code>std::unique_ptr</code> (<a href="14-smart-pointers.html">Smart Pointers</a>).</div>
 <div class="callout interview"><span class="label">Interview angle</span>"What does <code>new</code> do beyond <code>malloc</code>?" It calls the constructor, throws <code>std::bad_alloc</code> on failure (instead of returning null), and returns a correctly typed pointer. <code>delete</code> calls the destructor and then frees the memory.</div>
 <!-- read-more:start -->
-<div class="callout tip"><span class="label">Read more</span>This section goes deeper in:
+<div class="callout tip"><span class="label">Read more</span>
+<p><b>Programming: Principles and Practice (Stroustrup)</b></p>
 <ul>
-<li><i>Programming: Principles and Practice (Stroustrup)</i>: 15.3 to 15.5 Memory, addresses and pointers; free store; destructors, PDF pages 452 to 463.</li>
-</ul></div>
+<li>15.3 to 15.5 Memory, addresses and pointers; free store; destructors (PDF pages 452 to 463)</li>
+</ul>
+</div>
 <!-- read-more:end -->
 </section>
 
@@ -327,10 +342,12 @@ std::vector<int> v = {1, 2, 3};
 v.push_back(4);                      // size is now 4
 </script>
 <!-- read-more:start -->
-<div class="callout tip"><span class="label">Read more</span>This section goes deeper in:
+<div class="callout tip"><span class="label">Read more</span>
+<p><b>Programming: Principles and Practice (Stroustrup)</b></p>
 <ul>
-<li><i>Programming: Principles and Practice (Stroustrup)</i>: 16.3 to 16.4 C-style strings; alternatives to pointer use, PDF pages 484 to 487.</li>
-</ul></div>
+<li>16.3 to 16.4 C-style strings; alternatives to pointer use (PDF pages 484 to 487)</li>
+</ul>
+</div>
 <!-- read-more:end -->
 </section>
 

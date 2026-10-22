@@ -40,11 +40,16 @@ use(*w);
 take(std::move(w));                                       // w is now null
 </script>
 <!-- read-more:start -->
-<div class="callout tip"><span class="label">Read more</span>This section goes deeper in:
+<div class="callout tip"><span class="label">Read more</span>
+<p><b>Programming: Principles and Practice (Stroustrup)</b></p>
 <ul>
-<li><i>Programming: Principles and Practice (Stroustrup)</i>: 18.4 to 18.5 Resources and exceptions; resource-management pointers (RAII, unique_ptr), PDF pages 542 to 553.</li>
-<li><i>C++ Move Semantics (Josuttis)</i>: Chapter 13 Move-only types, PDF pages 213 to 218.</li>
-</ul></div>
+<li>18.4 to 18.5 Resources and exceptions; resource-management pointers (RAII, unique_ptr) (PDF pages 542 to 553)</li>
+</ul>
+<p><b>C++ Move Semantics (Josuttis)</b></p>
+<ul>
+<li>Chapter 13 Move-only types (PDF pages 213 to 218)</li>
+</ul>
+</div>
 <!-- read-more:end -->
 </section>
 
@@ -65,11 +70,13 @@ auto q = std::move(p);                       // OK: ownership moves, p is now nu
 </ul>
 <div class="callout interview"><span class="label">Interview angle</span>Why <code>make_unique</code>? No naked <code>new</code>, the type is written once, and before C++17 <code>f(unique_ptr&lt;A&gt;(new A), g())</code> could leak when <code>g()</code> threw between the two steps.</div>
 <!-- read-more:start -->
-<div class="callout tip"><span class="label">Read more</span>This section goes deeper in:
+<div class="callout tip"><span class="label">Read more</span>
+<p><b>Effective Modern C++ (Meyers)</b></p>
 <ul>
-<li><i>Effective Modern C++ (Meyers)</i>: Item 18, Use std::unique_ptr for exclusive-ownership resource management, PDF pages 136 to 143.</li>
-<li><i>Effective Modern C++ (Meyers)</i>: Item 21, Prefer make_unique and make_shared to new, PDF pages 157 to 165.</li>
-</ul></div>
+<li>Item 18, Use std::unique_ptr for exclusive-ownership resource management (PDF pages 136 to 143)</li>
+<li>Item 21, Prefer make_unique and make_shared to new (PDF pages 157 to 165)</li>
+</ul>
+</div>
 <!-- read-more:end -->
 </section>
 
@@ -89,10 +96,12 @@ auto s2 = s1;                                // two owners, use_count() == 2
 <li>Copying costs an atomic increment. On hot paths pass <code>const shared_ptr&amp;</code> or the object itself, not a copy per call.</li>
 </ul>
 <!-- read-more:start -->
-<div class="callout tip"><span class="label">Read more</span>This section goes deeper in:
+<div class="callout tip"><span class="label">Read more</span>
+<p><b>Effective Modern C++ (Meyers)</b></p>
 <ul>
-<li><i>Effective Modern C++ (Meyers)</i>: Item 19, Use std::shared_ptr for shared-ownership resource management, PDF pages 143 to 152.</li>
-</ul></div>
+<li>Item 19, Use std::shared_ptr for shared-ownership resource management (PDF pages 143 to 152)</li>
+</ul>
+</div>
 <!-- read-more:end -->
 </section>
 
@@ -114,10 +123,12 @@ w.expired();                                           // true once every owner 
 <li>A <code>weak_ptr</code> keeps the <b>control block</b> alive (not the object) until the last weak reference goes.</li>
 </ul>
 <!-- read-more:start -->
-<div class="callout tip"><span class="label">Read more</span>This section goes deeper in:
+<div class="callout tip"><span class="label">Read more</span>
+<p><b>Effective Modern C++ (Meyers)</b></p>
 <ul>
-<li><i>Effective Modern C++ (Meyers)</i>: Item 20, Use std::weak_ptr for shared_ptr-like pointers that can dangle, PDF pages 152 to 157.</li>
-</ul></div>
+<li>Item 20, Use std::weak_ptr for shared_ptr-like pointers that can dangle (PDF pages 152 to 157)</li>
+</ul>
+</div>
 <!-- read-more:end -->
 </section>
 

@@ -33,10 +33,12 @@
 </script>
 <div class="callout tip"><span class="label">Default choice</span><code>std::vector</code>. Contiguous memory is so cache-friendly it often beats "better" containers.</div>
 <!-- read-more:start -->
-<div class="callout tip"><span class="label">Read more</span>This section goes deeper in:
+<div class="callout tip"><span class="label">Read more</span>
+<p><b>Programming: Principles and Practice (Stroustrup)</b></p>
 <ul>
-<li><i>Programming: Principles and Practice (Stroustrup)</i>: 19.1 to 19.3, 19.6 Containers, sequences and iterators, linked lists, vector/list/string, PDF pages 559 to 572 and 585 to 586.</li>
-</ul></div>
+<li>19.1 to 19.3, 19.6 Containers, sequences and iterators, linked lists, vector/list/string (PDF pages 559 to 572 and 585 to 586)</li>
+</ul>
+</div>
 <!-- read-more:end -->
 </section>
 
@@ -65,13 +67,21 @@ std::vector<int> b{3, 7};   // braces: the initializer_list constructor wins  ->
 </script>
 With braces, a constructor taking <code>std::initializer_list</code> is preferred whenever it can match.</div>
 <!-- read-more:start -->
-<div class="callout tip"><span class="label">Read more</span>This section goes deeper in:
+<div class="callout tip"><span class="label">Read more</span>
+<p><b>Programming: Principles and Practice (Stroustrup)</b></p>
 <ul>
-<li><i>Programming: Principles and Practice (Stroustrup)</i>: 3.5 to 3.6 Functions; vector introduced, PDF pages 81 to 89.</li>
-<li><i>Programming: Principles and Practice (Stroustrup)</i>: 17.6 to 17.9 Other operations, remaining Vector problems, changing size, PDF pages 513 to 523.</li>
-<li><i>Effective Modern C++ (Meyers)</i>: Item 42, Consider emplacement instead of insertion, PDF pages 310 to 320.</li>
-<li><i>C++ Move Semantics (Josuttis)</i>: Chapter 15 Move semantics in standard library types, PDF pages 229 to 250.</li>
-</ul></div>
+<li>3.5 to 3.6 Functions; vector introduced (PDF pages 81 to 89)</li>
+<li>17.6 to 17.9 Other operations, remaining Vector problems, changing size (PDF pages 513 to 523)</li>
+</ul>
+<p><b>Effective Modern C++ (Meyers)</b></p>
+<ul>
+<li>Item 42, Consider emplacement instead of insertion (PDF pages 310 to 320)</li>
+</ul>
+<p><b>C++ Move Semantics (Josuttis)</b></p>
+<ul>
+<li>Chapter 15 Move semantics in standard library types (PDF pages 229 to 250)</li>
+</ul>
+</div>
 <!-- read-more:end -->
 </section>
 
@@ -94,10 +104,12 @@ With braces, a constructor taking <code>std::initializer_list</code> is preferre
 <tr><td>find a value</td><td>O(n)</td><td>O(n)</td><td>O(n)</td></tr>
 </table>
 <!-- read-more:start -->
-<div class="callout tip"><span class="label">Read more</span>This section goes deeper in:
+<div class="callout tip"><span class="label">Read more</span>
+<p><b>Programming: Principles and Practice (Stroustrup)</b></p>
 <ul>
-<li><i>Programming: Principles and Practice (Stroustrup)</i>: 20.6 Container overview, PDF pages 604 to 610.</li>
-</ul></div>
+<li>20.6 Container overview (PDF pages 604 to 610)</li>
+</ul>
+</div>
 <!-- read-more:end -->
 </section>
 
@@ -169,10 +181,12 @@ std::priority_queue<int, std::vector<int>, std::greater<int>> minHeap;   // smal
 <p>Step through <code>operator[]</code>:</p>
 <div id="st-map"></div>
 <!-- read-more:start -->
-<div class="callout tip"><span class="label">Read more</span>This section goes deeper in:
+<div class="callout tip"><span class="label">Read more</span>
+<p><b>Programming: Principles and Practice (Stroustrup)</b></p>
 <ul>
-<li><i>Programming: Principles and Practice (Stroustrup)</i>: 20.1 to 20.6 map, unordered_map, set, container overview, PDF pages 591 to 609.</li>
-</ul></div>
+<li>20.1 to 20.6 map, unordered_map, set, container overview (PDF pages 591 to 609)</li>
+</ul>
+</div>
 <!-- read-more:end -->
 </section>
 
@@ -182,11 +196,13 @@ std::priority_queue<int, std::vector<int>, std::greater<int>> minHeap;   // smal
 <div id="w-choose"></div>
 <div class="callout interview"><span class="label">Interview angle</span>"vector vs list?" Answer with <i>memory</i>: contiguous means cache-friendly, so vector wins even for middle inserts at modest sizes. List wins for stable iterators and cheap splicing.</div>
 <!-- read-more:start -->
-<div class="callout tip"><span class="label">Read more</span>This section goes deeper in:
+<div class="callout tip"><span class="label">Read more</span>
+<p><b>Programming: Principles and Practice (Stroustrup)</b></p>
 <ul>
-<li><i>Programming: Principles and Practice (Stroustrup)</i>: 20.1 to 20.6 map, unordered_map, set, container overview, PDF pages 591 to 609.</li>
-<li><i>Programming: Principles and Practice (Stroustrup)</i>: 20.6 Container overview, PDF pages 604 to 610.</li>
-</ul></div>
+<li>20.1 to 20.6 map, unordered_map, set, container overview (PDF pages 591 to 609)</li>
+<li>20.6 Container overview (PDF pages 604 to 610)</li>
+</ul>
+</div>
 <!-- read-more:end -->
 </section>
 
@@ -256,11 +272,13 @@ std::erase_if(v, [](int x) { return x % 2 == 0; });
 <p>Step through a correct erase loop:</p>
 <div id="st-erase"></div>
 <!-- read-more:start -->
-<div class="callout tip"><span class="label">Read more</span>This section goes deeper in:
+<div class="callout tip"><span class="label">Read more</span>
+<p><b>Programming: Principles and Practice (Stroustrup)</b></p>
 <ul>
-<li><i>Programming: Principles and Practice (Stroustrup)</i>: 19.1 to 19.3, 19.6 Containers, sequences and iterators, linked lists, vector/list/string, PDF pages 559 to 572 and 585 to 586.</li>
-<li><i>Programming: Principles and Practice (Stroustrup)</i>: 20.7.1 Iterator categories, PDF pages 610 to 612.</li>
-</ul></div>
+<li>19.1 to 19.3, 19.6 Containers, sequences and iterators, linked lists, vector/list/string (PDF pages 559 to 572 and 585 to 586)</li>
+<li>20.7.1 Iterator categories (PDF pages 610 to 612)</li>
+</ul>
+</div>
 <!-- read-more:end -->
 </section>
 
@@ -312,11 +330,16 @@ for (int x : evenSquares) use(x);                             // computed on dem
 <li>Good to know for interviews: ranges make pipelines readable; you are not expected to know every view.</li>
 </ul>
 <!-- read-more:start -->
-<div class="callout tip"><span class="label">Read more</span>This section goes deeper in:
+<div class="callout tip"><span class="label">Read more</span>
+<p><b>Programming: Principles and Practice (Stroustrup)</b></p>
 <ul>
-<li><i>Programming: Principles and Practice (Stroustrup)</i>: 21.1 to 21.2, 21.5 Standard algorithms, function objects, sorting and searching, PDF pages 617 to 626 and 633 to 635.</li>
-<li><i>C++ Move Semantics (Josuttis)</i>: Chapter 14 Moving algorithms and iterators, PDF pages 219 to 228.</li>
-</ul></div>
+<li>21.1 to 21.2, 21.5 Standard algorithms, function objects, sorting and searching (PDF pages 617 to 626 and 633 to 635)</li>
+</ul>
+<p><b>C++ Move Semantics (Josuttis)</b></p>
+<ul>
+<li>Chapter 14 Moving algorithms and iterators (PDF pages 219 to 228)</li>
+</ul>
+</div>
 <!-- read-more:end -->
 </section>
 

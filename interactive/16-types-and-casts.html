@@ -68,12 +68,17 @@ auto t = {1, 2, 3};       // std::initializer_list<int>, NOT a vector
 <tr><td><code>[[nodiscard]]</code></td><td>ignored error codes</td><td><code>[[nodiscard]] bool open();</code></td></tr>
 </table>
 <!-- read-more:start -->
-<div class="callout tip"><span class="label">Read more</span>This section goes deeper in:
+<div class="callout tip"><span class="label">Read more</span>
+<p><b>Programming: Principles and Practice (Stroustrup)</b></p>
 <ul>
-<li><i>Programming: Principles and Practice (Stroustrup)</i>: 2.8 to 2.10 Type safety, conversions, type deduction with auto, PDF pages 56 to 60.</li>
-<li><i>Effective Modern C++ (Meyers)</i>: Item 2, Understand auto type deduction, PDF pages 36 to 41.</li>
-<li><i>Effective Modern C++ (Meyers)</i>: Item 5, Prefer auto to explicit type declarations, PDF pages 55 to 61.</li>
-</ul></div>
+<li>2.8 to 2.10 Type safety, conversions, type deduction with auto (PDF pages 56 to 60)</li>
+</ul>
+<p><b>Effective Modern C++ (Meyers)</b></p>
+<ul>
+<li>Item 2, Understand auto type deduction (PDF pages 36 to 41)</li>
+<li>Item 5, Prefer auto to explicit type declarations (PDF pages 55 to 61)</li>
+</ul>
+</div>
 <!-- read-more:end -->
 </section>
 
@@ -103,10 +108,12 @@ int m = static_cast<int>(Level::Error);  // an explicit cast is required (compil
 </script>
 <p>Prefer <code>enum class</code>, with an explicit underlying type when the size matters: <code>enum class Side : std::uint8_t { Buy, Sell };</code></p>
 <!-- read-more:start -->
-<div class="callout tip"><span class="label">Read more</span>This section goes deeper in:
+<div class="callout tip"><span class="label">Read more</span>
+<p><b>Programming: Principles and Practice (Stroustrup)</b></p>
 <ul>
-<li><i>Programming: Principles and Practice (Stroustrup)</i>: 8.4 to 8.6 Evolving a class (Date), enumerations, operator overloading, PDF pages 238 to 249.</li>
-</ul></div>
+<li>8.4 to 8.6 Evolving a class (Date), enumerations, operator overloading (PDF pages 238 to 249)</li>
+</ul>
+</div>
 <!-- read-more:end -->
 </section>
 
@@ -170,10 +177,12 @@ extern "C" {                                                    // a whole heade
 <li><b>Linkage rules:</b> a non-<code>static</code>, non-<code>inline</code> function defined in a header and included twice gives a "multiple definition" link error; mark it <code>inline</code>. <code>extern</code> on a variable declares it without defining it.</li>
 </ul>
 <!-- read-more:start -->
-<div class="callout tip"><span class="label">Read more</span>This section goes deeper in:
+<div class="callout tip"><span class="label">Read more</span>
+<p><b>Effective Modern C++ (Meyers)</b></p>
 <ul>
-<li><i>Effective Modern C++ (Meyers)</i>: Item 15, Use constexpr whenever possible, PDF pages 115 to 121.</li>
-</ul></div>
+<li>Item 15, Use constexpr whenever possible (PDF pages 115 to 121)</li>
+</ul>
+</div>
 <!-- read-more:end -->
 </section>
 

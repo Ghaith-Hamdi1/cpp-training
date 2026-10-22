@@ -65,10 +65,12 @@ T twice(T v) { return v * 2; }
 </script>
 <div class="callout warn"><span class="label">Plain if is not enough</span>With <code>if (is_integral_v&lt;T&gt;)</code> <b>both</b> branches must compile for every <code>T</code>. <code>if constexpr</code> discards the false one.</div>
 <!-- read-more:start -->
-<div class="callout tip"><span class="label">Read more</span>This section goes deeper in:
+<div class="callout tip"><span class="label">Read more</span>
+<p><b>Effective Modern C++ (Meyers)</b></p>
 <ul>
-<li><i>Effective Modern C++ (Meyers)</i>: Items 26 to 27, Overloading on universal references and its alternatives (tag dispatch, enable_if), PDF pages 195 to 215.</li>
-</ul></div>
+<li>Items 26 to 27, Overloading on universal references and its alternatives (tag dispatch, enable_if) (PDF pages 195 to 215)</li>
+</ul>
+</div>
 <!-- read-more:end -->
 </section>
 
@@ -97,10 +99,12 @@ constexpr int a = sq(7);                  // OK
 // int b = sq(n);                         // ERROR: n is not a constant expression
 </script>
 <!-- read-more:start -->
-<div class="callout tip"><span class="label">Read more</span>This section goes deeper in:
+<div class="callout tip"><span class="label">Read more</span>
+<p><b>Effective Modern C++ (Meyers)</b></p>
 <ul>
-<li><i>Effective Modern C++ (Meyers)</i>: Item 15, Use constexpr whenever possible, PDF pages 115 to 121.</li>
-</ul></div>
+<li>Item 15, Use constexpr whenever possible (PDF pages 115 to 121)</li>
+</ul>
+</div>
 <!-- read-more:end -->
 </section>
 
