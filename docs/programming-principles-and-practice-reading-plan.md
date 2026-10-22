@@ -4,152 +4,100 @@ An ordered plan for reading the book to understand C++ deeply, in 14 sessions. I
 
 The book is `books/Programming-Principles-and-Practice-Using-Cpp-3rd-Edition-Stroustrup.pdf`. **All page numbers are PDF viewer pages** (the number your PDF reader shows), taken from the reading guide.
 
+## The plan at a glance
+
+| # | Session | Read (book sections) | PDF pages | Pages | Time |
+|---|---|---|---|---|---|
+| 1 | Types, initialization, `auto` | 2.5; 2.8 to 2.10 | 49 to 52; 56 to 60 | 9 | 2 h |
+| 2 | Functions, `vector`, errors | 3.5 to 3.6; 4.5 to 4.6 | 81 to 89; 102 to 111 | 18 | 3 h |
+| 3 | Declarations, scope, arguments | 7.2 to 7.3; **7.4** | 194 to 202; 203 to 218 | 25 | 3 h |
+| 4 | Classes and invariants | 8.1 to 8.3; 8.4 to 8.6; **8.7** | 235 to 238; 238 to 249; 250 to 258 | 24 | 3 h |
+| 5 | Inheritance and virtual functions | 12.1 to 12.2; **12.3**; 12.4 to 12.5 | 369 to 379; 380 to 387; 388 to 390 | 22 | 3 h |
+| 6 | Memory, addresses, pointers | **15.3**; **15.4**; **15.5** | 452 to 454; 455 to 459; 460 to 463 | 12 | 2 h |
+| 7 | Arrays, `this`, alternatives to raw pointers | 15.6 to 15.8; 16.1 to 16.4 | 464 to 473; 477 to 487 | 20 | 2 h |
+| 8 | Copying, moving, `vector` growth | **17.4 to 17.5**; 17.6 to 17.9 | 501 to 512; 513 to 523 | 22 | 3 h |
+| 9 | Templates and concepts | 18.1 to 18.3 (focus on 18.1.2 to 18.1.4) | 527 to 541 | 15 | 2 h |
+| 10 | RAII, exceptions, smart pointers | 18.4 to 18.5 | 542 to 553 | 12 | 3 h |
+| 11 | Containers and iterators | 19.1 to 19.3, 19.6; 20.1 to 20.2 | 559 to 572, 585 to 586; 591 to 598 | 28 | 3 h |
+| 12 | Choosing a container | 20.3 to 20.5; **20.6 to 20.7.1** | 598 to 604; 604 to 612 | 20 | 2 h |
+| 13 | Algorithms | **21.1**; 21.2; 21.5 | 617 to 622; 623 to 626; 633 to 635 | 16 | 2 h |
+| 14 | Optional extras | 9.11; 19.4; 21.3 to 21.4 | 296 to 297; 573 to 578; 627 to 632 | 14 | 2 h |
+
+Bold sections are the ones to read most carefully. In all it is about 35 hours across roughly 255 pages, which is 4 to 6 weeks at one session every two or three days. Time estimates assume about 10 pages an hour plus the writing and checkpoint work; they are guides, not deadlines.
+
 ## How to read each session
 
-1. **Read first, with the code closed.** Read the pages once without typing anything. Note every sentence that surprises you.
-2. **Close the book and write it from memory.** Write the small program the pages teach (a `Vector`, a class with an invariant, a copy constructor) and compile it with `g++ -std=c++20 -Wall -Wextra`. Open the book only to compare.
-3. **Answer the checkpoint questions aloud.** If you cannot answer one in two sentences, reread that part.
-4. **Do the "after" step.** Each session names the repo lesson, quiz and practice exercise that reinforce it.
-
-Time estimates assume about 10 pages an hour for reading plus the writing and checkpoint work. They are guides, not deadlines.
+| Step | Do |
+|---|---|
+| 1. Read | Read the pages once with the code closed. Note every sentence that surprises you. |
+| 2. Write | Close the book and write the small program the pages teach (a `Vector`, a class with an invariant, a copy constructor). Compile with `g++ -std=c++20 -Wall -Wextra`. Open the book only to compare. |
+| 3. Explain | Answer the checkpoint questions aloud. If you cannot answer one in two sentences, reread that part. |
+| 4. Reinforce | Do the "after" step: the repo lesson, quiz or practice exercise named for the session. |
 
 ## Part A: the language basics (sessions 1 to 3)
 
-### Session 1: types, initialization and `auto` (about 2 hours)
-- **Read:** 2.5 Assignment and initialization (pp. 49 to 52) and 2.8 to 2.10 Type safety, conversions, type deduction with `auto` (pp. 56 to 60). About 9 pages.
-- **Checkpoint questions:**
-  - Why is `int x{7.5};` an error while `int x = 7.5;` compiles?
-  - What does `auto` deduce, and what does it drop?
-  - Which conversions can lose information?
-- **After:** lesson 7 (Types, Initialization and Casts); the practice exercise 09 (pointers and arrays warm-up).
-
-### Session 2: functions, `vector` and errors (about 3 hours)
-- **Read:** 3.5 to 3.6 Functions and `vector` introduced (pp. 81 to 89), and 4.5 to 4.6 Run-time errors and exceptions (pp. 102 to 111). About 18 pages.
-- **Checkpoint questions:**
-  - When should a function report an error by exception, and when by return value?
-  - What is the difference between a logic error and a run-time error?
-- **After:** lesson 3 (Core Language: exceptions); quiz for lesson 3.
-
-### Session 3: declarations, scope, passing arguments (about 3 hours)
-- **Read:** 7.2 to 7.3 Declarations and definitions, scope (pp. 194 to 202) and **7.4 Function call and return** (pp. 203 to 218). About 25 pages.
-- **Checkpoint questions:**
-  - What is the difference between pass by value, by reference and by `const` reference, and when do you use each?
-  - What does a declaration promise that a definition delivers?
-  - Where does each kind of variable live (stack, static data, free store)?
-- **After:** lesson 1 (Basics and Pointers), the passing-arguments step-through; quiz for lesson 1.
+| # | Checkpoint questions | After |
+|---|---|---|
+| 1 | Why is `int x{7.5};` an error while `int x = 7.5;` compiles?<br>What does `auto` deduce, and what does it drop?<br>Which conversions can lose information? | Lesson 7 (Types, Initialization and Casts); practice 09 |
+| 2 | When should a function report an error by exception and when by return value?<br>What is the difference between a logic error and a run-time error? | Lesson 3 (exceptions) and its quiz |
+| 3 | Pass by value, by reference and by `const` reference: when do you use each?<br>What does a declaration promise that a definition delivers?<br>Where does each kind of variable live (stack, static data, free store)? | Lesson 1 (passing-arguments step-through) and its quiz |
 
 ## Part B: classes and object-oriented design (sessions 4 and 5)
 
-### Session 4: classes as a way to keep objects valid (about 3 hours)
-- **Read:** 8.1 to 8.3 User-defined types, classes, interface and implementation (pp. 235 to 238); 8.4 to 8.6 evolving the `Date` class, enumerations, operator overloading (pp. 238 to 249); **8.7 Class interfaces** (pp. 250 to 258). About 24 pages.
-- **Checkpoint questions:**
-  - What is an **invariant**, and how does a constructor enforce it?
-  - Why does the book keep the representation private?
-  - What belongs in a class's interface and what does not ("as small as possible, but no smaller")?
-  - Why mark a member function `const`?
-- **After:** lesson 2 (OOP), sections 1 to 4; practice exercise 10 up to its constructor (`MyString`).
+| # | Checkpoint questions | After |
+|---|---|---|
+| 4 | What is an **invariant**, and how does a constructor enforce it?<br>Why does the book keep the representation private?<br>What belongs in a class's interface ("as small as possible, but no smaller")?<br>Why mark a member function `const`? | Lesson 2 (OOP), sections 1 to 4; practice 10 up to its constructor (`MyString`) |
+| 5 | How is a derived object laid out in memory, and what is the vptr?<br>Why does the base class need a virtual destructor?<br>Why does the book delete the copy operations of a base class?<br>Interface inheritance versus implementation inheritance? | Lesson 2 (polymorphism) and lesson 19 (The Object Model in Depth); practice 11 (Shapes) |
 
-### Session 5: inheritance and virtual functions (about 3 hours)
-- **Read:** 12.1 to 12.2 Design principles, `Shape` abstract class (pp. 369 to 379) and **12.3 Base and derived classes** (pp. 380 to 387), 12.4 to 12.5 Copying a hierarchy, benefits of OOP (pp. 388 to 390). About 22 pages.
-- **Checkpoint questions:**
-  - How is a derived object laid out in memory, and what is the vptr?
-  - Why does the base class need a virtual destructor?
-  - Why does the book delete the copy operations of a base class?
-  - What is the difference between interface inheritance and implementation inheritance?
-- **After:** lesson 2 (polymorphism) and lesson 19 (The Object Model in Depth); practice exercise 11 (Shapes). This session answers "how does `virtual` work in memory", so explain the vptr and vtable aloud before moving on.
+Session 5 answers "how does `virtual` work in memory". Explain the vptr and vtable aloud before moving on.
 
 ## Part C: memory, pointers, templates and ownership (sessions 6 to 10)
 
 These sessions are the heart of the book. Do not skip them.
 
-### Session 6: memory, addresses and pointers (about 2 hours)
-- **Read:** **15.3 Memory, addresses and pointers** (pp. 452 to 454), **15.4 Free store and pointers** (pp. 455 to 459), **15.5 Destructors** (pp. 460 to 463). About 12 pages.
-- **Checkpoint questions:**
-  - Why does a pointer not know how many elements it points to?
-  - What are the differences between `delete` and `delete[]`, and what goes wrong if you mix them?
-  - What are the four ways a raw pointer causes a crash (uninitialized, out of range, dangling, double delete)?
-  - What does a destructor release, and in what order are members destroyed?
-- **After:** lesson 1 (pointers); practice exercises 01, 02, 03 (C strings). Do 01 (`buildExecutionId`) from memory with a timer.
+| # | Checkpoint questions | After |
+|---|---|---|
+| 6 | Why does a pointer not know how many elements it points to?<br>`delete` versus `delete[]`: what goes wrong if you mix them?<br>What are the four ways a raw pointer causes a crash (uninitialized, out of range, dangling, double delete)?<br>What does a destructor release, and in what order are members destroyed? | Lesson 1 (pointers); practice 01, 02, 03. Do 01 (`buildExecutionId`) from memory with a timer |
+| 7 | When do you pass a pointer and when a reference?<br>What replaces a (pointer, count) pair (`span`) and a possibly-null pointer (`not_null`)?<br>How does a reference differ from a pointer in reassignment? | Practice 05, 06, 07, 08, 09; quiz for lesson 1 |
+| 8 | What is a shallow copy, and why is it a bug for a class that owns memory?<br>What are the "essential operations", the rule of zero and the rule of all?<br>How does `vector` grow: what do `reserve`, `resize` and `push_back` each do?<br>What state is a moved-from object in? | Lesson 4 (Move Semantics); practice 10 (`MyString`, Rule of Five), written fully from memory |
+| 9 | Templates versus virtual functions: what is resolved at compile time and what at run time?<br>What is a concept, and what does it improve (errors at the call site)?<br>Why is `vector<Circle>` not a `vector<Shape>`? | Lesson 9 (Templates), first three sections; practice 12 (`Stack<T>`) |
+| 10 | What is RAII, and how does it remove the need for `try`/`finally`?<br>Why return a moved object instead of a free-store pointer ("who deletes it?")?<br>What are `unique_ptr` and `shared_ptr` for, and which is the default? | Lesson 3 (RAII) and lesson 5 (Smart Pointers and Ownership) |
 
-### Session 7: arrays, `this` and the alternatives to raw pointers (about 2 hours)
-- **Read:** 15.6 to 15.8 Element access, an example list, the `this` pointer (pp. 464 to 473) and 16.1 to 16.4 Arrays, pointers and references, C-style strings, alternatives to pointers (pp. 477 to 487). About 20 pages.
-- **Checkpoint questions:**
-  - When do you pass a pointer, and when a reference?
-  - What replaces a (pointer, count) pair in modern code (`span`) and a possibly-null pointer (`not_null`)?
-  - What is the difference between a reference and a pointer in how they can be reassigned?
-- **After:** practice exercises 05, 06, 07, 08, 09 (pointer walking and parsing); quiz for lesson 1.
-
-### Session 8: copying, moving and `vector` that grows (about 3 hours)
-- **Read:** **17.4 to 17.5 Copying and moving; essential operations** (pp. 501 to 512) and 17.6 to 17.9 Other operations, remaining `Vector` problems, changing size (pp. 513 to 523). About 22 pages.
-- **Checkpoint questions:**
-  - What is a shallow copy and why is it a bug for a class that owns memory?
-  - What are the "essential operations", and what are the rule of zero and the rule of all?
-  - How does `vector` grow, and what do `reserve`, `resize` and `push_back` each do?
-  - What state is a moved-from object in?
-- **After:** lesson 4 (Move Semantics); practice exercise 10 (`MyString`, Rule of Five). Write it fully from memory.
-
-### Session 9: templates and concepts (about 2 hours)
-- **Read:** 18.1 to 18.3 Templates, generalizing `Vector`, range checking and exceptions (pp. 527 to 541). About 15 pages. Pay most attention to **18.1.2 Generic programming** (pp. 530 to 531), **18.1.3 Concepts** (pp. 531 to 533) and **18.1.4 Containers and inheritance** (pp. 533 to 534).
-- **Checkpoint questions:**
-  - Templates versus virtual functions: what is resolved at compile time and what at run time?
-  - What is a concept, and what does it improve (error messages at the call site)?
-  - Why is `vector<Circle>` not a `vector<Shape>`?
-- **After:** lesson 9 (Templates), the first three sections; practice exercise 12 (`Stack<T>`).
-- **Note:** the book stops here. Variadic templates, forwarding references, specialization and type traits are not in it; use lessons 9 and 15 for those.
-
-### Session 10: RAII, exceptions and smart pointers (about 3 hours)
-- **Read:** 18.4 to 18.5 Resources and exceptions, resource-management pointers (pp. 542 to 553). About 12 pages.
-- **Checkpoint questions:**
-  - What is RAII, and how does it remove the need for `try`/`finally`?
-  - Why return a moved object instead of a free-store pointer ("who deletes it?")?
-  - What are `unique_ptr` and `shared_ptr` for, and which is the default?
-- **After:** lesson 3 (RAII) and lesson 5 (Smart Pointers and Ownership).
+The book stops at introductory templates. Variadic templates, forwarding references, specialization and type traits are not in it; use lessons 9 and 15.
 
 ## Part D: the standard library (sessions 11 to 13)
 
-### Session 11: containers and iterators (about 3 hours)
-- **Read:** 19.1 to 19.3 and 19.6 Containers, sequences and iterators, linked lists, `vector`/`list`/`string` (pp. 559 to 572 and 585 to 586), then 20.1 to 20.2 `map` (pp. 591 to 598). About 28 pages.
-- **Checkpoint questions:**
-  - How does generalizing a loop over an array lead to iterators and `[first, last)` ranges?
-  - What does `++words[s]` do when `s` is not yet a key?
-- **After:** lesson 8 (The STL), sections 1 to 4; quiz for lesson 8.
-
-### Session 12: choosing a container (about 2 hours)
-- **Read:** 20.3 and 20.5 `unordered_map` and `set` (pp. 598 to 599 and 602 to 604), 20.4 Timing (pp. 599 to 602) and **20.6 to 20.7.1 Container overview and iterator categories** (pp. 604 to 612). About 20 pages.
-- **Checkpoint questions:**
-  - Why is `vector` the default container?
-  - Name the six iterator categories and which container gives which.
-  - Why must you measure before claiming something is faster, and how do you stop the optimizer deleting your test?
-- **After:** lesson 8, "Which container should I use?"; practice by timing `find` in a `vector` against a `map` with `<chrono>`.
-
-### Session 13: algorithms (about 2 hours)
-- **Read:** **21.1 Standard algorithms** (pp. 617 to 622), 21.2 Function objects and lambdas (pp. 623 to 626), 21.5 Sorting and searching (pp. 633 to 635). About 16 pages.
-- **Checkpoint questions:**
-  - How do algorithms report "not found"?
-  - Why do `binary_search` and `equal_range` need a sorted sequence?
-  - How does a lambda differ from a function object?
-- **After:** lesson 8 (Algorithms) and lesson 6 (Lambdas); quiz for lesson 8.
+| # | Checkpoint questions | After |
+|---|---|---|
+| 11 | How does generalizing a loop over an array lead to iterators and `[first, last)` ranges?<br>What does `++words[s]` do when `s` is not yet a key? | Lesson 8 (The STL), sections 1 to 4; its quiz |
+| 12 | Why is `vector` the default container?<br>Name the six iterator categories and which container gives which.<br>Why measure before claiming something is faster, and how do you stop the optimizer deleting your test? | Lesson 8, "Which container should I use?"; time `find` in a `vector` against a `map` with `<chrono>` |
+| 13 | How do algorithms report "not found"?<br>Why do `binary_search` and `equal_range` need a sorted sequence?<br>How does a lambda differ from a function object? | Lessons 8 (Algorithms) and 6 (Lambdas); quiz for lesson 8 |
 
 ## Part E: optional extras (session 14)
 
-### Session 14: streams and finishing touches (about 2 hours)
-- **Read, any of:** 9.11 String streams (pp. 296 to 297); 19.4 Generalizing `Vector` again (pp. 573 to 578); 21.3 to 21.4 Numerical algorithms and copying (pp. 627 to 632).
-- **After:** lesson 14 (Strings, Regex and Time).
+| # | Read | After |
+|---|---|---|
+| 14 | Any of: 9.11 String streams; 19.4 Generalizing `Vector` again; 21.3 to 21.4 Numerical algorithms and copying | Lesson 14 (Strings, Regex and Time) |
 
 ## What to skip
 
-- Chapter 1 (hello world and the build process), chapters 5 and 6 (the calculator parser).
-- Chapter 9 except 9.11.
-- Chapters 10 to 14 (the graphics and GUI library). Chapter 12.1 to 12.5 above is the only part of that range worth reading.
-- 20.7 beyond iterator categories, and the index.
-
-## Total
-
-About 35 hours of reading and writing across the 14 sessions, covering roughly 255 pages. At one session every two or three days this is a 4 to 6 week plan.
+| Skip | Why |
+|---|---|
+| Chapter 1 | hello world and the build process |
+| Chapters 5 and 6 | building a calculator parser |
+| Chapter 9, except 9.11 | stream I/O details |
+| Chapters 10 to 14, except 12.1 to 12.5 | about 150 pages on a graphics and GUI library |
+| 20.7 beyond iterator categories, and the index | not needed |
 
 ## What this book will not teach you
 
-Use the repo's lessons, or the other books in `books/`, for these topics: threads, mutexes and atomics (the Williams book); design patterns (lessons 6 and 20); the memory model and low-latency C++ (lessons 13 and 18); variadic templates, forwarding references and SFINAE (lessons 9 and 15); and interview-style depth (the lessons' quizzes and cheat sheets).
+| Topic | Where to learn it |
+|---|---|
+| Threads, mutexes, atomics | the Williams book in `books/`; lessons 11 to 13 |
+| Design patterns | lessons 10 and 20 |
+| The memory model and low-latency C++ | lessons 13 and 18 |
+| Variadic templates, forwarding references, SFINAE | lessons 9 and 15 |
+| Interview-style depth | the lessons' quizzes and cheat sheets |
 
 ## Notes on the edition
 
