@@ -1,7 +1,7 @@
 // Checks that the lesson sections named in docs/*-reading-guide.md still exist.
 // A reference is the last cell of a table row, such as "3. Smart pointers" or "Inheritance; Polymorphism and virtual functions".
 // A leading "N." is accepted when N is the lesson's number (most guides) or the section's position inside its lesson
-// (the concurrency guide, which only refers to lesson 7). A title may be shortened to its first words.
+// (the concurrency guide, which only refers to the multithreading lesson). A title may be shortened to its first words.
 // Usage: node tools/check-guides.mjs
 import { readFileSync, readdirSync } from 'node:fs';
 import { join, resolve } from 'node:path';

@@ -4,3 +4,4 @@ interactive/** text eol=lf
 tools/** text eol=lf
 .github/** text eol=lf
 examples/lessons/** text eol=lf
+examples/practice/** text eol=lf

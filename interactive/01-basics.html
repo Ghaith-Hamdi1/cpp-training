@@ -255,7 +255,7 @@ int*  arr = new int[100];    delete[] arr;      // array: new[] / delete[]  (mus
 <tr><td><b>Double delete</b></td><td>you freed the same memory twice: undefined behavior, often a crash</td></tr>
 <tr><td><b>Mismatch</b></td><td><code>new[]</code> freed with <code>delete</code>, or the reverse</td></tr>
 </table>
-<div class="callout tip"><span class="label">Modern C++</span>Avoid raw <code>new</code>/<code>delete</code>: use <code>std::vector</code> and <code>std::unique_ptr</code> (<a href="03-core-language.html">Core Language</a>).</div>
+<div class="callout tip"><span class="label">Modern C++</span>Avoid raw <code>new</code>/<code>delete</code>: use <code>std::vector</code> and <code>std::unique_ptr</code> (<a href="14-smart-pointers.html">Smart Pointers</a>).</div>
 <div class="callout interview"><span class="label">Interview angle</span>"What does <code>new</code> do beyond <code>malloc</code>?" It calls the constructor, throws <code>std::bad_alloc</code> on failure (instead of returning null), and returns a correctly typed pointer. <code>delete</code> calls the destructor and then frees the memory.</div>
 </section>
 

@@ -1,0 +1,207 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Types, Initialization and Casts</title>
+<script>try{var t=JSON.parse(localStorage.getItem('cpptrain:theme'));if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body data-topic="types" data-kind="lesson">
+<main>
+<h1>Types, Initialization and Casts</h1>
+<p class="lead">Initialization forms and brace traps, <code>auto</code> and <code>decltype</code>, implicit conversions, <code>enum class</code>, the four named casts, <code>const</code>/<code>constexpr</code>/<code>static</code> and what C++14 to 20 added.</p>
+
+<section id="init" data-title="Initialization and brace traps">
+<h2>Initialization and brace traps</h2>
+<script type="text/x-cpp">
+int a;            // default-initialized: INDETERMINATE value, never read it
+int b{};          // value-initialized: zero
+int c = 5;        // copy-initialized
+int d(5);         // direct-initialized
+int e{5};         // list-initialized: the preferred form, rejects narrowing
+// int f{3.7};    // ERROR: narrowing double -> int inside braces
+int g = 3.7;      // compiles: silently truncates to 3
+</script>
+<table>
+<tr><th>Kind</th><th>Example</th><th>Notes</th></tr>
+<tr><td>aggregate</td><td><code>Point p{1, 2};</code></td><td>no constructors: members set in order</td></tr>
+<tr><td>designated (C++20)</td><td><code>Point p{.x = 3, .y = 4};</code></td><td>names the members, order must match</td></tr>
+<tr><td>value-initialize</td><td><code>Point p{};</code></td><td>every member zero</td></tr>
+</table>
+<div class="callout warn"><span class="label">Braces prefer <code>initializer_list</code></span>
+<script type="text/x-cpp">
+std::vector<int> v1(3, 7);   // parentheses: 3 elements, each 7
+std::vector<int> v2{3, 7};   // braces: the initializer_list constructor wins -> the two elements 3 and 7
+</script>
+If a class has an <code>initializer_list</code> constructor, <code>{...}</code> picks it even when another constructor matches better (compiled: <code>Widget w{1, 2}</code> called the list constructor, <code>Widget w(1, 2)</code> the (int, int) one). Empty braces <code>{}</code> call the default constructor.</div>
+<ul>
+<li><b>Initialize everything.</b> An uninitialized local is <b>indeterminate</b>; reading it is undefined behaviour.</li>
+<li>Braces catch accidental narrowing at compile time: a free safety check.</li>
+<li>A <code>static_cast</code> in braces (<code>int{x}</code>) is a conversion that must not narrow.</li>
+</ul>
+</section>
+
+<section id="deduction" data-title="auto, decltype and modern syntax">
+<h2><code>auto</code>, <code>decltype</code> and modern syntax</h2>
+<script type="text/x-cpp">
+int x = 0;
+const int& r = x;
+auto a = r;               // int           auto drops const and the reference
+decltype(r) b = x;        // const int&    decltype gives the exact declared type
+decltype(auto) c = r;     // const int&    decltype(auto) = "deduce like auto, but keep it exact"
+
+auto t = {1, 2, 3};       // std::initializer_list<int>, NOT a vector
+</script>
+<div class="callout warn"><span class="label">auto traps</span>
+<p><code>auto y = v[0];</code> <i>copies</i>: write <code>const auto&amp;</code> to avoid it. Same for <code>for (auto [k, v] : map)</code> (a copy of each pair). <code>auto</code> hides what a function returns: fine for iterators and lambdas, poor for public interfaces.</p></div>
+<table>
+<tr><th>Feature</th><th>Instead of</th><th>Example</th></tr>
+<tr><td>Range-based <code>for</code></td><td>index / iterator loops</td><td><code>for (const auto&amp; x : v) {}</code></td></tr>
+<tr><td><code>nullptr</code></td><td><code>NULL</code> / <code>0</code></td><td><code>int* p = nullptr;</code></td></tr>
+<tr><td><code>using</code> alias</td><td><code>typedef</code></td><td><code>using Map = std::map&lt;int, std::string&gt;;</code></td></tr>
+<tr><td><code>override</code> / <code>final</code></td><td>hoping you matched the signature</td><td><code>void f() override;</code></td></tr>
+<tr><td><code>= default</code> / <code>= delete</code></td><td>empty bodies, private unimplemented copy</td><td><code>Foo(const Foo&amp;) = delete;</code></td></tr>
+<tr><td><code>static_assert</code></td><td>runtime checks of compile-time facts</td><td><code>static_assert(sizeof(int) == 4);</code></td></tr>
+<tr><td>Structured bindings (C++17)</td><td><code>.first</code> / <code>.second</code></td><td><code>for (auto&amp; [key, val] : m) {}</code></td></tr>
+<tr><td><code>if</code> with initializer (C++17)</td><td>variable leaking into outer scope</td><td><code>if (auto it = m.find(k); it != m.end()) {}</code></td></tr>
+<tr><td><code>[[nodiscard]]</code></td><td>ignored error codes</td><td><code>[[nodiscard]] bool open();</code></td></tr>
+</table>
+</section>
+
+<section id="conversions" data-title="Implicit conversions and enum class">
+<h2>Implicit conversions and <code>enum class</code></h2>
+<p>The compiler converts silently between arithmetic types. Compiled results of the classic surprises:</p>
+<table>
+<tr><th>Expression</th><th>Result</th><th>Why</th></tr>
+<tr><td><code>-1 &lt; 1u</code></td><td><b>false</b></td><td>the signed value is converted to unsigned and becomes huge</td></tr>
+<tr><td><code>uint8_t(200) + uint8_t(100)</code></td><td>300, stored back as 44</td><td>small types are promoted to <code>int</code> before arithmetic; storing back wraps</td></tr>
+<tr><td><code>7 / 2</code></td><td>3</td><td>integer division; <code>7 / 2.0</code> is 3.5</td></tr>
+<tr><td><code>static_cast&lt;int&gt;(-3.9)</code></td><td>-3</td><td>conversion to an integer truncates toward zero</td></tr>
+<tr><td><code>char</code> 0xFF widened to <code>int</code></td><td>-1 (signed <code>char</code>)</td><td>whether plain <code>char</code> is signed is implementation-defined</td></tr>
+</table>
+<div id="st-promo"></div>
+<ul>
+<li><b>Usual arithmetic conversions:</b> smaller than <code>int</code> becomes <code>int</code>; mixing signed and unsigned of the same rank converts to unsigned; <code>int</code> with <code>double</code> becomes <code>double</code>.</li>
+<li><b>Never compare signed with unsigned</b> (<code>-Wsign-compare</code>); use <code>std::ssize</code> or cast deliberately.</li>
+<li>Single-argument constructors are implicit conversions: mark them <code>explicit</code> (<a href="02-oop.html">OOP lesson</a>).</li>
+</ul>
+<script type="text/x-cpp">
+enum Color { Red, Green };               // plain enum: leaks names into the scope, converts to int silently
+int n = Green;                           // compiles
+
+enum class Level { Info = 1, Error = 2 };// scoped: Level::Error, no implicit conversion
+int m = static_cast<int>(Level::Error);  // an explicit cast is required (compiled: 2)
+</script>
+<p>Prefer <code>enum class</code>, with an explicit underlying type when the size matters: <code>enum class Side : std::uint8_t { Buy, Sell };</code></p>
+</section>
+
+<section id="casts" data-title="Casts and type conversion">
+<h2>Casts and type conversion</h2>
+<p>Four named casts replace the C cast <code>(T)x</code>: each states intent and is searchable.</p>
+<table>
+<tr><th>Cast</th><th>Use for</th><th>Danger</th></tr>
+<tr><td><code>static_cast&lt;T&gt;(x)</code></td><td>well-defined conversions: <code>int</code> to <code>double</code>, base to derived pointer when you are sure</td><td>low</td></tr>
+<tr><td><code>dynamic_cast&lt;T&gt;(x)</code></td><td>checked downcast in a polymorphic hierarchy. Returns <code>nullptr</code> (pointer) or throws <code>std::bad_cast</code> (reference) on failure</td><td>runtime cost; base needs a virtual function</td></tr>
+<tr><td><code>const_cast&lt;T&gt;(x)</code></td><td>add or remove <code>const</code> (legacy APIs)</td><td>modifying a truly const object is UB</td></tr>
+<tr><td><code>reinterpret_cast&lt;T&gt;(x)</code></td><td>reinterpret raw bits (pointer to integer, unrelated pointer types)</td><td>very high, rarely correct</td></tr>
+</table>
+<script type="text/x-cpp">
+double avg = static_cast<double>(total) / count;       // avoids integer division
+
+Animal* a = getAnimal();
+if (auto* d = dynamic_cast<Dog*>(a)) {                 // safe downcast: null if it is not a Dog
+    d->fetch();
+}
+</script>
+<div class="callout tip"><span class="label">Rule</span>Many casts mean a design problem. Prefer virtual functions to <code>dynamic_cast</code> chains; no C casts.</div>
+</section>
+
+<section id="const" data-title="const, constexpr and static">
+<h2><code>const</code>, <code>constexpr</code> and <code>static</code></h2>
+<ul>
+<li><b><code>const</code></b>: unchangeable after initialization. Use everywhere.</li>
+<li><b><code>constexpr</code></b>: computable <b>at compile time</b> (array sizes, template arguments), and still callable at runtime.</li>
+</ul>
+<script type="text/x-cpp">
+constexpr int square(int x) { return x * x; }
+constexpr int N = square(4);          // 16, computed by the compiler
+std::array<int, square(3)> a;         // size 9: legal because it is a constant expression
+int runtime = readInput();
+int r = square(runtime);              // also fine: same function runs at runtime
+
+static_assert(N == 16, "math is broken");   // checked at compile time
+</script>
+<p><code>static</code> means three things:</p>
+<table>
+<tr><th>Where</th><th>Meaning</th></tr>
+<tr><td>Local variable in a function</td><td>one instance that lives for the whole program and keeps its value between calls</td></tr>
+<tr><td>Global / namespace scope</td><td>internal linkage: visible only inside this <code>.cpp</code> file</td></tr>
+<tr><td>Class member</td><td>belongs to the class, shared by all objects</td></tr>
+</table>
+</section>
+
+<section id="standards" data-title="What C++14, 17 and 20 added">
+<h2>What C++14, 17 and 20 added</h2>
+<p>"What modern features do you use?" Know these and why:</p>
+<table>
+<tr><th>Standard</th><th>Feature</th><th>One-liner</th></tr>
+<tr><td>C++11</td><td>move semantics, smart pointers, lambdas, <code>auto</code>, <code>constexpr</code>, <code>std::thread</code>, variadic templates, <code>nullptr</code>, range-for</td><td>The big modernisation.</td></tr>
+<tr><td>C++14</td><td>generic lambdas, <code>make_unique</code>, return type deduction, binary literals <code>0b101</code></td><td>Polishes C++11.</td></tr>
+<tr><td>C++17</td><td><code>std::optional</code>, <code>std::variant</code>, <code>std::string_view</code>, structured bindings, <code>if constexpr</code>, fold expressions, <code>std::filesystem</code>, parallel algorithms, <code>std::scoped_lock</code>, CTAD</td><td>Vocabulary types and compile-time branching.</td></tr>
+<tr><td>C++20</td><td>concepts, ranges, <code>std::span</code>, <code>operator&lt;=&gt;</code>, coroutines, modules, <code>std::jthread</code>, <code>std::format</code></td><td>Constraints on templates, composable algorithms.</td></tr>
+</table>
+<script type="text/x-cpp">
+std::optional<int> parse(const std::string& s);          // "maybe an int" without magic values
+if (auto n = parse("42")) { use(*n); }
+
+std::variant<int, std::string> v = "hi";                 // type-safe union
+std::visit([](auto&& x) { std::cout << x; }, v);
+
+void print(std::string_view sv);                         // non-owning pointer + length: no copy, accepts literals and strings
+// it must not outlive the text it views, see Strings, Regex & Time
+</script>
+<p>Full lists: <a href="https://github.com/AnthonyCalandra/modern-cpp-features">modern-cpp-features</a>, <a href="https://github.com/changkun/modern-cpp-tutorial">modern-cpp-tutorial</a>. Your notes: <a href="https://github.com/Ghaith-Hamdi1/cpp-training/blob/main/docs/03-cpp-standard-library/README.md">Module 3</a>.</p>
+</section>
+
+<section id="cheat" data-title="Interview cheat sheet">
+<h2>Interview cheat sheet</h2>
+<p>Answer aloud, then open.</p>
+<details class="ex"><summary>When would you use <code>dynamic_cast</code>?</summary><div><p>For a checked downcast from a polymorphic base to a derived type when you cannot express the need through a virtual function. It returns null (pointers) or throws <code>bad_cast</code> (references) on failure. Frequent use suggests a design problem.</p></div></details>
+<details class="ex"><summary>The four named casts?</summary><div><p><code>static_cast</code> for well-defined conversions, <code>dynamic_cast</code> for checked downcasts, <code>const_cast</code> to add or remove <code>const</code> (modifying a truly const object is UB), <code>reinterpret_cast</code> to reinterpret bits (rarely correct). Never a C cast: it can silently pick any of them.</p></div></details>
+<details class="ex"><summary>Difference between <code>const</code> and <code>constexpr</code>?</summary><div><p><code>const</code> means read-only after initialization (the value may be determined at runtime). <code>constexpr</code> means the value or function can be evaluated at compile time and used in constant expressions.</p></div></details>
+<details class="ex"><summary>What does <code>auto</code> deduce, and what are its traps?</summary><div><p>The type of the initializer with top-level <code>const</code> and references dropped. <code>auto x = {1,2,3}</code> is an <code>initializer_list</code>. <code>auto y = v[0]</code> copies; use <code>const auto&amp;</code>. <code>decltype(expr)</code> keeps the exact type.</p></div></details>
+<details class="ex"><summary>What is wrong with <code>if (-1 &lt; 1u)</code>?</summary><div><p>The signed operand is converted to unsigned, becoming a huge value, so the comparison is false. Avoid mixing signed and unsigned; compile with <code>-Wsign-compare</code>.</p></div></details>
+<details class="ex"><summary>Why prefer <code>enum class</code>?</summary><div><p>Its names are scoped (<code>Level::Error</code>) so they do not pollute the enclosing scope, and it does not convert implicitly to an integer. You can also fix its underlying type.</p></div></details>
+<details class="ex"><summary><code>std::vector&lt;int&gt; v{3, 7}</code> versus <code>v(3, 7)</code>?</summary><div><p>Braces prefer the <code>initializer_list</code> constructor: two elements, 3 and 7. Parentheses call the (count, value) constructor: three elements, each 7.</p></div></details>
+<details class="ex"><summary>What are the three meanings of <code>static</code>?</summary><div><p>A local variable that lives for the whole program and keeps its value between calls; internal linkage for a global (visible only in this <code>.cpp</code>); a class member shared by all objects.</p></div></details>
+<details class="ex"><summary>Which C++17 features do you use?</summary><div><p><code>std::optional</code>, <code>std::variant</code>, <code>std::string_view</code>, structured bindings, <code>if constexpr</code>, <code>if</code> with initializer, fold expressions and <code>[[nodiscard]]</code>: vocabulary types and clearer code.</p></div></details>
+</section>
+
+</main>
+
+<script src="assets/data/lessons.js"></script>
+<script src="assets/app.js"></script>
+<script>
+CT.stepper('#st-promo', {
+  title: 'Promotion and the signed/unsigned trap',
+  code: String.raw`
+unsigned char a = 200, b = 100;
+auto s = a + b;
+unsigned char t = a + b;
+bool lt = (-1 < 1u);
+`,
+  steps: [
+    { line: 1, mem: [{ n: 'a', t: 'unsigned char', v: '200' }, { n: 'b', t: 'unsigned char', v: '100' }],
+      note: 'Two one-byte variables.' },
+    { line: 2, mem: [{ n: 'a', t: 'unsigned char', v: '200' }, { n: 'b', t: 'unsigned char', v: '100' }, { n: 's', t: 'int', v: '300', p: 'a + b was done in int' }],
+      note: 'Types smaller than <code>int</code> are <b>promoted to <code>int</code></b> before arithmetic, so <code>a + b</code> is an <code>int</code> and nothing overflows: <b>300</b>.' },
+    { line: 3, mem: [{ n: 'a', t: 'unsigned char', v: '200' }, { n: 'b', t: 'unsigned char', v: '100' }, { n: 's', t: 'int', v: '300' }, { n: 't', t: 'unsigned char', v: '44', p: '300 mod 256' }],
+      note: 'Storing the <code>int</code> 300 back into a one-byte unsigned type <b>wraps</b>: 300 mod 256 = <b>44</b>. The promotion is silent and so is the truncation.' },
+    { line: 4, mem: [{ n: 'a', t: 'unsigned char', v: '200' }, { n: 'b', t: 'unsigned char', v: '100' }, { n: 's', t: 'int', v: '300' }, { n: 't', t: 'unsigned char', v: '44' }, { n: '-1 (as unsigned)', t: 'unsigned int', v: '4294967295', p: 'converted for the comparison' }, { n: 'lt', t: 'bool', v: 'false' }],
+      note: 'Comparing a signed with an unsigned value converts the <b>signed</b> one to unsigned: <code>-1</code> becomes 4294967295, which is not less than 1, so <code>lt</code> is <b>false</b>. This is what <code>-Wsign-compare</code> warns about.' }
+  ]
+});
+</script>
+</body>
+</html>

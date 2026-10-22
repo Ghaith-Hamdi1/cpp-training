@@ -8,8 +8,9 @@ Plan for fixing everything listed in [content-audit.md](content-audit.md), in ph
 |---|---|
 | 0 Foundations | done (branch `rewrite/phase-0`) |
 | 1 Quick fixes and de-duplication | done (branch `rewrite/phase-1`): the three imprecisions fixed, lessons 5 and 9 de-duplicated (lesson 9 owns traits, SFINAE, concepts and compile-time computation; the old lesson 5 section moved via `CT.moved`), strings consolidated in lesson 8, and the cheap gaps added (`decltype`, init-capture, `std::exchange`, functors, `explicit operator bool`, the braced-init trap, `cbegin`) |
-| 2 Low-latency and feed-handler lessons | in progress (branch `rewrite/phase-2`): lesson 11 (Wire Formats and Parsing) and lesson 12 (Low-Latency C++) written, with quizzes, step-throughs and compiled programs |
-| 3 to 6 | not started |
+| 2 Low-latency and feed-handler lessons | done (branch `rewrite/phase-2`): lesson 11 (Wire Formats and Parsing) and lesson 12 (Low-Latency C++), with quizzes, step-throughs and compiled programs |
+| 3 Split lesson 3, restructure templates | done (branch `rewrite/phase-3`): the core lesson is now RAII and exceptions; move semantics, smart pointers, lambdas and types are lessons 4 to 7 (files 13 to 16, placed after the core lesson, so later lessons are renumbered on screen); templates gained a deduction section, a forwarding section and a tools section (alias, variable and template template parameters, `index_sequence`); progress migrates (schema 2) and old links redirect |
+| 4 to 6 | not started |
 
 ## Ground rules for every phase
 

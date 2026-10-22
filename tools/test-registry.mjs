@@ -75,4 +75,27 @@ test('moved sections resolve to their new place, unknown ones to null', () => {
   assert.equal(CT.resolveMoved('04-stl.html', 's4'), null);
 });
 
+test('the real v2 migration splits the old core lesson progress and is idempotent', () => {
+  const CT = loadRegistry();
+  const s = makeStore({
+    'done:core': ['s1', 's3', 's4', 's7', 's9'], 'last:core': 's6', 'lastinfo': { id: 'core', sec: 's6' },
+    'weak:core': { 'What does `std::move(x)` do?': 0, 'a question that stayed in core': 1 }, 'mock:missed': ['core-2', 'stl-1'], 'quiz:core': { best: 80, last: 70, total: 24 }
+  });
+  assert.equal(CT.migrate(s), CT.schemaVersion());
+  assert.deepEqual(s.get('done:core'), ['s1', 's7']);
+  assert.deepEqual(s.get('done:moves').sort(), ['copy-move', 'returning', 'traps', 'writing']);
+  assert.ok(s.get('done:smartptr').includes('unique'));
+  assert.deepEqual(s.get('done:types'), ['const']);
+  assert.equal(s.get('last:core'), '');
+  assert.equal(s.get('lastinfo', 'gone'), null);
+  assert.deepEqual(s.get('weak:moves'), { 'What does `std::move(x)` do?': 0 });
+  assert.deepEqual(s.get('weak:core'), { 'a question that stayed in core': 1 });
+  assert.deepEqual(s.get('mock:missed'), ['stl-1']);
+  assert.deepEqual(s.get('quiz:core'), { best: 80, last: 70, total: 24 });
+  const before = JSON.stringify(s.dump());
+  s.set('schema', 1);                          // an older export is imported
+  CT.migrate(s);
+  assert.equal(JSON.stringify(s.dump()), before, 'running it again must change nothing');
+});
+
 console.log(passed + ' tests passed');

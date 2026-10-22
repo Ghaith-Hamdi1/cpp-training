@@ -1,0 +1,172 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Move Semantics</title>
+<script>try{var t=JSON.parse(localStorage.getItem('cpptrain:theme'));if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body data-topic="moves" data-kind="lesson">
+<main>
+<h1>Move Semantics</h1>
+<p class="lead">Value categories, what <code>std::move</code> really does, writing move operations, copy elision, and the traps. Assumes <a href="02-oop.html">OOP</a> (the Rule of Five).</p>
+
+<section id="values" data-title="Lvalues, rvalues and value categories">
+<h2>Lvalues, rvalues and value categories</h2>
+<p>An <b>lvalue</b> has a name and an address (<code>x</code>, <code>v[0]</code>). An <b>rvalue</b> is an unnamed temporary (<code>5</code>, <code>a + b</code>, a returned value): about to vanish, so its contents can be stolen safely.</p>
+<table>
+<tr><th>Category</th><th>Roughly</th><th>Examples</th></tr>
+<tr><td><b>lvalue</b></td><td>a named object</td><td><code>x</code>, <code>v[0]</code></td></tr>
+<tr><td><b>prvalue</b></td><td>an unnamed temporary</td><td><code>5</code>, <code>a + b</code>, a call that returns by value</td></tr>
+<tr><td><b>xvalue</b></td><td>an object marked as movable</td><td><code>std::move(x)</code></td></tr>
+</table>
+<p>"Rvalue" means prvalue or xvalue. Which reference a value can bind to:</p>
+<table>
+<tr><th>Reference type</th><th>Binds to</th><th>Typical use</th></tr>
+<tr><td><code>T&amp;</code></td><td>lvalues only</td><td>modify the caller's object</td></tr>
+<tr><td><code>const T&amp;</code></td><td>lvalues <b>and</b> rvalues</td><td>read-only, avoid a copy</td></tr>
+<tr><td><code>T&amp;&amp;</code> (rvalue reference)</td><td>rvalues only</td><td>move constructors and move assignment</td></tr>
+</table>
+<script type="text/x-cpp">
+void f(const std::string& s);   // accepts anything, copies nothing
+void g(std::string&& s);        // accepts only temporaries: "I may take your contents"
+
+std::string name = "abc";
+f(name);              // OK
+// g(name);           // ERROR: name is an lvalue
+g(std::string("x"));  // OK: temporary
+g(std::move(name));   // OK: std::move says "treat name as a temporary"
+
+int x = 0;
+static_assert(std::is_same_v<decltype((x)),            int&>);    // double parentheses report the category:
+static_assert(std::is_same_v<decltype((std::move(x))), int&&>);   // lvalue int&, xvalue int&&, prvalue plain int
+static_assert(std::is_same_v<decltype((x + 1)),        int>);
+</script>
+<div class="callout warn"><span class="label">A name is always an lvalue</span>Inside <code>g</code>, <code>s</code> is an lvalue despite its <code>&amp;&amp;</code> type. Pass it on with <code>std::move(s)</code> (or <code>std::forward</code>, see <a href="05-templates.html">Templates</a>).</div>
+</section>
+
+<section id="copy-move" data-title="Copy versus move">
+<h2>Copy versus move</h2>
+<figure class="fig"><svg viewBox="0 0 640 212" role="img" aria-label="A copy duplicates the buffer; a move hands the pointer over and leaves the source empty"><defs><marker id="d1" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path class="ah" d="M0 0L10 5L0 10z"/></marker></defs><text class="t" x="10" y="22">Copy: b = a</text><rect class="acc" x="10" y="34" width="70" height="30" rx="5"/><text x="45" y="54" text-anchor="middle">a</text><path class="ar" d="M80 49H168" marker-end="url(#d1)"/><rect class="wn" x="170" y="34" width="150" height="30" rx="5"/><text x="245" y="54" text-anchor="middle">1,000,000 ints</text><rect class="acc" x="350" y="34" width="70" height="30" rx="5"/><text x="385" y="54" text-anchor="middle">b</text><path class="ar" d="M420 49H488" marker-end="url(#d1)"/><rect class="wn" x="490" y="34" width="140" height="30" rx="5"/><text x="560" y="54" text-anchor="middle">a second copy</text><text class="m" x="10" y="84">allocates and copies a million elements</text><text class="t" x="10" y="122">Move: b = std::move(a)</text><rect class="bd" x="10" y="134" width="70" height="30" rx="5"/><text x="45" y="154" text-anchor="middle">a: null</text><rect class="acc" x="350" y="134" width="70" height="30" rx="5"/><text x="385" y="154" text-anchor="middle">b</text><path class="ar" d="M420 149H488" marker-end="url(#d1)"/><rect class="wn" x="490" y="134" width="140" height="30" rx="5"/><text x="560" y="154" text-anchor="middle">same buffer</text><text class="m" x="10" y="184">b stole the pointer: two assignments, no copying.</text><text class="m" x="10" y="204">The moved-from object is valid but unspecified: destroy it or assign to it.</text></svg><figcaption>std::move only casts; the move constructor does the stealing.</figcaption></figure>
+<p>Copying a million-element vector copies a million elements. If the source is a dying temporary, that is wasted work. A <b>move</b> just <i>steals the internal pointer</i>.</p>
+<div id="st-move"></div>
+<ul>
+<li><code>std::move(x)</code> <b>moves nothing</b>: it is a cast to an rvalue reference meaning "you may steal". The move constructor or assignment does the stealing.</li>
+<li>Overload resolution only looks at the <i>kind</i> of expression: an lvalue picks the copy, an rvalue picks the move.</li>
+<li>A moved-from object is <b>valid but unspecified</b>: destroy it or assign a new value, do not read it. Compiled: a moved-from <code>std::string</code> had size 0, and assigning to it worked.</li>
+</ul>
+<div class="callout interview"><span class="label">Interview angle</span>"What does <code>std::move</code> do?" Nothing at runtime: an unconditional cast to an rvalue reference. The move constructor does the work.</div>
+</section>
+
+<section id="writing" data-title="Writing move operations">
+<h2>Writing move operations</h2>
+<p>A class that owns a raw resource needs the Rule of Five (<a href="02-oop.html">OOP lesson</a>). The move operations steal and leave the source safely empty:</p>
+<script type="text/x-cpp">
+class Buffer {
+    int* data_; std::size_t n_;
+public:
+    Buffer(Buffer&& o) noexcept                                    // steal and reset, in one line each
+        : data_(std::exchange(o.data_, nullptr)), n_(std::exchange(o.n_, 0)) {}
+
+    Buffer& operator=(Buffer o) noexcept {                         // copy-and-swap: by value covers copy AND move
+        std::swap(data_, o.data_); std::swap(n_, o.n_);
+        return *this;
+    }
+    /* ... constructor, destructor, copy constructor ... */
+};
+</script>
+<ul>
+<li><code>std::exchange(x, v)</code> returns the old <code>x</code> and sets it to <code>v</code>: the idiom for "steal and reset".</li>
+<li><b>Mark moves <code>noexcept</code></b>. <code>std::vector</code> moves its elements on reallocation only if the move cannot throw; otherwise it copies them (<a href="03-core-language.html#guarantees">exception safety</a>).</li>
+<li>The by-value <code>operator=</code> handles self-assignment and gives the strong guarantee. The classic pair <code>operator=(const T&amp;)</code> and <code>operator=(T&amp;&amp;)</code> is faster when you can reuse the existing storage.</li>
+<li>If you can avoid owning a raw resource, do (Rule of Zero): <code>vector</code> and <code>unique_ptr</code> members make the compiler-generated moves correct.</li>
+</ul>
+</section>
+
+<section id="returning" data-title="Returning objects: elision and std::move">
+<h2>Returning objects: elision and <code>std::move</code></h2>
+<p>Compiled with a counting type (copies / moves performed):</p>
+<table>
+<tr><th>What you write</th><th>Copies</th><th>Moves</th><th>Why</th></tr>
+<tr><td><code>return Counter();</code></td><td>0</td><td>0</td><td>guaranteed elision (C++17): built in the caller's storage</td></tr>
+<tr><td><code>Counter c; return c;</code></td><td>0</td><td>0</td><td>NRVO: allowed, not required, but done in practice</td></tr>
+<tr><td><code>return std::move(c);</code></td><td>0</td><td><b>1</b></td><td>blocks NRVO: an extra move, so never write it</td></tr>
+<tr><td>return a by-value <b>parameter</b></td><td>0</td><td>1</td><td>no elision for parameters, but it is moved, not copied</td></tr>
+<tr><td><code>return member;</code></td><td><b>1</b></td><td>0</td><td>a member is never moved implicitly</td></tr>
+<tr><td><code>return std::move(member);</code></td><td>0</td><td>1</td><td>here <code>std::move</code> is right: the object keeps living, you take its member</td></tr>
+</table>
+<script type="text/x-cpp">
+Buffer make()          { Buffer b(1000); return b; }               // fine: elided or moved automatically
+Buffer take(Source& s) { return std::move(s.buffer); }             // member of an object that outlives the call: move it out
+</script>
+<div class="callout warn"><span class="label">Rule</span>Return locals and temporaries plainly. Use <code>std::move</code> on a <b>member</b>, or on something that is not the local you are returning by name.</div>
+</section>
+
+<section id="traps" data-title="Sink parameters and move traps">
+<h2>Sink parameters and move traps</h2>
+<h3>Taking a parameter you will store</h3>
+<script type="text/x-cpp">
+class Person {
+    std::string name_;
+public:
+    explicit Person(std::string n) : name_(std::move(n)) {}    // by value, then move into the member
+};
+</script>
+<p>Compiled with a counting type: <code>Holder(lvalue)</code> and <code>Holder(rvalue)</code> together made <b>1 copy and 2 moves</b>: the lvalue is copied once into the parameter, and each call moves once into the member. For a <b>constructor that stores its argument</b>, take it by value and move. Not for setters: the extra construction can cost more than assigning.</p>
+<h3>Traps</h3>
+<table>
+<tr><th>Trap</th><th>What happens</th></tr>
+<tr><td><code>std::move</code> on a <code>const</code> object</td><td><b>copies</b>: a <code>const T&amp;&amp;</code> cannot bind to <code>T&amp;&amp;</code>, so the copy constructor is chosen (compiled: 1 copy, 0 moves)</td></tr>
+<tr><td>a type with no move operations</td><td>silently copies</td></tr>
+<tr><td>using an object after <code>std::move</code></td><td>valid but unspecified; only destroy or assign to it</td></tr>
+<tr><td><code>std::move</code> on a forwarding reference parameter</td><td>moves an lvalue the caller still wanted: use <code>std::forward</code></td></tr>
+<tr><td>moving inside a loop</td><td>the second iteration sees a moved-from object</td></tr>
+</table>
+<p><code>push_back(lvalue)</code> copies, <code>push_back(temporary)</code> moves, <code>emplace_back(args...)</code> builds in place (compiled together: 1 copy, 1 move).</p>
+<div class="callout warn"><span class="label">Move only the last use</span>After <code>auto b = std::move(a);</code> treat <code>a</code> as empty. Never return <code>const</code> values by value: it disables the move.</div>
+</section>
+
+<section id="cheat" data-title="Interview cheat sheet">
+<h2>Interview cheat sheet</h2>
+<p>Answer aloud, then open.</p>
+<details class="ex"><summary>What does <code>std::move</code> actually do?</summary><div><p>Nothing at runtime: it is an unconditional cast to an rvalue reference. It enables the move constructor or move assignment to be chosen. The moved-from object stays valid but unspecified. On a <code>const</code> object it silently copies, because a <code>const</code> rvalue cannot bind to a move constructor.</p></div></details>
+<details class="ex"><summary>What are lvalues, prvalues and xvalues?</summary><div><p>An lvalue is a named object with an address. A prvalue is an unnamed temporary (a literal, <code>a + b</code>, a call returning by value). An xvalue is an object marked as movable, such as <code>std::move(x)</code>. Rvalue means prvalue or xvalue. A named rvalue-reference parameter is still an lvalue inside the function.</p></div></details>
+<details class="ex"><summary>What is copy elision / RVO?</summary><div><p>The compiler constructs a returned object directly in the caller's storage, skipping the copy or move. In C++17 it is guaranteed when returning a temporary (prvalue). NRVO for a named local is allowed but not required. Do not write <code>return std::move(local)</code>: it prevents it and costs a move.</p></div></details>
+<details class="ex"><summary>Why mark a move constructor <code>noexcept</code>?</summary><div><p><code>std::vector</code> moves its elements on reallocation only if the move cannot throw; otherwise it copies them to keep the strong guarantee. Without <code>noexcept</code> every growth becomes a round of copies.</p></div></details>
+<details class="ex"><summary>What state is a moved-from object in?</summary><div><p>Valid but unspecified: you may destroy it or assign a new value to it, but not rely on its contents. For standard types it is usually empty.</p></div></details>
+<details class="ex"><summary>How do you write a class that stores a string argument efficiently?</summary><div><p>Take the parameter by value and <code>std::move</code> it into the member. An lvalue costs one copy plus one move, an rvalue costs one move, and there is a single function to write.</p></div></details>
+<details class="ex"><summary>What is the difference between <code>push_back</code> and <code>emplace_back</code>?</summary><div><p><code>push_back</code> takes an existing object (copied or moved into the container). <code>emplace_back</code> forwards its arguments and constructs the element in place, saving a temporary. Both reallocate the same way.</p></div></details>
+</section>
+
+</main>
+
+<script src="assets/data/lessons.js"></script>
+<script src="assets/app.js"></script>
+<script>
+CT.stepper('#st-move', {
+  title: 'Copy vs move: what std::move really does',
+  code: String.raw`
+std::vector<int> a(1000, 7);
+std::vector<int> b = a;
+std::vector<int> c = std::move(a);
+`,
+  steps: [
+    { line: 1, mem: [{ n: 'a.ptr', t: 'int*', v: '0x5000', p: 'buffer A' }, { n: 'a.size', t: 'size_t', v: '1000' }, { n: 'buffer A @0x5000', t: '1000 ints', v: '7, 7, 7 ...', k: 'heap' }],
+      note: '<b>a</b> is a small object (pointer + size + capacity) that owns a big heap buffer. It is an <b>lvalue</b>: it has a name and an address.' },
+    { line: 2, mem: [{ n: 'a.ptr', t: 'int*', v: '0x5000', p: 'buffer A' }, { n: 'a.size', t: 'size_t', v: '1000' }, { n: 'buffer A @0x5000', t: '1000 ints', v: '7, 7, 7 ...', k: 'heap' }],
+      note: 'In <code>b = a</code> the argument <code>a</code> is an <b>lvalue</b>, so it binds to <code>const vector&amp;</code> and the compiler picks the <b>copy constructor</b>. Overload resolution only looks at the <i>kind</i> of expression you pass.' },
+    { line: 2, mem: [{ n: 'a.ptr', t: 'int*', v: '0x5000', p: 'buffer A' }, { n: 'a.size', t: 'size_t', v: '1000' }, { n: 'b.ptr', t: 'int*', v: '0x6000', p: 'buffer B' }, { n: 'b.size', t: 'size_t', v: '1000' }, { n: 'buffer A @0x5000', t: '1000 ints', v: '7, 7, 7 ...', k: 'heap' }, { n: 'buffer B @0x6000', t: '1000 ints', v: '7, 7, 7 ...', k: 'heap' }],
+      note: '<b>Copy:</b> a new buffer is allocated and all 1000 ints are copied. Two independent owners. Correct, but O(n).' },
+    { line: 3, mem: [{ n: 'a.ptr', t: 'int*', v: '0x5000', p: 'buffer A' }, { n: 'a.size', t: 'size_t', v: '1000' }, { n: 'b.ptr', t: 'int*', v: '0x6000', p: 'buffer B' }, { n: 'b.size', t: 'size_t', v: '1000' }, { n: 'std::move(a)', fam: 'a', t: 'vector&&', v: 'refers to a', to: 'a.ptr', p: 'same object, same address' }, { n: 'buffer A @0x5000', t: '1000 ints', v: '7, 7, 7 ...', k: 'heap' }, { n: 'buffer B @0x6000', t: '1000 ints', v: '7, 7, 7 ...', k: 'heap' }],
+      note: '<b>std::move(a) runs first, and it moves nothing.</b> It is just <code>static_cast&lt;vector&lt;int&gt;&amp;&amp;&gt;(a)</code>: it hands back an <b>rvalue reference to the very same object</b> (follow the arrow: same address, no copy, no data touched). The <i>expression</i> changed from "lvalue a" to "xvalue, an rvalue you may steal from".' },
+    { line: 3, mem: [{ n: 'a.ptr', t: 'int*', v: '0x5000', p: 'buffer A' }, { n: 'a.size', t: 'size_t', v: '1000' }, { n: 'b.ptr', t: 'int*', v: '0x6000', p: 'buffer B' }, { n: 'b.size', t: 'size_t', v: '1000' }, { n: 'std::move(a)', fam: 'a', t: 'vector&&', v: 'refers to a', to: 'a.ptr', p: 'same object, same address' }, { n: 'buffer A @0x5000', t: '1000 ints', v: '7, 7, 7 ...', k: 'heap' }, { n: 'buffer B @0x6000', t: '1000 ints', v: '7, 7, 7 ...', k: 'heap' }],
+      note: 'Now overload resolution sees an <b>rvalue</b>. <code>vector(vector&amp;&amp;)</code> (the <b>move constructor</b>) is a better match than <code>vector(const vector&amp;)</code>, so it is chosen. That constructor, not <code>std::move</code>, does the stealing.' },
+    { line: 3, mem: [{ n: 'a.ptr', t: 'int*', v: 'nullptr' }, { n: 'a.size', t: 'size_t', v: '0' }, { n: 'std::move(a)', fam: 'a', t: 'vector&&', v: 'gone (temporary)', dead: true }, { n: 'c.ptr', t: 'int*', v: '0x5000', p: 'buffer A' }, { n: 'c.size', t: 'size_t', v: '1000' }, { n: 'b.ptr', t: 'int*', v: '0x6000', p: 'buffer B' }, { n: 'b.size', t: 'size_t', v: '1000' }, { n: 'buffer A @0x5000', t: '1000 ints', v: '7, 7, 7 ...', k: 'heap' }, { n: 'buffer B @0x6000', t: '1000 ints', v: '7, 7, 7 ...', k: 'heap' }],
+      note: '<b>Move:</b> no allocation, no element copying. <b>c</b> takes over buffer A\'s pointer and size, and <b>a</b> is left empty (valid but unspecified: assign to it or let it die, do not read it). O(1). Had <code>a</code> been <code>const</code>, the cast would give <code>const vector&amp;&amp;</code>, which cannot bind to the move constructor, so it would <b>copy</b> silently.' }
+  ]
+});
+
+</script>
+</body>
+</html>

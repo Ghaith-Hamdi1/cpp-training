@@ -3,16 +3,16 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Core Language and Modern C++</title>
+<title>Core Language: RAII and Exceptions</title>
 <script>try{var t=JSON.parse(localStorage.getItem('cpptrain:theme'));if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
 <link rel="stylesheet" href="assets/style.css">
 </head>
 <body data-topic="core" data-kind="lesson">
 <main>
-<h1>Core Language and Modern C++</h1>
-<p class="lead">What separates "I know C++ syntax" from "I write modern C++": RAII, move semantics, smart pointers, lambdas, exceptions, casts, and C++11 to 20 features. Assumes <a href="01-basics.html">Basics</a> and <a href="02-oop.html">OOP</a>.</p>
+<h1>Core Language: RAII and Exceptions</h1>
+<p class="lead">RAII and scope guards, the exception-safety guarantees, <code>noexcept</code>, and choosing between exceptions and return values. Assumes <a href="01-basics.html">Basics</a> and <a href="02-oop.html">OOP</a>; move semantics, smart pointers, lambdas and types follow in their own lessons.</p>
 
-<section data-title="RAII: the central idea">
+<section id="s1" data-title="RAII: the central idea">
 <h2>RAII: the central idea</h2>
 <p><b>RAII</b>: tie a resource (memory, file, lock, socket) to an object. Acquire in the constructor, release in the destructor. Destructors run even when an exception is thrown, so nothing leaks.</p>
 <script type="text/x-cpp">
@@ -31,200 +31,48 @@ public:
 <div class="callout interview"><span class="label">Interview angle</span>RAII binds resource lifetime to object lifetime: automatic, exception-safe cleanup. It replaces <code>try/finally</code> and removes the need for a garbage collector.</div>
 </section>
 
-<section data-title="Lvalues, rvalues and references">
-<h2>Lvalues, rvalues and references</h2>
-<p>An <b>lvalue</b> has a name and address (<code>x</code>, <code>v[0]</code>). An <b>rvalue</b> is an unnamed temporary (<code>5</code>, <code>a + b</code>, a returned value): about to vanish, so its guts can be stolen.</p>
+<section id="raii-types" data-title="RAII everywhere: guards and standard wrappers">
+<h2>RAII everywhere: guards and standard wrappers</h2>
+<p>Almost every resource has a standard RAII wrapper. Use it instead of a manual acquire/release pair.</p>
 <table>
-<tr><th>Reference type</th><th>Binds to</th><th>Typical use</th></tr>
-<tr><td><code>T&amp;</code></td><td>lvalues only</td><td>modify the caller's object</td></tr>
-<tr><td><code>const T&amp;</code></td><td>lvalues <b>and</b> rvalues</td><td>read-only, avoid a copy</td></tr>
-<tr><td><code>T&amp;&amp;</code> (rvalue reference)</td><td>rvalues only</td><td>move constructors and move assignment</td></tr>
+<tr><th>Resource</th><th>RAII type</th><th>Released by</th></tr>
+<tr><td>heap memory</td><td><code>vector</code>, <code>string</code>, <code>unique_ptr</code></td><td>destructor frees the block</td></tr>
+<tr><td>a file</td><td><code>std::fstream</code></td><td>destructor closes it</td></tr>
+<tr><td>a mutex</td><td><code>lock_guard</code>, <code>unique_lock</code>, <code>scoped_lock</code></td><td>destructor unlocks</td></tr>
+<tr><td>a thread</td><td><code>std::jthread</code> (C++20)</td><td>destructor joins</td></tr>
+<tr><td>anything else</td><td>your own <b>scope guard</b></td><td>destructor runs a cleanup</td></tr>
 </table>
 <script type="text/x-cpp">
-void f(const std::string& s);   // accepts anything, copies nothing
-void g(std::string&& s);        // accepts only temporaries: "I may take your contents"
+template <typename F>
+class ScopeExit {  // runs F when the scope ends, however it ends
+    F f_;
+    bool active_ = true;
+public:
+    explicit ScopeExit(F f) : f_(std::move(f)) {}
+    ScopeExit(const ScopeExit&) = delete;  // a guard must not be copied
+    void release() { active_ = false; }  // commit: cancel the cleanup
+    ~ScopeExit() { if (active_) f_(); }
+};
 
-std::string name = "abc";
-f(name);              // OK
-// g(name);           // ERROR: name is an lvalue
-g(std::string("x"));  // OK: temporary
-g(std::move(name));   // OK: std::move says "treat name as a temporary"
+void transfer() {
+    begin();
+    ScopeExit rollback([] { undo(); });  // runs on return AND on an exception
+    step1(); step2();  // any of these may throw
+    rollback.release();  // success: keep the changes
+}
 </script>
-<p>Three <b>value categories</b>:</p>
-<table>
-<tr><th>Category</th><th>Roughly</th><th>Examples</th></tr>
-<tr><td><b>lvalue</b></td><td>a named object</td><td><code>x</code>, <code>v[0]</code></td></tr>
-<tr><td><b>prvalue</b></td><td>an unnamed temporary</td><td><code>5</code>, <code>a + b</code>, a call that returns by value</td></tr>
-<tr><td><b>xvalue</b></td><td>an object marked as movable</td><td><code>std::move(x)</code></td></tr>
-</table>
-<p>"Rvalue" = prvalue or xvalue. <code>std::move</code> produces an xvalue, so a named object can bind to <code>T&amp;&amp;</code>.</p>
-<div class="callout warn"><span class="label">A name is always an lvalue</span>Inside <code>g</code>, <code>s</code> is an lvalue despite its <code>&amp;&amp;</code> type. Pass it on with <code>std::move(s)</code> (or <code>std::forward</code>).</div>
-</section>
-
-<section data-title="Move semantics">
-<h2>Move semantics</h2>
-<figure class="fig"><svg viewBox="0 0 640 212" role="img" aria-label="A copy duplicates the buffer; a move hands the pointer over and leaves the source empty"><defs><marker id="d1" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path class="ah" d="M0 0L10 5L0 10z"/></marker></defs><text class="t" x="10" y="22">Copy: b = a</text><rect class="acc" x="10" y="34" width="70" height="30" rx="5"/><text x="45" y="54" text-anchor="middle">a</text><path class="ar" d="M80 49H168" marker-end="url(#d1)"/><rect class="wn" x="170" y="34" width="150" height="30" rx="5"/><text x="245" y="54" text-anchor="middle">1,000,000 ints</text><rect class="acc" x="350" y="34" width="70" height="30" rx="5"/><text x="385" y="54" text-anchor="middle">b</text><path class="ar" d="M420 49H488" marker-end="url(#d1)"/><rect class="wn" x="490" y="34" width="140" height="30" rx="5"/><text x="560" y="54" text-anchor="middle">a second copy</text><text class="m" x="10" y="84">allocates and copies a million elements</text><text class="t" x="10" y="122">Move: b = std::move(a)</text><rect class="bd" x="10" y="134" width="70" height="30" rx="5"/><text x="45" y="154" text-anchor="middle">a: null</text><rect class="acc" x="350" y="134" width="70" height="30" rx="5"/><text x="385" y="154" text-anchor="middle">b</text><path class="ar" d="M420 149H488" marker-end="url(#d1)"/><rect class="wn" x="490" y="134" width="140" height="30" rx="5"/><text x="560" y="154" text-anchor="middle">same buffer</text><text class="m" x="10" y="184">b stole the pointer: two assignments, no copying.</text><text class="m" x="10" y="204">The moved-from object is valid but unspecified: destroy it or assign to it.</text></svg><figcaption>std::move only casts; the move constructor does the stealing.</figcaption></figure>
-<p>Copying a million-element vector copies a million elements. If the source is a dying temporary, that is wasted work. A <b>move</b> just <i>steals the internal pointer</i>.</p>
-<div id="st-move"></div>
+<div id="st-guard"></div>
 <ul>
-<li><code>std::move(x)</code> <b>moves nothing</b>: it is a cast to an rvalue reference meaning "you may steal". The move constructor or assignment does the stealing.</li>
-<li>A moved-from object is <b>valid but unspecified</b>: destroy or reassign it, do not read it.</li>
-<li>Raw resource? Rule of Five, with <code>noexcept</code> moves: <code>vector</code> only moves on reallocation if the move cannot throw, else it copies.</li>
+<li>A RAII class owns <b>one</b> resource. Copying it must be <b>deleted</b> (one owner) or a <b>deep copy</b>; moving transfers ownership (the Rule of Five, <a href="02-oop.html">OOP lesson</a>; <a href="13-move-semantics.html">Move Semantics</a>).</li>
+<li>Prefer the <b>Rule of Zero</b>: hold resources in members that are already RAII, and you write no destructor at all.</li>
+<li><b>Destructors must not throw</b> (next sections).</li>
+<li>Avoid a naked <code>new</code>: before C++17, <code>f(std::unique_ptr&lt;A&gt;(new A), g())</code> could leak if <code>g()</code> threw between the <code>new</code> and the <code>unique_ptr</code> constructor. C++17 closed that gap, but <code>std::make_unique</code> is still the idiom: no raw <code>new</code>, no repeated type.</li>
 </ul>
-<script type="text/x-cpp">
-class Buffer {
-    int* data_; std::size_t n_;
-public:
-    Buffer(Buffer&& o) noexcept : data_(o.data_), n_(o.n_) {   // steal
-        o.data_ = nullptr; o.n_ = 0;                            // leave source safely empty
-    }
-    Buffer& operator=(Buffer&& o) noexcept {
-        if (this != &o) { delete[] data_; data_ = o.data_; n_ = o.n_; o.data_ = nullptr; o.n_ = 0; }
-        return *this;
-    }
-    /* ... constructor, destructor, copy operations ... */
-};
-
-Buffer make() { Buffer b(1000); return b; }   // fine: NO std::move needed on return
-</script>
-<p><code>std::exchange(x, v)</code> returns the old <code>x</code> and sets it to <code>v</code>: the idiom for "steal and reset", so the move constructor shrinks to one line.</p>
-<script type="text/x-cpp">
-Buffer(Buffer&& o) noexcept
-    : data_(std::exchange(o.data_, nullptr)), n_(std::exchange(o.n_, 0)) {}
-</script>
-<div class="callout warn"><span class="label">The const trap</span>
-<script type="text/x-cpp">
-const std::string s = "abc";
-std::string t = std::move(s);          // COPIES: a const rvalue cannot bind to the move constructor
-</script>
-<code>std::move</code> on a <code>const</code> object, or a type with no move operations, silently copies. So never return <code>const</code> values by value, and call <code>std::move</code> only on the <i>last</i> use.</div>
-<h3>Taking a parameter you will store</h3>
-<script type="text/x-cpp">
-class Person {
-    std::string name_;
-public:
-    explicit Person(std::string n) : name_(std::move(n)) {}    // by value, then move into the member
-};
-</script>
-<p>A constructor that stores its argument: take it <b>by value and move</b> (lvalue copied once, rvalue moved once). Not for setters: the extra construction can cost more than assignment.</p>
-<div class="callout warn"><span class="label">No <code>return std::move(local);</code></span>Returning a local already allows elision (RVO/NRVO) or an automatic move. <code>std::move</code> blocks the elision.</div>
+<div class="callout interview"><span class="label">Interview angle</span>"What is RAII?" The resource's lifetime is tied to an object: acquire in the constructor, release in the destructor. Destructors run on every exit path, including exceptions, so nothing leaks and no <code>finally</code> is needed.</div>
 </section>
 
-<section data-title="Smart pointers">
-<h2>Smart pointers</h2>
-<figure class="fig"><svg viewBox="0 0 640 170" role="img" aria-label="Two shared_ptr owners and one weak_ptr point at a control block that counts them"><defs><marker id="d2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path class="ah" d="M0 0L10 5L0 10z"/></marker></defs><rect class="acc" x="10" y="20" width="90" height="30" rx="5"/><text x="55" y="40" text-anchor="middle">s1 shared</text><rect class="acc" x="10" y="64" width="90" height="30" rx="5"/><text x="55" y="84" text-anchor="middle">s2 shared</text><rect class="box" x="10" y="124" width="90" height="30" rx="5" stroke-dasharray="5 4"/><text x="55" y="144" text-anchor="middle">w weak</text><path class="ar" d="M100 35L238 62M100 79L238 76"/><path class="ln" d="M100 139L238 92" stroke-dasharray="5 4"/><rect class="wn" x="240" y="40" width="170" height="70" rx="8"/><text class="t" x="325" y="62" text-anchor="middle">control block</text><text class="m" x="325" y="82" text-anchor="middle">strong count: 2</text><text class="m" x="325" y="98" text-anchor="middle">weak count: 1</text><path class="ar" d="M410 75H498" marker-end="url(#d2)"/><rect class="gd" x="500" y="52" width="130" height="46" rx="8"/><text class="t" x="565" y="80" text-anchor="middle">Widget</text><text class="m" x="10" y="166">Object freed when strong count hits 0. weak_ptr.lock() gives a shared_ptr or null.</text></svg><figcaption>unique_ptr has no control block: zero overhead, one owner.</figcaption></figure>
-<p>RAII wrappers around <code>new</code>/<code>delete</code> (<code>&lt;memory&gt;</code>) that make ownership explicit in the type.</p>
-<table>
-<tr><th>Type</th><th>Ownership</th><th>Copyable?</th><th>Cost</th></tr>
-<tr><td><code>std::unique_ptr&lt;T&gt;</code></td><td>exclusive: one owner</td><td><b>no</b>, only movable</td><td>same as a raw pointer</td></tr>
-<tr><td><code>std::shared_ptr&lt;T&gt;</code></td><td>shared: reference counted, freed when the last owner goes</td><td>yes (bumps the count)</td><td>extra control block, atomic count</td></tr>
-<tr><td><code>std::weak_ptr&lt;T&gt;</code></td><td>none: observes a <code>shared_ptr</code> without keeping it alive</td><td>yes</td><td>small</td></tr>
-</table>
-<script type="text/x-cpp">
-auto p = std::make_unique<Widget>(1, "a");   // preferred over `new`
-// auto q = p;                               // ERROR: unique_ptr cannot be copied
-auto q = std::move(p);                       // OK: ownership moves, p is now null
-
-auto s1 = std::make_shared<Widget>(2, "b");  // one allocation for object + control block
-auto s2 = s1;                                // two owners, use_count() == 2
-
-std::weak_ptr<Widget> w = s1;                // observe only
-if (auto sp = w.lock()) { /* still alive: use sp */ }   // lock() gives a shared_ptr or null
-</script>
-<p>Step through a shared object:</p>
-<div id="st-shared"></div>
-<h3>Reference cycles and <code>weak_ptr</code></h3>
-<p>If <code>A</code> holds a <code>shared_ptr&lt;B&gt;</code> and <code>B</code> a <code>shared_ptr&lt;A&gt;</code>, <b>neither is ever destroyed</b>. Make one direction (the parent link) a <code>weak_ptr</code>.</p>
-<div class="callout warn"><span class="label">One control block per object</span>
-<script type="text/x-cpp">
-auto raw = new Widget;
-std::shared_ptr<Widget> a(raw);
-std::shared_ptr<Widget> b(raw);        // a second, independent control block: double delete!
-</script>
-Never build a second <code>shared_ptr</code> from a raw pointer or from <code>this</code>. Copy an existing one, or inherit <code>std::enable_shared_from_this</code> and call <code>shared_from_this()</code>.</div>
-<p>Also: a stateful <code>unique_ptr</code> deleter makes it larger than a raw pointer; a <code>shared_ptr</code>'s deleter is not part of its type; <code>weak_ptr</code> suits caches and observer lists too.</p>
-<div class="callout tip"><span class="label">Ownership rules of thumb</span>
-<p>Default to <code>unique_ptr</code> (or a plain value member); <code>shared_ptr</code> only for truly shared ownership. A raw pointer or reference means "I use it, I do not own it". Pass smart pointers by value only to transfer or share ownership.</p></div>
-<div class="callout interview"><span class="label">Interview angle</span><code>make_unique</code>/<code>make_shared</code>: no naked <code>new</code> (exception safe), less typing, and <code>make_shared</code> allocates once instead of twice.</div>
-<p>Step through <code>unique_ptr</code> ownership:</p>
-<div id="st-unique"></div>
-</section>
-
-<section data-title="Modern syntax tour">
-<h2>Modern syntax tour</h2>
-<p>C++11/14/17 features to use naturally; each replaces an error-prone idiom.</p>
-<table>
-<tr><th>Feature</th><th>Instead of</th><th>Example</th></tr>
-<tr><td><code>auto</code></td><td>long type names</td><td><code>auto it = m.find(k);</code></td></tr>
-<tr><td><code>decltype(expr)</code></td><td>repeating a type by hand</td><td><code>decltype(a + b) sum = a + b;</code></td></tr>
-<tr><td>Range-based <code>for</code></td><td>index / iterator loops</td><td><code>for (const auto&amp; x : v) {}</code></td></tr>
-<tr><td><code>nullptr</code></td><td><code>NULL</code> / <code>0</code></td><td><code>int* p = nullptr;</code></td></tr>
-<tr><td><code>enum class</code></td><td>plain <code>enum</code></td><td><code>enum class Color { Red, Green };</code> scoped, no implicit int</td></tr>
-<tr><td><code>using</code> alias</td><td><code>typedef</code></td><td><code>using Map = std::map&lt;int, std::string&gt;;</code></td></tr>
-<tr><td>Brace init</td><td>constructor parens</td><td><code>std::vector&lt;int&gt; v{1, 2, 3};</code></td></tr>
-<tr><td><code>override</code> / <code>final</code></td><td>hoping you matched the signature</td><td><code>void f() override;</code></td></tr>
-<tr><td><code>= default</code> / <code>= delete</code></td><td>empty bodies, private unimplemented copy</td><td><code>Foo(const Foo&amp;) = delete;</code></td></tr>
-<tr><td><code>constexpr</code></td><td>macros, template tricks</td><td><code>constexpr int sq(int x) { return x*x; }</code></td></tr>
-<tr><td><code>static_assert</code></td><td>runtime checks of compile-time facts</td><td><code>static_assert(sizeof(int) == 4);</code></td></tr>
-<tr><td>Structured bindings (C++17)</td><td><code>.first</code> / <code>.second</code></td><td><code>for (auto&amp; [key, val] : m) {}</code></td></tr>
-<tr><td><code>if</code> with initializer (C++17)</td><td>variable leaking into outer scope</td><td><code>if (auto it = m.find(k); it != m.end()) {}</code></td></tr>
-<tr><td><code>[[nodiscard]]</code></td><td>ignored error codes</td><td><code>[[nodiscard]] bool open();</code></td></tr>
-</table>
-<script type="text/x-cpp">
-int x = 0;
-const int& r = x;
-auto a = r;               // int           auto drops const and the reference
-decltype(r) b = x;        // const int&    decltype gives the exact declared type
-decltype(auto) c = r;     // const int&    decltype(auto) = "deduce like auto, but keep it exact"
-</script>
-<div class="callout warn"><span class="label">auto traps</span>
-<p><code>auto x = {1,2,3};</code> is an <code>initializer_list</code>, not a vector. <code>auto</code> drops references and <code>const</code>: <code>auto y = v[0];</code> <i>copies</i>; write <code>const auto&amp;</code>. Same for <code>for (auto [k, v] : map)</code>.</p></div>
-</section>
-
-<section data-title="Lambdas">
-<h2>Lambdas</h2>
-<figure class="fig"><svg viewBox="0 0 640 130" role="img" aria-label="A lambda is compiled to a small class holding the captures and an operator()"><rect class="box" x="10" y="10" width="250" height="100" rx="8"/><text class="t" x="24" y="34">[factor](int x) { return x * factor; }</text><text class="m" x="24" y="58">captures in [ ]</text><text class="m" x="24" y="76">parameters in ( )</text><text class="m" x="24" y="94">body in { }</text><text class="t" x="270" y="60">compiles to</text><path class="ar" d="M268 72H362"/><path class="ah" d="M372 72l-10-6v12z"/><rect class="acc" x="380" y="10" width="250" height="100" rx="8"/><text class="t" x="394" y="34">class __lambda {</text><text class="m" x="410" y="56">int factor;   // by-value capture</text><text class="m" x="410" y="76">int operator()(int x) const</text><text class="m" x="410" y="94">{ return x * factor; }</text></svg><figcaption>Capture by reference stores a reference instead; it dangles if the lambda outlives the variable.</figcaption></figure>
-<p>A lambda is an unnamed function object written in place.</p>
-<script type="text/x-cpp">
-//  [captures] (parameters) -> return_type { body }
-auto add = [](int a, int b) { return a + b; };
-add(2, 3);                                         // 5
-
-std::vector<int> v{5, 2, 9, 1};
-std::sort(v.begin(), v.end(), [](int a, int b) { return a > b; });   // descending
-
-int factor = 3;
-auto byValue = [factor](int x) { return x * factor; };    // copies factor now
-auto byRef   = [&factor](int x) { return x * factor; };   // refers to the live variable
-auto all     = [=] (int x) { return x * factor; };        // [=] all by value, [&] all by reference
-auto generic = [](const auto& a, const auto& b) { return a < b; };   // C++14: works for any type
-
-auto owned = std::make_unique<int>(5);
-auto init  = [p = std::move(owned)] { return *p; };    // C++14 init-capture: MOVE a move-only object in
-auto count = [n = 0]() mutable { return ++n; };        // the lambda's own state; mutable lets it change
-</script>
-<details class="ex"><summary><span class="ex-tag">Predict</span>Capture by value vs by reference</summary><div>
-<script type="text/x-cpp">
-int x = 1;
-auto byVal = [x]  { return x; };
-auto byRef = [&x] { return x; };
-x = 2;
-std::cout << byVal() << byRef();
-</script>
-<script type="text/x-out">
-12
-</script>
-<p><code>byVal</code> took a snapshot of <code>x</code> (1) when it was created. <code>byRef</code> sees the variable itself, so it reads the new value 2. A by-value capture is <i>const</i> inside the lambda unless you add <code>mutable</code>.</p>
-</div></details>
-<div class="callout warn"><span class="label">Dangling captures</span>A lambda that captures a local by reference and then outlives it (returned from the function, or run later on another thread) reads destroyed memory. When a lambda escapes its scope, capture by value.</div>
-<div class="callout warn"><span class="label"><code>[=]</code> and <code>this</code></span>Inside a member function <code>[=]</code> also captures <code>this</code> (the pointer), so the lambda uses the object through that pointer and dangles if the object dies. This implicit capture is deprecated in C++20: write <code>[=, this]</code> to say so, or <code>[*this]</code> to copy the object.</div>
-<p><code>std::function</code> type-erases and may allocate. Prefer <code>auto</code> locally and a template parameter for functions taking a callable.</p>
-<p>Step through the two capture modes:</p>
-<div id="st-lambda"></div>
-</section>
-
-<section data-title="Exceptions and exception safety">
-<h2>Exceptions and exception safety</h2>
+<section id="s7" data-title="Exceptions and stack unwinding">
+<h2>Exceptions and stack unwinding</h2>
 <script type="text/x-cpp">
 double divide(double a, double b) {
     if (b == 0) throw std::invalid_argument("division by zero");
@@ -240,98 +88,83 @@ try {
 }
 </script>
 <ul>
-<li><b>Throw by value, catch by <code>const&amp;</code></b> (by value slices).</li>
-<li><b>Stack unwinding</b>: leaving scopes runs destructors until a <code>catch</code> matches. This is why RAII is exception-safe.</li>
-<li>A <b>destructor must never throw</b>: during unwinding that calls <code>std::terminate</code>. Destructors are implicitly <code>noexcept</code>.</li>
-<li><code>noexcept</code> promises no throw (enables optimisations such as <code>vector</code> moves); breaking it terminates.</li>
-<li>Exceptions for exceptional failure, not control flow or real-time hot paths.</li>
+<li><b>Throw by value, catch by <code>const&amp;</code></b> (catching by value slices a derived exception).</li>
+<li><b>Stack unwinding</b>: leaving scopes runs destructors, in reverse order of construction, until a <code>catch</code> matches. This is why RAII is exception-safe.</li>
+<li>A <b>destructor must never throw</b>: if it throws while another exception is unwinding, <code>std::terminate</code> is called. Destructors are implicitly <code>noexcept</code>.</li>
+<li>A constructor that throws leaves no object: the destructors of already-built members and bases run, its own does not.</li>
+<li><code>catch (...)</code> catches everything; rethrow with a bare <code>throw;</code> (never <code>throw e;</code>, which copies and slices).</li>
+<li>Derive your own exceptions from <code>std::exception</code> (or a standard subclass) so generic handlers still work.</li>
 </ul>
-<table>
-<tr><th>Exception safety level</th><th>Promise</th></tr>
-<tr><td><b>No-throw</b></td><td>never throws (<code>noexcept</code>): swap, move, destructors</td></tr>
-<tr><td><b>Strong</b></td><td>if it throws, state is exactly as before (commit-or-rollback)</td></tr>
-<tr><td><b>Basic</b></td><td>if it throws, nothing leaks and invariants hold, but values may have changed</td></tr>
-</table>
+<div class="callout warn"><span class="label">Cost</span>The no-throw path is almost free, but a throw is orders of magnitude slower than a return and its latency is unpredictable. Do not throw on a hot path or as ordinary control flow (<a href="#errors">next sections</a>).</div>
 </section>
 
-<section data-title="Casts and type conversion">
-<h2>Casts and type conversion</h2>
-<p>Four named casts replace the C cast <code>(T)x</code>: each states intent and is searchable.</p>
-<table>
-<tr><th>Cast</th><th>Use for</th><th>Danger</th></tr>
-<tr><td><code>static_cast&lt;T&gt;(x)</code></td><td>well-defined conversions: <code>int</code> to <code>double</code>, base to derived pointer when you are sure</td><td>low</td></tr>
-<tr><td><code>dynamic_cast&lt;T&gt;(x)</code></td><td>checked downcast in a polymorphic hierarchy. Returns <code>nullptr</code> (pointer) or throws <code>std::bad_cast</code> (reference) on failure</td><td>runtime cost; base needs a virtual function</td></tr>
-<tr><td><code>const_cast&lt;T&gt;(x)</code></td><td>add or remove <code>const</code> (legacy APIs)</td><td>modifying a truly const object is UB</td></tr>
-<tr><td><code>reinterpret_cast&lt;T&gt;(x)</code></td><td>reinterpret raw bits (pointer to integer, unrelated pointer types)</td><td>very high, rarely correct</td></tr>
-</table>
-<script type="text/x-cpp">
-double avg = static_cast<double>(total) / count;       // avoids integer division
 
-Animal* a = getAnimal();
-if (auto* d = dynamic_cast<Dog*>(a)) {                 // safe downcast: null if it is not a Dog
-    d->fetch();
+<section id="guarantees" data-title="Exception-safety guarantees and noexcept">
+<h2>Exception-safety guarantees and noexcept</h2>
+<table>
+<tr><th>Level</th><th>Promise if an exception escapes</th><th>Typical example</th></tr>
+<tr><td><b>No-throw</b></td><td>it never throws</td><td>destructors, <code>swap</code>, moves, anything <code>noexcept</code></td></tr>
+<tr><td><b>Strong</b></td><td>state is exactly as before (commit or rollback)</td><td><code>vector::push_back</code> when the element's move is <code>noexcept</code></td></tr>
+<tr><td><b>Basic</b></td><td>nothing leaks and invariants hold, but values may have changed</td><td>most operations</td></tr>
+</table>
+<h3>Getting the strong guarantee: build aside, then swap</h3>
+<script type="text/x-cpp">
+void Table::replaceAll(const std::vector<Row>& fresh) {
+    std::vector<Row> copy(fresh);  // may throw: *this is still untouched
+    rows_.swap(copy);  // commit: swap cannot throw
 }
 </script>
-<div class="callout tip"><span class="label">Rule</span>Many casts mean a design problem. Prefer virtual functions to <code>dynamic_cast</code> chains; no C casts.</div>
-</section>
-
-<section data-title="const, constexpr and static">
-<h2><code>const</code>, <code>constexpr</code> and <code>static</code></h2>
+<p>Do everything that can fail on a <b>copy</b>, then publish the result with an operation that cannot throw. If anything throws before the swap, the object is unchanged.</p>
+<h3>noexcept</h3>
 <ul>
-<li><b><code>const</code></b>: unchangeable after initialization. Use everywhere.</li>
-<li><b><code>constexpr</code></b>: computable <b>at compile time</b> (array sizes, template arguments), and still callable at runtime.</li>
+<li><code>noexcept</code> promises a function will not throw. If it does anyway, the program calls <code>std::terminate</code>: there is no unwinding past it.</li>
+<li>Destructors are <code>noexcept</code> by default. A throwing destructor during unwinding means two exceptions at once, and the program terminates.</li>
+<li><b>Mark move operations and <code>swap</code> <code>noexcept</code> when they cannot throw.</b> <code>std::vector</code> grows by moving its elements <i>only if</i> the move constructor is <code>noexcept</code>; otherwise it <b>copies</b>, to keep the strong guarantee. Compiled example: growing a vector whose elements have a <code>noexcept</code> move made 0 copies; with a possibly-throwing move it copied every element.</li>
+<li><code>noexcept(expr)</code> asks the compiler whether an expression can throw; generic code uses it to pick the cheap path (<code>std::move_if_noexcept</code>).</li>
+<li>Do not mark a function <code>noexcept</code> just to be fast: a wrong promise turns an error into a crash.</li>
 </ul>
-<script type="text/x-cpp">
-constexpr int square(int x) { return x * x; }
-constexpr int N = square(4);          // 16, computed by the compiler
-std::array<int, square(3)> a;         // size 9: legal because it is a constant expression
-int runtime = readInput();
-int r = square(runtime);              // also fine: same function runs at runtime
-
-static_assert(N == 16, "math is broken");   // checked at compile time
-</script>
-<p><code>static</code> means three things:</p>
-<table>
-<tr><th>Where</th><th>Meaning</th></tr>
-<tr><td>Local variable in a function</td><td>one instance that lives for the whole program and keeps its value between calls</td></tr>
-<tr><td>Global / namespace scope</td><td>internal linkage: visible only inside this <code>.cpp</code> file</td></tr>
-<tr><td>Class member</td><td>belongs to the class, shared by all objects</td></tr>
-</table>
 </section>
 
-<section data-title="What C++14, 17 and 20 added">
-<h2>What C++14, 17 and 20 added</h2>
-<p>"What modern features do you use?" Know these and why:</p>
+<section id="errors" data-title="Exceptions, error codes and optional">
+<h2>Exceptions, error codes and optional</h2>
 <table>
-<tr><th>Standard</th><th>Feature</th><th>One-liner</th></tr>
-<tr><td>C++11</td><td>move semantics, smart pointers, lambdas, <code>auto</code>, <code>constexpr</code>, <code>std::thread</code>, variadic templates, <code>nullptr</code>, range-for</td><td>The big modernisation.</td></tr>
-<tr><td>C++14</td><td>generic lambdas, <code>make_unique</code>, return type deduction, binary literals <code>0b101</code></td><td>Polishes C++11.</td></tr>
-<tr><td>C++17</td><td><code>std::optional</code>, <code>std::variant</code>, <code>std::string_view</code>, structured bindings, <code>if constexpr</code>, fold expressions, <code>std::filesystem</code>, parallel algorithms, <code>std::scoped_lock</code>, CTAD</td><td>Vocabulary types and compile-time branching.</td></tr>
-<tr><td>C++20</td><td>concepts, ranges, <code>std::span</code>, <code>operator&lt;=&gt;</code>, coroutines, modules, <code>std::jthread</code>, <code>std::format</code></td><td>Constraints on templates, composable algorithms.</td></tr>
+<tr><th>Situation</th><th>Use</th></tr>
+<tr><td>a failure the caller cannot sensibly handle here (out of memory, broken invariant, constructor failure)</td><td><b>exception</b>: it unwinds to code that can cope</td></tr>
+<tr><td>an <b>expected</b> failure in normal flow (bad input, "not found", parse error)</td><td>return a value that says so: <code>std::optional</code>, an error code or enum, <code>std::expected</code> (C++23)</td></tr>
+<tr><td>a hot path with steady latency (feed handler, real time)</td><td><b>no exceptions</b>: error codes or <code>optional</code> (<a href="12-low-latency.html">Low-Latency C++</a>)</td></tr>
+<tr><td>a <code>noexcept</code> context, or a destructor</td><td>never throw: catch inside and log or ignore</td></tr>
 </table>
 <script type="text/x-cpp">
-std::optional<int> parse(const std::string& s);          // "maybe an int" without magic values
-if (auto n = parse("42")) { use(*n); }
+std::optional<int> parseInt(std::string_view s) {  // failure is expected: no exception
+    int v = 0;
+    auto r = std::from_chars(s.data(), s.data() + s.size(), v);
+    if (r.ec != std::errc{} || r.ptr != s.data() + s.size()) return std::nullopt;
+    return v;
+}
 
-std::variant<int, std::string> v = "hi";                 // type-safe union
-std::visit([](auto&& x) { std::cout << x; }, v);
-
-void print(std::string_view sv);                         // non-owning pointer + length: no copy, accepts literals and strings
-// it must not outlive the text it views, see Strings, Regex & Time
+if (auto n = parseInt(input)) use(*n);  // the caller must look at the result
+else report("not a number");
 </script>
-<p>Full lists: <a href="https://github.com/AnthonyCalandra/modern-cpp-features">modern-cpp-features</a>, <a href="https://github.com/changkun/modern-cpp-tutorial">modern-cpp-tutorial</a>. Your notes: <a href="https://github.com/Ghaith-Hamdi1/cpp-training/blob/main/docs/03-cpp-standard-library/README.md">Module 3</a>.</p>
+<ul>
+<li><b>Exceptions</b> keep the normal path clean and cannot be silently ignored; the cost is that a throw is slow and the control flow is invisible.</li>
+<li><b>Return values</b> make failure explicit and cheap; the cost is that every caller must check, and <code>[[nodiscard]]</code> helps remind them.</li>
+<li>Constructors cannot return a code: either throw, or use a factory function returning <code>optional</code> or an <code>expected</code>.</li>
+<li>Be consistent inside a module, and document what a function can throw.</li>
+</ul>
+<div class="callout interview"><span class="label">Interview angle</span>"Exceptions or error codes?" Exceptions for rare failures that need unwinding, return values for expected failures and for hot paths. Mention RAII (so nothing leaks either way) and that a destructor must never throw.</div>
 </section>
 
-<section data-title="Interview cheat sheet">
+<section id="s11" data-title="Interview cheat sheet">
 <h2>Interview cheat sheet</h2>
-<details class="ex"><summary>What does <code>std::move</code> actually do?</summary><div><p>Nothing at runtime: it is an unconditional cast to an rvalue reference. It enables the move constructor or move assignment to be chosen. The moved-from object stays valid but unspecified. On a <code>const</code> object it silently copies, because a <code>const</code> rvalue cannot bind to a move constructor.</p></div></details>
-<details class="ex"><summary><code>unique_ptr</code> vs <code>shared_ptr</code> vs <code>weak_ptr</code>?</summary><div><p><code>unique_ptr</code>: sole owner, move-only, zero overhead. <code>shared_ptr</code>: reference-counted shared ownership with a control block and atomic count. <code>weak_ptr</code>: non-owning observer used to break cycles and to check whether a shared object is still alive (<code>lock()</code>).</p></div></details>
-<details class="ex"><summary>Is <code>shared_ptr</code> thread-safe?</summary><div><p>The reference count is atomic, so copying and destroying <code>shared_ptr</code>s from different threads is safe. The pointed-to object is <b>not</b> protected: concurrent access to it still needs synchronization. Concurrently modifying the same <code>shared_ptr</code> variable is also a race.</p></div></details>
-<details class="ex"><summary>What is copy elision / RVO?</summary><div><p>The compiler constructs a returned object directly in the caller's storage, skipping the copy or move. In C++17 it is guaranteed when returning a temporary (prvalue). Do not write <code>return std::move(local)</code>: it prevents it.</p></div></details>
+<p>Answer aloud, then open.</p>
+<details class="ex"><summary>What is RAII and why is it important?</summary><div><p>It binds a resource's lifetime to an object: acquire in the constructor, release in the destructor. Cleanup is automatic and exception-safe because destructors run on every exit path. It replaces <code>try/finally</code> and is why C++ needs no garbage collector.</p></div></details>
 <details class="ex"><summary>What is stack unwinding?</summary><div><p>When an exception propagates, the runtime exits scopes up the call stack, calling the destructors of all fully constructed locals until a handler is found. It is what makes RAII exception-safe.</p></div></details>
 <details class="ex"><summary>Why should destructors not throw?</summary><div><p>Destructors run during unwinding. If one throws while another exception is active, <code>std::terminate</code> is called. Destructors are <code>noexcept</code> by default; catch and handle errors inside them.</p></div></details>
-<details class="ex"><summary>When would you use <code>dynamic_cast</code>?</summary><div><p>For a checked downcast from a polymorphic base to a derived type when you cannot express the need through a virtual function. It returns null (pointers) or throws <code>bad_cast</code> (references) on failure. Frequent use suggests a design problem.</p></div></details>
-<details class="ex"><summary>Difference between <code>const</code> and <code>constexpr</code>?</summary><div><p><code>const</code> means read-only after initialization (the value may be determined at runtime). <code>constexpr</code> means the value or function can be evaluated at compile time and usable in constant expressions.</p></div></details>
+<details class="ex"><summary>What are the exception-safety guarantees?</summary><div><p>No-throw (never throws: destructors, swap, moves), strong (if it throws, the state is exactly as before: commit or rollback), and basic (nothing leaks and invariants hold, but values may have changed). Get the strong guarantee by doing the work on a copy and publishing with a non-throwing swap.</p></div></details>
+<details class="ex"><summary>Why mark move operations <code>noexcept</code>?</summary><div><p><code>std::vector</code> moves its elements when it grows only if the move cannot throw; otherwise it copies them to keep the strong guarantee. A missing <code>noexcept</code> silently turns every reallocation into a round of copies.</p></div></details>
+<details class="ex"><summary>What happens if a <code>noexcept</code> function throws?</summary><div><p><code>std::terminate</code> is called: the exception does not propagate. So only promise <code>noexcept</code> when it is true.</p></div></details>
+<details class="ex"><summary>Exceptions or error codes?</summary><div><p>Exceptions for rare failures the local code cannot handle (and constructors); return values (<code>optional</code>, error codes, <code>expected</code>) for expected failures and for hot paths where a throw's cost and unpredictability are unacceptable.</p></div></details>
+<details class="ex"><summary>How do you run cleanup on every path without <code>finally</code>?</summary><div><p>Put it in a destructor: a standard RAII wrapper (<code>lock_guard</code>, <code>unique_ptr</code>, <code>fstream</code>) or a small scope guard class. Release the guard on success to commit.</p></div></details>
 </section>
 </main>
 
@@ -361,85 +194,29 @@ catch (const std::exception& e) { }
   ]
 });
 
-CT.stepper('#st-move', {
-  title: 'Copy vs move: what std::move really does',
-  code: String.raw`
-std::vector<int> a(1000, 7);
-std::vector<int> b = a;
-std::vector<int> c = std::move(a);
-`,
-  steps: [
-    { line: 1, mem: [{ n: 'a.ptr', t: 'int*', v: '0x5000', p: 'buffer A' }, { n: 'a.size', t: 'size_t', v: '1000' }, { n: 'buffer A @0x5000', t: '1000 ints', v: '7, 7, 7 ...', k: 'heap' }],
-      note: '<b>a</b> is a small object (pointer + size + capacity) that owns a big heap buffer. It is an <b>lvalue</b>: it has a name and an address.' },
-    { line: 2, mem: [{ n: 'a.ptr', t: 'int*', v: '0x5000', p: 'buffer A' }, { n: 'a.size', t: 'size_t', v: '1000' }, { n: 'buffer A @0x5000', t: '1000 ints', v: '7, 7, 7 ...', k: 'heap' }],
-      note: 'In <code>b = a</code> the argument <code>a</code> is an <b>lvalue</b>, so it binds to <code>const vector&amp;</code> and the compiler picks the <b>copy constructor</b>. Overload resolution only looks at the <i>kind</i> of expression you pass.' },
-    { line: 2, mem: [{ n: 'a.ptr', t: 'int*', v: '0x5000', p: 'buffer A' }, { n: 'a.size', t: 'size_t', v: '1000' }, { n: 'b.ptr', t: 'int*', v: '0x6000', p: 'buffer B' }, { n: 'b.size', t: 'size_t', v: '1000' }, { n: 'buffer A @0x5000', t: '1000 ints', v: '7, 7, 7 ...', k: 'heap' }, { n: 'buffer B @0x6000', t: '1000 ints', v: '7, 7, 7 ...', k: 'heap' }],
-      note: '<b>Copy:</b> a new buffer is allocated and all 1000 ints are copied. Two independent owners. Correct, but O(n).' },
-    { line: 3, mem: [{ n: 'a.ptr', t: 'int*', v: '0x5000', p: 'buffer A' }, { n: 'a.size', t: 'size_t', v: '1000' }, { n: 'b.ptr', t: 'int*', v: '0x6000', p: 'buffer B' }, { n: 'b.size', t: 'size_t', v: '1000' }, { n: 'std::move(a)', fam: 'a', t: 'vector&&', v: 'refers to a', to: 'a.ptr', p: 'same object, same address' }, { n: 'buffer A @0x5000', t: '1000 ints', v: '7, 7, 7 ...', k: 'heap' }, { n: 'buffer B @0x6000', t: '1000 ints', v: '7, 7, 7 ...', k: 'heap' }],
-      note: '<b>std::move(a) runs first, and it moves nothing.</b> It is just <code>static_cast&lt;vector&lt;int&gt;&amp;&amp;&gt;(a)</code>: it hands back an <b>rvalue reference to the very same object</b> (follow the arrow: same address, no copy, no data touched). The <i>expression</i> changed from "lvalue a" to "xvalue, an rvalue you may steal from".' },
-    { line: 3, mem: [{ n: 'a.ptr', t: 'int*', v: '0x5000', p: 'buffer A' }, { n: 'a.size', t: 'size_t', v: '1000' }, { n: 'b.ptr', t: 'int*', v: '0x6000', p: 'buffer B' }, { n: 'b.size', t: 'size_t', v: '1000' }, { n: 'std::move(a)', fam: 'a', t: 'vector&&', v: 'refers to a', to: 'a.ptr', p: 'same object, same address' }, { n: 'buffer A @0x5000', t: '1000 ints', v: '7, 7, 7 ...', k: 'heap' }, { n: 'buffer B @0x6000', t: '1000 ints', v: '7, 7, 7 ...', k: 'heap' }],
-      note: 'Now overload resolution sees an <b>rvalue</b>. <code>vector(vector&amp;&amp;)</code> (the <b>move constructor</b>) is a better match than <code>vector(const vector&amp;)</code>, so it is chosen. That constructor, not <code>std::move</code>, does the stealing.' },
-    { line: 3, mem: [{ n: 'a.ptr', t: 'int*', v: 'nullptr' }, { n: 'a.size', t: 'size_t', v: '0' }, { n: 'std::move(a)', fam: 'a', t: 'vector&&', v: 'gone (temporary)', dead: true }, { n: 'c.ptr', t: 'int*', v: '0x5000', p: 'buffer A' }, { n: 'c.size', t: 'size_t', v: '1000' }, { n: 'b.ptr', t: 'int*', v: '0x6000', p: 'buffer B' }, { n: 'b.size', t: 'size_t', v: '1000' }, { n: 'buffer A @0x5000', t: '1000 ints', v: '7, 7, 7 ...', k: 'heap' }, { n: 'buffer B @0x6000', t: '1000 ints', v: '7, 7, 7 ...', k: 'heap' }],
-      note: '<b>Move:</b> no allocation, no element copying. <b>c</b> takes over buffer A\'s pointer and size, and <b>a</b> is left empty (valid but unspecified: assign to it or let it die, do not read it). O(1). Had <code>a</code> been <code>const</code>, the cast would give <code>const vector&amp;&amp;</code>, which cannot bind to the move constructor, so it would <b>copy</b> silently.' }
-  ]
-});
 
-CT.stepper('#st-shared', {
-  title: 'shared_ptr reference counting',
+CT.stepper('#st-guard', {
+  title: 'A scope guard rolls back on an exception',
   code: String.raw`
-auto a = std::make_shared<Foo>();
-auto b = a;
-b.reset();
-a.reset();
+void transfer() {
+    begin();
+    ScopeExit rollback(undo);
+    step1();
+    step2();                  // throws!
+    rollback.release();
+}
 `,
   steps: [
-    { line: 1, mem: [{ n: 'a', t: 'shared_ptr', v: '0x5000', p: 'Foo' }, { n: 'Foo @0x5000', t: 'use_count', v: '1', k: 'heap' }],
-      note: '<b>make_shared</b> creates the Foo and its control block in one allocation. <code>a.use_count()</code> is 1.' },
-    { line: 2, mem: [{ n: 'a', t: 'shared_ptr', v: '0x5000', p: 'Foo' }, { n: 'b', t: 'shared_ptr', v: '0x5000', p: 'Foo' }, { n: 'Foo @0x5000', t: 'use_count', v: '2', k: 'heap' }],
-      note: 'Copying a shared_ptr does <b>not</b> copy the Foo. It points to the same object and bumps the count to 2.' },
-    { line: 3, mem: [{ n: 'a', t: 'shared_ptr', v: '0x5000', p: 'Foo' }, { n: 'b', t: 'shared_ptr', v: 'nullptr' }, { n: 'Foo @0x5000', t: 'use_count', v: '1', k: 'heap' }],
-      note: '<b>b.reset()</b> drops one owner. The count falls to 1 and Foo is still alive because <b>a</b> owns it.' },
-    { line: 4, mem: [{ n: 'a', t: 'shared_ptr', v: 'nullptr' }, { n: 'b', t: 'shared_ptr', v: 'nullptr' }, { n: 'Foo @0x5000', t: 'use_count', v: '0 (destroyed)', k: 'heap', dead: true }],
-      note: 'The last owner is gone: the count hits 0 and <b>Foo is destroyed and its memory freed automatically</b>. If a and b had pointed at each other\'s owners (a cycle), this would never happen: use <code>weak_ptr</code>.' }
-  ]
-});
-
-CT.stepper('#st-lambda', {
-  title: 'Lambda captures: by value vs by reference',
-  code: String.raw`
-int x = 1;
-auto byVal = [x]  { return x; };
-auto byRef = [&x] { return x; };
-x = 2;
-std::cout << byVal() << byRef();
-`,
-  steps: [
-    { line: 1, mem: [{ n: 'x', t: 'int', v: '1' }], note: 'A local <b>x</b> holds 1.' },
-    { line: 2, mem: [{ n: 'x', t: 'int', v: '1' }, { n: 'byVal.x', t: 'int (member)', v: '1', p: 'a snapshot' }],
-      note: '<code>[x]</code>: the lambda is a small object with its own <b>member copy</b> of x, taken <i>now</i>.' },
-    { line: 3, mem: [{ n: 'x', t: 'int', v: '1' }, { n: 'byVal.x', t: 'int (member)', v: '1' }, { n: 'byRef.x', t: 'int& (member)', v: 'alias', to: 'x' }],
-      note: '<code>[&amp;x]</code>: the lambda stores a <b>reference</b> to the live x. Follow the arrow.' },
-    { line: 4, mem: [{ n: 'x', t: 'int', v: '2' }, { n: 'byVal.x', t: 'int (member)', v: '1' }, { n: 'byRef.x', t: 'int& (member)', v: 'alias', to: 'x' }],
-      note: 'x changes to 2. The snapshot inside <b>byVal</b> is still 1. <b>byRef</b> sees the change.' },
-    { line: 5, mem: [{ n: 'x', t: 'int', v: '2' }, { n: 'byVal.x', t: 'int (member)', v: '1' }, { n: 'byRef.x', t: 'int& (member)', v: 'alias', to: 'x' }], out: '12\n',
-      note: 'Prints <b>12</b>. A reference capture that outlives x (returned, or run later on another thread) <b>dangles</b>: capture by value when a lambda escapes its scope.' }
-  ]
-});
-
-CT.stepper('#st-unique', {
-  title: 'unique_ptr: ownership moves, it is never copied',
-  code: String.raw`
-auto p = std::make_unique<Widget>();
-auto q = std::move(p);
-q.reset();
-`,
-  steps: [
-    { line: 1, mem: [{ n: 'p @0x1000', t: 'unique_ptr', v: '0x5000' }, { n: 'Widget @0x5000', t: 'Widget', v: 'alive', k: 'heap' }],
-      note: '<b>p</b> owns the Widget. It is the only owner, and its destructor will free the object.' },
-    { line: 2, mem: [{ n: 'p @0x1000', t: 'unique_ptr', v: 'nullptr' }, { n: 'q @0x1008', t: 'unique_ptr', v: '0x5000' }, { n: 'Widget @0x5000', t: 'Widget', v: 'alive', k: 'heap' }],
-      note: '<code>std::move(p)</code> hands ownership to <b>q</b>. p is now <b>null</b>. Copying (<code>auto q = p;</code>) does not compile: there can be only one owner.' },
-    { line: 3, mem: [{ n: 'p @0x1000', t: 'unique_ptr', v: 'nullptr' }, { n: 'q @0x1008', t: 'unique_ptr', v: 'nullptr' }, { n: 'Widget @0x5000', t: 'Widget', v: 'destroyed', dead: true, k: 'heap' }],
-      note: '<code>q.reset()</code> destroys the Widget now. Without it, the destructor of q would do the same at the closing brace. No <code>delete</code>, no leak, same cost as a raw pointer.' }
+    { line: 2, mem: [{ n: 'db', t: 'state', v: 'transaction open', k: 'static' }],
+      note: '<code>begin()</code> opens a transaction. From here on, an early exit must undo it.' },
+    { line: 3, mem: [{ n: 'db', t: 'state', v: 'transaction open', k: 'static' }, { n: 'rollback', t: 'ScopeExit', v: 'active: will run undo()' }],
+      note: 'The <b>guard</b> is a local object. Its destructor will call <code>undo</code> unless it was released.' },
+    { line: 4, mem: [{ n: 'db', t: 'state', v: 'step 1 applied', k: 'static' }, { n: 'rollback', t: 'ScopeExit', v: 'active: will run undo()' }],
+      note: '<code>step1()</code> succeeds and changes the database.' },
+    { line: 5, mem: [{ n: 'db', t: 'state', v: 'step 1 applied', k: 'static' }, { n: 'rollback', t: 'ScopeExit', v: 'active: will run undo()' }],
+      note: '<code>step2()</code> <b>throws</b>. The lines after it, including <code>release()</code>, never run.' },
+    { line: 6, mem: [{ n: 'db', t: 'state', v: 'rolled back', k: 'static' }, { n: 'rollback', t: 'ScopeExit', v: 'destroyed: undo() ran', dead: true }],
+      note: '<b>Stack unwinding</b> destroys <code>rollback</code>; its destructor sees it is still active and runs <code>undo()</code>. The database is back to its original state. On the success path, <code>release()</code> would have deactivated the guard first, so the changes would stay.' }
   ]
 });
 </script>

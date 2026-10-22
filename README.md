@@ -6,7 +6,7 @@ Study material for learning C++ and preparing for C++ interviews, in three parts
 
 | If you want to... | Go to |
 |---|---|
-| **Learn C++ step by step** | [Lesson 1: basics and pointers](https://ghaith-hamdi1.github.io/cpp-training/01-basics.html), then [OOP](https://ghaith-hamdi1.github.io/cpp-training/02-oop.html) and [core language](https://ghaith-hamdi1.github.io/cpp-training/03-core-language.html) |
+| **Learn C++ step by step** | [Lesson 1: basics and pointers](https://ghaith-hamdi1.github.io/cpp-training/01-basics.html), then [OOP](https://ghaith-hamdi1.github.io/cpp-training/02-oop.html), [core language](https://ghaith-hamdi1.github.io/cpp-training/03-core-language.html) and [move semantics](https://ghaith-hamdi1.github.io/cpp-training/13-move-semantics.html) |
 | **Prepare for an interview** | The [study checklist](https://ghaith-hamdi1.github.io/cpp-training/study-checklist.html), with clickable boxes that remember your progress |
 | **Find one topic** | The [topic map](docs/topic-map.md): where each topic appears in the notes, the recaps and the lessons |
 | **Read the source notes** | The [training notes index](docs/README.md) |
@@ -18,7 +18,7 @@ The lessons work offline after one visit. From a clone you can also open [`inter
 
 | Path | What it is |
 |---|---|
-| [`interactive/`](interactive/index.html) | The **Lessons**: ten interactive lessons with quizzes, published with GitHub Pages. Plain HTML, CSS and JavaScript, with no build step. |
+| [`interactive/`](interactive/index.html) | The **Lessons**: interactive lessons with quizzes, published with GitHub Pages. Plain HTML, CSS and JavaScript, with no build step. |
 | [`docs/`](docs/README.md) and [`examples/`](examples/) | The **Training notes**: a company course as concise, slide-style Markdown (four modules) with matching source code. The docs folder also holds the topic map, the reading guides and the study checklist. |
 | [`examples/lessons/`](examples/lessons/README.md) | **Runnable programs** for the main lesson snippets: complete, compiled and checked with g++ (`make` builds them all). |
 | [`LearnCPP/`](LearnCPP/Recaps/README.md) | The **Recaps**: personal recaps of the learncpp.com chapters, with solved exercises under [`LearnCPP/Recaps/solutions/`](LearnCPP/Recaps/solutions/). Slower and more thorough than the training notes. |
@@ -33,14 +33,20 @@ Each lesson has step-through memory visualizers or simulators, predict-the-outpu
 |---|---|---|
 | 1 | [C++ Basics and Pointers](https://ghaith-hamdi1.github.io/cpp-training/01-basics.html) | [Quiz](https://ghaith-hamdi1.github.io/cpp-training/01-basics-quiz.html) |
 | 2 | [Object-Oriented Programming](https://ghaith-hamdi1.github.io/cpp-training/02-oop.html) | [Quiz](https://ghaith-hamdi1.github.io/cpp-training/02-oop-quiz.html) |
-| 3 | [Core Language and Modern C++](https://ghaith-hamdi1.github.io/cpp-training/03-core-language.html) | [Quiz](https://ghaith-hamdi1.github.io/cpp-training/03-core-language-quiz.html) |
-| 4 | [The STL](https://ghaith-hamdi1.github.io/cpp-training/04-stl.html) | [Quiz](https://ghaith-hamdi1.github.io/cpp-training/04-stl-quiz.html) |
-| 5 | [Templates](https://ghaith-hamdi1.github.io/cpp-training/05-templates.html) | [Quiz](https://ghaith-hamdi1.github.io/cpp-training/05-templates-quiz.html) |
-| 6 | [Design Patterns](https://ghaith-hamdi1.github.io/cpp-training/06-design-patterns.html) | [Quiz](https://ghaith-hamdi1.github.io/cpp-training/06-design-patterns-quiz.html) |
-| 7 | [Multithreading](https://ghaith-hamdi1.github.io/cpp-training/07-multithreading.html) | [Quiz](https://ghaith-hamdi1.github.io/cpp-training/07-multithreading-quiz.html) |
-| 8 | [Strings, Regex and Time](https://ghaith-hamdi1.github.io/cpp-training/08-strings-regex-time.html) | [Quiz](https://ghaith-hamdi1.github.io/cpp-training/08-strings-regex-time-quiz.html) |
-| 9 | [Type Traits and Compile-time C++](https://ghaith-hamdi1.github.io/cpp-training/09-compile-time.html) | [Quiz](https://ghaith-hamdi1.github.io/cpp-training/09-compile-time-quiz.html) |
-| 10 | [Coding Rules and Safe C++](https://ghaith-hamdi1.github.io/cpp-training/10-coding-rules.html) | [Quiz](https://ghaith-hamdi1.github.io/cpp-training/10-coding-rules-quiz.html) |
+| 3 | [Core Language: RAII and Exceptions](https://ghaith-hamdi1.github.io/cpp-training/03-core-language.html) | [Quiz](https://ghaith-hamdi1.github.io/cpp-training/03-core-language-quiz.html) |
+| 4 | [Move Semantics](https://ghaith-hamdi1.github.io/cpp-training/13-move-semantics.html) | [Quiz](https://ghaith-hamdi1.github.io/cpp-training/13-move-semantics-quiz.html) |
+| 5 | [Smart Pointers and Ownership](https://ghaith-hamdi1.github.io/cpp-training/14-smart-pointers.html) | [Quiz](https://ghaith-hamdi1.github.io/cpp-training/14-smart-pointers-quiz.html) |
+| 6 | [Lambdas and Callables](https://ghaith-hamdi1.github.io/cpp-training/15-lambdas.html) | [Quiz](https://ghaith-hamdi1.github.io/cpp-training/15-lambdas-quiz.html) |
+| 7 | [Types, Initialization and Casts](https://ghaith-hamdi1.github.io/cpp-training/16-types-and-casts.html) | [Quiz](https://ghaith-hamdi1.github.io/cpp-training/16-types-and-casts-quiz.html) |
+| 8 | [The STL](https://ghaith-hamdi1.github.io/cpp-training/04-stl.html) | [Quiz](https://ghaith-hamdi1.github.io/cpp-training/04-stl-quiz.html) |
+| 9 | [Templates](https://ghaith-hamdi1.github.io/cpp-training/05-templates.html) | [Quiz](https://ghaith-hamdi1.github.io/cpp-training/05-templates-quiz.html) |
+| 10 | [Design Patterns](https://ghaith-hamdi1.github.io/cpp-training/06-design-patterns.html) | [Quiz](https://ghaith-hamdi1.github.io/cpp-training/06-design-patterns-quiz.html) |
+| 11 | [Multithreading](https://ghaith-hamdi1.github.io/cpp-training/07-multithreading.html) | [Quiz](https://ghaith-hamdi1.github.io/cpp-training/07-multithreading-quiz.html) |
+| 12 | [Strings, Regex and Time](https://ghaith-hamdi1.github.io/cpp-training/08-strings-regex-time.html) | [Quiz](https://ghaith-hamdi1.github.io/cpp-training/08-strings-regex-time-quiz.html) |
+| 13 | [Type Traits and Compile-time C++](https://ghaith-hamdi1.github.io/cpp-training/09-compile-time.html) | [Quiz](https://ghaith-hamdi1.github.io/cpp-training/09-compile-time-quiz.html) |
+| 14 | [Coding Rules and Safe C++](https://ghaith-hamdi1.github.io/cpp-training/10-coding-rules.html) | [Quiz](https://ghaith-hamdi1.github.io/cpp-training/10-coding-rules-quiz.html) |
+| 15 | [Wire Formats and Parsing](https://ghaith-hamdi1.github.io/cpp-training/11-wire-formats.html) | [Quiz](https://ghaith-hamdi1.github.io/cpp-training/11-wire-formats-quiz.html) |
+| 16 | [Low-Latency C++](https://ghaith-hamdi1.github.io/cpp-training/12-low-latency.html) | [Quiz](https://ghaith-hamdi1.github.io/cpp-training/12-low-latency-quiz.html) |
 
 **Working on the site.** After you change anything in `interactive/`, regenerate the derived files and run the checks (the same checks run in CI):
 
@@ -70,7 +76,7 @@ After the two books in this repo (see their reading guides above), these are the
 
 ### Online
 
-- [C++ Core Guidelines](https://isocpp.github.io/CppCoreGuidelines/CppCoreGuidelines): the rules from Stroustrup and Sutter, a good companion to lesson 10 on coding rules.
+- [C++ Core Guidelines](https://isocpp.github.io/CppCoreGuidelines/CppCoreGuidelines): the rules from Stroustrup and Sutter, a good companion to lesson 14 on coding rules.
 - [cppreference.com](https://en.cppreference.com/): the standard reference for language and library details.
 - [modern-cpp-tutorial](https://github.com/changkun/modern-cpp-tutorial): book-style tutorial on C++11/14/17/20 that explains why modern features exist.
 - [modern-cpp-features](https://github.com/AnthonyCalandra/modern-cpp-features): cheat sheet with a short snippet per feature, C++11 through C++23.

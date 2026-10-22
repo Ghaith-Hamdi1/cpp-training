@@ -1,0 +1,208 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Smart Pointers and Ownership</title>
+<script>try{var t=JSON.parse(localStorage.getItem('cpptrain:theme'));if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body data-topic="smartptr" data-kind="lesson">
+<main>
+<h1>Smart Pointers and Ownership</h1>
+<p class="lead">Who owns an object: <code>unique_ptr</code>, <code>shared_ptr</code> and <code>weak_ptr</code>, the control block, cycles, and how to pass ownership around. Builds on <a href="03-core-language.html">RAII</a> and <a href="13-move-semantics.html">Move Semantics</a>.</p>
+
+<section id="ownership" data-title="Who owns it? The three smart pointers">
+<h2>Who owns it? The three smart pointers</h2>
+<p>RAII wrappers around <code>new</code>/<code>delete</code> (<code>&lt;memory&gt;</code>) that make <b>ownership explicit in the type</b>. The owner is whoever must free the object.</p>
+<table>
+<tr><th>Type</th><th>Ownership</th><th>Copyable?</th><th>Cost</th></tr>
+<tr><td><code>std::unique_ptr&lt;T&gt;</code></td><td>exclusive: one owner</td><td><b>no</b>, only movable</td><td>same as a raw pointer</td></tr>
+<tr><td><code>std::shared_ptr&lt;T&gt;</code></td><td>shared: reference counted, freed when the last owner goes</td><td>yes (bumps the count)</td><td>extra control block, atomic count</td></tr>
+<tr><td><code>std::weak_ptr&lt;T&gt;</code></td><td>none: observes a <code>shared_ptr</code> without keeping it alive</td><td>yes</td><td>small</td></tr>
+<tr><td>raw pointer / reference</td><td>none: "I use it, I do not own it"</td><td>yes</td><td>none</td></tr>
+</table>
+<div class="callout tip"><span class="label">Default</span>A plain value member or local first. Then <code>unique_ptr</code> when it must live on the heap (polymorphism, large, optional). <code>shared_ptr</code> only for truly shared ownership.</div>
+<table>
+<tr><th>A function that...</th><th>takes</th></tr>
+<tr><td>only uses the object</td><td><code>const Widget&amp;</code> (or <code>Widget*</code> if it may be null): never the smart pointer</td></tr>
+<tr><td>takes over ownership</td><td><code>std::unique_ptr&lt;Widget&gt;</code> by value: the caller must <code>std::move</code></td></tr>
+<tr><td>keeps a share</td><td><code>std::shared_ptr&lt;Widget&gt;</code> by value</td></tr>
+<tr><td>gives ownership to the caller</td><td>returns <code>std::unique_ptr&lt;Widget&gt;</code> (a factory)</td></tr>
+</table>
+<script type="text/x-cpp">
+std::unique_ptr<Widget> makeWidget(std::string n);        // factory: sole ownership to the caller
+void use(const Widget& w);                                // just uses: pass the object, not the owner
+void take(std::unique_ptr<Widget> w);                     // takes ownership
+
+auto w = makeWidget("alpha");
+use(*w);
+take(std::move(w));                                       // w is now null
+</script>
+</section>
+
+<section id="unique" data-title="unique_ptr in detail">
+<h2><code>unique_ptr</code> in detail</h2>
+<script type="text/x-cpp">
+auto p = std::make_unique<Widget>(1, "a");   // preferred over `new`
+// auto q = p;                               // ERROR: unique_ptr cannot be copied
+auto q = std::move(p);                       // OK: ownership moves, p is now null
+</script>
+<div id="st-unique"></div>
+<ul>
+<li><b>Zero overhead:</b> with the default deleter <code>sizeof(unique_ptr&lt;T&gt;) == sizeof(T*)</code> (checked). A function-pointer deleter makes it twice as big; a stateless lambda deleter adds nothing.</li>
+<li><b>Custom deleter</b> for anything that is not <code>delete</code>: <code>std::unique_ptr&lt;std::FILE, decltype(closer)&gt; f(std::fopen(...), closer);</code> closes the file on scope exit.</li>
+<li><b>Arrays:</b> <code>std::make_unique&lt;int[]&gt;(3)</code> uses <code>delete[]</code>. Prefer <code>std::vector</code> unless you need a fixed block.</li>
+<li><b>Polymorphism:</b> <code>unique_ptr&lt;Base&gt;</code> holding a <code>Derived</code> needs a <b>virtual destructor</b> on <code>Base</code>, as with any <code>delete</code> through a base pointer.</li>
+<li><code>.get()</code> returns the raw pointer without giving up ownership; <code>.release()</code> gives it up (you must delete it); <code>.reset()</code> destroys the object now.</li>
+</ul>
+<div class="callout interview"><span class="label">Interview angle</span>Why <code>make_unique</code>? No naked <code>new</code>, the type is written once, and before C++17 <code>f(unique_ptr&lt;A&gt;(new A), g())</code> could leak when <code>g()</code> threw between the two steps.</div>
+</section>
+
+<section id="shared" data-title="shared_ptr and the control block">
+<h2><code>shared_ptr</code> and the control block</h2>
+<figure class="fig"><svg viewBox="0 0 640 170" role="img" aria-label="Two shared_ptr owners and one weak_ptr point at a control block that counts them"><defs><marker id="d2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path class="ah" d="M0 0L10 5L0 10z"/></marker></defs><rect class="acc" x="10" y="20" width="90" height="30" rx="5"/><text x="55" y="40" text-anchor="middle">s1 shared</text><rect class="acc" x="10" y="64" width="90" height="30" rx="5"/><text x="55" y="84" text-anchor="middle">s2 shared</text><rect class="box" x="10" y="124" width="90" height="30" rx="5" stroke-dasharray="5 4"/><text x="55" y="144" text-anchor="middle">w weak</text><path class="ar" d="M100 35L238 62M100 79L238 76"/><path class="ln" d="M100 139L238 92" stroke-dasharray="5 4"/><rect class="wn" x="240" y="40" width="170" height="70" rx="8"/><text class="t" x="325" y="62" text-anchor="middle">control block</text><text class="m" x="325" y="82" text-anchor="middle">strong count: 2</text><text class="m" x="325" y="98" text-anchor="middle">weak count: 1</text><path class="ar" d="M410 75H498" marker-end="url(#d2)"/><rect class="gd" x="500" y="52" width="130" height="46" rx="8"/><text class="t" x="565" y="80" text-anchor="middle">Widget</text><text class="m" x="10" y="166">Object freed when strong count hits 0. weak_ptr.lock() gives a shared_ptr or null.</text></svg><figcaption>unique_ptr has no control block: zero overhead, one owner.</figcaption></figure>
+<script type="text/x-cpp">
+auto s1 = std::make_shared<Widget>(2, "b");  // one allocation for object + control block
+auto s2 = s1;                                // two owners, use_count() == 2
+</script>
+<div id="st-shared"></div>
+<ul>
+<li>A <code>shared_ptr</code> is <b>two pointers</b>: to the object and to a <b>control block</b> holding the strong count, the weak count and the deleter.</li>
+<li><code>make_shared</code> allocates object and control block together (one allocation). <code>shared_ptr&lt;T&gt;(new T)</code> allocates twice.</li>
+<li>The deleter is not part of the <code>shared_ptr</code> type (unlike <code>unique_ptr</code>): type-erased in the control block.</li>
+<li>The counts are <b>atomic</b>: copying or destroying <code>shared_ptr</code>s on several threads is safe. The <b>object</b> is not protected, and changing the same <code>shared_ptr</code> variable from two threads is a race.</li>
+<li>Copying costs an atomic increment. On hot paths pass <code>const shared_ptr&amp;</code> or the object itself, not a copy per call.</li>
+</ul>
+</section>
+
+<section id="weak" data-title="Reference cycles and weak_ptr">
+<h2>Reference cycles and <code>weak_ptr</code></h2>
+<p>If <code>A</code> holds a <code>shared_ptr&lt;B&gt;</code> and <code>B</code> holds a <code>shared_ptr&lt;A&gt;</code>, each keeps the other alive: <b>neither is ever destroyed</b>. Compiled: after the scope, both objects were still alive (leaked). Make the back link (child to parent) a <code>weak_ptr</code>: both were destroyed.</p>
+<div id="st-cycle"></div>
+<script type="text/x-cpp">
+struct Node { std::shared_ptr<Owner> parent; };        // cycle: leak
+struct WNode { std::weak_ptr<OwnerW> parent; };        // weak back-pointer: freed
+
+std::weak_ptr<Widget> w = s1;                          // observe only: does not change use_count
+if (auto sp = w.lock()) { /* still alive: use sp for as long as you hold it */ }   // lock() gives a shared_ptr or null
+w.expired();                                           // true once every owner is gone
+</script>
+<ul>
+<li><code>lock()</code> is the only way to use the object: it gives a <code>shared_ptr</code> that keeps it alive while you work, or null.</li>
+<li>Typical uses: parent links, caches, observer lists that must not keep subscribers alive.</li>
+<li>A <code>weak_ptr</code> keeps the <b>control block</b> alive (not the object) until the last weak reference goes.</li>
+</ul>
+</section>
+
+<section id="pitfalls" data-title="Pitfalls and enable_shared_from_this">
+<h2>Pitfalls and <code>enable_shared_from_this</code></h2>
+<div class="callout warn"><span class="label">One control block per object</span>
+<script type="text/x-cpp">
+auto raw = new Widget;
+std::shared_ptr<Widget> a(raw);
+std::shared_ptr<Widget> b(raw);        // a second, independent control block: double delete!
+</script>
+Never build a second <code>shared_ptr</code> from a raw pointer or from <code>this</code>. Copy an existing one.</div>
+<p>When a member function needs a <code>shared_ptr</code> to its own object (to register itself, to hand to a callback), inherit <code>std::enable_shared_from_this</code> and call <code>shared_from_this()</code>:</p>
+<script type="text/x-cpp">
+struct Session : std::enable_shared_from_this<Session> {
+    std::shared_ptr<Session> self() { return shared_from_this(); }   // a safe second owner, SAME control block
+};
+auto s = std::make_shared<Session>();
+auto t = s->self();                    // use_count() == 2
+Session raw; raw.self();               // throws std::bad_weak_ptr: no shared_ptr owns it (compiled)
+</script>
+<table>
+<tr><th>Pitfall</th><th>Fix</th></tr>
+<tr><td><code>shared_ptr</code> cycle</td><td><code>weak_ptr</code> for the back link</td></tr>
+<tr><td><code>shared_ptr</code> from <code>this</code> or a raw pointer</td><td><code>enable_shared_from_this</code></td></tr>
+<tr><td><code>shared_ptr</code> by default "to be safe"</td><td><code>unique_ptr</code>: you can always convert to shared later</td></tr>
+<tr><td>storing <code>.get()</code> somewhere that outlives the owner</td><td>keep the smart pointer, or a <code>weak_ptr</code></td></tr>
+<tr><td><code>delete</code> on a <code>.get()</code> result</td><td>never: the smart pointer will delete it again</td></tr>
+</table>
+</section>
+
+<section id="cheat" data-title="Interview cheat sheet">
+<h2>Interview cheat sheet</h2>
+<p>Answer aloud, then open.</p>
+<details class="ex"><summary><code>unique_ptr</code> vs <code>shared_ptr</code> vs <code>weak_ptr</code>?</summary><div><p><code>unique_ptr</code>: sole owner, move-only, zero overhead. <code>shared_ptr</code>: reference-counted shared ownership with a control block and atomic count. <code>weak_ptr</code>: non-owning observer used to break cycles and to check whether a shared object is still alive (<code>lock()</code>).</p></div></details>
+<details class="ex"><summary>Is <code>shared_ptr</code> thread-safe?</summary><div><p>The reference count is atomic, so copying and destroying <code>shared_ptr</code>s from different threads is safe. The pointed-to object is <b>not</b> protected: concurrent access to it still needs synchronization. Concurrently modifying the same <code>shared_ptr</code> variable is also a race.</p></div></details>
+<details class="ex"><summary>Why prefer <code>make_unique</code> / <code>make_shared</code>?</summary><div><p>No naked <code>new</code>, less typing (and exception safe before C++17), and <code>make_shared</code> allocates the object and its control block once instead of twice.</p></div></details>
+<details class="ex"><summary>How do you break a <code>shared_ptr</code> cycle?</summary><div><p>Make one direction (usually the child's link to its parent) a <code>weak_ptr</code>. It does not count toward ownership, so the objects can be destroyed; use <code>lock()</code> to get a temporary <code>shared_ptr</code> when needed.</p></div></details>
+<details class="ex"><summary>How do you pass a smart pointer to a function?</summary><div><p>If the function only uses the object, pass a reference or raw pointer, not the smart pointer. To transfer ownership, take a <code>unique_ptr</code> by value and have the caller <code>std::move</code>. To share, take a <code>shared_ptr</code> by value. Return <code>unique_ptr</code> from factories.</p></div></details>
+<details class="ex"><summary>Why can two <code>shared_ptr</code>s built from the same raw pointer crash?</summary><div><p>Each creates its own control block and count, so the object is deleted twice. Copy an existing <code>shared_ptr</code>, or inherit <code>enable_shared_from_this</code> when an object must hand out a shared pointer to itself.</p></div></details>
+<details class="ex"><summary>Does <code>unique_ptr</code> cost anything compared with a raw pointer?</summary><div><p>Not with the default deleter: it is the same size and the destructor inlines to a <code>delete</code>. A stateful deleter (a capturing lambda, a function pointer) makes it larger.</p></div></details>
+</section>
+
+</main>
+
+<script src="assets/data/lessons.js"></script>
+<script src="assets/app.js"></script>
+<script>
+CT.stepper('#st-unique', {
+  title: 'unique_ptr: ownership moves, it is never copied',
+  code: String.raw`
+auto p = std::make_unique<Widget>();
+auto q = std::move(p);
+q.reset();
+`,
+  steps: [
+    { line: 1, mem: [{ n: 'p @0x1000', t: 'unique_ptr', v: '0x5000' }, { n: 'Widget @0x5000', t: 'Widget', v: 'alive', k: 'heap' }],
+      note: '<b>p</b> owns the Widget. It is the only owner, and its destructor will free the object.' },
+    { line: 2, mem: [{ n: 'p @0x1000', t: 'unique_ptr', v: 'nullptr' }, { n: 'q @0x1008', t: 'unique_ptr', v: '0x5000' }, { n: 'Widget @0x5000', t: 'Widget', v: 'alive', k: 'heap' }],
+      note: '<code>std::move(p)</code> hands ownership to <b>q</b>. p is now <b>null</b>. Copying (<code>auto q = p;</code>) does not compile: there can be only one owner.' },
+    { line: 3, mem: [{ n: 'p @0x1000', t: 'unique_ptr', v: 'nullptr' }, { n: 'q @0x1008', t: 'unique_ptr', v: 'nullptr' }, { n: 'Widget @0x5000', t: 'Widget', v: 'destroyed', dead: true, k: 'heap' }],
+      note: '<code>q.reset()</code> destroys the Widget now. Without it, the destructor of q would do the same at the closing brace. No <code>delete</code>, no leak, same cost as a raw pointer.' }
+  ]
+});
+
+
+CT.stepper('#st-shared', {
+  title: 'shared_ptr reference counting',
+  code: String.raw`
+auto a = std::make_shared<Foo>();
+auto b = a;
+b.reset();
+a.reset();
+`,
+  steps: [
+    { line: 1, mem: [{ n: 'a', t: 'shared_ptr', v: '0x5000', p: 'Foo' }, { n: 'Foo @0x5000', t: 'use_count', v: '1', k: 'heap' }],
+      note: '<b>make_shared</b> creates the Foo and its control block in one allocation. <code>a.use_count()</code> is 1.' },
+    { line: 2, mem: [{ n: 'a', t: 'shared_ptr', v: '0x5000', p: 'Foo' }, { n: 'b', t: 'shared_ptr', v: '0x5000', p: 'Foo' }, { n: 'Foo @0x5000', t: 'use_count', v: '2', k: 'heap' }],
+      note: 'Copying a shared_ptr does <b>not</b> copy the Foo. It points to the same object and bumps the count to 2.' },
+    { line: 3, mem: [{ n: 'a', t: 'shared_ptr', v: '0x5000', p: 'Foo' }, { n: 'b', t: 'shared_ptr', v: 'nullptr' }, { n: 'Foo @0x5000', t: 'use_count', v: '1', k: 'heap' }],
+      note: '<b>b.reset()</b> drops one owner. The count falls to 1 and Foo is still alive because <b>a</b> owns it.' },
+    { line: 4, mem: [{ n: 'a', t: 'shared_ptr', v: 'nullptr' }, { n: 'b', t: 'shared_ptr', v: 'nullptr' }, { n: 'Foo @0x5000', t: 'use_count', v: '0 (destroyed)', k: 'heap', dead: true }],
+      note: 'The last owner is gone: the count hits 0 and <b>Foo is destroyed and its memory freed automatically</b>. If a and b had pointed at each other\'s owners (a cycle), this would never happen: use <code>weak_ptr</code>.' }
+  ]
+});
+
+
+CT.stepper('#st-cycle', {
+  title: 'A shared_ptr cycle leaks',
+  code: String.raw`
+struct Node { shared_ptr<Node> next; };
+{
+    auto a = make_shared<Node>();
+    auto b = make_shared<Node>();
+    a->next = b;
+    b->next = a;
+}
+`,
+  steps: [
+    { line: 3, mem: [{ n: 'a', t: 'shared_ptr', v: '0x5000', p: 'Node A' }, { n: 'Node A @0x5000', t: 'next, use_count', v: 'null (1)', k: 'heap' }],
+      note: '<b>a</b> owns Node A. Strong count 1.' },
+    { line: 4, mem: [{ n: 'a', t: 'shared_ptr', v: '0x5000', p: 'Node A' }, { n: 'b', t: 'shared_ptr', v: '0x6000', p: 'Node B' }, { n: 'Node A @0x5000', t: 'next, use_count', v: 'null (1)', k: 'heap' }, { n: 'Node B @0x6000', t: 'next, use_count', v: 'null (1)', k: 'heap' }],
+      note: '<b>b</b> owns Node B. Strong count 1.' },
+    { line: 5, mem: [{ n: 'a', t: 'shared_ptr', v: '0x5000', p: 'Node A' }, { n: 'b', t: 'shared_ptr', v: '0x6000', p: 'Node B' }, { n: 'Node A @0x5000', t: 'next, use_count', v: '0x6000 (1)', k: 'heap' }, { n: 'Node B @0x6000', t: 'next, use_count', v: 'null (2)', k: 'heap' }],
+      note: 'A now also owns B through <code>next</code>: the count of B is <b>2</b>.' },
+    { line: 6, mem: [{ n: 'a', t: 'shared_ptr', v: '0x5000', p: 'Node A' }, { n: 'b', t: 'shared_ptr', v: '0x6000', p: 'Node B' }, { n: 'Node A @0x5000', t: 'next, use_count', v: '0x6000 (2)', k: 'heap' }, { n: 'Node B @0x6000', t: 'next, use_count', v: '0x5000 (2)', k: 'heap' }],
+      note: 'B owns A back: the count of A is <b>2</b>. Each node keeps the other alive.' },
+    { line: 7, mem: [{ n: 'a', t: 'shared_ptr', v: 'gone', dead: true }, { n: 'b', t: 'shared_ptr', v: 'gone', dead: true }, { n: 'Node A @0x5000', t: 'next, use_count', v: '0x6000 (1)', k: 'heap' }, { n: 'Node B @0x6000', t: 'next, use_count', v: '0x5000 (1)', k: 'heap' }],
+      note: 'The scope ends and <b>a</b> and <b>b</b> are destroyed, but each count only falls to <b>1</b>: the other node still owns it. Nobody can reach them and nothing frees them: a <b>leak</b>. If <code>next</code> were a <code>weak_ptr</code> in one direction, the count of that node would stay 1, so it would be freed when its variable dies, which then releases the other.' }
+  ]
+});
+</script>
+</body>
+</html>

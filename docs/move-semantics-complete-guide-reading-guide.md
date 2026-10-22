@@ -1,6 +1,6 @@
 # Reading guide: *C++ Move Semantics: The Complete Guide* (Nicolai Josuttis)
 
-A short reading plan for `semant.pdf` (Nicolai Josuttis, first edition, version of 2022-04-19, about 263 PDF pages, covering C++11 through C++20). It is a whole book on one topic, so it goes much deeper than the move-semantics chapter in *Effective Modern C++*: the moved-from state, value categories, writing move operations, reference qualifiers and the standard library's move support. Use the [interactive lessons](https://ghaith-hamdi1.github.io/cpp-training/) first (Lesson 3 covers move semantics, and Lesson 2 the Rule of Three, Five and Zero), then read this book for depth. The [Effective Modern C++ guide](effective-modern-cpp-reading-guide.md) has the shorter, interview-shaped treatment.
+A short reading plan for `semant.pdf` (Nicolai Josuttis, first edition, version of 2022-04-19, about 263 PDF pages, covering C++11 through C++20). It is a whole book on one topic, so it goes much deeper than the move-semantics chapter in *Effective Modern C++*: the moved-from state, value categories, writing move operations, reference qualifiers and the standard library's move support. Use the [interactive lessons](https://ghaith-hamdi1.github.io/cpp-training/) first (Lesson 4 covers move semantics, and Lesson 2 the Rule of Three, Five and Zero), then read this book for depth. The [Effective Modern C++ guide](effective-modern-cpp-reading-guide.md) has the shorter, interview-shaped treatment.
 
 **Page numbers.** The tables give *PDF viewer* page numbers, the number shown in your PDF reader. A range covers the whole section named.
 
@@ -19,35 +19,35 @@ The book has 15 chapters in three parts. The summaries below come from its table
 
 | Book section | PDF pages | What it teaches | Matching lesson section |
 |---|---|---|---|
-| 1.2 to 1.4 Implementing move semantics; copying as a fallback; `const` objects | 36 to 41 | Move versus copy constructor. If an object cannot be moved, a move silently falls back to a copy. A `const` object cannot be moved from, so `const` return values disable moves. | 3. Move semantics |
-| **Chapter 2** Core features of move semantics | 43 to 52 | Rvalue references; `std::move` is a `static_cast` to an rvalue reference; **moved-from objects** (valid but unspecified state, reusing them, moving an object to itself); overloading by different references; passing by value. | 3. Lvalues, rvalues and references; Move semantics |
+| 1.2 to 1.4 Implementing move semantics; copying as a fallback; `const` objects | 36 to 41 | Move versus copy constructor. If an object cannot be moved, a move silently falls back to a copy. A `const` object cannot be moved from, so `const` return values disable moves. | 4. Move semantics |
+| **Chapter 2** Core features of move semantics | 43 to 52 | Rvalue references; `std::move` is a `static_cast` to an rvalue reference; **moved-from objects** (valid but unspecified state, reusing them, moving an object to itself); overloading by different references; passing by value. | 4. Lvalues, rvalues and value categories; Move semantics |
 | 3.1 and 3.1.1 to 3.1.2 Move semantics in ordinary classes | 53 to 58 | When move support is generated automatically, and when the generated move operations are broken. | 2. Copying and the Rule of 3, 5 and 0 |
 | 3.3 to 3.4 Rules for special member functions; the Rule of Five or Three | 66 to 76 | The exact rules: declaring a copy operation or destructor disables moving (copy becomes the fallback); declaring a move operation disables copying; never `= delete` a move operation. | 2. Copying and the Rule of 3, 5 and 0 |
-| 4.1 to 4.2 Avoid objects with names; avoid unnecessary `std::move` | 77 to 79 | Do not `std::move` a returned local, and prefer unnamed temporaries. | 3. Move semantics |
-| 4.3.5 to 4.3.6 Member initialization summary; always pass by value and move? | 90 to 93 | When to take a parameter by value and move it into a member, and when not to (not for updating an existing value). | 3. Move semantics |
-| **6.1 to 6.2 Moved-from states** (required and guaranteed states; destructible and assignable) | 107 to 115 | What state a moved-from object must be in (at least destructible), the states the standard guarantees, whether it can be assigned to, and broken invariants. | 3. Move semantics (the moved-from rule) |
-| 7.1 and 7.4 Move constructors with and without `noexcept`; when and where to use `noexcept` | 125 to 134 and 140 to 141 | Why `noexcept` move operations matter for containers like `std::vector`, and the rule: declare move operations and `swap` `noexcept`. | 3. Exceptions and exception safety |
-| 8.1.2 to 8.1.3 and 8.4 to 8.5 Value categories since C++11 and C++17; when lvalues become rvalues and the reverse | 145 to 148 and 153 to 154 | lvalue, prvalue and xvalue, and what changed in C++17. A named rvalue reference parameter is itself an lvalue, so move semantics is not passed through. | 3. Lvalues, rvalues and references |
-| 9.1 to 9.3 Perfect forwarding; universal versus rvalue references | 159 to 166 | Why perfect forwarding is needed, `std::forward`, and how to tell a universal reference from an ordinary rvalue reference. | 5. Deduction and forwarding references |
+| 4.1 to 4.2 Avoid objects with names; avoid unnecessary `std::move` | 77 to 79 | Do not `std::move` a returned local, and prefer unnamed temporaries. | 4. Move semantics |
+| 4.3.5 to 4.3.6 Member initialization summary; always pass by value and move? | 90 to 93 | When to take a parameter by value and move it into a member, and when not to (not for updating an existing value). | 4. Move semantics |
+| **6.1 to 6.2 Moved-from states** (required and guaranteed states; destructible and assignable) | 107 to 115 | What state a moved-from object must be in (at least destructible), the states the standard guarantees, whether it can be assigned to, and broken invariants. | 4. Move semantics (the moved-from rule) |
+| 7.1 and 7.4 Move constructors with and without `noexcept`; when and where to use `noexcept` | 125 to 134 and 140 to 141 | Why `noexcept` move operations matter for containers like `std::vector`, and the rule: declare move operations and `swap` `noexcept`. | 3. Exception-safety guarantees and noexcept |
+| 8.1.2 to 8.1.3 and 8.4 to 8.5 Value categories since C++11 and C++17; when lvalues become rvalues and the reverse | 145 to 148 and 153 to 154 | lvalue, prvalue and xvalue, and what changed in C++17. A named rvalue reference parameter is itself an lvalue, so move semantics is not passed through. | 4. Lvalues, rvalues and value categories |
+| 9.1 to 9.3 Perfect forwarding; universal versus rvalue references | 159 to 166 | Why perfect forwarding is needed, `std::forward`, and how to tell a universal reference from an ordinary rvalue reference. | 9. Forwarding references and perfect forwarding |
 
 ## Tier 2: read next if you have time (about 140 pages)
 
 | Book section | PDF pages | What it teaches | Matching lesson section |
 |---|---|---|---|
-| 1.1 Motivation for move semantics | 21 to 36 | A worked example before and after C++11, with copy counts. | 3. Move semantics |
+| 1.1 Motivation for move semantics | 21 to 36 | A worked example before and after C++11, with copy counts. | 4. Move semantics |
 | 3.2 Implementing the special copy and move member functions | 58 to 66 | Writing the copy and move constructors and assignment operators by hand, including moving to itself. | 2. Copying and the Rule of 3, 5 and 0 |
-| 4.3.1 to 4.3.4 Initializing members with move semantics | 79 to 90 | Three approaches (classical, moved by-value parameters, rvalue-reference overloads) and a comparison of their cost. | 3. Move semantics |
+| 4.3.1 to 4.3.4 Initializing members with move semantics | 79 to 90 | Three approaches (classical, moved by-value parameters, rvalue-reference overloads) and a comparison of their cost. | 4. Move semantics |
 | 4.4 Move semantics in class hierarchies | 93 to 96 | A polymorphic base and derived class, and why not to declare a virtual destructor in a derived class. | 2. Inheritance; Polymorphism |
 | **Chapter 5** Overloading on reference qualifiers | 97 to 106 | Getters that are both safe and fast for expensive members, and reference qualifiers on assignment operators. | 2. Member functions |
-| 6.3 Dealing with broken invariants | 115 to 124 | How moves break invariants (moved value members, consistent members, pointer-like members) and how to cope. | 3. Move semantics |
-| 7.2 to 7.3 `noexcept` details and class hierarchies | 134 to 140 | Rules for declaring `noexcept`, `noexcept` on special member functions, and checking abstract base classes. | 3. Exceptions and exception safety |
-| 8.2 to 8.3 and 8.6 Special value-category rules; binding references; checking with `decltype` | 148 to 153 and 154 to 156 | Value category of functions and data members, overload resolution with rvalue references, and using `decltype` to check categories. | 3. Lvalues, rvalues and references |
-| 9.4 to 9.5 Overload resolution with universal references; perfect forwarding in lambdas | 167 to 170 | Why a universal reference is matched too eagerly, and how to fix it. | 5. Deduction and forwarding references |
-| **Chapter 11** Perfect passing with `auto&&` | 191 to 202 | `auto&&` as a universal reference, `std::forward<decltype(ref)>`, and the range-based `for` loop. | 5. Deduction and forwarding references |
-| **Chapter 12** Perfect returning with `decltype(auto)` | 203 to 210 | Returning a value or a reference exactly as given. Never put parentheses around the whole return expression. | 5. Type traits and if constexpr |
-| **Chapter 13** Move-only types | 213 to 218 | Declaring and using move-only types; they cannot go in `std::initializer_list` or be iterated by value. | 3. Smart pointers |
-| **Chapter 14** Moving algorithms and iterators | 219 to 228 | `std::move` and `std::move_backward` as algorithms, removing algorithms that leave moved-from elements, and move iterators. | 4. Algorithms |
-| **Chapter 15** Move semantics in standard library types | 229 to 250 | Strings (moved-from is usually, but not guaranteed to be, empty), containers, `std::array`, `pair`, `optional`, smart pointers, IOStreams, threads and futures. | 4. The STL; 7. Futures and async |
+| 6.3 Dealing with broken invariants | 115 to 124 | How moves break invariants (moved value members, consistent members, pointer-like members) and how to cope. | 4. Move semantics |
+| 7.2 to 7.3 `noexcept` details and class hierarchies | 134 to 140 | Rules for declaring `noexcept`, `noexcept` on special member functions, and checking abstract base classes. | 3. Exception-safety guarantees and noexcept |
+| 8.2 to 8.3 and 8.6 Special value-category rules; binding references; checking with `decltype` | 148 to 153 and 154 to 156 | Value category of functions and data members, overload resolution with rvalue references, and using `decltype` to check categories. | 4. Lvalues, rvalues and value categories |
+| 9.4 to 9.5 Overload resolution with universal references; perfect forwarding in lambdas | 167 to 170 | Why a universal reference is matched too eagerly, and how to fix it. | 9. Forwarding references and perfect forwarding |
+| **Chapter 11** Perfect passing with `auto&&` | 191 to 202 | `auto&&` as a universal reference, `std::forward<decltype(ref)>`, and the range-based `for` loop. | 9. Forwarding references and perfect forwarding |
+| **Chapter 12** Perfect returning with `decltype(auto)` | 203 to 210 | Returning a value or a reference exactly as given. Never put parentheses around the whole return expression. | 9. Type traits and if constexpr |
+| **Chapter 13** Move-only types | 213 to 218 | Declaring and using move-only types; they cannot go in `std::initializer_list` or be iterated by value. | 5. Smart pointers |
+| **Chapter 14** Moving algorithms and iterators | 219 to 228 | `std::move` and `std::move_backward` as algorithms, removing algorithms that leave moved-from elements, and move iterators. | 8. Algorithms |
+| **Chapter 15** Move semantics in standard library types | 229 to 250 | Strings (moved-from is usually, but not guaranteed to be, empty), containers, `std::array`, `pair`, `optional`, smart pointers, IOStreams, threads and futures. | 8. The STL; 11. Futures and async |
 
 ## Reference: read when you need it (about 25 pages)
 

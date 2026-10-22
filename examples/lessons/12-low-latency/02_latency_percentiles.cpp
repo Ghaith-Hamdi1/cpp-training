@@ -1,4 +1,4 @@
-// Lesson 12: why averages hide tail latency. A synthetic sample set (deterministic) shows mean versus percentiles;
+// Lesson 16: why averages hide tail latency. A synthetic sample set (deterministic) shows mean versus percentiles;
 // the timing helper at the end shows how a real measurement is taken (its numbers vary run to run, so none are printed).
 // Compile with -std=c++20.
 #include <algorithm>

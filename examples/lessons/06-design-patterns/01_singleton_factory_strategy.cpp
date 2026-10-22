@@ -1,4 +1,4 @@
-// Lesson 6: Meyers Singleton, Factory returning unique_ptr (with a registry), Strategy as class / lambda / template.
+// Lesson 10: Meyers Singleton, Factory returning unique_ptr (with a registry), Strategy as class / lambda / template.
 #include <functional>
 #include <iostream>
 #include <map>

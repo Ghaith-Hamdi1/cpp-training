@@ -88,6 +88,42 @@ f(1, 2, 3, 4);`,
       why: 'With templates the concrete type is resolved when compiling (so calls can be inlined), but the set of types is fixed then. Virtual dispatch decides at runtime at the cost of an indirection.' },
     { sec: 's4', q: 'Which of these declarations is a forwarding (universal) reference?',
       opts: ['`template <class T> void f(T&& x);`', '`template <class T> void f(const T&& x);`', '`template <class T> void f(std::vector<T>&& v);`', '`void f(Widget&& w);`'], a: 0,
-      why: 'It must be exactly `T&&` (or `auto&&`) with the type deduced for that function. A `const` qualifier, a wrapper such as `vector<T>`, a fixed type like `Widget`, or a `T` fixed by the enclosing class all make it an ordinary rvalue reference.' }
+      why: 'It must be exactly `T&&` (or `auto&&`) with the type deduced for that function. A `const` qualifier, a wrapper such as `vector<T>`, a fixed type like `Widget`, or a `T` fixed by the enclosing class all make it an ordinary rvalue reference.' },
+
+    { sec: 'deduction', q: 'For `template <typename T> void f(T x);` called as `f(ci)` with `const int ci`, what is `T`?',
+      opts: ['`const int`', '`int`', '`const int&`', '`int&`'], a: 1,
+      why: 'A by-value parameter is a copy, so top-level `const` and references are dropped from the deduced type.' },
+
+    { sec: 'deduction', q: 'For `template <typename T> void f(T& x);` called as `f(ci)` with `const int ci`, what is `T`?',
+      opts: ['`int`', '`const int`', '`int&`', 'It fails to compile'], a: 1,
+      why: 'A reference parameter must keep the argument\'s `const`, so `T` is `const int` and the parameter is `const int&`.' },
+
+    { sec: 'deduction', q: 'Why does `maxOf(3, 2.5)` fail for `template <typename T> T maxOf(T a, T b)`?',
+      opts: ['`T` is deduced as `int` from one argument and `double` from the other, and no conversion is applied during deduction', 'Templates cannot take doubles', 'The return type cannot be deduced', 'It compiles and returns 3'], a: 0,
+      why: 'Each argument deduces its own `T` and they conflict. Specify `maxOf<double>(3, 2.5)` or use two template parameters.' },
+
+    { sec: 'deduction', q: 'What does `std::vector v{1, 2, 3};` deduce (C++17)?',
+      opts: ['It does not compile without the template argument', '`std::vector<int>`, by class template argument deduction', '`std::vector<std::initializer_list<int>>`', '`std::vector<long>`'], a: 1,
+      why: 'CTAD deduces the class\'s template arguments from the constructor call.' },
+
+    { sec: 'deduction', q: 'An `int arr[3]` is passed to `template <typename T> void f(T x);`. What is `T`?',
+      opts: ['`int[3]`', '`int*`', '`int&`', '`int(&)[3]`'], a: 1,
+      why: 'By-value deduction makes arrays decay to pointers. Take `T (&x)[N]` or `T&` to keep the array type.' },
+
+    { sec: 'tools', q: 'What can an alias template do that a `typedef` cannot?',
+      opts: ['Nothing', 'Take template parameters of its own', 'Create a new type', 'Be used in headers'], a: 1,
+      why: '`template <typename T> using Vec = std::vector<T>;` is a family of aliases. A `typedef` names one concrete type.' },
+
+    { sec: 'tools', q: 'What is `std::make_index_sequence<3>` used for?',
+      opts: ['Creating an array of three integers at run time', 'Generating the compile-time pack 0, 1, 2, so an expression can be expanded once per index (for example over a tuple)', 'Shuffling three indices', 'Counting threads'], a: 1,
+      why: 'It produces `std::index_sequence<0, 1, 2>`; a function template deduces the pack `I...` and expands `get<I>(t)...`.' },
+
+    { sec: 'tools', q: 'Which of these is a variable template?',
+      opts: ['`template <typename T> constexpr T zero = T{};`', '`template <typename T> using Zero = T;`', '`template <typename T> T zero();`', '`constexpr int zero = 0;`'], a: 0,
+      why: 'A variable template gives one variable per `T` (`zero<int>`, `zero<double>`). The standard\'s `std::is_integral_v<T>` is defined this way.' },
+
+    { sec: 'tools', q: 'In `template <template <typename...> class C, typename T> C<T> make(T a, T b);`, what do you pass for `C`?',
+      opts: ['A concrete type such as `std::vector<int>`', 'A template such as `std::vector` (without arguments)', 'A function pointer', 'An integer'], a: 1,
+      why: 'A template template parameter takes a template: `make<std::vector>(3, 4)` builds a `std::vector<int>`.' }
   ]
 };

@@ -1,4 +1,4 @@
-// Lesson 6: Observer (safe against detaching while notifying), State with std::variant + std::visit, CRTP.
+// Lesson 10: Observer (safe against detaching while notifying), State with std::variant + std::visit, CRTP.
 #include <algorithm>
 #include <functional>
 #include <iostream>

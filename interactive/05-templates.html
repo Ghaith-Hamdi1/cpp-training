@@ -90,8 +90,40 @@ struct Printer<T*> {                       // PARTIAL specialization: any pointe
 <div class="callout tip"><span class="label">Functions: prefer overloads</span>No partial specialization for function templates. Overload instead; an exact non-template match wins. Function specializations do not take part in overload resolution.</div>
 </section>
 
-<section data-title="Deduction and forwarding references">
-<h2>Deduction and forwarding references</h2>
+<section id="deduction" data-title="Template argument deduction">
+<h2>Template argument deduction</h2>
+<p>When you call a function template, the compiler works out <code>T</code> from the arguments. The rule depends on the <b>shape of the parameter</b>, and it is the same rule <code>auto</code> uses.</p>
+<table>
+<tr><th>Parameter</th><th>Call</th><th>Deduced <code>T</code></th><th>Rule</th></tr>
+<tr><td><code>T x</code> (by value)</td><td><code>f(ci)</code> with <code>const int ci</code></td><td><code>int</code></td><td>a copy: top-level <code>const</code> and references are <b>dropped</b></td></tr>
+<tr><td><code>T x</code> (by value)</td><td><code>f(arr)</code> with <code>int arr[3]</code></td><td><code>int*</code></td><td>arrays and functions <b>decay</b> to pointers</td></tr>
+<tr><td><code>T&amp; x</code></td><td><code>f(ci)</code></td><td><code>const int</code></td><td>the reference keeps the argument's <code>const</code></td></tr>
+<tr><td><code>T&amp; x</code></td><td><code>f(arr)</code></td><td><code>int[3]</code></td><td>an array keeps its size (usable to get its length)</td></tr>
+<tr><td><code>const T&amp; x</code></td><td><code>f(5)</code></td><td><code>int</code></td><td>binds temporaries; <code>const</code> is not part of <code>T</code></td></tr>
+<tr><td><code>T&amp;&amp; x</code></td><td><code>f(i)</code> / <code>f(5)</code></td><td><code>int&amp;</code> / <code>int</code></td><td>forwarding reference (next section)</td></tr>
+</table>
+<p>Compiled and checked with <code>static_assert</code>: by value, <code>const int</code> deduced <code>int</code> and the array deduced <code>int*</code>; by reference they deduced <code>const int&amp;</code> and <code>int(&amp;)[3]</code>.</p>
+<ul>
+<li>Deduction looks only at the <b>arguments</b>, never at the return type, and <b>no conversions</b> happen: <code>maxOf(3, 2.5)</code> fails because <code>T</code> would be both <code>int</code> and <code>double</code>.</li>
+<li>Default arguments and braced lists do not take part in deduction: <code>f({1, 2})</code> cannot deduce <code>T</code>. Name <code>T</code> explicitly: <code>f&lt;std::vector&lt;int&gt;&gt;({1, 2})</code>.</li>
+<li>Name the type yourself when needed: <code>maxOf&lt;double&gt;(3, 2.5)</code>.</li>
+</ul>
+<h3>Class template argument deduction (C++17)</h3>
+<script type="text/x-cpp">
+std::pair p{1, 2.5};                    // std::pair<int, double>
+std::vector v{1, 2, 3};                 // std::vector<int>
+std::array a{1, 2, 3};                  // std::array<int, 3>
+
+template <typename T> struct Box { T value; };
+template <typename T> Box(T) -> Box<T>; // a user-defined deduction guide (needed for aggregates before C++20)
+Box b{std::string("x")};                // Box<std::string>
+</script>
+<p>The compiler deduces the class's arguments from the constructor call. A <b>deduction guide</b> tells it how when the constructors alone are not enough. All of the above was compiled and checked.</p>
+<div class="callout tip"><span class="label">When deduction fails</span>The error says "couldn't deduce template parameter". Look for conflicting arguments, a braced list, or a parameter that does not mention <code>T</code> at all (e.g. only the return type does).</div>
+</section>
+
+<section id="s4" data-title="Forwarding references and perfect forwarding">
+<h2>Forwarding references and perfect forwarding</h2>
 <figure class="fig"><svg viewBox="0 0 640 150" role="img" aria-label="For a forwarding reference, an lvalue argument deduces T as X& and an rvalue deduces T as X"><defs><marker id="f2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path class="ah" d="M0 0L10 5L0 10z"/></marker></defs><text class="t" x="10" y="20">template&lt;class T&gt; void f(T&amp;&amp; x)</text><rect class="acc" x="10" y="40" width="150" height="34" rx="6"/><text x="85" y="62" text-anchor="middle">f(lvalue)  s</text><path class="ar" d="M160 57H210" marker-end="url(#f2)"/><rect class="box" x="212" y="40" width="130" height="34" rx="6"/><text x="277" y="62" text-anchor="middle">T = X&amp;</text><path class="ar" d="M342 57H392" marker-end="url(#f2)"/><rect class="wn" x="394" y="40" width="236" height="34" rx="6"/><text x="512" y="62" text-anchor="middle">X&amp; &amp;&amp; collapses to X&amp;</text><rect class="acc" x="10" y="90" width="150" height="34" rx="6"/><text x="85" y="112" text-anchor="middle">f(rvalue)  string("x")</text><path class="ar" d="M160 107H210" marker-end="url(#f2)"/><rect class="box" x="212" y="90" width="130" height="34" rx="6"/><text x="277" y="112" text-anchor="middle">T = X</text><path class="ar" d="M342 107H392" marker-end="url(#f2)"/><rect class="wn" x="394" y="90" width="236" height="34" rx="6"/><text x="512" y="112" text-anchor="middle">parameter is X&amp;&amp;</text><text class="m" x="10" y="144">Collapsing rule: any lvalue reference involved gives an lvalue reference. std::forward restores the original category.</text></svg><figcaption>One signature accepts both; std::forward passes the category on.</figcaption></figure>
 <p><code>T&amp;&amp;</code> <b>in a function template</b> is a <b>forwarding reference</b>, not an rvalue reference: it binds to anything and remembers lvalue vs rvalue. Explore:</p>
 <div id="w-deduce"></div>
@@ -130,7 +162,7 @@ auto b = makeUnique<Widget>(std::string("x"));// temporary rvalue -> Widget MOVE
 <div id="st-forward"></div>
 </section>
 
-<section data-title="Variadic templates and fold expressions">
+<section id="s5" data-title="Variadic templates and fold expressions">
 <h2>Variadic templates and fold expressions</h2>
 <p>A <b>parameter pack</b> (<code>typename... Args</code>) takes any number of arguments; <code>args...</code> expands it. Before C++17: recursion with a base case.</p>
 <script type="text/x-cpp">
@@ -157,7 +189,7 @@ sizeof...(Args);                                          // number of elements 
 <p>Behind <code>make_unique</code>, <code>make_shared</code>, <code>emplace_back</code>, <code>tuple</code>, <code>thread</code>, <code>function</code>.</p>
 </section>
 
-<section data-title="Type traits and if constexpr">
+<section id="s6" data-title="Type traits and if constexpr">
 <h2>Type traits and <code>if constexpr</code></h2>
 <figure class="fig"><svg viewBox="0 0 640 130" role="img" aria-label="if constexpr keeps only the branch that matches T and discards the others"><defs><marker id="f3" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path class="ah" d="M0 0L10 5L0 10z"/></marker></defs><rect class="acc" x="10" y="45" width="110" height="40" rx="8"/><text class="t" x="65" y="70" text-anchor="middle">describe&lt;int&gt;</text><path class="ar" d="M120 58L218 28" marker-end="url(#f3)"/><rect class="gd" x="220" y="10" width="250" height="32" rx="6"/><text x="345" y="31" text-anchor="middle">is_integral: compiled and kept</text><path class="ln" d="M120 65H218" stroke-dasharray="5 4"/><rect class="box" x="220" y="49" width="250" height="32" rx="6" stroke-dasharray="5 4"/><text class="m" x="345" y="70" text-anchor="middle">is_floating_point: discarded</text><path class="ln" d="M120 75L218 108" stroke-dasharray="5 4"/><rect class="box" x="220" y="88" width="250" height="32" rx="6" stroke-dasharray="5 4"/><text class="m" x="345" y="109" text-anchor="middle">else: discarded</text><text class="m" x="484" y="60">not even compiled, so</text><text class="m" x="484" y="76">they may use code that</text><text class="m" x="484" y="92">is invalid for T</text></svg><figcaption>A normal if would fail to compile as soon as one branch is invalid for T.</figcaption></figure>
 <p>A template often needs to ask about its type. <code>&lt;type_traits&gt;</code> answers at compile time (<code>std::is_integral_v&lt;T&gt;</code>), and <code>if constexpr</code> (C++17) keeps only the matching branch:</p>
@@ -170,6 +202,40 @@ std::string describe(const T& v) {
 }
 </script>
 <p>Traits, SFINAE and <code>enable_if</code>, concepts, <code>constexpr</code>, <code>consteval</code> and template metaprogramming have their own lesson: <a href="09-compile-time.html">Type Traits &amp; Compile-time C++</a>.</p>
+</section>
+
+<section id="tools" data-title="Alias, variable and template template parameters">
+<h2>Alias templates, variable templates and more</h2>
+<table>
+<tr><th>Tool</th><th>Example</th><th>Use</th></tr>
+<tr><td><b>Alias template</b></td><td><code>template &lt;typename T&gt; using Table = std::map&lt;std::string, std::vector&lt;T&gt;&gt;;</code></td><td>a shorter name that still takes a parameter; unlike <code>typedef</code> it can be templated</td></tr>
+<tr><td><b>Variable template</b> (C++14)</td><td><code>template &lt;typename T&gt; constexpr T zero = T{};</code></td><td>a constant per type: <code>zero&lt;int&gt;</code>, <code>zero&lt;double&gt;</code>. The standard's <code>std::is_integral_v&lt;T&gt;</code> is one</td></tr>
+<tr><td><b>Template template parameter</b></td><td><code>template &lt;template &lt;typename...&gt; class C, typename T&gt;</code></td><td>pass a <i>template</i> (<code>std::vector</code>) rather than a type: <code>makeTwo&lt;std::vector&gt;(3, 4)</code></td></tr>
+<tr><td><b>Non-type parameter</b></td><td><code>template &lt;typename T, std::size_t N&gt;</code></td><td>a value as parameter; <code>auto</code> accepts any type of value in C++17: <code>template &lt;auto V&gt;</code></td></tr>
+<tr><td><b>Abbreviated template</b> (C++20)</td><td><code>void f(auto x)</code></td><td>each <code>auto</code> parameter is an implicit template parameter</td></tr>
+</table>
+<script type="text/x-cpp">
+template <typename T> using Table = std::map<std::string, std::vector<T>>;
+Table<int> t;                                        // std::map<std::string, std::vector<int>>
+
+template <typename T> constexpr T zero = T{};        // zero<int> is 0, zero<double> is 0.0
+
+template <template <typename...> class Container, typename T>
+Container<T> makeTwo(T a, T b) { Container<T> c; c.push_back(a); c.push_back(b); return c; }
+auto v = makeTwo<std::vector>(3, 4);                 // a vector<int> with two elements
+</script>
+<h3>Unpacking with <code>std::index_sequence</code></h3>
+<p>To call a function with the elements of a <code>std::tuple</code> you need the indices <code>0, 1, 2...</code> as a pack. <code>std::make_index_sequence&lt;N&gt;</code> generates it:</p>
+<script type="text/x-cpp">
+template <typename F, typename Tuple, std::size_t... I>
+auto applyImpl(F f, const Tuple& t, std::index_sequence<I...>) { return f(std::get<I>(t)...); }   // expands to get<0>, get<1>, ...
+
+template <typename F, typename Tuple>
+auto applyTuple(F f, const Tuple& t) { return applyImpl(f, t, std::make_index_sequence<std::tuple_size_v<Tuple>>{}); }
+
+applyTuple([](int x, int y, int z) { return x + y + z; }, std::tuple{1, 2, 3});   // 6 (compiled)
+</script>
+<p>C++17 ships this as <code>std::apply</code>. Know the idea: a pack of integers lets you expand an expression once per element.</p>
 </section>
 
 <section id="s8" data-title="Pitfalls and good practice">
@@ -189,6 +255,8 @@ std::string describe(const T& v) {
 
 <section id="s9" data-title="Interview cheat sheet">
 <h2>Interview cheat sheet</h2>
+<details class="ex"><summary>How are template arguments deduced?</summary><div><p>From the arguments of the call, by the shape of the parameter. By value (<code>T x</code>): <code>const</code> and references are dropped and arrays decay to pointers. By reference (<code>T&amp; x</code>): <code>const</code> and the array size are kept. <code>T&amp;&amp;</code> is a forwarding reference. No conversions take part, so <code>maxOf(3, 2.5)</code> fails; name <code>T</code> explicitly.</p></div></details>
+<details class="ex"><summary>What are alias templates and variable templates?</summary><div><p>An alias template is a parameterised <code>using</code> (<code>template&lt;class T&gt; using Vec = std::vector&lt;T&gt;;</code>), which a <code>typedef</code> cannot be. A variable template is a constant or variable per type (<code>template&lt;class T&gt; constexpr T zero = T{};</code>); <code>std::is_integral_v</code> is one.</p></div></details>
 <details class="ex"><summary>What happens when you use a function template?</summary><div><p>The compiler deduces the template arguments from the call, then <b>instantiates</b> a concrete function for that combination of types (once per distinct combination across the program), and compiles it like normal code. The template itself generates no code.</p></div></details>
 <details class="ex"><summary>What is a forwarding reference?</summary><div><p>A <code>T&amp;&amp;</code> parameter where <code>T</code> is deduced for that very function template (or <code>auto&amp;&amp;</code>). It binds to lvalues and rvalues alike: for an lvalue <code>T</code> becomes <code>X&amp;</code> and reference collapsing makes the parameter <code>X&amp;</code>; for an rvalue <code>T</code> is <code>X</code> and the parameter is <code>X&amp;&amp;</code>. <code>std::forward</code> then preserves that category.</p></div></details>
 <details class="ex"><summary>What is perfect forwarding, and why do we need it?</summary><div><p>Passing arguments through a wrapper to another function without changing their value category or constness, so the callee can still choose copy vs move correctly. Without it you would need an overload per combination of lvalue/rvalue/const for every parameter.</p></div></details>

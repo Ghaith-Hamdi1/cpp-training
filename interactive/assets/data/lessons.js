@@ -15,8 +15,16 @@ CT.lessons = [
     blurb: 'Types, functions, memory, pointers, references, const and dynamic allocation, built up from zero.' },
   { id: 'oop', file: '02-oop.html', quiz: '02-oop-quiz.html', title: 'Object-Oriented Programming', time: '60 min', hot: false, assess: 3,
     blurb: 'Classes, constructors, rule of 3/5/0, inheritance, virtual functions, abstract classes, operator overloading.' },
-  { id: 'core', file: '03-core-language.html', quiz: '03-core-language-quiz.html', title: 'Core Language & Modern C++', time: '75 min', hot: true, assess: 4,
-    blurb: 'RAII, move semantics, smart pointers, lambdas, exceptions, casts and the C++11/14/17 features interviewers ask about.' },
+  { id: 'core', file: '03-core-language.html', quiz: '03-core-language-quiz.html', title: 'Core Language: RAII & Exceptions', time: '35 min', hot: true, assess: 1,
+    blurb: 'RAII and scope guards, stack unwinding, the exception-safety guarantees, noexcept, and exceptions versus return values.' },
+  { id: 'moves', file: '13-move-semantics.html', quiz: '13-move-semantics-quiz.html', title: 'Move Semantics', time: '45 min', hot: true, assess: 2,
+    blurb: 'Value categories, what std::move really does, writing move operations, copy elision and the move traps.' },
+  { id: 'smartptr', file: '14-smart-pointers.html', quiz: '14-smart-pointers-quiz.html', title: 'Smart Pointers & Ownership', time: '40 min', hot: true, assess: 2,
+    blurb: 'unique_ptr, shared_ptr and weak_ptr, the control block, cycles, custom deleters and how to pass ownership around.' },
+  { id: 'lambdas', file: '15-lambdas.html', quiz: '15-lambdas-quiz.html', title: 'Lambdas & Callables', time: '35 min', hot: true, assess: 1,
+    blurb: 'Captures and their lifetime traps, init-capture, generic lambdas, and function pointer versus functor versus lambda versus std::function.' },
+  { id: 'types', file: '16-types-and-casts.html', quiz: '16-types-and-casts-quiz.html', title: 'Types, Initialization & Casts', time: '40 min', hot: false, assess: 1,
+    blurb: 'Initialization forms and brace traps, auto and decltype, implicit conversions, the named casts, const, constexpr and static.' },
   { id: 'stl', file: '04-stl.html', quiz: '04-stl-quiz.html', title: 'The STL', time: '60 min', hot: false, assess: 3,
     blurb: 'Containers, iterators, algorithms, complexity, iterator invalidation and how to choose the right container.' },
   { id: 'templates', file: '05-templates.html', quiz: '05-templates-quiz.html', title: 'Templates', time: '60 min', hot: true, assess: 4,
@@ -41,7 +49,15 @@ CT.lessons = [
  *   'old-lesson.html#old-id': 'new-lesson.html#new-id'
  * app.js follows this when a link points at a section that is no longer on the page. */
 CT.moved = {
-  '05-templates.html#s7': '09-compile-time.html#s4'     // Compile-time computation: now Template metaprogramming
+  '05-templates.html#s7': '09-compile-time.html#s4',    // Compile-time computation: now Template metaprogramming
+  '03-core-language.html#s2': '13-move-semantics.html#values',          // lesson 3 was split into five lessons
+  '03-core-language.html#s3': '13-move-semantics.html#copy-move',
+  '03-core-language.html#s4': '14-smart-pointers.html#ownership',
+  '03-core-language.html#s5': '16-types-and-casts.html#deduction',
+  '03-core-language.html#s6': '15-lambdas.html#anatomy',
+  '03-core-language.html#s8': '16-types-and-casts.html#casts',
+  '03-core-language.html#s9': '16-types-and-casts.html#const',
+  '03-core-language.html#s10': '16-types-and-casts.html#standards'
 };
 
 /* Saved progress is stored per lesson id and section id. When ids change (a lesson is split or renamed), add a
@@ -49,7 +65,44 @@ CT.moved = {
  * importing an older progress code).
  *   { to: 2, run: function (store) { var d = store.get('done:core', []); store.set('done:raii', d); } }
  * `store` has get(key, default) and set(key, value); keys carry no prefix. */
-CT.progressMigrations = [];
+CT.progressMigrations = [
+  /* v2: the old Core Language lesson was split into core, moves, smartptr, lambdas and types. Ticked sections move
+     with their content, and weak-question entries (keyed by question text) go to the quiz that now holds the question. */
+  { to: 2, run: function (store) {
+    var SECS = {                                   // old section id -> [lesson, new section ids]
+      s2: ['moves', ['values']], s3: ['moves', ['copy-move', 'writing', 'returning', 'traps']],
+      s4: ['smartptr', ['ownership', 'unique', 'shared', 'weak', 'pitfalls']], s5: ['types', ['deduction']],
+      s6: ['lambdas', ['anatomy', 'captures', 'advanced', 'callables']], s8: ['types', ['casts']],
+      s9: ['types', ['const']], s10: ['types', ['standards']]
+    };
+    var done = store.get('done:core', []), keep = [];
+    done.forEach(function (id) {
+      if (!SECS[id]) { keep.push(id); return; }
+      var lesson = SECS[id][0], d = store.get('done:' + lesson, []);
+      SECS[id][1].forEach(function (n) { if (d.indexOf(n) < 0) d.push(n); });
+      store.set('done:' + lesson, d);
+    });
+    store.set('done:core', keep);
+    if (SECS[store.get('last:core', '')]) store.set('last:core', '');
+    var li = store.get('lastinfo', null);
+    if (li && li.id === 'core' && SECS[li.sec]) store.set('lastinfo', null);
+    var hash = function (s) { var x = 5381, i; for (i = 0; i < s.length; i++) x = ((x * 33) ^ s.charCodeAt(i)) >>> 0; return x.toString(36); };
+    var WHERE = { 'v12hn1': 'moves', '1j0lv33': 'moves', 'vjjybz': 'moves', 'bj9033': 'moves', '1joc0dk': 'moves', '1ag6nnl': 'moves',
+      'mfik7c': 'smartptr', '1r8vitt': 'smartptr', 'kl74xr': 'smartptr', 'l2v1mh': 'smartptr', 'g73a6s': 'smartptr',
+      '11pju37': 'lambdas', '39icpi': 'lambdas',
+      '13h63if': 'types', 'inzmcy': 'types', '1yp4ovw': 'types', '1lw8fu7': 'types', '7dmsje': 'types', '116m4kb': 'types', '1wra14g': 'types' };
+    var weak = store.get('weak:core', {}), stay = {};
+    Object.keys(weak).forEach(function (k) {
+      var to = WHERE[hash(k)];
+      if (!to) { stay[k] = weak[k]; return; }
+      var w = store.get('weak:' + to, {});
+      w[k] = weak[k];
+      store.set('weak:' + to, w);
+    });
+    store.set('weak:core', stay);
+    store.set('mock:missed', store.get('mock:missed', []).filter(function (id) { return id.indexOf('core-') !== 0; }));   // the cheat sheets changed
+  } }
+];
 
 /* The current schema version: the highest `to`, or 1 when there are no migrations. */
 CT.schemaVersion = function () {
