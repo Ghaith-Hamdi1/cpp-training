@@ -522,3 +522,4 @@ details.aq.dk > summary .mark { color: var(--warn); }
 .st-arrow { stroke-width: 2.2; }
 .st-legend .lg.chg { background: transparent; box-shadow: 0 0 0 2px var(--accent); border-color: transparent; }
 .st-legend .lg.col { border: 0; width: 22px; background: linear-gradient(90deg, hsl(210 75% 56%) 50%, hsl(28 90% 55%) 50%); }
+.stepper .g-layout, .stepper .g-buffer { border-top-color: hsl(190 60% 45%); background: color-mix(in srgb, hsl(190 60% 45%) 7%, var(--card)); }

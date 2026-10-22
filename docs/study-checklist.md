@@ -53,7 +53,7 @@ RAII, move semantics, smart pointers, lambdas, exceptions. Lesson: [03-core-lang
 
 Both are named in the job description.
 
-**Templates:** [05-templates.html](../interactive/05-templates.html), quiz: [05-templates-quiz.html](../interactive/05-templates-quiz.html) (21 questions).
+**Templates:** [05-templates.html](../interactive/05-templates.html), quiz: [05-templates-quiz.html](../interactive/05-templates-quiz.html) (19 questions).
 
 - [ ] Function templates and class templates
 - [ ] Deduction and forwarding references (use the explorer), then perfect forwarding
@@ -78,7 +78,7 @@ Take each quiz **first**. Only read the lesson sections for questions you miss.
 
 - [ ] STL: [lesson](../interactive/04-stl.html), [quiz](../interactive/04-stl-quiz.html) (21 questions)
 - [ ] Basics and pointers: [lesson](../interactive/01-basics.html), [quiz](../interactive/01-basics-quiz.html) (22 questions)
-- [ ] OOP: [lesson](../interactive/02-oop.html), [quiz](../interactive/02-oop-quiz.html) (22 questions)
+- [ ] OOP: [lesson](../interactive/02-oop.html), [quiz](../interactive/02-oop-quiz.html) (23 questions)
 
 ## Step 5: Thursday morning, before the interview
 
@@ -131,3 +131,4 @@ Do not read any of these books front to back. Use the reading guides to find the
 - [ ] [08-strings-regex-time.html](../interactive/08-strings-regex-time.html) and [quiz](../interactive/08-strings-regex-time-quiz.html) (15 questions)
 - [ ] [09-compile-time.html](../interactive/09-compile-time.html) and [quiz](../interactive/09-compile-time-quiz.html) (15 questions)
 - [ ] [10-coding-rules.html](../interactive/10-coding-rules.html) and [quiz](../interactive/10-coding-rules-quiz.html) (14 questions)
+- [ ] [11-wire-formats.html](../interactive/11-wire-formats.html) and [quiz](../interactive/11-wire-formats-quiz.html) (21 questions)

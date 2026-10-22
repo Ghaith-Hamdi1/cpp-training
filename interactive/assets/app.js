@@ -367,10 +367,10 @@
       '<button class="btn sm ghost" data-a="reset" type="button">Reset</button><span class="info"></span></div>';
     const uid = Math.random().toString(36).slice(2, 8);
     let i = -1, timer = null;
-    const GROUPS = [['stack', 'Stack', 'locals, freed automatically'], ['heap', 'Heap', 'new / make_unique, freed explicitly'], ['static', 'Static / global', 'lives for the whole program'], ['call', 'Call stack', ''], ['inst', 'Compiler-generated functions', ''], ['queue', 'Shared queue', ''], ['threads', 'Threads', '']];
+    const GROUPS = [['stack', 'Stack', 'locals, freed automatically'], ['heap', 'Heap', 'new / make_unique, freed explicitly'], ['static', 'Static / global', 'lives for the whole program'], ['call', 'Call stack', ''], ['inst', 'Compiler-generated functions', ''], ['queue', 'Shared queue', ''], ['threads', 'Threads', ''], ['layout', 'Bytes of the struct', 'offset 0 is the first byte'], ['buffer', 'Receive buffer', 'bytes exactly as they arrive']];
     // One colour per variable / object: a.ptr and a.size share a colour; a heap block takes the colour of the pointer that holds its address.
     const PALETTE = ['210 75% 56%', '28 90% 55%', '150 58% 42%', '280 55% 62%', '340 72% 60%', '182 62% 42%', '48 88% 48%', '240 62% 68%'];
-    const famBase = (n) => n.replace(/\s*@0x[0-9a-fA-F]+/, '').split(/[.\[]/)[0].trim();
+    const famBase = (n) => n.replace(/\s*@\S+/, '').split(/[.\[]/)[0].trim();
     const owners = {}, famIdx = {};
     cfg.steps.forEach((st) => (st.mem || []).forEach((e) => {
       const m = /@(0x[0-9a-fA-F]+)/.exec(e.n);

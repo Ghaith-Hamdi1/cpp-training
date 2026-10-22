@@ -30,7 +30,9 @@ CT.lessons = [
   { id: 'compiletime', file: '09-compile-time.html', quiz: '09-compile-time-quiz.html', title: 'Type Traits & Compile-time C++', time: '45 min', hot: true, assess: 2,
     blurb: 'Type traits, SFINAE, if constexpr, constexpr and consteval, and classic template metaprogramming.' },
   { id: 'rules', file: '10-coding-rules.html', quiz: '10-coding-rules-quiz.html', title: 'Coding Rules & Safe C++', time: '30 min', hot: true, assess: 2,
-    blurb: 'MISRA and AUTOSAR C++14, typical safety rules and why they exist, and static analysis in practice.' }
+    blurb: 'MISRA and AUTOSAR C++14, typical safety rules and why they exist, and static analysis in practice.' },
+  { id: 'wire', file: '11-wire-formats.html', quiz: '11-wire-formats-quiz.html', title: 'Wire Formats & Parsing', time: '60 min', hot: true, assess: 3,
+    blurb: 'Bit manipulation, struct layout and padding, endianness, aliasing and memcpy, zero-copy parsing, fixed-point prices and sequence numbers.' }
 ];
 
 /* When a section moves to another lesson, record where it went so old links keep working:

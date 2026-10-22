@@ -1,0 +1,344 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Wire Formats and Parsing</title>
+<script>try{var t=JSON.parse(localStorage.getItem('cpptrain:theme'));if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body data-topic="wire" data-kind="lesson">
+<main>
+<h1>Wire Formats and Parsing</h1>
+<p class="lead">How a feed handler turns bytes from the network into values: bit operations, struct layout, byte order, safe reads, zero-copy parsing, prices and sequence numbers. Compiled examples are in <code>examples/lessons/11-wire-formats</code>.</p>
+
+<section data-title="From bytes to values">
+<h2>From bytes to values</h2>
+<figure class="fig"><svg viewBox="0 0 640 150" role="img" aria-label="A received byte buffer is split into fields and copied into a typed struct">
+<defs><marker id="w1" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path class="ah" d="M0 0L10 5L0 10z"/></marker></defs>
+<text class="m" x="10" y="16">bytes as they arrive (19-byte Trade message)</text>
+<rect class="box" x="10" y="26" width="40" height="36"/><text x="30" y="49" text-anchor="middle">'T'</text>
+<rect class="acc" x="50" y="26" width="70" height="36"/><text x="85" y="49" text-anchor="middle">length</text>
+<rect class="wn" x="120" y="26" width="120" height="36"/><text x="180" y="49" text-anchor="middle">seq (4 bytes)</text>
+<rect class="gd" x="240" y="26" width="240" height="36"/><text x="360" y="49" text-anchor="middle">price (8 bytes)</text>
+<rect class="bd" x="480" y="26" width="150" height="36"/><text x="555" y="49" text-anchor="middle">qty (4 bytes)</text>
+<path class="ar" d="M320 66V92" marker-end="url(#w1)"/><text class="m" x="332" y="84">copy out, fix byte order, check the length</text>
+<rect class="box" x="150" y="98" width="340" height="40" rx="8"/><text class="t" x="320" y="123" text-anchor="middle">Trade { seq, priceTicks, qty }</text>
+</svg><figcaption>A buffer holds raw bytes; your program wants typed values.</figcaption></figure>
+<p>A market-data feed arrives as bytes. The job: turn them into values <b>quickly, correctly and without undefined behavior</b>.</p>
+<ul>
+<li><b>Never cast the buffer to a struct pointer.</b> Copy fields out instead.</li>
+<li><b>Check the length before every read.</b> A truncated or corrupt packet must be rejected, not trusted.</li>
+<li><b>Convert byte order explicitly.</b> The network and your CPU may disagree.</li>
+</ul>
+<div class="callout warn"><span class="label">The tempting wrong way</span>
+<script type="text/x-cpp">
+auto* t = reinterpret_cast<const Trade*>(buf);   // reads fields straight out of the buffer
+std::cout << t->seq;
+</script>
+That one line hides four problems: <b>aliasing</b> (undefined behavior), <b>alignment</b> (the buffer address may not suit a <code>Trade</code>), <b>padding</b> (the struct layout may not match the wire) and <b>byte order</b>. The next sections take them one by one.</div>
+</section>
+
+<section data-title="Integers and bit manipulation">
+<h2>Integers and bit manipulation</h2>
+<figure class="fig"><svg viewBox="0 0 640 150" role="img" aria-label="A flags byte with buy, immediate-or-cancel and a 3-bit venue field">
+<text class="m" x="10" y="16">flags = 0x17 = 0001 0111</text>
+<rect class="box" x="30" y="30" width="60" height="40"/><text x="60" y="56" text-anchor="middle">0</text>
+<rect class="box" x="90" y="30" width="60" height="40"/><text x="120" y="56" text-anchor="middle">0</text>
+<rect class="box" x="150" y="30" width="60" height="40"/><text x="180" y="56" text-anchor="middle">0</text>
+<rect class="wn" x="210" y="30" width="60" height="40"/><text x="240" y="56" text-anchor="middle">1</text>
+<rect class="wn" x="270" y="30" width="60" height="40"/><text x="300" y="56" text-anchor="middle">0</text>
+<rect class="wn" x="330" y="30" width="60" height="40"/><text x="360" y="56" text-anchor="middle">1</text>
+<rect class="acc" x="390" y="30" width="60" height="40"/><text x="420" y="56" text-anchor="middle">1</text>
+<rect class="gd" x="450" y="30" width="60" height="40"/><text x="480" y="56" text-anchor="middle">1</text>
+<text class="m" x="60" y="86" text-anchor="middle">bit 7</text><text class="m" x="120" y="86" text-anchor="middle">6</text><text class="m" x="180" y="86" text-anchor="middle">5</text><text class="m" x="240" y="86" text-anchor="middle">4</text><text class="m" x="300" y="86" text-anchor="middle">3</text><text class="m" x="360" y="86" text-anchor="middle">2</text><text class="m" x="420" y="86" text-anchor="middle">1</text><text class="m" x="480" y="86" text-anchor="middle">bit 0</text>
+<text class="t" x="120" y="112" text-anchor="middle">unused</text>
+<text class="t" x="300" y="112" text-anchor="middle">venue = 101 = 5</text>
+<text class="t" x="420" y="112" text-anchor="middle">IOC</text><text class="t" x="480" y="112" text-anchor="middle">buy</text>
+<text class="m" x="10" y="140">Read the venue: (flags &gt;&gt; 2) &amp; 0x7   shift the field down, then mask its width.</text>
+</svg><figcaption>Feeds pack several fields into one byte; bit operations unpack them.</figcaption></figure>
+<table>
+<tr><th>Operation</th><th>Expression</th></tr>
+<tr><td>set bit n</td><td><code>x | (1u &lt;&lt; n)</code></td></tr>
+<tr><td>clear bit n</td><td><code>x &amp; ~(1u &lt;&lt; n)</code></td></tr>
+<tr><td>toggle bit n</td><td><code>x ^ (1u &lt;&lt; n)</code></td></tr>
+<tr><td>test bit n</td><td><code>(x &gt;&gt; n) &amp; 1u</code></td></tr>
+<tr><td>power of two?</td><td><code>x != 0 &amp;&amp; (x &amp; (x - 1)) == 0</code></td></tr>
+<tr><td>count set bits</td><td><code>std::popcount(x)</code> (C++20), or loop <code>x &amp;= x - 1</code> (clears the lowest set bit each time)</td></tr>
+</table>
+<script type="text/x-cpp">
+constexpr std::uint8_t kBuy = 1u << 0;
+constexpr std::uint8_t kIoc = 1u << 1;
+constexpr unsigned venueOf(std::uint8_t f) { return (f >> 2) & 0x7u; }
+
+std::uint8_t flags = kBuy | kIoc | (5u << 2);      // 0x17
+bool buy = flags & kBuy;                           // true
+unsigned venue = venueOf(flags);                   // 5
+</script>
+<h3>Rules that bite</h3>
+<ul>
+<li>Use <b>fixed-width types</b> (<code>std::uint8_t</code>, <code>std::uint32_t</code>, <code>std::int64_t</code>) for anything on the wire; <code>int</code> and <code>long</code> change size between platforms (<code>long</code> is 32-bit on Windows).</li>
+<li><b>Unsigned overflow wraps</b> (well defined); <b>signed overflow is undefined behavior</b>.</li>
+<li>Shifting by the type's width or more is undefined: write <code>1u &lt;&lt; n</code> with <code>n &lt; 32</code>. Do bit work on <b>unsigned</b> types.</li>
+<li>Small types are promoted to <code>int</code> in arithmetic. A plain <code>char</code> may be signed, so widening <code>char(0xFF)</code> to <code>int</code> gives <b>-1</b>: read bytes as <code>unsigned char</code> or <code>std::uint8_t</code>.</li>
+</ul>
+<details class="ex"><summary><span class="ex-tag">Predict</span>Promotion and wrap-around</summary><div>
+<script type="text/x-cpp">
+std::uint8_t a = 200, b = 100;
+std::cout << (a + b) << ' ' << int(std::uint8_t(a + b));
+</script>
+<script type="text/x-out">
+300 44
+</script>
+<p><code>a + b</code> is computed as an <code>int</code> (both promote), so it is <b>300</b>. Storing it back into a <code>uint8_t</code> keeps only the low 8 bits: 300 mod 256 = <b>44</b>.</p>
+</div></details>
+</section>
+
+<section data-title="Struct layout, alignment and padding">
+<h2>Struct layout, alignment and padding</h2>
+<figure class="fig"><svg viewBox="0 0 640 180" role="img" aria-label="The same three members laid out carelessly use 12 bytes, ordered largest first use 8">
+<text class="t" x="10" y="18">struct { char a; int b; char c; }   12 bytes</text>
+<rect class="acc" x="10" y="26" width="40" height="34"/><text x="30" y="48" text-anchor="middle">a</text>
+<rect class="box" x="50" y="26" width="120" height="34" stroke-dasharray="4 3"/><text class="m" x="110" y="48" text-anchor="middle">padding</text>
+<rect class="wn" x="170" y="26" width="160" height="34"/><text x="250" y="48" text-anchor="middle">b (4 bytes)</text>
+<rect class="gd" x="330" y="26" width="40" height="34"/><text x="350" y="48" text-anchor="middle">c</text>
+<rect class="box" x="370" y="26" width="120" height="34" stroke-dasharray="4 3"/><text class="m" x="430" y="48" text-anchor="middle">padding</text>
+<text class="m" x="10" y="76">offset</text><text class="m" x="50" y="76">0</text><text class="m" x="170" y="76">4</text><text class="m" x="330" y="76">8</text><text class="m" x="490" y="76">12</text>
+<text class="t" x="10" y="108">struct { int b; char a; char c; }   8 bytes</text>
+<rect class="wn" x="10" y="116" width="160" height="34"/><text x="90" y="138" text-anchor="middle">b (4 bytes)</text>
+<rect class="acc" x="170" y="116" width="40" height="34"/><text x="190" y="138" text-anchor="middle">a</text>
+<rect class="gd" x="210" y="116" width="40" height="34"/><text x="230" y="138" text-anchor="middle">c</text>
+<rect class="box" x="250" y="116" width="80" height="34" stroke-dasharray="4 3"/><text class="m" x="290" y="138" text-anchor="middle">padding</text>
+<text class="m" x="10" y="170">Same members, 33% smaller: put the largest members first.</text>
+</svg><figcaption>The compiler inserts padding so every member sits at a multiple of its alignment.</figcaption></figure>
+<p>Each type has an <b>alignment</b> (<code>alignof</code>): an <code>int</code> must start at a multiple of 4, a <code>double</code> or <code>int64_t</code> at a multiple of 8. The compiler pads between members to guarantee that, and pads the end so that arrays of the struct stay aligned. So <code>sizeof</code> is often bigger than the sum of the members.</p>
+<p>Step through the layout:</p>
+<div id="st-layout"></div>
+<script type="text/x-cpp">
+struct Careless { char a; int b; char c; };         // 12 bytes
+struct Ordered  { int b; char a; char c; };         //  8 bytes
+
+static_assert(sizeof(Careless) == 12 && alignof(Careless) == 4);
+static_assert(offsetof(Careless, b) == 4);          // offsetof gives the byte offset of a member
+</script>
+<h3>Packing, and why not to rely on it</h3>
+<script type="text/x-cpp">
+#pragma pack(push, 1)
+struct Packed { char a; int b; char c; };           // 6 bytes, no padding: matches a wire layout
+#pragma pack(pop)
+</script>
+<div class="callout warn"><span class="label">Packing is not free</span>A packed member may be <b>unaligned</b>: slower on some CPUs, a fault on others, and taking a reference or pointer to it is unsafe. Do not read the wire into a packed struct and use it directly. Read the bytes with <code>memcpy</code> (next sections) and keep ordinary structs inside your program. <code>static_assert(sizeof(...))</code> is a cheap guard against accidental layout changes.</div>
+</section>
+
+<section data-title="Endianness">
+<h2>Endianness</h2>
+<figure class="fig"><svg viewBox="0 0 640 170" role="img" aria-label="The 32-bit value 0x12345678 stored least significant byte first on little-endian and most significant first on big-endian">
+<text class="t" x="10" y="20">value 0x12345678 stored at addresses +0 to +3</text>
+<text class="m" x="10" y="52">little-endian (x86, ARM)</text>
+<rect class="wn" x="230" y="34" width="90" height="30"/><text x="275" y="55" text-anchor="middle">78</text>
+<rect class="box" x="320" y="34" width="90" height="30"/><text x="365" y="55" text-anchor="middle">56</text>
+<rect class="box" x="410" y="34" width="90" height="30"/><text x="455" y="55" text-anchor="middle">34</text>
+<rect class="acc" x="500" y="34" width="90" height="30"/><text x="545" y="55" text-anchor="middle">12</text>
+<text class="m" x="10" y="102">big-endian = network byte order</text>
+<rect class="acc" x="230" y="84" width="90" height="30"/><text x="275" y="105" text-anchor="middle">12</text>
+<rect class="box" x="320" y="84" width="90" height="30"/><text x="365" y="105" text-anchor="middle">34</text>
+<rect class="box" x="410" y="84" width="90" height="30"/><text x="455" y="105" text-anchor="middle">56</text>
+<rect class="wn" x="500" y="84" width="90" height="30"/><text x="545" y="105" text-anchor="middle">78</text>
+<text class="m" x="230" y="134">+0</text><text class="m" x="320" y="134">+1</text><text class="m" x="410" y="134">+2</text><text class="m" x="500" y="134">+3</text>
+<text class="m" x="10" y="160">Little-endian stores the least significant byte first, big-endian the most significant first.</text>
+</svg><figcaption>Same value, different byte order in memory.</figcaption></figure>
+<ul>
+<li><b>Endianness</b> is the order of a multi-byte value's bytes in memory. Network protocols traditionally use <b>big-endian</b> ("network byte order"); most desktop and server CPUs are little-endian. Exchanges differ, so read each protocol's specification.</li>
+<li><b>Convert at the boundary</b>: when bytes enter the program, turn them into native values, and stay native inside.</li>
+<li>Tools: <code>ntohl</code>/<code>htonl</code> (sockets), <code>std::endian::native</code> (C++20) to test the CPU, <code>std::byteswap</code> (C++23). The portable way that works everywhere is to <b>assemble the value from bytes with shifts</b>:</li>
+</ul>
+<script type="text/x-cpp">
+constexpr std::uint32_t readBe32(const unsigned char* p) {
+    return (std::uint32_t{p[0]} << 24) | (std::uint32_t{p[1]} << 16)
+         | (std::uint32_t{p[2]} <<  8) |  std::uint32_t{p[3]};
+}
+const unsigned char wire[] = {0x12, 0x34, 0x56, 0x78};
+readBe32(wire);                                     // 0x12345678 on ANY CPU
+</script>
+<p>Widen each byte to <code>uint32_t</code> <i>before</i> shifting, otherwise it promotes to a signed <code>int</code> and shifting a large value into the top bit is a trap. The same code works on little- and big-endian machines, and compilers turn it into a single load plus a byte swap.</p>
+</section>
+
+<section data-title="Reading bytes safely: aliasing and memcpy">
+<h2>Reading bytes safely: aliasing and memcpy</h2>
+<p><b>Strict aliasing:</b> you may access an object only through a pointer or reference of its own type (or a few related ones). Reading a <code>uint32_t</code> out of memory that holds something else is undefined behavior, and the optimizer is allowed to assume it never happens.</p>
+<table>
+<tr><th>Technique</th><th>Defined?</th><th>Notes</th></tr>
+<tr><td><code>*reinterpret_cast&lt;const uint32_t*&gt;(buf + 1)</code></td><td><b>no</b></td><td>aliasing violation, and <code>buf + 1</code> is probably misaligned</td></tr>
+<tr><td><code>std::memcpy(&amp;v, buf + 1, sizeof v)</code></td><td>yes</td><td>compilers turn it into a plain load; no alignment requirement on <code>buf</code></td></tr>
+<tr><td><code>std::bit_cast&lt;To&gt;(from)</code> (C++20)</td><td>yes</td><td>same size, trivially copyable types, e.g. float to its bits</td></tr>
+<tr><td>assemble with shifts (<code>readBe32</code>)</td><td>yes</td><td>also fixes byte order</td></tr>
+<tr><td>write through a <code>union</code> and read another member</td><td><b>no</b> in C++</td><td>works as a GCC extension, but is not portable C++</td></tr>
+<tr><td>view an object as <code>unsigned char</code>, <code>char</code> or <code>std::byte</code></td><td>yes</td><td>the one exception: these may alias anything (but not the reverse)</td></tr>
+</table>
+<script type="text/x-cpp">
+std::uint32_t v;
+std::memcpy(&v, buf + 1, sizeof v);                 // native byte order: add a swap if the wire is big-endian
+
+std::bit_cast<std::uint32_t>(1.0f);                 // 0x3f800000: the bits of a float
+</script>
+<div class="callout tip"><span class="label">Interview angle</span>"Why is casting the receive buffer to a struct pointer wrong?" Aliasing (UB), alignment, padding that may not match the wire, and byte order. "What do you do instead?" <code>memcpy</code> or shifts per field, after checking the length.</div>
+</section>
+
+<section data-title="Zero-copy parsing">
+<h2>Zero-copy parsing</h2>
+<p>A <b>zero-copy</b> parser never copies the message: it keeps views (<code>std::string_view</code>, <code>std::span</code>) into the receive buffer and a cursor that advances. No allocation, no copying, no exceptions on the hot path.</p>
+<script type="text/x-cpp">
+struct Field { int tag; std::string_view value; };
+
+// "35=D|49=XPAR|34=12345|"  ->  (35,"D")  (49,"XPAR")  (34,"12345")
+std::optional<Field> nextField(std::string_view& rest) {
+    auto bar = rest.find('|');
+    if (bar == std::string_view::npos) return std::nullopt;       // incomplete: reject
+    std::string_view item = rest.substr(0, bar);
+    rest.remove_prefix(bar + 1);                                   // advance the cursor
+    auto eq = item.find('=');
+    if (eq == std::string_view::npos) return std::nullopt;
+    Field f{};
+    auto r = std::from_chars(item.data(), item.data() + eq, f.tag);
+    if (r.ec != std::errc{}) return std::nullopt;
+    f.value = item.substr(eq + 1);                                 // a view: no copy
+    return f;
+}
+</script>
+<ul>
+<li><b><code>std::from_chars</code></b> (C++17) converts text to numbers with <b>no allocation, no exceptions and no locale</b>; it returns an error code and the pointer where it stopped. Compare with <code>stoi</code> (throws, needs a <code>std::string</code>) and <code>stringstream</code> (slow).</li>
+<li><b>Validate everything</b> before trusting it: length fields, tags, digits. Corrupt input is normal; return <code>std::nullopt</code> or an error code instead of throwing.</li>
+<li>A view is valid only while the <b>buffer is alive and unchanged</b>. If the buffer is reused for the next packet, copy out what you need first.</li>
+</ul>
+<p>Step through the parse of a binary message (all integers big-endian):</p>
+<div id="st-parse"></div>
+</section>
+
+<section data-title="Prices: fixed-point versus double">
+<h2>Prices: fixed-point versus double</h2>
+<script type="text/x-cpp">
+0.1 + 0.2 == 0.3;       // false
+0.1 + 0.2;              // 0.30000000000000004
+</script>
+<p><code>double</code> cannot represent most decimal fractions exactly, so sums and comparisons drift. For money and prices use an <b>integer count of ticks</b>: 101.2500 with a tick of 0.0001 is <code>1012500</code>.</p>
+<script type="text/x-cpp">
+class Price {
+    std::int64_t ticks_;                                  // 1 tick = 0.0001
+public:
+    static constexpr std::int64_t kScale = 10000;
+    constexpr Price operator+(Price o) const { return Price(ticks_ + o.ticks_); }
+    constexpr auto operator<=>(const Price&) const = default;   // exact comparison, no epsilon
+    static std::optional<Price> parse(std::string_view s);     // "101.25" -> 1012500, rejects a 5th decimal
+};
+// 0.1 + 0.2 == 0.3 is true here: 1000 + 2000 == 3000
+</script>
+<ul>
+<li><b>Exact and deterministic</b>: the same inputs give the same bits on every machine, and equality needs no epsilon.</li>
+<li><b>Parse from text directly</b> into ticks; never go through <code>double</code>.</li>
+<li><b>Watch overflow</b>: <code>int64_t</code> holds about 9.2e18 ticks (9.2e14 price units at 4 decimals). Multiplying price by quantity can exceed that: check, or use a wider type (<code>__int128</code> in GCC and Clang).</li>
+<li>Decide the rounding rule (down, half-up, half-even) once, and apply it in one place.</li>
+</ul>
+</section>
+
+<section data-title="Sequence numbers and gaps">
+<h2>Sequence numbers and gaps</h2>
+<figure class="fig"><svg viewBox="0 0 640 140" role="img" aria-label="Messages 100, 101 and 103 arrive; 102 is missing so a gap is detected">
+<defs><marker id="w8" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path class="ah" d="M0 0L10 5L0 10z"/></marker></defs>
+<rect class="gd" x="20" y="30" width="90" height="38" rx="6"/><text x="65" y="54" text-anchor="middle">seq 100</text>
+<rect class="gd" x="130" y="30" width="90" height="38" rx="6"/><text x="175" y="54" text-anchor="middle">seq 101</text>
+<rect class="bd" x="240" y="30" width="90" height="38" rx="6" stroke-dasharray="5 4"/><text class="m" x="285" y="54" text-anchor="middle">102 missing</text>
+<rect class="wn" x="350" y="30" width="90" height="38" rx="6"/><text x="395" y="54" text-anchor="middle">seq 103</text>
+<path class="ar" d="M395 74V100" marker-end="url(#w8)"/>
+<text class="t" x="395" y="118" text-anchor="middle">expected 102, got 103: GAP</text>
+<text class="m" x="20" y="118">in order: expected = got + 1</text>
+</svg><figcaption>Each message carries a sequence number; a jump means something was lost.</figcaption></figure>
+<table>
+<tr><th>Received versus expected</th><th>Meaning</th><th>Typical action</th></tr>
+<tr><td>equal</td><td>in order</td><td>process, expect <code>seq + 1</code></td></tr>
+<tr><td>higher</td><td><b>gap</b>: messages were lost</td><td>buffer new messages, request a retransmission or a snapshot</td></tr>
+<tr><td>lower</td><td>duplicate or old</td><td>ignore</td></tr>
+</table>
+<script type="text/x-cpp">
+enum class SeqResult { InOrder, Duplicate, Gap };
+
+SeqResult classify(std::uint32_t expected, std::uint32_t received) {
+    auto diff = static_cast<std::int32_t>(received - expected);   // unsigned subtraction wraps, then read it as signed
+    if (diff == 0) return SeqResult::InOrder;
+    return diff < 0 ? SeqResult::Duplicate : SeqResult::Gap;
+}
+</script>
+<p><b>Wrap-around:</b> a 32-bit counter returns to 0 after 4294967295. Comparing with <code>&lt;</code> breaks at that point; the unsigned subtraction followed by a signed reinterpretation keeps working as long as the two values are within 2<sup>31</sup> of each other. Expecting 4294967295 and receiving 0 is a <b>gap of one</b>, not a duplicate.</p>
+</section>
+
+<section data-title="Interview cheat sheet">
+<h2>Interview cheat sheet</h2>
+<p>Answer aloud, then open.</p>
+<details class="ex"><summary>Why not cast the receive buffer to a struct pointer?</summary><div><p>Four problems at once: it violates strict aliasing (undefined behavior), the buffer address may not be aligned for the struct, struct padding may not match the wire layout, and the byte order may differ. Check the length, then copy each field out with <code>memcpy</code> or assemble it with shifts.</p></div></details>
+<details class="ex"><summary>What is struct padding and how do you reduce it?</summary><div><p>The compiler inserts unused bytes so each member sits at a multiple of its alignment, and pads the end so arrays stay aligned. <code>sizeof</code> can exceed the sum of the members. Order members from largest to smallest alignment; use <code>static_assert(sizeof(...))</code> to guard the size.</p></div></details>
+<details class="ex"><summary>What does <code>#pragma pack(1)</code> do, and what does it cost?</summary><div><p>It removes padding so the struct matches a wire layout. The cost: members may be unaligned, which is slower or faults on some CPUs, and references or pointers to them are unsafe. Prefer reading fields with <code>memcpy</code>.</p></div></details>
+<details class="ex"><summary>What is endianness? Which does the network use?</summary><div><p>The order of a multi-byte value's bytes in memory. Little-endian stores the least significant byte first (x86, ARM), big-endian the most significant first. Network byte order is big-endian, though a given exchange protocol may differ, so check the spec. Convert at the boundary.</p></div></details>
+<details class="ex"><summary>How do you read a big-endian 32-bit value portably?</summary><div><p>Assemble it from the bytes with shifts, widening each byte to <code>uint32_t</code> first: <code>(uint32_t{p[0]} &lt;&lt; 24) | (uint32_t{p[1]} &lt;&lt; 16) | (uint32_t{p[2]} &lt;&lt; 8) | uint32_t{p[3]}</code>. It works on any CPU.</p></div></details>
+<details class="ex"><summary>What is strict aliasing?</summary><div><p>The rule that an object may only be accessed through an lvalue of its own type (or a few related types); the compiler assumes this when optimizing. Exceptions: <code>char</code>, <code>unsigned char</code> and <code>std::byte</code> may alias anything. Use <code>memcpy</code> or <code>std::bit_cast</code> to reinterpret bytes.</p></div></details>
+<details class="ex"><summary><code>memcpy</code>, <code>bit_cast</code> or a union for type punning?</summary><div><p><code>memcpy</code> and <code>std::bit_cast</code> (C++20) are well defined and compile to a plain load. Reading a different union member than was written is undefined behavior in C++, even though GCC allows it as an extension.</p></div></details>
+<details class="ex"><summary>How do you set, clear and test a bit, and check for a power of two?</summary><div><p>Set <code>x | (1u &lt;&lt; n)</code>; clear <code>x &amp; ~(1u &lt;&lt; n)</code>; test <code>(x &gt;&gt; n) &amp; 1</code>. Power of two: <code>x != 0 &amp;&amp; (x &amp; (x - 1)) == 0</code>. Use unsigned types and keep <code>n</code> below the width.</p></div></details>
+<details class="ex"><summary>Why should prices not be <code>double</code>?</summary><div><p>Binary floating point cannot represent most decimals exactly (<code>0.1 + 0.2 != 0.3</code>), so sums and comparisons drift. Store an integer count of ticks (a scaled <code>int64_t</code>): exact, deterministic, and comparable with <code>==</code>. Parse text straight into ticks and watch for overflow when multiplying by quantity.</p></div></details>
+<details class="ex"><summary>Why <code>std::from_chars</code> in a parser?</summary><div><p>It converts text to numbers without allocating, throwing or consulting the locale, and reports errors through a return value plus the position where it stopped. <code>stoi</code> throws and needs a <code>std::string</code>; <code>stringstream</code> is slow.</p></div></details>
+<details class="ex"><summary>How do you detect a gap in sequence numbers, and handle wrap-around?</summary><div><p>Compare the received number with the expected one: equal is in order, higher is a gap (lost messages: buffer and request a retransmission or snapshot), lower is a duplicate. For wrap-around compute <code>static_cast&lt;int32_t&gt;(received - expected)</code> and look at its sign.</p></div></details>
+</section>
+</main>
+
+<script src="assets/data/lessons.js"></script>
+<script src="assets/app.js"></script>
+<script>
+CT.stepper('#st-layout', {
+  title: 'Where the compiler puts each member',
+  code: String.raw`
+struct Careless {
+    char a;
+    int  b;
+    char c;
+};
+sizeof(Careless)
+`,
+  steps: [
+    { line: 2, mem: [{ n: 'a @0', t: 'char', v: '1 byte', k: 'layout' }],
+      note: '<b>a</b> goes first, at offset 0. It takes 1 byte.' },
+    { line: 3, mem: [{ n: 'a @0', t: 'char', v: '1 byte', k: 'layout' }, { n: 'padding @1', t: '3 bytes', v: 'unused', k: 'layout' }, { n: 'b @4', t: 'int', v: '4 bytes', k: 'layout' }],
+      note: 'An <code>int</code> must start at a multiple of 4, so the compiler leaves <b>3 padding bytes</b> and places <b>b at offset 4</b>.' },
+    { line: 4, mem: [{ n: 'a @0', t: 'char', v: '1 byte', k: 'layout' }, { n: 'padding @1', t: '3 bytes', v: 'unused', k: 'layout' }, { n: 'b @4', t: 'int', v: '4 bytes', k: 'layout' }, { n: 'c @8', t: 'char', v: '1 byte', k: 'layout' }],
+      note: '<b>c</b> needs no alignment, so it follows b at offset 8. Members so far end at byte 9.' },
+    { line: 5, mem: [{ n: 'a @0', t: 'char', v: '1 byte', k: 'layout' }, { n: 'padding @1', t: '3 bytes', v: 'unused', k: 'layout' }, { n: 'b @4', t: 'int', v: '4 bytes', k: 'layout' }, { n: 'c @8', t: 'char', v: '1 byte', k: 'layout' }, { n: 'padding @9', t: '3 bytes', v: 'unused', k: 'layout' }],
+      note: 'The whole struct is padded up to a multiple of its alignment (4), so an <b>array</b> of them keeps every <code>b</code> aligned. Total: <b>12 bytes</b>, 5 of them padding.' },
+    { line: 6, mem: [{ n: 'b @0', t: 'int', v: '4 bytes', k: 'layout' }, { n: 'a @4', t: 'char', v: '1 byte', k: 'layout' }, { n: 'c @5', t: 'char', v: '1 byte', k: 'layout' }, { n: 'padding @6', t: '2 bytes', v: 'unused', k: 'layout' }], out: '12\n',
+      note: 'The program prints <b>12</b>. Reorder the members as <code>int b; char a; char c;</code> and the same data needs only <b>8 bytes</b> (shown): put the largest members first.' }
+  ]
+});
+
+CT.stepper('#st-parse', {
+  title: 'Parsing a 19-byte Trade message',
+  code: String.raw`
+if (len < 19) return nullopt;
+type   = buf[0];
+length = loadBe<uint16_t>(buf + 1);
+seq    = loadBe<uint32_t>(buf + 3);
+price  = loadBe<uint64_t>(buf + 7);
+qty    = loadBe<uint32_t>(buf + 15);
+`,
+  steps: [
+    { line: 1, mem: [{ n: 'type @0', t: '1 byte', v: "'T'", k: 'buffer' }, { n: 'length @1', t: '2 bytes', v: '00 13', k: 'buffer' }, { n: 'seq @3', t: '4 bytes', v: '00 00 30 39', k: 'buffer' }, { n: 'price @7', t: '8 bytes', v: '00 00 00 00 00 0F 73 14', k: 'buffer' }, { n: 'qty @15', t: '4 bytes', v: '00 00 01 2C', k: 'buffer' }],
+      note: '<b>Check the length first.</b> All 19 bytes must be present, or any read below could run past the end of the buffer. A short packet is rejected, not trusted.' },
+    { line: 2, mem: [{ n: 'type @0', t: '1 byte', v: "'T'", k: 'buffer' }, { n: 'length @1', t: '2 bytes', v: '00 13', k: 'buffer' }, { n: 'seq @3', t: '4 bytes', v: '00 00 30 39', k: 'buffer' }, { n: 'price @7', t: '8 bytes', v: '00 00 00 00 00 0F 73 14', k: 'buffer' }, { n: 'qty @15', t: '4 bytes', v: '00 00 01 2C', k: 'buffer' }, { n: 'p', t: 'const uchar*', v: 'buf + 0', to: 'type', fam: 'type' }, { n: 'msgType', t: 'char', v: "'T'", fam: 'type' }],
+      note: 'One byte: no byte-order issue. A wrong type means this is not a Trade, so reject it.' },
+    { line: 3, mem: [{ n: 'type @0', t: '1 byte', v: "'T'", k: 'buffer' }, { n: 'length @1', t: '2 bytes', v: '00 13', k: 'buffer' }, { n: 'seq @3', t: '4 bytes', v: '00 00 30 39', k: 'buffer' }, { n: 'price @7', t: '8 bytes', v: '00 00 00 00 00 0F 73 14', k: 'buffer' }, { n: 'qty @15', t: '4 bytes', v: '00 00 01 2C', k: 'buffer' }, { n: 'p', t: 'const uchar*', v: 'buf + 1', to: 'length', fam: 'length' }, { n: 'len', t: 'uint16_t', v: '19', fam: 'length' }],
+      note: '<code>loadBe&lt;uint16_t&gt;</code> assembles the two bytes <code>00 13</code> as big-endian: <b>19</b>. It must equal the message size, otherwise the packet is corrupt.' },
+    { line: 4, mem: [{ n: 'type @0', t: '1 byte', v: "'T'", k: 'buffer' }, { n: 'length @1', t: '2 bytes', v: '00 13', k: 'buffer' }, { n: 'seq @3', t: '4 bytes', v: '00 00 30 39', k: 'buffer' }, { n: 'price @7', t: '8 bytes', v: '00 00 00 00 00 0F 73 14', k: 'buffer' }, { n: 'qty @15', t: '4 bytes', v: '00 00 01 2C', k: 'buffer' }, { n: 'p', t: 'const uchar*', v: 'buf + 3', to: 'seq', fam: 'seq' }, { n: 'seqNo', t: 'uint32_t', v: '12345', fam: 'seq' }],
+      note: 'Four bytes <code>00 00 30 39</code> become <b>12345</b> (0x3039). Each field is copied out; the buffer is never reinterpreted as a struct.' },
+    { line: 5, mem: [{ n: 'type @0', t: '1 byte', v: "'T'", k: 'buffer' }, { n: 'length @1', t: '2 bytes', v: '00 13', k: 'buffer' }, { n: 'seq @3', t: '4 bytes', v: '00 00 30 39', k: 'buffer' }, { n: 'price @7', t: '8 bytes', v: '00 00 00 00 00 0F 73 14', k: 'buffer' }, { n: 'qty @15', t: '4 bytes', v: '00 00 01 2C', k: 'buffer' }, { n: 'p', t: 'const uchar*', v: 'buf + 7', to: 'price', fam: 'price' }, { n: 'priceTicks', t: 'int64_t', v: '1012500', fam: 'price' }],
+      note: 'Eight bytes become <b>1012500</b> ticks, which is 101.2500 at 4 decimals. An integer, so no floating-point error.' },
+    { line: 6, mem: [{ n: 'type @0', t: '1 byte', v: "'T'", k: 'buffer' }, { n: 'length @1', t: '2 bytes', v: '00 13', k: 'buffer' }, { n: 'seq @3', t: '4 bytes', v: '00 00 30 39', k: 'buffer' }, { n: 'price @7', t: '8 bytes', v: '00 00 00 00 00 0F 73 14', k: 'buffer' }, { n: 'qty @15', t: '4 bytes', v: '00 00 01 2C', k: 'buffer' }, { n: 'p', t: 'const uchar*', v: 'buf + 15', to: 'qty', fam: 'qty' }, { n: 'qtyValue', t: 'uint32_t', v: '300', fam: 'qty' }],
+      note: '<b>qty = 300</b>. The parse used 19 bytes, did not allocate, and could not read past the end because the length was checked at the start.' }
+  ]
+});
+</script>
+</body>
+</html>

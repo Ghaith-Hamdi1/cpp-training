@@ -28,5 +28,8 @@ Or build everything with `make` (outputs go to `build/`). The `-pthread` flag is
 | | `03_interface_race_and_deadlock.cpp` | `try_pop`, `scoped_lock` with opposite orders, hierarchical mutex |
 | | `04_condvar_queue_and_thread_pool.cpp` | condition variable, blocking queue, thread pool |
 | | `05_async_atomics_spsc.cpp` | `async`, `promise`, `packaged_task`, release/acquire, CAS, lock-free SPSC queue |
+| 11 Wire formats | `01_bits_layout_endian.cpp` | bit manipulation, struct padding and `offsetof`, `#pragma pack`, endianness |
+| | `02_parse_message.cpp` | a binary message read with `memcpy`-style loads, a zero-copy text parser with `string_view` and `from_chars` |
+| | `03_fixed_point_and_sequence.cpp` | prices as scaled integers versus `double`, sequence-number gaps with wrap-around |
 
 Lesson 10 (coding rules) is about avoiding risky code, so it has no program. Some outputs vary between runs on purpose: the unsafe counter in `02_race_mutex_atomic.cpp` is a data race (undefined behavior) kept only to show lost updates.
