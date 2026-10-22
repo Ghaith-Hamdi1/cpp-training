@@ -343,7 +343,7 @@ catch (const std::exception& e) { }
 });
 
 CT.stepper('#st-move', {
-  title: 'Copy vs move of a vector',
+  title: 'Copy vs move: what std::move really does',
   code: String.raw`
 std::vector<int> a(1000, 7);
 std::vector<int> b = a;
@@ -351,14 +351,17 @@ std::vector<int> c = std::move(a);
 `,
   steps: [
     { line: 1, mem: [{ n: 'a.ptr', t: 'int*', v: '0x5000', p: 'buffer A' }, { n: 'a.size', t: 'size_t', v: '1000' }, { n: 'buffer A @0x5000', t: '1000 ints', v: '7, 7, 7 ...', k: 'heap' }],
-      note: '<b>a</b> is a small object (pointer + size + capacity) that owns a big heap buffer.' },
-    { line: 2, mem: [{ n: 'a.ptr', t: 'int*', v: '0x5000', p: 'buffer A' }, { n: 'a.size', t: 'size_t', v: '1000' }, { n: 'b.ptr', t: 'int*', v: '0x6000', p: 'buffer B' }, { n: 'b.size', t: 'size_t', v: '1000' },
-                    { n: 'buffer A @0x5000', t: '1000 ints', v: '7, 7, 7 ...', k: 'heap' }, { n: 'buffer B @0x6000', t: '1000 ints', v: '7, 7, 7 ...', k: 'heap' }],
-      note: '<b>Copy:</b> a new buffer is allocated and all 1000 ints are copied. Two independent owners. Correct but costs O(n).' },
-    { line: 3, mem: [{ n: 'a.ptr', t: 'int*', v: 'nullptr' }, { n: 'a.size', t: 'size_t', v: '0' }, { n: 'b.ptr', t: 'int*', v: '0x6000', p: 'buffer B' }, { n: 'b.size', t: 'size_t', v: '1000' },
-                    { n: 'c.ptr', t: 'int*', v: '0x5000', p: 'buffer A' }, { n: 'c.size', t: 'size_t', v: '1000' },
-                    { n: 'buffer A @0x5000', t: '1000 ints', v: '7, 7, 7 ...', k: 'heap' }, { n: 'buffer B @0x6000', t: '1000 ints', v: '7, 7, 7 ...', k: 'heap' }],
-      note: '<b>Move:</b> no allocation, no element copying. <b>c</b> simply takes over buffer A\'s pointer and size, and <b>a</b> is left empty (valid but unspecified: do not read it, just assign to it or let it die). O(1).' }
+      note: '<b>a</b> is a small object (pointer + size + capacity) that owns a big heap buffer. It is an <b>lvalue</b>: it has a name and an address.' },
+    { line: 2, mem: [{ n: 'a.ptr', t: 'int*', v: '0x5000', p: 'buffer A' }, { n: 'a.size', t: 'size_t', v: '1000' }, { n: 'buffer A @0x5000', t: '1000 ints', v: '7, 7, 7 ...', k: 'heap' }],
+      note: 'In <code>b = a</code> the argument <code>a</code> is an <b>lvalue</b>, so it binds to <code>const vector&amp;</code> and the compiler picks the <b>copy constructor</b>. Overload resolution only looks at the <i>kind</i> of expression you pass.' },
+    { line: 2, mem: [{ n: 'a.ptr', t: 'int*', v: '0x5000', p: 'buffer A' }, { n: 'a.size', t: 'size_t', v: '1000' }, { n: 'b.ptr', t: 'int*', v: '0x6000', p: 'buffer B' }, { n: 'b.size', t: 'size_t', v: '1000' }, { n: 'buffer A @0x5000', t: '1000 ints', v: '7, 7, 7 ...', k: 'heap' }, { n: 'buffer B @0x6000', t: '1000 ints', v: '7, 7, 7 ...', k: 'heap' }],
+      note: '<b>Copy:</b> a new buffer is allocated and all 1000 ints are copied. Two independent owners. Correct, but O(n).' },
+    { line: 3, mem: [{ n: 'a.ptr', t: 'int*', v: '0x5000', p: 'buffer A' }, { n: 'a.size', t: 'size_t', v: '1000' }, { n: 'b.ptr', t: 'int*', v: '0x6000', p: 'buffer B' }, { n: 'b.size', t: 'size_t', v: '1000' }, { n: 'std::move(a)', fam: 'a', t: 'vector&&', v: 'refers to a', to: 'a.ptr', p: 'same object, same address' }, { n: 'buffer A @0x5000', t: '1000 ints', v: '7, 7, 7 ...', k: 'heap' }, { n: 'buffer B @0x6000', t: '1000 ints', v: '7, 7, 7 ...', k: 'heap' }],
+      note: '<b>std::move(a) runs first, and it moves nothing.</b> It is just <code>static_cast&lt;vector&lt;int&gt;&amp;&amp;&gt;(a)</code>: it hands back an <b>rvalue reference to the very same object</b> (follow the arrow: same address, no copy, no data touched). The <i>expression</i> changed from "lvalue a" to "xvalue, an rvalue you may steal from".' },
+    { line: 3, mem: [{ n: 'a.ptr', t: 'int*', v: '0x5000', p: 'buffer A' }, { n: 'a.size', t: 'size_t', v: '1000' }, { n: 'b.ptr', t: 'int*', v: '0x6000', p: 'buffer B' }, { n: 'b.size', t: 'size_t', v: '1000' }, { n: 'std::move(a)', fam: 'a', t: 'vector&&', v: 'refers to a', to: 'a.ptr', p: 'same object, same address' }, { n: 'buffer A @0x5000', t: '1000 ints', v: '7, 7, 7 ...', k: 'heap' }, { n: 'buffer B @0x6000', t: '1000 ints', v: '7, 7, 7 ...', k: 'heap' }],
+      note: 'Now overload resolution sees an <b>rvalue</b>. <code>vector(vector&amp;&amp;)</code> (the <b>move constructor</b>) is a better match than <code>vector(const vector&amp;)</code>, so it is chosen. That constructor, not <code>std::move</code>, does the stealing.' },
+    { line: 3, mem: [{ n: 'a.ptr', t: 'int*', v: 'nullptr' }, { n: 'a.size', t: 'size_t', v: '0' }, { n: 'std::move(a)', fam: 'a', t: 'vector&&', v: 'gone (temporary)', dead: true }, { n: 'c.ptr', t: 'int*', v: '0x5000', p: 'buffer A' }, { n: 'c.size', t: 'size_t', v: '1000' }, { n: 'b.ptr', t: 'int*', v: '0x6000', p: 'buffer B' }, { n: 'b.size', t: 'size_t', v: '1000' }, { n: 'buffer A @0x5000', t: '1000 ints', v: '7, 7, 7 ...', k: 'heap' }, { n: 'buffer B @0x6000', t: '1000 ints', v: '7, 7, 7 ...', k: 'heap' }],
+      note: '<b>Move:</b> no allocation, no element copying. <b>c</b> takes over buffer A\'s pointer and size, and <b>a</b> is left empty (valid but unspecified: assign to it or let it die, do not read it). O(1). Had <code>a</code> been <code>const</code>, the cast would give <code>const vector&amp;&amp;</code>, which cannot bind to the move constructor, so it would <b>copy</b> silently.' }
   ]
 });
 

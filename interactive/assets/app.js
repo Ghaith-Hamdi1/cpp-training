@@ -368,9 +368,11 @@
     const code = clean(cfg.code).split('\n');
     const lines = code.map((l, i) => '<span class="ln" data-l="' + (i + 1) + '"><i>' + (i + 1) + '</i>' + (highlight(l) || ' ') + '</span>').join('');
     const N = cfg.steps.length;
+    const maxLen = code.reduce((m, l) => Math.max(m, l.length), 0);
+    root.style.setProperty('--st-cols', maxLen <= 30 ? 'minmax(0, 0.7fr) minmax(0, 1.5fr)' : maxLen <= 46 ? 'minmax(0, 0.9fr) minmax(0, 1.3fr)' : 'minmax(0, 1.1fr) minmax(0, 1fr)');
     root.innerHTML = '<div class="w-head"><span class="tag">Step through</span>' + esc(cfg.title || '') + '</div>' +
       '<div class="st-body"><div class="st-pane st-codepane"><div class="st-label">Code</div><pre class="st-code">' + lines + '</pre></div>' +
-      '<div class="st-pane st-side"><div class="st-label">Memory</div><div class="st-mem"></div><div class="st-label">Output</div><div class="st-out" aria-label="Program output"></div></div></div>' +
+      '<div class="st-pane st-side"><div class="st-label">Memory</div><div class="st-mem"></div><div class="st-legend"><span><i class="lg chg"></i>changed this step (ring)</span><span><i class="lg dead"></i>freed or gone</span><span><i class="lg arr">&rarr;</i>points to</span><span><i class="lg col"></i>same colour = same variable or object</span></div><div class="st-label">Output</div><div class="st-out" aria-label="Program output"></div></div></div>' +
       '<div class="st-note" role="status" aria-live="polite"></div>' +
       '<div class="st-dots" role="group" aria-label="Jump to a step">' + Array.from({ length: N }, (_, k) => '<button type="button" class="st-dot" data-j="' + k + '" aria-label="Step ' + (k + 1) + '"></button>').join('') + '</div>' +
       '<div class="w-foot" role="group" aria-label="Step controls"><button class="btn sm ghost" data-a="back" type="button">&#9664; Back</button>' +
@@ -379,7 +381,20 @@
       '<button class="btn sm ghost" data-a="reset" type="button">Reset</button><span class="info"></span></div>';
     const uid = Math.random().toString(36).slice(2, 8);
     let i = -1, timer = null;
-    const GROUPS = [['stack', 'Stack'], ['heap', 'Heap'], ['static', 'Static / global'], ['call', 'Call stack'], ['inst', 'Compiler-generated functions'], ['queue', 'Shared queue'], ['threads', 'Threads']];
+    const GROUPS = [['stack', 'Stack', 'locals, freed automatically'], ['heap', 'Heap', 'new / make_unique, freed explicitly'], ['static', 'Static / global', 'lives for the whole program'], ['call', 'Call stack', ''], ['inst', 'Compiler-generated functions', ''], ['queue', 'Shared queue', ''], ['threads', 'Threads', '']];
+    // One colour per variable / object: a.ptr and a.size share a colour; a heap block takes the colour of the pointer that holds its address.
+    const PALETTE = ['210 75% 56%', '28 90% 55%', '150 58% 42%', '280 55% 62%', '340 72% 60%', '182 62% 42%', '48 88% 48%', '240 62% 68%'];
+    const famBase = (n) => n.replace(/\s*@0x[0-9a-fA-F]+/, '').split(/[.\[]/)[0].trim();
+    const owners = {}, famIdx = {};
+    cfg.steps.forEach((st) => (st.mem || []).forEach((e) => {
+      const m = /@(0x[0-9a-fA-F]+)/.exec(e.n);
+      if (e.k === 'heap' && m && !(e.n in owners)) {
+        const o = st.mem.find((x) => x !== e && x.k !== 'heap' && (x.v || '').indexOf(m[1]) >= 0);
+        if (o) owners[e.n] = o.fam || famBase(o.n);
+      }
+    }));
+    cfg.steps.forEach((st) => (st.mem || []).forEach((e) => { const f = owners[e.n] || e.fam || famBase(e.n); if (!(f in famIdx)) famIdx[f] = Object.keys(famIdx).length; }));
+    const colorOf = (e) => PALETTE[famIdx[owners[e.n] || e.fam || famBase(e.n)] % PALETTE.length];
     const addrOf = (v) => { const m = /0x[0-9a-fA-F]+/.exec(v || ''); return m ? m[0] : null; };
 
     function arrows() {
@@ -394,9 +409,23 @@
       svg.setAttribute('class', 'st-arrows');
       svg.setAttribute('width', box.width);
       svg.setAttribute('height', box.height);
-      svg.innerHTML = '<defs><marker id="sa' + root.id + '" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10z" class="st-ah"/></marker></defs>';
+      svg.innerHTML = '<defs>' + PALETTE.map((c, k) => '<marker id="sa' + uid + k + '" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10z" fill="hsl(' + c + ')"/></marker>').join('') + '</defs>';
       const s = cfg.steps[i];
-      let drawn = 0;
+      const rel = (c) => { const r = c.getBoundingClientRect(); return { l: r.left - box.left, r: r.right - box.left, t: r.top - box.top, b: r.bottom - box.top }; };
+      const cx = (R) => (R.l + R.r) / 2, cy = (R) => (R.t + R.b) / 2;
+      const bez = (P, t) => { const u = 1 - t; return [0, 1].map((k) => u * u * u * P[0][k] + 3 * u * u * t * P[1][k] + 3 * u * t * t * P[2][k] + t * t * t * P[3][k]); };
+      const poly = (P) => { const out = []; for (let t = 0; t <= 1.0001; t += 1 / 24) out.push(bez(P, t)); return out; };
+      const ccw = (a, b, c) => (c[1] - a[1]) * (b[0] - a[0]) > (b[1] - a[1]) * (c[0] - a[0]);
+      const segX = (a, b, c, d) => ccw(a, c, d) !== ccw(b, c, d) && ccw(a, b, c) !== ccw(a, b, d);
+      const crossCount = (L1, L2) => {                                  // ignore the first and last 15% so shared endpoints do not count
+        const lo = Math.floor(L1.length * 0.15), hi = Math.ceil(L1.length * 0.85), lo2 = Math.floor(L2.length * 0.15), hi2 = Math.ceil(L2.length * 0.85);
+        let n = 0;
+        for (let a = lo; a < hi - 1; a++) for (let b = lo2; b < hi2 - 1; b++) if (segX(L1[a], L1[a + 1], L2[b], L2[b + 1])) n++;
+        return n;
+      };
+
+      // 1. every arrow gets a list of candidate routes
+      const specs = [];
       (s.mem || []).forEach((e) => {
         const src = cells.find((c) => c.dataset.n === e.n);
         if (!src) return;
@@ -405,27 +434,55 @@
         const a = addrOf(e.v);
         if (!dst && a) dst = cells.find((c) => c !== src && c.dataset.n.indexOf('@' + a) >= 0);
         if (!dst) return;
-        const r1 = src.getBoundingClientRect(), r2 = dst.getBoundingClientRect();
-        const c1 = { x: r1.left - box.left + r1.width / 2, y: r1.top - box.top + r1.height / 2 };
-        const c2 = { x: r2.left - box.left + r2.width / 2, y: r2.top - box.top + r2.height / 2 };
-        let p1, p2, d;
-        if (Math.abs(c1.y - c2.y) < r1.height * 0.6) {                    // same row: side to side
-          const right = c2.x > c1.x;
-          p1 = { x: right ? r1.right - box.left : r1.left - box.left, y: c1.y };
-          p2 = { x: right ? r2.left - box.left : r2.right - box.left, y: c2.y };
-          const dx = (p2.x - p1.x) / 2;
-          d = 'M' + p1.x + ' ' + p1.y + ' C' + (p1.x + dx) + ' ' + (p1.y - 30) + ' ' + (p2.x - dx) + ' ' + (p2.y - 30) + ' ' + p2.x + ' ' + p2.y;
-        } else {                                                          // different rows: bottom to top (or top to bottom)
-          const down = c2.y > c1.y;
-          p1 = { x: c1.x, y: (down ? r1.bottom : r1.top) - box.top };
-          p2 = { x: c2.x, y: (down ? r2.top : r2.bottom) - box.top };
-          const dy = Math.max(18, Math.abs(p2.y - p1.y) / 2);
-          d = 'M' + p1.x + ' ' + p1.y + ' C' + p1.x + ' ' + (p1.y + (down ? dy : -dy)) + ' ' + p2.x + ' ' + (p2.y + (down ? -dy : dy)) + ' ' + p2.x + ' ' + p2.y;
-        }
+        const A = rel(src), B = rel(dst);
+        const others = cells.filter((c) => c !== src && c !== dst).map(rel);
+        const sameRow = Math.abs(cy(A) - cy(B)) < (A.b - A.t) * 0.6;
+        const C = {
+          right: () => { const x1 = A.r, x2 = B.l - 2, dx = Math.max(28, (x2 - x1) / 2); return B.l - A.r > 10 ? [[x1, cy(A)], [x1 + dx, cy(A)], [x2 - dx, cy(B)], [x2, cy(B)]] : null; },
+          rightStub: () => { const x1 = A.r, x2 = B.l - 2; if (B.l - A.r <= 10) return null; const edge = Math.max.apply(null, cells.map(rel).filter((o) => o.l < A.r && o.r > A.l - 1).map((o) => o.r)); const w = Math.max(40, edge - x1 + 26), dx = Math.max(28, (x2 - x1) / 2); return [[x1, cy(A)], [x1 + w, cy(A)], [x2 - dx, cy(B)], [x2, cy(B)]]; },
+          left: () => { const x1 = A.l, x2 = B.r + 2, dx = Math.max(28, (x1 - x2) / 2); return A.l - B.r > 10 ? [[x1, cy(A)], [x1 - dx, cy(A)], [x2 + dx, cy(B)], [x2, cy(B)]] : null; },
+          vert: () => {
+            if (B.b <= A.t) { const m = (A.t + B.b) / 2; return [[cx(A), A.t], [cx(A), m], [cx(B), m], [cx(B), B.b + 2]]; }
+            if (B.t >= A.b) { const m = (A.b + B.t) / 2; return [[cx(A), A.b], [cx(A), m], [cx(B), m], [cx(B), B.t - 2]]; }
+            return null;
+          },
+          above: () => { const top = Math.min(A.t, B.t) - 36; return [[cx(A), A.t], [cx(A), top], [cx(B), top], [cx(B), B.t - 2]]; },
+          below: () => { const bot = Math.max(A.b, B.b) + 36; return [[cx(A), A.b], [cx(A), bot], [cx(B), bot], [cx(B), B.b + 2]]; },
+          loopR: () => { const out = Math.min(Math.max(A.r, B.r) + 34, box.width - 4); return [[A.r, cy(A)], [out, cy(A)], [out, cy(B)], [B.r + 2, cy(B)]]; },
+          loopL: () => { const out = Math.max(Math.min(A.l, B.l) - 34, 4); return [[A.l, cy(A)], [out, cy(A)], [out, cy(B)], [B.l - 2, cy(B)]]; }
+        };
+        const apart = B.l - A.r > 10 || A.l - B.r > 10;
+        const order = sameRow ? ['right', 'rightStub', 'left', 'above', 'below'] : apart ? ['right', 'rightStub', 'left', 'vert', 'loopR', 'loopL', 'above', 'below'] : ['vert', 'loopR', 'loopL', 'above', 'below'];
+        const hitsCell = (P) => { for (let t = 0.06; t < 0.95; t += 0.04) { const p = bez(P, t); if (others.some((o) => p[0] > o.l + 2 && p[0] < o.r - 2 && p[1] > o.t + 2 && p[1] < o.b - 2)) return true; } return false; };
+        const cands = [];
+        order.forEach((k, pref) => { const P = C[k](); if (P) cands.push({ P: P, L: poly(P), pref: pref, cell: hitsCell(P) ? 1 : 0 }); });
+        if (cands.length) specs.push({ e: e, dst: dst, cands: cands });
+      });
+
+      // 2. choose one route per arrow: never through a cell, then fewest arrow-arrow crossings, then the preferred shape
+      let best = null, bestScore = Infinity;
+      const pick = [];
+      (function search(k, score) {
+        if (score >= bestScore) return;
+        if (k === specs.length) { best = pick.slice(); bestScore = score; return; }
+        specs[k].cands.forEach((c, ci) => {
+          let add = c.cell * 1000 + c.pref;
+          for (let j = 0; j < k; j++) add += 40 * crossCount(c.L, specs[j].cands[pick[j]].L);
+          pick[k] = ci;
+          search(k + 1, score + add);
+        });
+      })(0, 0);
+
+      // 3. draw
+      let drawn = 0;
+      specs.forEach((sp, k) => {
+        const P = sp.cands[best[k]].P;
         const path = document.createElementNS(ns, 'path');
-        path.setAttribute('d', d);
-        path.setAttribute('class', 'st-arrow' + (dst.classList.contains('dead') ? ' dead' : ''));
-        path.setAttribute('marker-end', 'url(#sa' + uid + ')');
+        path.setAttribute('d', 'M' + P[0][0] + ' ' + P[0][1] + ' C' + P[1][0] + ' ' + P[1][1] + ' ' + P[2][0] + ' ' + P[2][1] + ' ' + P[3][0] + ' ' + P[3][1]);
+        const dead = sp.dst.classList.contains('dead');
+        path.setAttribute('class', 'st-arrow' + (dead ? ' dead' : ''));
+        path.setAttribute('marker-end', 'url(#sa' + uid + PALETTE.indexOf(colorOf(sp.e)) + ')');
+        if (!dead) path.style.stroke = 'hsl(' + colorOf(sp.e) + ')';
         svg.appendChild(path);
         drawn++;
       });
@@ -444,10 +501,10 @@
         GROUPS.forEach((g) => {
           const es = s.mem.filter((e) => (e.k || 'stack') === g[0]);
           if (!es.length) return;
-          mem += '<div class="mem-group"><h5>' + g[1] + '</h5><div class="mem">' + es.map((e) => {
+          mem += '<div class="mem-group g-' + g[0] + '"><h5>' + g[1] + (g[2] ? ' <small>' + g[2] + '</small>' : '') + '</h5><div class="mem">' + es.map((e) => {
             const before = p && p.mem ? p.mem.find((x) => x.n === e.n) : null;
             const chg = !before || before.v !== e.v || !!before.dead !== !!e.dead;
-            return '<div class="cell' + (chg ? ' chg' : '') + (e.dead ? ' dead' : '') + (g[0] === 'heap' ? ' heap' : '') + (e.t && /\*|&|ptr/.test(e.t) ? ' ptr' : '') + '" data-n="' + esc(e.n) + '">' +
+            return '<div class="cell' + (chg ? ' chg' : '') + (e.dead ? ' dead' : '') + (g[0] === 'heap' ? ' heap' : '') + (e.t && /\*|&|ptr/.test(e.t) ? ' ptr' : '') + '" data-n="' + esc(e.n) + '" style="--vc:hsl(' + colorOf(e) + ')">' +
               '<div class="nm">' + esc(e.n) + (e.t ? ' <span class="ty">' + esc(e.t) + '</span>' : '') + '</div><div class="vl">' + esc(e.v) + '</div>' +
               (e.p ? '<div class="tg">&rarr; ' + esc(e.p) + '</div>' : '') + '</div>';
           }).join('') + '</div></div>';

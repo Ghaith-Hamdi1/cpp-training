@@ -488,3 +488,37 @@ details.aq.dk > summary .mark { color: var(--warn); }
 .st-dots { align-items: center; }
 .st-dot { flex: none; display: block; }
 .w-head .tag { white-space: nowrap; }
+
+/* ---- step-through v3: columns for memory groups ---- */
+.st-body { grid-template-columns: var(--st-cols, minmax(0, 1.1fr) minmax(0, 1fr)); align-items: start; }
+.st-mem { flex-direction: row; flex-wrap: wrap; align-items: flex-start; gap: 16px 44px; padding: 14px 16px; }
+.st-mem .mem-group { flex: 1 1 190px; min-width: 0; }
+.stepper .mem { gap: 16px 18px; }
+.st-legend { display: flex; flex-wrap: wrap; gap: 4px 16px; margin: -2px 0 2px; color: var(--muted); font-size: 0.76rem; }
+.st-legend .lg { display: inline-block; width: 12px; height: 12px; margin-right: 5px; border-radius: 3px; vertical-align: -1px; border: 1.5px solid var(--border); }
+.st-legend .lg.chg { border-color: var(--accent); background: var(--accent-soft); }
+.st-legend .lg.dead { border: 1.5px dashed var(--bad); background: var(--bad-soft); }
+.st-legend .lg.arr { width: auto; height: auto; border: 0; color: var(--accent); font-style: normal; font-weight: 700; }
+@media (max-width: 860px) { .st-body { grid-template-columns: 1fr; } .st-mem { gap: 14px 20px; } }
+.st-mem { gap: 16px 36px; }
+.st-mem .mem-group { flex: 1 1 150px; }
+
+/* ---- step-through v4: region panels and per-variable colours ---- */
+.stepper .st-mem { background: transparent; border: 0; padding: 0; gap: 14px; }
+.stepper .st-mem .mem-group { border: 1px solid var(--border); border-top-width: 4px; border-radius: 10px; padding: 8px 12px 12px; background: var(--card); }
+.stepper .mem-group h5 { margin: 0 0 8px; font-size: 0.72rem; letter-spacing: 0.08em; color: var(--fg); }
+.stepper .mem-group h5 small { margin-left: 6px; font-size: 0.68rem; letter-spacing: 0; text-transform: none; font-weight: 400; color: var(--muted); }
+.stepper .g-stack { border-top-color: hsl(210 70% 55%); background: color-mix(in srgb, hsl(210 70% 55%) 6%, var(--card)); }
+.stepper .g-heap { border-top-color: hsl(32 88% 52%); background: color-mix(in srgb, hsl(32 88% 52%) 8%, var(--card)); border-style: dashed; border-top-style: solid; }
+.stepper .g-static { border-top-color: hsl(150 50% 42%); background: color-mix(in srgb, hsl(150 50% 42%) 7%, var(--card)); }
+.stepper .g-call, .stepper .g-inst, .stepper .g-queue, .stepper .g-threads { border-top-color: hsl(270 45% 60%); background: color-mix(in srgb, hsl(270 45% 60%) 6%, var(--card)); }
+.stepper .cell { --vc: var(--accent); border: 1px solid color-mix(in srgb, var(--vc) 45%, var(--border)); border-left: 6px solid var(--vc); background: color-mix(in srgb, var(--vc) 12%, var(--card)); }
+.stepper .cell .nm { color: color-mix(in srgb, var(--vc) 75%, var(--fg)); font-weight: 600; }
+.stepper .cell.ptr { border-left-width: 6px; }
+.stepper .cell.heap { border-color: color-mix(in srgb, var(--vc) 45%, var(--border)); border-left: 6px solid var(--vc); }
+.stepper .cell.chg { animation: pop 0.35s; box-shadow: 0 0 0 2px var(--vc); background: color-mix(in srgb, var(--vc) 22%, var(--card)); }
+.stepper .cell.dead { border-style: dashed; border-color: var(--bad); border-left: 6px dashed var(--bad); background: var(--bad-soft); opacity: 0.85; }
+.stepper .cell.empty { border-left-width: 1px; background: transparent; }
+.st-arrow { stroke-width: 2.2; }
+.st-legend .lg.chg { background: transparent; box-shadow: 0 0 0 2px var(--accent); border-color: transparent; }
+.st-legend .lg.col { border: 0; width: 22px; background: linear-gradient(90deg, hsl(210 75% 56%) 50%, hsl(28 90% 55%) 50%); }
