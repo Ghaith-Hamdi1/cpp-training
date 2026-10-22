@@ -272,6 +272,14 @@ ParseError parseTrade(const unsigned char* buf, std::size_t len, Trade& out) noe
 <li><b>Memory placement:</b> on multi-socket machines keep a thread and its data on the same NUMA node. Pre-touch (page-fault in) buffers at startup so the first use on the hot path does not take a page fault.</li>
 <li>Isolating cores from the scheduler and tuning interrupts is an operating-system job, usually done by the platform team.</li>
 </ul>
+<h3>Locks on the hot path</h3>
+<table>
+<tr><th>Problem</th><th>What happens</th><th>Remedy</th></tr>
+<tr><td><b>Lock contention</b></td><td>threads queue on one mutex, so the program is effectively serial (Amdahl)</td><td>shorter critical sections, shard the data, per-thread data merged at the end</td></tr>
+<tr><td><b>Priority inversion</b></td><td>a low-priority thread holds a lock a high-priority one needs, and a medium one keeps the low one from running</td><td>priority inheritance, shorter locks, no locks shared across priorities</td></tr>
+<tr><td><b>Context switches</b></td><td>blocking and waking a thread costs microseconds and cold caches</td><td>brief spinning, pin threads to cores, keep waits off the hot path</td></tr>
+<tr><td><b>Allocation under contention</b></td><td><code>malloc</code> may lock; latency is unpredictable</td><td>reserve, pools and ring buffers</td></tr>
+</table>
 <script type="text/x-cpp">
 // busy-poll: spin on an atomic instead of sleeping (burns the core, minimal wake-up delay)
 while (!ready.load(std::memory_order_acquire)) {

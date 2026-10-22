@@ -1,4 +1,4 @@
-// Lesson 16: an order book side as an array indexed by price tick, checked against std::map with random operations.
+// Lesson 18: an order book side as an array indexed by price tick, checked against std::map with random operations.
 // Compile with -std=c++20.
 #include <array>
 #include <cstdint>

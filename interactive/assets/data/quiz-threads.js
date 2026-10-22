@@ -54,44 +54,6 @@ void work() { for (int i = 0; i < 1000; ++i) ++counter; }`,
       opts: ['Never, notify_one is always enough', 'When several waiters may be able to proceed, waiters wait for different conditions, or at shutdown to wake everyone', 'Only when using atomics', 'When the queue is empty'], a: 1,
       why: '`notify_one` wakes just one thread. For broadcast conditions such as "stop requested", all waiters must be woken.' },
 
-    { sec: 's6', q: 'When is `std::atomic` NOT enough on its own?',
-      opts: ['For a counter', 'For a stop flag', 'When an invariant spans several variables that must change together', 'For a pointer swap'], a: 2,
-      why: 'Atomics make operations on one variable indivisible. Updating two related variables consistently needs a mutex (or a single atomic holding both).' },
-
-    { sec: 's6', q: 'Is `volatile` a valid way to share a flag between threads in C++?',
-      opts: ['Yes, it guarantees visibility', 'No: it gives no atomicity or inter-thread ordering; use std::atomic', 'Yes, but only for bool', 'Yes, on x86 only'], a: 1,
-      why: 'Concurrent access to a `volatile` variable is still a data race. `volatile` is for memory-mapped hardware, not thread synchronization.' },
-
-    { sec: 's6', q: 'What is the default memory order of `std::atomic` operations, and what does it mean?',
-      opts: ['relaxed: no ordering', 'seq_cst: all threads agree on a single global order of atomic operations (strongest and simplest)', 'acquire for loads only', 'release for stores only'], a: 1,
-      why: 'Sequential consistency is the default because it is the easiest to reason about. Weaker orders are an optimisation that needs justification.' },
-
-    { sec: 's6', q: 'What does this guarantee?',
-      code: String.raw`
-int data = 0;
-std::atomic<bool> ready{false};
-
-// thread 1
-data = 42;
-ready.store(true, std::memory_order_release);
-
-// thread 2
-while (!ready.load(std::memory_order_acquire)) {}
-std::cout << data;`,
-      opts: ['It may print 0 or 42', 'It prints 42: the release store publishes everything written before it to a thread whose acquire load sees true', 'It is a data race', 'It prints nothing'], a: 1,
-      why: 'A release store paired with an acquire load that observes it creates a happens-before edge, so the write to `data` is visible. With relaxed ordering this would not be guaranteed.' },
-
-    { sec: 's8', q: 'What does this code do?',
-      code: String.raw`
-std::async(std::launch::async, slowTask);   // returned future is discarded
-doOtherWork();`,
-      opts: ['Runs slowTask in the background while doOtherWork runs', 'Effectively runs slowTask first: the temporary future\'s destructor blocks until the task finishes', 'Does not compile', 'Runs doOtherWork first'], a: 1,
-      why: 'A future from `std::async` blocks in its destructor. Because the temporary is destroyed at the end of the statement, `doOtherWork` only starts after `slowTask` completes. Keep the future in a variable.' },
-
-    { sec: 's8', q: 'What happens if the function run by `std::async` throws, and you later call `future.get()`?',
-      opts: ['The program terminates immediately', 'get() rethrows the exception in the calling thread', 'The exception is silently dropped', 'get() returns a default value'], a: 1,
-      why: 'The exception is stored in the shared state and rethrown by `get()`. That makes futures the clean way to propagate errors out of worker threads.' },
-
     { sec: 's2', q: 'What is the problem with this code?',
       code: String.raw`
 void inc(int& n) { ++n; }
@@ -111,14 +73,6 @@ void f() {
       opts: ['None', 'The detached thread may use `local` after f() has returned and destroyed it (dangling reference)', 'detach is not allowed with lambdas', 'The thread never runs'], a: 1,
       why: 'Capturing by reference and detaching lets the thread outlive the variable. Capture by value, or join before returning.' },
 
-    { sec: 's10', q: 'What is false sharing?',
-      opts: ['Two threads sharing one variable without a lock', 'Threads writing different variables that lie on the same cache line, causing the line to bounce between cores and slowing everything down', 'A mutex shared by unrelated objects', 'A shared_ptr copied between threads'], a: 1,
-      why: 'Cores own memory in cache-line units (usually 64 bytes). Pad or align per-thread hot data (`alignas(64)`) so independent writers do not share a line.' },
-
-    { sec: 's9', q: 'In a thread pool worker loop, why is the task executed after releasing the queue mutex?',
-      opts: ['It is only a style preference', 'Otherwise the lock would be held during the whole task, so only one task could run at a time and other workers could not take work', 'The mutex cannot be locked twice', 'Tasks must not use locks'], a: 1,
-      why: 'Hold the lock only to pop the task. Running it outside the lock keeps workers parallel and avoids deadlocks if the task itself submits more work.' },
-
     { sec: 's3', q: 'Which of these is thread-safe without any extra synchronization?',
       opts: ['Two threads calling `push_back` on the same `std::vector`', 'Many threads only reading from the same const `std::vector`', 'One thread writing and another reading the same `int`', 'Two threads writing to the same `std::string`'], a: 1,
       why: 'Concurrent reads of data nobody modifies are safe. Any concurrent write plus access needs synchronization, including `push_back` on a standard container.' },
@@ -134,14 +88,6 @@ void f() {
     { sec: 's11', q: 'Why can several threads printing with `std::cout << a << b << \'\\n\'` produce garbled lines?',
       opts: ['cout is not usable from threads', 'Each `<<` is a separate operation, so output from different threads can interleave between them', 'cout is buffered', 'Because of false sharing'], a: 1,
       why: 'The stream itself does not crash, but the pieces of different lines mix. Build the full string first and write it once, or protect output with a mutex.' },
-
-    { sec: 's9', q: 'About how many worker threads should a pool for purely CPU-bound tasks have?',
-      opts: ['One per task', 'About `std::thread::hardware_concurrency()`', 'Exactly 100', 'Always 1'], a: 1,
-      why: 'More threads than cores only adds context switching (oversubscription). Threads that mostly wait on I/O can usefully outnumber the cores.' },
-
-    { sec: 's10', q: 'Why can a single-producer single-consumer ring buffer work without locks?',
-      opts: ['Because it uses volatile', 'Each index is written by only one thread (head by the consumer, tail by the producer) and acquire/release atomics publish the data', 'Because the buffer never fills', 'Because the OS serialises threads'], a: 1,
-      why: 'With exactly one writer per index, there are no conflicting writes. Release on the store and acquire on the load make the slot contents visible in the right order.' },
 
     { sec: 'interface-races', q: 'Every member function of this shared stack locks a mutex internally. Why is the caller\'s code still racy?',
       code: String.raw`
@@ -184,6 +130,22 @@ void g() {
 
     { sec: 's2', q: 'Why does the destructor of a joinable `std::thread` call `std::terminate` instead of joining or detaching for you?',
       opts: ['An implicit join can hide long waits and an implicit detach can leave the thread using destroyed locals, so the standard makes the mistake loud', 'Joining inside a destructor is impossible', 'detach is not allowed in destructors', 'It makes threads start faster'], a: 0,
-      why: 'Both implicit options have worse failure modes (hard-to-find performance problems, or undefined behavior). Make the thread unjoinable on every path with an RAII guard, or use `std::jthread` in C++20.' }
+      why: 'Both implicit options have worse failure modes (hard-to-find performance problems, or undefined behavior). Make the thread unjoinable on every path with an RAII guard, or use `std::jthread` in C++20.' },
+
+    { sec: 'mutex-types', q: 'What happens if one thread locks a plain `std::mutex` a second time without unlocking it in between?',
+      opts: ['The second lock is ignored', 'Undefined behaviour, in practice usually a deadlock', 'It always throws `std::system_error`', 'It waits for a timeout and continues'], a: 1,
+      why: 'A `std::mutex` is not re-lockable. Only `std::recursive_mutex` lets the owning thread lock again, which is usually a sign of a design problem.' },
+
+    { sec: 'mutex-types', q: 'A public method `depositTwice()` locks a mutex and calls the public `deposit()`, which locks the same mutex. What is the cleaner fix than a `recursive_mutex`?',
+      opts: ['Use `volatile`', 'Split into a public method that locks once and a private helper that assumes the lock is held', 'Make the mutex `static`', 'Unlock before calling `deposit()`'], a: 1,
+      why: 'The locking public method calls a private `...Locked()` function that both public methods share. The lock is taken exactly once and the contract is explicit.' },
+
+    { sec: 'mutex-types', q: 'When does a `std::shared_mutex` pay off compared with a plain `std::mutex`?',
+      opts: ['Whenever there are two threads', 'When many threads read for a while and writes are rare', 'When the critical section is a single increment', 'When threads must run in a fixed order'], a: 1,
+      why: 'It costs more per lock than a `mutex`, so it only helps when readers dominate and each read holds the lock long enough to overlap with others.' },
+
+    { sec: 'mutex-types', q: 'What does `std::call_once(flag, fn)` guarantee when eight threads call it at the same time?',
+      opts: ['`fn` runs once per thread', '`fn` runs exactly once; the other callers wait until it has finished', '`fn` may run twice but not more', 'Nothing: you still need a mutex'], a: 1,
+      why: 'It is the standard thread-safe one-time initialization. The other threads block until the first call returns, then continue with the initialized state.' }
   ]
 };

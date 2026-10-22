@@ -31,8 +31,12 @@ CT.lessons = [
     blurb: 'Function and class templates, specialization, forwarding references, variadic templates, type traits, if constexpr.' },
   { id: 'patterns', file: '06-design-patterns.html', quiz: '06-design-patterns-quiz.html', title: 'Design Patterns', time: '50 min', hot: true, assess: 3,
     blurb: 'Singleton, Factory, Strategy, Observer and State in modern C++, plus the idioms you should recognise.' },
-  { id: 'threads', file: '07-multithreading.html', quiz: '07-multithreading-quiz.html', title: 'Multithreading', time: '90 min', hot: true, assess: 5,
-    blurb: 'From your first thread to mutexes, deadlocks, atomics, condition variables, futures and thread pools.' },
+  { id: 'threads', file: '07-multithreading.html', quiz: '07-multithreading-quiz.html', title: 'Multithreading', time: '60 min', hot: true, assess: 3,
+    blurb: 'From your first thread to data races, mutexes, deadlocks, condition variables and the other mutex types.' },
+  { id: 'tasks', file: '17-tasks-parallelism.html', quiz: '17-tasks-parallelism-quiz.html', title: 'Tasks & Parallelism', time: '45 min', hot: true, assess: 1,
+    blurb: 'Futures and async, promises, thread pools and work stealing, latch, barrier, semaphore, stop_token and parallel algorithms.' },
+  { id: 'atomics', file: '18-atomics-memory-model.html', quiz: '18-atomics-memory-model-quiz.html', title: 'Atomics & the Memory Model', time: '55 min', hot: true, assess: 2,
+    blurb: 'Atomic operations, compare-and-swap, memory orders and happens-before with a simulator, ordering patterns and concurrent data structures.' },
   { id: 'strings', file: '08-strings-regex-time.html', quiz: '08-strings-regex-time-quiz.html', title: 'Strings, Regex & Time', time: '40 min', hot: false, assess: 2,
     blurb: 'string versus string_view, regular expressions with a live tester, and measuring time with chrono clocks and durations.' },
   { id: 'compiletime', file: '09-compile-time.html', quiz: '09-compile-time-quiz.html', title: 'Type Traits & Compile-time C++', time: '45 min', hot: true, assess: 2,
@@ -57,7 +61,11 @@ CT.moved = {
   '03-core-language.html#s6': '15-lambdas.html#anatomy',
   '03-core-language.html#s8': '16-types-and-casts.html#casts',
   '03-core-language.html#s9': '16-types-and-casts.html#const',
-  '03-core-language.html#s10': '16-types-and-casts.html#standards'
+  '03-core-language.html#s10': '16-types-and-casts.html#standards',
+  '07-multithreading.html#s6': '18-atomics-memory-model.html#ops',        // the multithreading lesson was split in three
+  '07-multithreading.html#s8': '17-tasks-parallelism.html#futures',
+  '07-multithreading.html#s9': '17-tasks-parallelism.html#pool',
+  '07-multithreading.html#s10': '12-low-latency.html#s8'
 };
 
 /* Saved progress is stored per lesson id and section id. When ids change (a lesson is split or renamed), add a
@@ -101,6 +109,36 @@ CT.progressMigrations = [
     });
     store.set('weak:core', stay);
     store.set('mock:missed', store.get('mock:missed', []).filter(function (id) { return id.indexOf('core-') !== 0; }));   // the cheat sheets changed
+  } },
+  /* v3: the Multithreading lesson was split into threads, tasks and atomics (performance went to Low-Latency). */
+  { to: 3, run: function (store) {
+    var SECS = {                                   // old section id -> [lesson, new section ids]
+      s6: ['atomics', ['ops', 'ordering']], s8: ['tasks', ['futures', 'signals']], s9: ['tasks', ['pool', 'stealing']], s10: ['latency', []]
+    };
+    var done = store.get('done:threads', []), keep = [];
+    done.forEach(function (id) {
+      if (!SECS[id]) { keep.push(id); return; }
+      var lesson = SECS[id][0], d = store.get('done:' + lesson, []);
+      SECS[id][1].forEach(function (n) { if (d.indexOf(n) < 0) d.push(n); });
+      store.set('done:' + lesson, d);
+    });
+    store.set('done:threads', keep);
+    if (SECS[store.get('last:threads', '')]) store.set('last:threads', '');
+    var li = store.get('lastinfo', null);
+    if (li && li.id === 'threads' && SECS[li.sec]) store.set('lastinfo', null);
+    var hash = function (s) { var x = 5381, i; for (i = 0; i < s.length; i++) x = ((x * 33) ^ s.charCodeAt(i)) >>> 0; return x.toString(36); };
+    var WHERE = { 'al18rc': 'atomics', 'ncxiq8': 'atomics', '1ht5j1o': 'atomics', '13j0ql7': 'atomics',
+      '1q4movb': 'tasks', '1fyjjhv': 'tasks', '1b9ljuy': 'tasks', 'c1ji5e': 'tasks', 'gbmj0f': 'latency', '19s2m74': 'latency' };
+    var weak = store.get('weak:threads', {}), stay = {};
+    Object.keys(weak).forEach(function (k) {
+      var to = WHERE[hash(k)];
+      if (!to) { stay[k] = weak[k]; return; }
+      var w = store.get('weak:' + to, {});
+      w[k] = weak[k];
+      store.set('weak:' + to, w);
+    });
+    store.set('weak:threads', stay);
+    store.set('mock:missed', store.get('mock:missed', []).filter(function (id) { return id.indexOf('threads-') !== 0; }));   // the cheat sheet changed
   } }
 ];
 

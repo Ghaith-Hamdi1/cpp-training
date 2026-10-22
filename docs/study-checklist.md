@@ -17,21 +17,39 @@ A step-by-step plan from Wednesday to the interview.
 - [ ] Open the site and check that the lessons load.
 - [ ] Open **Lesson 11, Multithreading**.
 
-## Step 1: multithreading (about 2 hours)
+## Step 1: multithreading (about 3 hours)
 
-The topic you knew least, and the one the job description names. Lesson: [07-multithreading.html](../interactive/07-multithreading.html), quiz: [07-multithreading-quiz.html](../interactive/07-multithreading-quiz.html) (34 questions).
+The topic you knew least, and the one the job description names. Three lessons: the basics, tasks and parallelism, and atomics with the memory model.
 
-- [ ] Section 1: Why threads? The mental model
-- [ ] Section 2: Your first thread (including the dangling-argument trap and joining on every path)
-- [ ] Section 3: Shared data and data races (invariants; run the race simulator and "Run 500 random schedules")
-- [ ] Section 4: Mutexes: taking turns (run the mutex simulator)
-- [ ] Section 5: Races hidden in interfaces (step through the stack example)
-- [ ] Section 6: Deadlock (cause the deadlock yourself, then run the fixed version)
-- [ ] Section 7: Atomics
-- [ ] Section 8: Condition variables (step through the hand-over)
-- [ ] Section 9: Futures and async
-- [ ] Section 10: Thread pools and producer/consumer
-- [ ] Optional: sections 11 and 12 (performance, debugging and common bugs)
+**Multithreading:** [07-multithreading.html](../interactive/07-multithreading.html), quiz: [07-multithreading-quiz.html](../interactive/07-multithreading-quiz.html) (28 questions).
+
+- [ ] Why threads? The mental model
+- [ ] Your first thread (including the dangling-argument trap and joining on every path)
+- [ ] Shared data and data races (invariants; run the race simulator and "Run 500 random schedules")
+- [ ] Mutexes: taking turns (run the mutex simulator)
+- [ ] Other mutex types and `call_once` (why recursive mutexes are a smell)
+- [ ] Races hidden in interfaces (step through the stack example)
+- [ ] Deadlock (cause the deadlock yourself, then run the fixed version)
+- [ ] Condition variables (step through the hand-over)
+- [ ] Optional: debugging and common bugs
+- [ ] Take the quiz, then retry the missed questions
+
+**Tasks and parallelism:** [17-tasks-parallelism.html](../interactive/17-tasks-parallelism.html), quiz: [17-tasks-parallelism-quiz.html](../interactive/17-tasks-parallelism-quiz.html) (15 questions).
+
+- [ ] Futures and async
+- [ ] `promise`, `shared_future` and `packaged_task`
+- [ ] Thread pools and producer/consumer (step through the pool)
+- [ ] Work stealing and sizing a pool
+- [ ] `latch`, `barrier`, `semaphore` and `stop_token`
+- [ ] Parallel algorithms
+- [ ] Take the quiz, then retry the missed questions
+
+**Atomics and the memory model:** [18-atomics-memory-model.html](../interactive/18-atomics-memory-model.html), quiz: [18-atomics-memory-model-quiz.html](../interactive/18-atomics-memory-model-quiz.html) (17 questions).
+
+- [ ] Atomic operations and `compare_exchange` (run the atomic simulator)
+- [ ] Memory orders and happens-before (use the memory-order simulator)
+- [ ] Ordering patterns that matter (publish, refcount, spinlock)
+- [ ] Thread-safe data structures (fine-grained locks, lock-free push)
 - [ ] Take the quiz, then retry the missed questions
 
 ## Step 2: core language and modern C++ (about 3 hours)

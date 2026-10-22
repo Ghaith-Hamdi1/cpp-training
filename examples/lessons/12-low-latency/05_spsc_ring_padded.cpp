@@ -1,4 +1,4 @@
-// Lesson 16: a single-producer single-consumer ring buffer with a power-of-two capacity (index mask instead of %),
+// Lesson 18: a single-producer single-consumer ring buffer with a power-of-two capacity (index mask instead of %),
 // padded indices (no false sharing) and a drop policy when full. Compile with -std=c++20 -pthread.
 #include <atomic>
 #include <cstddef>

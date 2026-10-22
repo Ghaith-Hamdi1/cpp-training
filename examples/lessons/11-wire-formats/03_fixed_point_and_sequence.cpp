@@ -1,4 +1,4 @@
-// Lesson 15: prices as scaled integers instead of double, and sequence-number gap detection with wraparound.
+// Lesson 17: prices as scaled integers instead of double, and sequence-number gap detection with wraparound.
 // Compile with -std=c++20.
 #include <cstdint>
 #include <iostream>

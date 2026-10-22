@@ -1,0 +1,296 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tasks and Parallelism</title>
+<script>try{var t=JSON.parse(localStorage.getItem('cpptrain:theme'));if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body data-topic="tasks" data-kind="lesson">
+<main>
+<h1>Tasks and Parallelism</h1>
+<p class="lead">Running work in the background and getting results back: futures, thread pools, work stealing, the C++20 coordination tools and parallel algorithms. Builds on <a href="07-multithreading.html">Multithreading</a>.</p>
+
+<section id="futures" data-title="Futures and async">
+<h2>Futures and async</h2>
+<p>To <b>run a function in the background and get its result later</b>, use a <code>std::future&lt;T&gt;</code>.</p>
+<script type="text/x-cpp">
+#include <future>
+
+int slowSquare(int n) { std::this_thread::sleep_for(std::chrono::seconds(1)); return n * n; }
+
+std::future<int> f = std::async(std::launch::async, slowSquare, 7);   // starts on another thread
+doOtherWork();                                                         // main keeps working meanwhile
+int result = f.get();                                                  // wait if needed, then get 49
+</script>
+<ul>
+<li><code>f.get()</code> blocks until ready (once only); <code>wait()</code> and <code>wait_for()</code> do not take the value.</li>
+<li><b>Exceptions travel</b>: a throwing task rethrows from <code>f.get()</code>.</li>
+<li><b>Prefer tasks to raw threads</b>: <code>std::thread</code> has no result channel and terminates on exceptions.</li>
+<li>Pass <code>std::launch::async</code>; the default may <i>defer</i> the call to <code>get()</code>.</li>
+<li>An <code>async</code> future <b>blocks in its destructor</b>, so a discarded one makes the call effectively synchronous.</li>
+</ul>
+<script type="text/x-cpp">
+// std::promise / std::future: a one-shot channel between two threads you manage yourself
+std::promise<int> p;
+std::future<int> f = p.get_future();
+std::thread t([&p] { p.set_value(42); });    // the worker fulfils the promise (or p.set_exception(...))
+std::cout << f.get();                        // 42
+t.join();
+</script>
+<p><code>std::packaged_task</code> routes a function's result into a future (how pools return results).</p>
+<p>Step through a promise and its future:</p>
+<div id="st-future"></div>
+</section>
+
+<section id="signals" data-title="promise, shared_future and packaged_task">
+<h2><code>promise</code>, <code>shared_future</code> and <code>packaged_task</code></h2>
+<table>
+<tr><th>Type</th><th>Role</th></tr>
+<tr><td><code>std::promise&lt;T&gt;</code></td><td>the <b>writing</b> end: <code>set_value</code> or <code>set_exception</code>, once</td></tr>
+<tr><td><code>std::future&lt;T&gt;</code></td><td>the <b>reading</b> end: <code>get()</code> once; move-only</td></tr>
+<tr><td><code>std::shared_future&lt;T&gt;</code></td><td>a <b>copyable</b> read end: several threads can <code>get()</code> or <code>wait()</code> on the same result</td></tr>
+<tr><td><code>std::packaged_task&lt;R(Args)&gt;</code></td><td>wraps a callable and routes its result (or exception) into a future: how a pool returns results</td></tr>
+</table>
+<script type="text/x-cpp">
+// promise<void>: a one-shot "go" signal for several waiting threads
+std::promise<void> go;
+std::shared_future<void> start = go.get_future().share();     // copyable, so every worker gets a handle
+for (int i = 0; i < 4; ++i) workers.emplace_back([start] { start.wait(); run(); });
+go.set_value();                                               // all four are released together
+
+// packaged_task: the pool wraps a function and hands back the future
+std::packaged_task<int(int)> task([](int n) { return n * n; });
+std::future<int> f = task.get_future();
+std::thread t(std::move(task), 7);                            // runs on any thread
+int r = f.get();                                              // 49
+t.join();
+</script>
+<ul>
+<li>Compiled: four workers waiting on a shared <code>promise&lt;void&gt;</code> had started 0 before <code>set_value()</code> and 4 after.</li>
+<li>A <code>promise</code> destroyed without a value gives the future a <code>broken_promise</code> exception instead of hanging forever.</li>
+<li>For a repeated signal use a condition variable; a promise is <b>one-shot</b>.</li>
+<li>A future is a <i>one-way, one-time</i> channel. If you need many messages, use a queue.</li>
+</ul>
+</section>
+
+<section id="pool" data-title="Thread pools and producer/consumer">
+<h2>Thread pools and producer/consumer</h2>
+<figure class="fig"><svg viewBox="0 0 640 170" role="img" aria-label="Tasks go into a queue and a fixed set of worker threads take them"><defs><marker id="a3" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path class="ah" d="M0 0L10 5L0 10z"/></marker></defs>
+<text class="t" x="10" y="26">Tasks</text>
+<rect class="acc" x="10" y="40" width="70" height="26" rx="5"/><rect class="acc" x="10" y="72" width="70" height="26" rx="5"/><rect class="acc" x="10" y="104" width="70" height="26" rx="5"/><text class="m" x="45" y="57" text-anchor="middle">task</text><text class="m" x="45" y="89" text-anchor="middle">task</text><text class="m" x="45" y="121" text-anchor="middle">task</text>
+<rect class="box" x="170" y="40" width="120" height="90" rx="8"/><text class="t" x="230" y="82" text-anchor="middle">Task queue</text><text class="m" x="230" y="102" text-anchor="middle">mutex + cv</text>
+<path class="ar" d="M82 85H168" marker-end="url(#a3)"/>
+<rect class="gd" x="400" y="30" width="110" height="30" rx="6"/><text x="455" y="50" text-anchor="middle">Worker 1</text><rect class="gd" x="400" y="70" width="110" height="30" rx="6"/><text x="455" y="90" text-anchor="middle">Worker 2</text><rect class="gd" x="400" y="110" width="110" height="30" rx="6"/><text x="455" y="130" text-anchor="middle">Worker N</text>
+<path class="ar" d="M292 70L398 45M292 85H398M292 100L398 125" marker-end="url(#a3)"/>
+<text class="m" x="520" y="90">fixed number,</text><text class="m" x="520" y="106">created once</text>
+<text class="m" x="10" y="162">Reusing N threads avoids the cost of one thread per task and keeps the thread count bounded.</text></svg><figcaption>Thread pool: many tasks, few long-lived workers.</figcaption></figure>
+<p>A thread per task is expensive and thousands overload the scheduler. A <b>thread pool</b> starts N workers once; tasks go in a queue (<b>producer/consumer</b>).</p>
+<script type="text/x-cpp">
+class ThreadPool {
+    std::vector<std::thread> workers_;
+    std::queue<std::function<void()>> tasks_;
+    std::mutex m_;
+    std::condition_variable cv_;
+    bool stop_ = false;
+public:
+    explicit ThreadPool(std::size_t n) {
+        for (std::size_t i = 0; i < n; ++i)
+            workers_.emplace_back([this] {
+                for (;;) {
+                    std::function<void()> task;
+                    {
+                        std::unique_lock<std::mutex> lk(m_);
+                        cv_.wait(lk, [this] { return stop_ || !tasks_.empty(); });
+                        if (stop_ && tasks_.empty()) return;     // finish remaining tasks, then exit
+                        task = std::move(tasks_.front());
+                        tasks_.pop();
+                    }                                            // lock released BEFORE running the task
+                    task();
+                }
+            });
+    }
+    void submit(std::function<void()> f) {
+        { std::lock_guard<std::mutex> lk(m_); tasks_.push(std::move(f)); }
+        cv_.notify_one();
+    }
+    ~ThreadPool() {
+        { std::lock_guard<std::mutex> lk(m_); stop_ = true; }    // request shutdown under the lock
+        cv_.notify_all();                                        // wake every sleeping worker
+        for (auto& w : workers_) w.join();                       // wait for them to finish
+    }
+};
+
+ThreadPool pool(std::thread::hardware_concurrency());
+pool.submit([] { std::cout << "task runs on some worker\n"; });
+</script>
+<p>It combines everything: mutex, condition variable, stop flag, RAII shutdown. The task runs <b>outside</b> the lock, or only one could run at a time.</p>
+<p>Step through the pool:</p>
+<div id="st-pool"></div>
+</section>
+
+<section id="stealing" data-title="Work stealing and sizing a pool">
+<h2>Work stealing and sizing a pool</h2>
+<figure class="fig"><svg viewBox="0 0 640 190" role="img" aria-label="Each worker has its own deque; an idle worker takes a task from the back of a busy worker's deque"><defs><marker id="ws1" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path class="ah" d="M0 0L10 5L0 10z"/></marker></defs>
+<text class="t" x="10" y="20">One queue per worker (a deque)</text>
+<rect class="gd" x="10" y="36" width="90" height="30" rx="6"/><text x="55" y="56" text-anchor="middle">Worker 1</text>
+<rect class="acc" x="120" y="36" width="60" height="30" rx="5"/><rect class="acc" x="186" y="36" width="60" height="30" rx="5"/><rect class="acc" x="252" y="36" width="60" height="30" rx="5"/><rect class="acc" x="318" y="36" width="60" height="30" rx="5"/>
+<text class="m" x="150" y="55" text-anchor="middle">task</text><text class="m" x="216" y="55" text-anchor="middle">task</text><text class="m" x="282" y="55" text-anchor="middle">task</text><text class="m" x="348" y="55" text-anchor="middle">task</text>
+<text class="m" x="120" y="82">front: the owner pops here</text><text class="m" x="290" y="82">back: thieves take here</text>
+<rect class="gd" x="10" y="110" width="90" height="30" rx="6"/><text x="55" y="130" text-anchor="middle">Worker 2</text>
+<rect class="box" x="120" y="110" width="258" height="30" rx="5" stroke-dasharray="5 4"/><text class="m" x="250" y="129" text-anchor="middle">empty: idle</text>
+<path class="ar" d="M400 52C440 70 440 100 384 118" marker-end="url(#ws1)" fill="none"/>
+<text class="m" x="450" y="100">steals one task from the back</text>
+<text class="m" x="10" y="172">Owners and thieves work at opposite ends, so they rarely contend. A shared queue has one lock everyone fights over.</text></svg><figcaption>Work stealing: local deques keep the common case lock-light, stealing balances the load.</figcaption></figure>
+<ul>
+<li><b>Work stealing</b> is how production pools (TBB, Java's fork/join) balance load: each worker pops its own deque and an idle worker <b>steals</b> from another's back.</li>
+<li>It suits <b>recursive</b> tasks that spawn subtasks: a spawned task goes on the spawner's own deque and stays hot in its cache.</li>
+<li>A simple pool with one shared queue (the previous section) is fine until that queue's lock becomes the bottleneck. Know that stealing is the next step; do not claim to have written one.</li>
+</ul>
+<table>
+<tr><th>Work</th><th>Workers</th></tr>
+<tr><td>CPU-bound</td><td>about <code>hardware_concurrency()</code>; more is oversubscription and context switches</td></tr>
+<tr><td>I/O-bound or blocking</td><td>more than the core count, because threads spend their time waiting</td></tr>
+<tr><td>Mixed</td><td>separate pools, so slow blocking tasks cannot starve the fast ones</td></tr>
+</table>
+<div class="callout warn"><span class="label">Pool deadlock</span>A task that submits a subtask to the same pool and <b>waits</b> for it can block every worker: all N workers wait for subtasks nobody is free to run. Do not block a pool thread on work that needs the same pool.</div>
+</section>
+
+<section id="coordination" data-title="latch, barrier, semaphore and stop_token (C++20)">
+<h2><code>latch</code>, <code>barrier</code>, <code>semaphore</code> and <code>stop_token</code> (C++20)</h2>
+<table>
+<tr><th>Tool</th><th>Idea</th><th>Reusable?</th></tr>
+<tr><td><code>std::latch(n)</code></td><td>wait until a counter has been counted down <i>n</i> times ("N things are done")</td><td>no: one shot</td></tr>
+<tr><td><code>std::barrier(n)</code></td><td>all <i>n</i> threads wait for each other at the end of each phase, then all go on</td><td><b>yes</b>: phase after phase</td></tr>
+<tr><td><code>std::counting_semaphore&lt;N&gt;</code></td><td>at most <i>k</i> threads in a section (a permit counter)</td><td>yes</td></tr>
+<tr><td><code>std::binary_semaphore</code></td><td>a semaphore with one permit: signal from one thread to another</td><td>yes</td></tr>
+</table>
+<figure class="fig"><svg viewBox="0 0 640 170" role="img" aria-label="Three threads finish phase 1 at different times and wait at a barrier; all start phase 2 together"><text class="m" x="60" y="20">Phase 1</text><text class="m" x="380" y="20">Phase 2</text>
+<rect class="acc" x="60" y="34" width="190" height="24" rx="5"/><text x="155" y="51" text-anchor="middle">thread A</text><rect class="box" x="250" y="34" width="106" height="24" rx="5" stroke-dasharray="5 4"/><text class="m" x="303" y="51" text-anchor="middle">waits</text>
+<rect class="acc" x="60" y="68" width="296" height="24" rx="5"/><text x="208" y="85" text-anchor="middle">thread B (slowest)</text>
+<rect class="acc" x="60" y="102" width="130" height="24" rx="5"/><text x="125" y="119" text-anchor="middle">thread C</text><rect class="box" x="190" y="102" width="166" height="24" rx="5" stroke-dasharray="5 4"/><text class="m" x="273" y="119" text-anchor="middle">waits</text>
+<rect class="wn" x="360" y="28" width="6" height="104" rx="2"/>
+<rect class="gd" x="376" y="34" width="200" height="24" rx="5"/><rect class="gd" x="376" y="68" width="200" height="24" rx="5"/><rect class="gd" x="376" y="102" width="200" height="24" rx="5"/>
+<text class="m" x="10" y="148">The barrier (vertical bar): the last arrival releases everyone, so phase 2 starts together.</text>
+<text class="m" x="10" y="164">Compiled: every thread saw all three phase-1 results before it began phase 2.</text></svg><figcaption>A barrier separates phases of a parallel computation.</figcaption></figure>
+<script type="text/x-cpp">
+std::latch done(3);                                  // three workers will count down
+for (int i = 0; i < 3; ++i) workers.emplace_back([&] { work(); done.count_down(); });
+done.wait();                                         // returns when the count reaches 0
+
+std::barrier sync(3);                                // three threads, many phases
+auto body = [&] { phase1(); sync.arrive_and_wait(); phase2(); };
+
+std::counting_semaphore<4> slots(2);                 // at most two threads at once
+void limited() { slots.acquire(); use(); slots.release(); }   // compiled: peak was 2 with six threads
+</script>
+<h3>Cooperative cancellation: <code>jthread</code> and <code>stop_token</code></h3>
+<script type="text/x-cpp">
+std::jthread worker([](std::stop_token st) {
+    while (!st.stop_requested()) { doWork(); }       // check the token regularly
+});
+// worker.request_stop();  or just let the destructor do it: request_stop() then join()
+</script>
+<p>There is no safe way to <i>kill</i> a thread; you ask it to stop and it finishes its loop. <code>std::stop_token</code> is the standard channel for that request, and <code>std::jthread</code> joins in its destructor, which removes the "forgot to join" crash.</p>
+</section>
+
+<section id="parallel" data-title="Parallel algorithms">
+<h2>Parallel algorithms (C++17)</h2>
+<p>Most standard algorithms accept an <b>execution policy</b> as a first argument. The library decides how to split the work across threads.</p>
+<script type="text/x-cpp">
+#include <execution>
+
+std::sort(std::execution::par, v.begin(), v.end());
+long long sum = std::reduce(std::execution::par, v.begin(), v.end(), 0LL);    // compiled: 500500 for 1..1000
+std::transform(std::execution::par_unseq, a.begin(), a.end(), out.begin(), f);
+</script>
+<table>
+<tr><th>Policy</th><th>Meaning</th></tr>
+<tr><td><code>seq</code></td><td>sequential, as without a policy</td></tr>
+<tr><td><code>par</code></td><td>may run on several threads</td></tr>
+<tr><td><code>par_unseq</code></td><td>several threads and vectorised (SIMD): the function must not lock or allocate</td></tr>
+</table>
+<ul>
+<li><b>Your function object must be thread-safe</b>: no unsynchronised writes to shared data. A data race inside a parallel algorithm is still undefined behaviour.</li>
+<li><code>std::reduce</code> (not <code>accumulate</code>) is the parallel fold: it may <b>reassociate</b> the operation, so the operation must be associative (floating-point sums may differ slightly).</li>
+<li>It only pays for <b>big inputs and heavy work</b>; for small ranges the thread overhead dominates.</li>
+<li>With g++ you usually need Intel TBB installed and <code>-ltbb</code> for real parallelism; without a parallel backend the same code runs serially (as in the compiled example here).</li>
+<li>Exceptions escaping the callback call <code>std::terminate</code>.</li>
+</ul>
+<div class="callout tip"><span class="label">Choose</span>Parallel algorithms for data parallelism over a container; a pool or <code>std::async</code> for independent tasks; a queue and a pinned thread for a latency-critical pipeline (<a href="12-low-latency.html">Low-Latency C++</a>).</div>
+</section>
+
+<section id="cheat" data-title="Interview cheat sheet">
+<h2>Interview cheat sheet</h2>
+<p>Say each answer aloud, then open it.</p>
+<details class="ex"><summary><code>std::async</code> vs <code>std::thread</code>?</summary><div><p><code>async</code> returns a <code>future</code> carrying the result and any exception, and may use a pool or defer execution (use <code>launch::async</code> to force a thread). <code>thread</code> gives raw control with no result channel. A future from <code>async</code> blocks in its destructor.</p></div></details>
+<details class="ex"><summary>What are <code>promise</code>, <code>future</code> and <code>packaged_task</code>?</summary><div><p>A <code>promise</code> is the write end of a one-shot channel, a <code>future</code> the read end. A <code>packaged_task</code> wraps a callable and fulfils a future with its result or exception, which is how a pool returns results. A <code>shared_future</code> is a copyable read end for several waiters.</p></div></details>
+<details class="ex"><summary>How would you signal several threads to start at the same moment?</summary><div><p>A <code>promise&lt;void&gt;</code> whose <code>shared_future</code> every thread waits on, or a <code>std::latch</code>/<code>barrier</code>. The promise is one-shot; for repeated signals use a condition variable.</p></div></details>
+<details class="ex"><summary>Why is the task run outside the lock in a thread-pool worker?</summary><div><p>Otherwise only one task could run at a time, and the queue would stay locked while a task works. The worker takes the task under the lock, releases it, then runs the task.</p></div></details>
+<details class="ex"><summary>How many threads should a pool have?</summary><div><p>About <code>hardware_concurrency()</code> for CPU-bound work (more means oversubscription and context switches), more for I/O-bound or blocking work. Use separate pools for mixed workloads.</p></div></details>
+<details class="ex"><summary>What is work stealing?</summary><div><p>Each worker has its own deque of tasks and pops from it; an idle worker steals from the back of another's deque. Owners and thieves work at opposite ends, so contention is low and load balances automatically. It removes the single shared queue's lock as a bottleneck.</p></div></details>
+<details class="ex"><summary>What is the difference between <code>latch</code> and <code>barrier</code>?</summary><div><p>A <code>latch</code> is a one-shot countdown: threads count down and others wait until it reaches zero. A <code>barrier</code> is reusable: a fixed group of threads waits for each other at the end of each phase, then all continue together.</p></div></details>
+<details class="ex"><summary>What does a semaphore do that a mutex does not?</summary><div><p>A counting semaphore allows up to k threads in at once (a permit counter) and can be released by a different thread than the one that acquired it. A mutex is one owner at a time and must be unlocked by its owner.</p></div></details>
+<details class="ex"><summary>How do you stop a thread cleanly?</summary><div><p>Cooperatively: ask it to stop and let it return. C++20 <code>std::jthread</code> passes a <code>std::stop_token</code> that the loop checks, and its destructor requests the stop and joins. There is no safe forced kill.</p></div></details>
+<details class="ex"><summary>When is a parallel algorithm worth using, and what must you watch?</summary><div><p>For large inputs and non-trivial work per element. The callback must be thread-safe, <code>reduce</code> needs an associative operation, and small ranges are slower because of thread overhead. Without a parallel backend the call runs serially.</p></div></details>
+</section>
+</main>
+
+<script src="assets/data/lessons.js"></script>
+<script src="assets/app.js"></script>
+<script>
+CT.stepper('#st-future', {
+  title: 'promise and future: a one-shot channel between threads',
+  code: String.raw`
+std::promise<int> p;
+std::future<int> f = p.get_future();
+std::thread t([&p] { p.set_value(42); });
+int r = f.get();
+t.join();
+`,
+  steps: [
+    { line: 1, mem: [{ n: 'p', t: 'promise', v: '0x5000', p: 'writer end' }, { n: 'shared state @0x5000', t: 'internal', v: 'empty', k: 'heap' }],
+      note: 'Creating a <b>promise</b> allocates a hidden <b>shared state</b> that will hold the value or an exception.' },
+    { line: 2, mem: [{ n: 'p', t: 'promise', v: '0x5000', p: 'writer end' }, { n: 'f', t: 'future', v: '0x5000', p: 'reader end' }, { n: 'shared state @0x5000', t: 'internal', v: 'empty', k: 'heap' }],
+      note: '<code>get_future()</code> gives the <b>reader end</b>. Both ends now point at the same shared state.' },
+    { line: 3, mem: [{ n: 'p', t: 'promise', v: '0x5000', p: 'writer end' }, { n: 'f', t: 'future', v: '0x5000', p: 'reader end' }, { n: 'shared state @0x5000', t: 'internal', v: 'empty', k: 'heap' }, { n: 'worker thread', t: 'thread', v: 'running', k: 'threads' }],
+      note: 'A worker thread starts. It captured the promise by reference to fulfil it.' },
+    { line: 4, mem: [{ n: 'p', t: 'promise', v: '0x5000', p: 'writer end' }, { n: 'f', t: 'future', v: '0x5000', p: 'reader end' }, { n: 'shared state @0x5000', t: 'internal', v: 'empty', k: 'heap' }, { n: 'main thread', t: 'thread', v: 'BLOCKED in f.get()', k: 'threads' }, { n: 'worker thread', t: 'thread', v: 'running', k: 'threads' }],
+      note: '<code>f.get()</code> <b>blocks</b> the main thread until a value is ready (no busy waiting).' },
+    { line: 3, mem: [{ n: 'p', t: 'promise', v: '0x5000', p: 'writer end' }, { n: 'f', t: 'future', v: '0x5000', p: 'reader end' }, { n: 'shared state @0x5000', t: 'internal', v: 'READY: 42', k: 'heap' }, { n: 'main thread', t: 'thread', v: 'woken', k: 'threads' }, { n: 'worker thread', t: 'thread', v: 'finished', k: 'threads' }],
+      note: '<code>p.set_value(42)</code> stores 42 in the shared state and wakes the waiter. (<code>set_exception</code> would store an error that <code>get()</code> rethrows.)' },
+    { line: 5, mem: [{ n: 'r', t: 'int', v: '42' }, { n: 'shared state @0x5000', t: 'internal', v: 'consumed (get works once)', k: 'heap', dead: true }, { n: 'worker thread', t: 'thread', v: 'joined', k: 'threads', dead: true }],
+      note: 'main resumes with <b>r = 42</b>, then joins the finished worker. <code>std::async</code> and <code>packaged_task</code> are this same mechanism with the promise hidden.' }
+  ]
+});
+
+CT.stepper('#st-pool', {
+  title: 'A thread pool: tasks in, workers out',
+  code: String.raw`
+ThreadPool pool(2);
+pool.submit(taskA);
+pool.submit(taskB);
+pool.submit(taskC);
+// ... later, pool goes out of scope
+`,
+  steps: [
+    { line: 1, mem: [{ n: 'queue', v: '[ ]', k: 'queue' }, { n: 'worker 1', t: 'thread', v: 'sleeping on cv', k: 'threads' }, { n: 'worker 2', t: 'thread', v: 'sleeping on cv', k: 'threads' }],
+      note: 'The pool starts <b>2 workers once</b>. Each one waits on the condition variable: no CPU used while idle.' },
+    { line: 2, mem: [{ n: 'queue', v: '[ A ]', k: 'queue' }, { n: 'worker 1', t: 'thread', v: 'woken by notify_one', k: 'threads' }, { n: 'worker 2', t: 'thread', v: 'sleeping on cv', k: 'threads' }],
+      note: '<code>submit(A)</code> pushes under the lock, then <code>notify_one()</code> wakes <b>one</b> worker.' },
+    { line: 2, mem: [{ n: 'queue', v: '[ ]', k: 'queue' }, { n: 'worker 1', t: 'thread', v: 'RUNNING A', k: 'threads' }, { n: 'worker 2', t: 'thread', v: 'sleeping on cv', k: 'threads' }],
+      note: 'Worker 1 takes A off the queue <b>under the lock</b>, releases the lock, and only then runs A. Running outside the lock is what lets tasks run in parallel.' },
+    { line: 3, mem: [{ n: 'queue', v: '[ ]', k: 'queue' }, { n: 'worker 1', t: 'thread', v: 'RUNNING A', k: 'threads' }, { n: 'worker 2', t: 'thread', v: 'RUNNING B', k: 'threads' }],
+      note: '<code>submit(B)</code> wakes worker 2, which runs B at the same time as A.' },
+    { line: 4, mem: [{ n: 'queue', v: '[ C ]', k: 'queue' }, { n: 'worker 1', t: 'thread', v: 'RUNNING A', k: 'threads' }, { n: 'worker 2', t: 'thread', v: 'RUNNING B', k: 'threads' }],
+      note: '<code>submit(C)</code>: both workers are busy, so C <b>waits in the queue</b>. The thread count stays bounded however many tasks arrive.' },
+    { line: 4, mem: [{ n: 'queue', v: '[ ]', k: 'queue' }, { n: 'worker 1', t: 'thread', v: 'RUNNING C', k: 'threads' }, { n: 'worker 2', t: 'thread', v: 'RUNNING B', k: 'threads' }],
+      note: 'Worker 1 finishes A, finds C waiting, and takes it.' },
+    { line: 5, mem: [{ n: 'stop_', t: 'bool', v: 'true', p: 'set under the lock' }, { n: 'queue', v: '[ ]', k: 'queue' }, { n: 'worker 1', t: 'thread', v: 'exited (joined)', k: 'threads', dead: true }, { n: 'worker 2', t: 'thread', v: 'exited (joined)', k: 'threads', dead: true }],
+      note: 'The destructor sets <b>stop_ = true</b> under the lock, calls <code>notify_all()</code>, and joins. Workers finish the remaining tasks, see "stop and queue empty", and return. RAII shutdown.' }
+  ]
+});
+</script>
+</body>
+</html>

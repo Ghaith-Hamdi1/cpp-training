@@ -687,6 +687,106 @@
     render();
   }
 
+  /* ---------------- memory-ordering simulator ---------------- */
+  /* A simplified model of publishing data with a flag. The producer's writes wait in a store buffer and reach shared
+     memory when you flush them. A release (or seq_cst) store may only be flushed after every earlier write, a relaxed
+     one may overtake them. A relaxed load of the flag lets the consumer read `data` from a stale copy. It shows what
+     the C++ memory model ALLOWS; real x86 hardware is stricter than this model and often hides the problem. */
+  function memsim(sel, cfg) {
+    const root = typeof sel === 'string' ? $(sel) : sel;
+    root.className = 'widget threadsim';
+    const STORE = ['relaxed', 'release', 'seq_cst'], LOAD = ['relaxed', 'acquire', 'seq_cst'];
+    let so = cfg.store || 'relaxed', lo = cfg.load || 'relaxed';
+    const fresh = () => ({ mem: { data: 0, ready: 0 }, snap: { data: 0 }, buf: [], p: 0, c: 0, out: null, last: '' });
+    let S = fresh();
+    let hist = null;
+    const inOrder = () => so !== 'relaxed';                              // release and seq_cst keep the flag behind the data
+    const canFlush = (s, i) => !s.buf[i].done && (!(s.buf[i].v === 'ready' && inOrder()) || s.buf.slice(0, i).every((b) => b.done));
+    const flushable = (s) => s.buf.map((_, i) => i).filter((i) => canFlush(s, i));
+    const pDone = (s) => s.p >= 2;
+    const cDone = (s) => s.c >= 2;
+    const canP = (s) => !pDone(s);
+    function stepP(s) {
+      if (s.p === 0) { s.buf.push({ v: 'data', val: 42, done: false }); s.last = 'P: data = 42 goes into the store buffer. Other threads cannot see it yet.'; }
+      else { s.buf.push({ v: 'ready', val: 1, done: false }); s.last = 'P: ready.store(true, ' + so + ') goes into the store buffer.'; }
+      s.p++;
+    }
+    function stepC(s) {
+      if (s.c === 0) {
+        if (s.mem.ready) { s.c = 1; s.last = 'C: ready.load(' + lo + ') sees true: the loop ends.'; if (lo === 'relaxed') s.last += ' Relaxed: later reads may still use older values.'; }
+        else s.last = 'C: ready.load(' + lo + ') still sees false: spin again.';
+      } else {
+        const v = lo === 'relaxed' ? s.snap.data : s.mem.data;
+        s.out = v; s.c = 2; s.last = 'C: print(data) reads ' + v + (lo === 'relaxed' ? ' from a stale copy (allowed without acquire).' : ' from memory.');
+      }
+    }
+    function flush(s, i) { const b = s.buf[i]; b.done = true; s.mem[b.v] = b.val; s.last = 'Memory: ' + b.v + ' = ' + b.val + ' is now visible to every thread.'; }
+    function runRandom() {
+      const s = fresh();
+      for (let g = 0; g < 400 && !cDone(s); g++) {
+        const acts = [];
+        if (canP(s)) acts.push(['p']);
+        if (!cDone(s)) acts.push(['c']);
+        flushable(s).forEach((i) => acts.push(['f', i]));
+        const a = acts[Math.floor(Math.random() * acts.length)];
+        if (a[0] === 'p') stepP(s); else if (a[0] === 'c') stepC(s); else flush(s, a[1]);
+      }
+      return s;
+    }
+    function render() {
+      const sel = (id, arr, cur) => '<label class="info">' + id + ' <select data-s="' + id + '">' + arr.map((x) => '<option' + (x === cur ? ' selected' : '') + '>' + x + '</option>').join('') + '</select></label> ';
+      const prog = (lines, pc) => lines.map((l, k) => '<div class="ts-op ' + (k < pc ? 'fin' : k === pc ? 'next' : '') + '">' + esc(l) + '</div>').join('');
+      const pl = ['data = 42;', 'ready.store(true, ' + so + ');'];
+      const cl = ['while (!ready.load(' + lo + ')) {}', 'print(data);'];
+      const bufCells = S.buf.map((b, i) => {
+        const ok = canFlush(S, i);
+        return '<div class="cell' + (b.done ? '' : ' chg') + '"><div class="nm">' + esc(b.v) + ' = ' + b.val + '</div><div class="vl">' + (b.done ? 'visible' : '<button class="btn sm" type="button" data-a="flush" data-i="' + i + '"' + (ok ? '' : ' disabled') + '>' + (ok ? 'Flush to memory' : 'must wait for data') + '</button>') + '</div></div>';
+      }).join('') || '<div class="info">(empty)</div>';
+      const cols = '<div class="ts-col"><h5><span>P: producer</span></h5>' + prog(pl, S.p) + '<div style="margin-top:8px"><button class="btn sm" data-a="p" type="button"' + (canP(S) ? '' : ' disabled') + '>Step P</button></div></div>' +
+        '<div class="ts-col"><h5><span>C: consumer</span></h5>' + prog(cl, S.c) + '<div style="margin-top:8px"><button class="btn sm" data-a="c" type="button"' + (cDone(S) ? ' disabled' : '') + '>Step C</button></div></div>';
+      const memCells = '<div class="cell"><div class="nm">shared data</div><div class="vl">' + S.mem.data + '</div></div><div class="cell"><div class="nm">shared ready</div><div class="vl">' + (S.mem.ready ? 'true' : 'false') + '</div></div>';
+      let msg = S.last || 'Step P to queue its writes, flush them to memory, and step C to read. Try the two orders above.';
+      let cls = '';
+      if (cDone(S)) { const ok = S.out === 42; msg = 'C printed ' + S.out + (ok ? ': correct.' : ': WRONG. C saw ready == true but not the data.'); cls = ok ? ' good' : ' bad'; }
+      let h = '';
+      if (hist) {
+        h = '<div class="hist"><div>' + hist.n + ' random schedules with store ' + esc(hist.so) + ', load ' + esc(hist.lo) + (hist.lo === 'relaxed' ? ' (a relaxed load is modelled as its worst case: a stale read)' : '') + ':</div>' + ['42', '0'].map((k) => {
+          const pct = ((hist.c[k] || 0) / hist.n) * 100;
+          return '<div class="row"><span>prints ' + k + '</span><span class="bar ' + (k === '42' ? 'ok' : 'dl') + '" style="width:' + Math.max(pct, 0.5) + '%"></span><span>' + pct.toFixed(0) + '%</span></div>';
+        }).join('') + '</div>';
+      }
+      const guaranteed = so !== 'relaxed' && lo !== 'relaxed';
+      root.innerHTML = '<div class="w-head"><span class="tag">Simulator</span>' + esc(cfg.title || 'Publishing data with a flag') + '</div><div class="w-body">' +
+        '<div style="margin-bottom:10px">' + sel('store', STORE, so) + sel('load', LOAD, lo) + '<span class="info">' + (guaranteed ? 'release + acquire: C always prints 42' : 'without both release and acquire, C may print 0') + '</span></div>' +
+        '<div class="ts-cols">' + cols + '</div><div class="ts-state"><div class="info" style="width:100%">Producer store buffer (not yet visible):</div>' + bufCells + '</div>' +
+        '<div class="ts-state"><div class="info" style="width:100%">Shared memory:</div>' + memCells + '</div>' +
+        '<div class="ts-msg' + cls + '" role="status">' + esc(msg) + '</div>' + h + '</div>' +
+        '<div class="w-foot"><button class="btn sm ghost" data-a="reset" type="button">Reset</button><button class="btn sm" data-a="run500" type="button">Run 500 random schedules</button><span class="info">Simplified model: it shows what the C++ memory model allows. x86 hardware often hides these outcomes.</span></div>';
+    }
+    root.addEventListener('change', (e) => {
+      const s = e.target.closest('select[data-s]');
+      if (!s) return;
+      if (s.dataset.s === 'store') so = s.value; else lo = s.value;
+      S = fresh(); hist = null; render();
+    });
+    root.addEventListener('click', (e) => {
+      const b = e.target.closest('button[data-a]');
+      if (!b) return;
+      const a = b.dataset.a;
+      if (a === 'p') stepP(S);
+      else if (a === 'c') stepC(S);
+      else if (a === 'flush') flush(S, +b.dataset.i);
+      else if (a === 'reset') { S = fresh(); hist = null; }
+      else if (a === 'run500') {
+        const c = {};
+        for (let k = 0; k < 500; k++) { const r = runRandom(); const key = String(r.out); c[key] = (c[key] || 0) + 1; }
+        hist = { n: 500, c, so, lo };
+      }
+      render();
+    });
+    render();
+  }
+
   /* ---------------- quiz runner ---------------- */
   function quiz(sel, cfg) {
     const root = typeof sel === 'string' ? $(sel) : sel;
@@ -1176,6 +1276,6 @@
     if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(() => { /* optional */ });
   }
 
-  window.CT = Object.assign(window.CT || {}, { quizData: {}, TOPICS, stepper, threadsim, quiz, assess, mock, highlight, fmt, esc });
+  window.CT = Object.assign(window.CT || {}, { quizData: {}, TOPICS, stepper, threadsim, memsim, quiz, assess, mock, highlight, fmt, esc });
   boot();
 })();

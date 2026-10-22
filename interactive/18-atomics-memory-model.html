@@ -1,0 +1,227 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Atomics and the Memory Model</title>
+<script>try{var t=JSON.parse(localStorage.getItem('cpptrain:theme'));if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body data-topic="atomics" data-kind="lesson">
+<main>
+<h1>Atomics and the Memory Model</h1>
+<p class="lead">Atomic operations, compare-and-swap, memory orders and happens-before with a simulator, the ordering patterns that matter, and thread-safe data structures from fine-grained locks to lock-free. Builds on <a href="07-multithreading.html">Multithreading</a>.</p>
+
+<section id="ops" data-title="Atomic operations and compare_exchange">
+<h2>Atomic operations and <code>compare_exchange</code></h2>
+<p><code>std::atomic&lt;T&gt;</code> makes operations on <b>one variable</b> indivisible, usually without blocking. The increment is now one step:</p>
+<div id="sim-atomic"></div>
+<script type="text/x-cpp">
+#include <atomic>
+
+std::atomic<int> counter{0};
+counter++;                                 // one indivisible read-modify-write
+counter.fetch_add(1);                      // same thing, explicit
+int v = counter.load();                    // atomic read
+counter.store(5);                          // atomic write
+int old = counter.exchange(9);             // write 9, get the previous value, all in one step
+
+std::atomic<bool> stop{false};             // a very common use: a shutdown flag
+</script>
+<table>
+<tr><th>Use an atomic for</th><th>Do <b>not</b> use it for</th></tr>
+<tr><td>a counter, flag, swapped pointer, statistics</td><td>an invariant over <b>several</b> variables: use a mutex</td></tr>
+</table>
+<h3>Compare-and-swap (CAS)</h3>
+<p><code>compare_exchange(expected, desired)</code>: "if the value still equals <code>expected</code>, set it to <code>desired</code>; otherwise load the current value into <code>expected</code> and fail". It is the building block of every lock-free update.</p>
+<script type="text/x-cpp">
+int expected = x.load();
+while (!x.compare_exchange_weak(expected, expected * 2)) {
+    // someone changed x: `expected` now holds the current value, so recompute and retry
+}
+</script>
+<table>
+<tr><th></th><th><code>compare_exchange_weak</code></th><th><code>compare_exchange_strong</code></th></tr>
+<tr><td>spurious failure</td><td><b>may</b> fail even when the value matched</td><td>fails only if the value really differed</td></tr>
+<tr><td>use</td><td>inside a retry <b>loop</b> (cheaper on some CPUs)</td><td>a single attempt, no loop</td></tr>
+</table>
+<p>Compiled: a CAS with a stale <code>expected</code> returned false and refreshed <code>expected</code> to the current value (99).</p>
+<h3><code>atomic_flag</code> and a spinlock</h3>
+<script type="text/x-cpp">
+struct Spinlock {
+    std::atomic_flag f = ATOMIC_FLAG_INIT;
+    void lock()   { while (f.test_and_set(std::memory_order_acquire)) { /* spin */ } }
+    void unlock() { f.clear(std::memory_order_release); }
+};
+</script>
+<p><code>atomic_flag</code> is the one type guaranteed lock-free. Four threads each doing 50,000 increments under this spinlock reached exactly 200,000 (compiled). A spinlock burns a core while waiting: fine for tiny critical sections on dedicated cores, bad when the lock holder can be descheduled (use a mutex).</p>
+<div class="callout warn"><span class="label">volatile is NOT thread-safe</span>It only stops the compiler optimising an access away. No atomicity, no ordering. Use <code>std::atomic</code>.</div>
+<ul>
+<li><code>is_lock_free()</code> says whether the type is done with real atomic instructions; big structs fall back to a hidden lock.</li>
+<li><b>ABA problem:</b> a CAS can succeed when the value went A to B and back to A, although the world changed meanwhile. Fix with a version counter next to the value, or hazard pointers.</li>
+</ul>
+</section>
+
+<section id="ordering" data-title="Memory orders and happens-before">
+<h2>Memory orders and happens-before</h2>
+<p>Compilers and CPUs <b>reorder</b> memory operations, and each core has buffers and caches, so one thread's write may become visible to another thread <i>later</i>, or <i>after</i> a write that came after it. A plain <code>int</code> gives no guarantee. Atomics let you say how much ordering you need.</p>
+<h3>The one rule to learn: release and acquire</h3>
+<script type="text/x-cpp">
+int data = 0;
+std::atomic<bool> ready{false};
+
+// producer thread
+data = 42;
+ready.store(true, std::memory_order_release);
+
+// consumer thread
+while (!ready.load(std::memory_order_acquire)) { }
+std::cout << data;                      // guaranteed to print 42
+</script>
+<ul>
+<li>A <b>release store</b> publishes: every write the thread made <i>before</i> it becomes visible to any thread that reads the stored value with an <b>acquire load</b>.</li>
+<li>The release/acquire pair <b>synchronizes-with</b>, and that creates a <b>happens-before</b> edge: <code>data = 42</code> happens before the consumer's read, so the read is not a data race and sees 42.</li>
+<li><b>happens-before</b> is the formal "must be visible" relation. Within one thread it is program order; across threads it comes only from synchronization (atomics, mutexes, <code>join</code>, futures).</li>
+</ul>
+<p>Try it. Flush the producer's writes to memory in different orders and see what the consumer prints:</p>
+<div id="ms-publish"></div>
+<h3>The orders</h3>
+<table>
+<tr><th>Order</th><th>Guarantee</th><th>Use</th></tr>
+<tr><td><code>relaxed</code></td><td>only atomicity (and a single total order for <i>that</i> variable)</td><td>counters and statistics nobody synchronizes on</td></tr>
+<tr><td><code>acquire</code> (loads)</td><td>nothing after it moves before it; sees what the matching release published</td><td>reading a flag or pointer that publishes data</td></tr>
+<tr><td><code>release</code> (stores)</td><td>nothing before it moves after it; publishes earlier writes</td><td>setting that flag or pointer</td></tr>
+<tr><td><code>acq_rel</code> (read-modify-write)</td><td>both at once</td><td><code>fetch_sub</code> on a reference count, a lock hand-over</td></tr>
+<tr><td><code>seq_cst</code> (default)</td><td>acquire/release <b>plus</b> one global order of all <code>seq_cst</code> operations that every thread agrees on</td><td>when in doubt: it is the only order that is easy to reason about</td></tr>
+</table>
+<div class="callout warn"><span class="label">x86 hides bugs</span>x86 already gives release/acquire for ordinary loads and stores, so wrong orderings often "work" on a developer's PC and fail on ARM (phones, Apple silicon, many servers). The simulator above shows what the <b>C++ model allows</b>, not what x86 does.</div>
+<ul>
+<li>Both sides must take part: a release store read by a <b>relaxed</b> load publishes nothing.</li>
+<li>A <b>fence</b> (<code>std::atomic_thread_fence</code>) gives the ordering without tying it to one variable. Know it exists; reach for acquire/release on the atomic first.</li>
+<li>Without any synchronization, two threads touching the same non-atomic variable (one writing) is a <b>data race: undefined behaviour</b>, not merely "stale data".</li>
+</ul>
+<div class="callout interview"><span class="label">Interview angle</span>"What does acquire/release guarantee?" Everything written before the release is visible after the matching acquire. Say <i>synchronizes-with</i> and <i>happens-before</i>, and that <code>seq_cst</code> is the safe default.</div>
+</section>
+
+<section id="patterns" data-title="Ordering patterns that matter">
+<h2>Ordering patterns that matter</h2>
+<table>
+<tr><th>Pattern</th><th>Orders</th><th>Why</th></tr>
+<tr><td><b>Publish with a flag or pointer</b></td><td>store <code>release</code>, load <code>acquire</code></td><td>the data written before the store is visible after the load</td></tr>
+<tr><td><b>Statistics counter</b></td><td><code>relaxed</code> <code>fetch_add</code></td><td>only the final total matters; no other data depends on it</td></tr>
+<tr><td><b>Reference count</b></td><td>increment <code>relaxed</code>, decrement <code>acq_rel</code></td><td>adding a reference needs no ordering; the thread that drops the last one must see every other thread's writes before it deletes</td></tr>
+<tr><td><b>Spinlock</b></td><td>lock <code>acquire</code>, unlock <code>release</code></td><td>a critical section must not leak out of the lock in either direction</td></tr>
+<tr><td><b>Shutdown flag</b></td><td><code>relaxed</code> if nothing else depends on it, else <code>release</code>/<code>acquire</code></td><td>a flag alone only needs to be seen eventually</td></tr>
+<tr><td><b>SPSC queue indices</b></td><td>own index <code>relaxed</code>, other's <code>acquire</code>, publish <code>release</code></td><td>see the ring buffer in <a href="12-low-latency.html">Low-Latency C++</a></td></tr>
+</table>
+<script type="text/x-cpp">
+struct Counted {                                                 // like shared_ptr's control block
+    std::atomic<int> refs{1};
+    void addRef()  { refs.fetch_add(1, std::memory_order_relaxed); }
+    void release() {
+        if (refs.fetch_sub(1, std::memory_order_acq_rel) == 1)   // the last one out sees everyone's writes...
+            delete this;                                         // ...before destroying the object
+    }
+};
+</script>
+<p>Compiled: five owners on four threads, the object was destroyed exactly once; a 2,000-round release/acquire publish test read a wrong value 0 times.</p>
+<h3>Double-checked locking (the classic trap)</h3>
+<script type="text/x-cpp">
+std::atomic<Widget*> inst{nullptr};
+std::mutex m;
+Widget* get() {
+    Widget* p = inst.load(std::memory_order_acquire);            // 1st check, no lock
+    if (!p) {
+        std::lock_guard lk(m);
+        p = inst.load(std::memory_order_relaxed);                // 2nd check, under the lock
+        if (!p) { p = new Widget; inst.store(p, std::memory_order_release); }   // publish a FULLY built object
+    }
+    return p;
+}
+</script>
+<p>Without the release/acquire pair, another thread could see the pointer before the constructor's writes. In practice use a function-local <code>static</code> or <code>std::call_once</code> and let the compiler do this.</p>
+<div class="callout tip"><span class="label">Be honest in interviews</span>Start with a mutex or <code>seq_cst</code>, measure, and weaken orders only when you can say which happens-before edge each one provides. "I use acquire/release for publication, relaxed for counters" is the answer interviewers want.</div>
+</section>
+
+<section id="structures" data-title="Thread-safe data structures">
+<h2>Thread-safe data structures</h2>
+<p>Three levels, in the order you should try them:</p>
+<table>
+<tr><th>Level</th><th>How</th><th>Example</th></tr>
+<tr><td><b>1. One coarse lock</b></td><td>a mutex around the whole structure</td><td>a stack or map with a mutex (see the interface races in <a href="07-multithreading.html">Multithreading</a>)</td></tr>
+<tr><td><b>2. Fine-grained locks</b></td><td>different mutexes for different parts, so threads that touch different parts do not wait</td><td>a queue with a head mutex and a tail mutex; a hash table with one mutex per bucket</td></tr>
+<tr><td><b>3. Lock-free</b></td><td>atomics and CAS loops, no mutex</td><td>a Treiber stack, an SPSC ring buffer</td></tr>
+</table>
+<h3>Fine-grained: a queue with two locks</h3>
+<script type="text/x-cpp">
+template <typename T> class TwoLockQueue {
+    struct N { std::shared_ptr<T> data; std::unique_ptr<N> next; };
+    std::mutex headM_, tailM_;                      // producers take tailM_, consumers take headM_
+    std::unique_ptr<N> head_;
+    N* tail_;
+public:
+    TwoLockQueue() : head_(new N), tail_(head_.get()) {}   // a DUMMY node: head and tail never meet on the same node
+    void push(T v);                                        // locks tailM_ only
+    std::optional<T> tryPop();                             // locks headM_ only (and tailM_ briefly to read the tail)
+};
+</script>
+<p>The <b>dummy node</b> is the trick: with it, a push only touches the tail and a pop only the head, so one producer and one consumer never block each other. Compiled: a producer pushing 1 to 1000 and a consumer popping them summed to 500500.</p>
+<h3>Read-mostly: a lookup table</h3>
+<p>A price table read by many threads and updated rarely: <code>std::shared_mutex</code> with <code>shared_lock</code> for readers and <code>unique_lock</code> for writers (<a href="07-multithreading.html#mutex-types">Other mutex types</a>). Return <b>copies</b> or small values, never references into the table.</p>
+<h3>Lock-free: a stack push</h3>
+<script type="text/x-cpp">
+struct Node { int value; Node* next; };
+std::atomic<Node*> head{nullptr};
+
+void push(int v) {
+    Node* n = new Node{v, head.load(std::memory_order_relaxed)};
+    while (!head.compare_exchange_weak(n->next, n, std::memory_order_release, std::memory_order_relaxed)) {}
+    // on failure compare_exchange_weak reloads n->next with the current head: just retry
+}
+</script>
+<p>Compiled: four threads pushing 1000 nodes each gave 4000 nodes, no lock. <b>Pop is the hard part</b>: another thread may pop and delete the node you are reading (<b>memory reclamation</b>), and the ABA problem can corrupt the list. Real implementations need hazard pointers, epochs or a counted pointer.</p>
+<div class="callout warn"><span class="label">Lock-free is not faster by default</span>A contended CAS loop can be slower than a mutex, and a bug shows up once a month on a customer machine. Use a mutex first, measure, and use a proven library (or the SPSC ring when one producer and one consumer is enough) before writing your own.</div>
+<ul>
+<li><b>Wait-free</b> (every thread finishes in a bounded number of steps) is stronger than <b>lock-free</b> (some thread always makes progress) which is stronger than <b>obstruction-free</b>.</li>
+<li>Design the <b>interface</b> first: whole operations (<code>tryPop</code> returning an <code>optional</code>), not <code>empty()</code> then <code>pop()</code>.</li>
+</ul>
+</section>
+
+<section id="cheat" data-title="Interview cheat sheet">
+<h2>Interview cheat sheet</h2>
+<p>Say each answer aloud, then open it.</p>
+<details class="ex"><summary><code>std::atomic</code> vs mutex?</summary><div><p>An atomic makes operations on a single variable indivisible, usually lock-free and cheap. A mutex protects any critical section, including invariants over several variables, but may block. Use atomics for counters and flags, mutexes for compound state.</p></div></details>
+<details class="ex"><summary>Is <code>volatile</code> a substitute for <code>atomic</code>?</summary><div><p>No. <code>volatile</code> prevents some compiler optimisations but gives no atomicity and no inter-thread ordering. Using it for synchronization is a data race.</p></div></details>
+<details class="ex"><summary>What are the memory orders?</summary><div><p><code>seq_cst</code> (default, strongest, one global order), <code>acquire</code>/<code>release</code> (pair a release store with an acquire load to publish data), <code>acq_rel</code> for read-modify-write, and <code>relaxed</code> (atomicity only). Start with the default; weaken only with a reason and a clear happens-before argument.</p></div></details>
+<details class="ex"><summary>What does release/acquire guarantee?</summary><div><p>Everything the producer wrote before a release store is visible to a thread that reads the stored value with an acquire load. The pair synchronizes-with, which gives a happens-before edge, so the earlier plain writes are not a data race.</p></div></details>
+<details class="ex"><summary>What does happens-before mean?</summary><div><p>If A happens-before B, then A's effects are visible to B. Within a thread it is program order; between threads it exists only through synchronization: atomics with matching orders, mutex unlock/lock, thread start and join, futures. Two conflicting accesses without a happens-before relation are a data race.</p></div></details>
+<details class="ex"><summary>When is <code>relaxed</code> enough?</summary><div><p>When no other data depends on the atomic: a statistics counter, an id generator, a shutdown flag that carries no data. The final value is correct, but it orders nothing else.</p></div></details>
+<details class="ex"><summary>Why can code with a wrong memory order work on x86 and fail on ARM?</summary><div><p>x86's hardware already orders ordinary loads and stores like release/acquire, so missing orderings are hidden. ARM and POWER reorder far more, so the same code can read stale data there. The C++ model, not the PC you tested on, defines correctness.</p></div></details>
+<details class="ex"><summary><code>compare_exchange_weak</code> vs <code>strong</code>?</summary><div><p>Both set a value only if it still equals the expected one. <code>weak</code> may fail spuriously, so it belongs in a retry loop and is cheaper on some CPUs; <code>strong</code> fails only on a real mismatch and suits a single attempt. On failure they load the current value into <code>expected</code>.</p></div></details>
+<details class="ex"><summary>What is the ABA problem?</summary><div><p>A CAS succeeds because the value is A again, but it went A to B to A in between, and the structure around it changed (for example a node was freed and reused). Fix with a version counter beside the pointer, or hazard pointers or epoch reclamation.</p></div></details>
+<details class="ex"><summary>When is a spinlock appropriate?</summary><div><p>For very short critical sections on dedicated cores where waiting is shorter than a context switch. It burns CPU while waiting and is dangerous if the holder can be descheduled. Otherwise use a mutex.</p></div></details>
+<details class="ex"><summary>How is a reference count made thread-safe, and with which orders?</summary><div><p>With an atomic counter: increments can be relaxed, the decrement is <code>acq_rel</code> so the thread that drops it to zero sees all other threads' writes before it destroys the object. <code>shared_ptr</code>'s control block works this way.</p></div></details>
+<details class="ex"><summary>Mutex, fine-grained locks or lock-free: how do you choose?</summary><div><p>Start with one mutex and measure. Split locks if contention shows up and the structure has independent parts (head and tail of a queue, buckets of a table). Go lock-free only for a proven bottleneck and with a known-correct design, because memory reclamation and ABA make it hard; an SPSC ring buffer is the one case simple enough to write confidently.</p></div></details>
+</section>
+</main>
+
+<script src="assets/data/lessons.js"></script>
+<script src="assets/app.js"></script>
+<script>
+CT.threadsim('#sim-atomic', {
+  title: 'std::atomic: each increment is a single indivisible step',
+  threads: [
+    { name: 'A', prog: ['counter.fetch_add(1)', 'counter.fetch_add(1)'] },
+    { name: 'B', prog: ['counter.fetch_add(1)', 'counter.fetch_add(1)'] }
+  ],
+  vars: { counter: 0 }, show: 'counter', expect: 4,
+  help: 'There is no gap between the read and the write for another thread to sneak into.'
+});
+
+CT.memsim('#ms-publish', {
+  title: 'Publishing data with a flag: what can the consumer see?',
+  store: 'relaxed', load: 'relaxed'
+});
+</script>
+</body>
+</html>

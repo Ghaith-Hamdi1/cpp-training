@@ -54,7 +54,7 @@ These are the ownership and memory chapters that every other C++ topic builds on
 | 19.1 to 19.3, 19.6 Containers, sequences and iterators, linked lists, `vector`/`list`/`string` | 559 to 572 and 585 to 586 | 8. Iterators, Sequence containers |
 | 20.1 to 20.6 `map`, `unordered_map`, `set`, container overview | 591 to 609 | 8. Associative and unordered containers; Which container should I use? |
 | 21.1 to 21.2, 21.5 Standard algorithms, function objects, sorting and searching | 617 to 626 and 633 to 635 | 8. Algorithms; 6. Lambdas |
-| 9.11 String streams | 296 to 297 | 12. Strings, Regex & Time |
+| 9.11 String streams | 296 to 297 | 14. Strings, Regex & Time |
 
 ## Special focus: pointers
 
@@ -107,7 +107,7 @@ OOP in this book is spread over chapters 8, 12 and 17, with pieces in 15 and 18.
 
 ## Special focus: templates
 
-The book introduces templates as the tool for building `vector` and the standard library, and it stays at an introductory level. Most of the material is in section 18.1, with a little more in 18.2, 19.4 and chapters 19 to 21. Matching lessons: **9. Templates** and **13. Type Traits and Compile-time C++**.
+The book introduces templates as the tool for building `vector` and the standard library, and it stays at an introductory level. Most of the material is in section 18.1, with a little more in 18.2, 19.4 and chapters 19 to 21. Matching lessons: **9. Templates** and **15. Type Traits and Compile-time C++**.
 
 | Step | Book section | PDF pages | What it teaches | Matching lesson section |
 |---|---|---|---|---|

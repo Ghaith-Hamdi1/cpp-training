@@ -22,10 +22,10 @@ The items on move semantics, smart pointers and concurrency are the ones intervi
 | **24** Distinguish universal references from rvalue references | 182 to 186 | `T&&` with a deduced `T` (or `auto&&`) is a universal reference; anything else written `type&&` is an rvalue reference. | 9. Forwarding references and perfect forwarding |
 | **25** Use `std::move` on rvalue references, `std::forward` on universal references | 186 to 195 | Apply each on the last use. Do not `std::move` a local you return (it defeats the return value optimization). | 4. Move semantics |
 | **28** Understand reference collapsing | 215 to 221 | The four contexts where a reference to a reference arises, and the rule: if either is an lvalue reference the result is one. | 9. Forwarding references and perfect forwarding |
-| **35** Prefer task-based programming to thread-based | 259 to 263 | `std::thread` gives no return value and terminates on an exception; `std::async` handles exhaustion, oversubscription and balancing for you. | 11. Futures and async |
-| **36** Specify `std::launch::async` if asynchronicity is essential | 263 to 268 | The default launch policy may run the task synchronously or never. | 11. Futures and async |
+| **35** Prefer task-based programming to thread-based | 259 to 263 | `std::thread` gives no return value and terminates on an exception; `std::async` handles exhaustion, oversubscription and balancing for you. | 12. Futures and async |
+| **36** Specify `std::launch::async` if asynchronicity is essential | 263 to 268 | The default launch policy may run the task synchronously or never. | 12. Futures and async |
 | **37** Make `std::thread`s unjoinable on all paths | 268 to 276 | A joinable thread destroyed is a terminate; join-on-destruction and detach-on-destruction both have pitfalls; declare `std::thread` members last. | 11. Your first thread |
-| **40** Use `std::atomic` for concurrency, `volatile` for special memory | 289 to 297 | `atomic` is for data shared between threads without a mutex; `volatile` is for memory where reads and writes must not be optimized away. They are different tools. | 11. Atomics |
+| **40** Use `std::atomic` for concurrency, `volatile` for special memory | 289 to 297 | `atomic` is for data shared between threads without a mutex; `volatile` is for memory where reads and writes must not be optimized away. They are different tools. | 13. Atomic operations |
 
 ## Tier 2: read next if you have time (about 160 pages)
 
@@ -45,7 +45,7 @@ The items on move semantics, smart pointers and concurrency are the ones intervi
 | **29** Assume move operations are not present, not cheap, and not used | 221 to 225 | In generic code do not assume a move is cheap. | 4. Move semantics |
 | **31** Avoid default capture modes | 234 to 242 | `[&]` can dangle; `[=]` can capture `this` and suggests the lambda is self-contained. | 6. Lambdas |
 | **32** Use init capture to move objects into closures | 242 to 247 | C++14 `[p = std::move(x)]`. | 6. Lambdas |
-| **38** Be aware of varying thread handle destructor behavior | 276 to 280 | The last future of a non-deferred `std::async` task blocks in its destructor. | 11. Futures and async |
+| **38** Be aware of varying thread handle destructor behavior | 276 to 280 | The last future of a non-deferred `std::async` task blocks in its destructor. | 12. Futures and async |
 | **39** Consider void futures for one-shot event communication | 280 to 289 | Condition-variable, flag and promise/future designs for a single event. | 11. Condition variables |
 | **41** Consider pass by value for copyable, cheap-to-move parameters that are always copied | 299 to 310 | Pass by value can be nearly as fast as by reference and simpler, but beware slicing. | 4. Move semantics |
 | **42** Consider emplacement instead of insertion | 310 to 320 | When `emplace_back` really is faster than `push_back`. | 8. vector: the workhorse |

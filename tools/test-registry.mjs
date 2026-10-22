@@ -98,4 +98,25 @@ test('the real v2 migration splits the old core lesson progress and is idempoten
   assert.equal(JSON.stringify(s.dump()), before, 'running it again must change nothing');
 });
 
+test('the real v3 migration splits the multithreading progress and is idempotent', () => {
+  const CT = loadRegistry();
+  const s = makeStore({
+    'schema': 2, 'done:threads': ['s1', 's6', 's8', 's9', 's10', 's11'], 'last:threads': 's8', 'lastinfo': { id: 'threads', sec: 's9' },
+    'weak:threads': { 'What is false sharing?': 0, 'a question that stayed': 1 }, 'mock:missed': ['threads-3', 'stl-1']
+  });
+  assert.equal(CT.migrate(s), CT.schemaVersion());
+  assert.deepEqual(s.get('done:threads'), ['s1', 's11']);
+  assert.deepEqual(s.get('done:atomics'), ['ops', 'ordering']);
+  assert.deepEqual(s.get('done:tasks').sort(), ['futures', 'pool', 'signals', 'stealing']);
+  assert.equal(s.get('last:threads'), '');
+  assert.equal(s.get('lastinfo', 'gone'), null);
+  assert.deepEqual(s.get('weak:latency'), { 'What is false sharing?': 0 });
+  assert.deepEqual(s.get('weak:threads'), { 'a question that stayed': 1 });
+  assert.deepEqual(s.get('mock:missed'), ['stl-1']);
+  const before = JSON.stringify(s.dump());
+  s.set('schema', 2);
+  CT.migrate(s);
+  assert.equal(JSON.stringify(s.dump()), before, 'running it again must change nothing');
+});
+
 console.log(passed + ' tests passed');
