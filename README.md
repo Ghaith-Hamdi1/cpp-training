@@ -24,7 +24,7 @@ The lessons work offline after one visit. From a clone you can also open [`inter
 | [`examples/practice/`](examples/practice/README.md) | **Practice set**: 14 write-it-yourself coding exercises (C strings, pointers, a String class, templates, threads) with tests and verified solutions, plus model answers to questions from a real interview. |
 | [`LearnCPP/`](LearnCPP/Recaps/README.md) | The **Recaps**: personal recaps of the learncpp.com chapters, with solved exercises under [`LearnCPP/Recaps/solutions/`](LearnCPP/Recaps/solutions/). Slower and more thorough than the training notes. |
 | [`tools/`](tools/) | Scripts that check the interactive site: links, quiz data, the search index and the offline cache list. |
-| `thread.pdf`, `P_P_P.pdf` | Two reference books: *C++ Concurrency in Action* (Anthony Williams) and *Programming: Principles and Practice Using C++* (Bjarne Stroustrup). |
+| [`books/`](books/) | Four reference books as PDFs, named by title: *C++ Concurrency in Action* (Williams), *Programming: Principles and Practice Using C++* (Stroustrup), *Effective Modern C++* (Meyers) and *C++ Move Semantics: The Complete Guide* (Josuttis). Each has a reading guide in `docs/`. |
 
 ## The lessons
 

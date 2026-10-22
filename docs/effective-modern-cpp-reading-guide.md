@@ -1,6 +1,6 @@
 # Reading guide: *Effective Modern C++* (Scott Meyers)
 
-A short reading plan for `effective.pdf` (Scott Meyers, 42 items on C++11 and C++14, about 335 PDF pages). Unlike the other two books in this repo, this one is built from short, self-contained **items**, and each item ends with a "Things to Remember" box. That makes it easy to read selectively and a good source of interview answers. Use the [interactive lessons](https://ghaith-hamdi1.github.io/cpp-training/) first, then read the items below for the topics where you want the longer explanation.
+A short reading plan for `books/Effective-Modern-Cpp-Meyers.pdf` (Scott Meyers, 42 items on C++11 and C++14, about 335 PDF pages). Unlike the other two books in this repo, this one is built from short, self-contained **items**, and each item ends with a "Things to Remember" box. That makes it easy to read selectively and a good source of interview answers. Use the [interactive lessons](https://ghaith-hamdi1.github.io/cpp-training/) first, then read the items below for the topics where you want the longer explanation.
 
 **Page numbers.** The tables give *PDF viewer* page numbers, the number shown in your PDF reader. Items run on from one to the next, so each range includes the page where the next item begins; the first lines of that page may belong to the next item.
 
@@ -94,7 +94,7 @@ For those gaps, my Lesson 4 covers the moved-from rules and a worked move constr
 
 ## Special focus: concurrency
 
-Items 35 to 40 (PDF pages 259 to 297) are the book's short concurrency chapter: tasks versus threads, launch policies, joining threads on every path, what future destructors do, one-shot events, and `atomic` versus `volatile`. It is a compact complement to `thread.pdf`, whose reading guide is [here](concurrency-in-action-reading-guide.md). The Meyers items give you the rules and pitfalls; Williams gives you the full machinery.
+Items 35 to 40 (PDF pages 259 to 297) are the book's short concurrency chapter: tasks versus threads, launch policies, joining threads on every path, what future destructors do, one-shot events, and `atomic` versus `volatile`. It is a compact complement to `books/Cpp-Concurrency-in-Action-2nd-Edition-Williams.pdf`, whose reading guide is [here](concurrency-in-action-reading-guide.md). The Meyers items give you the rules and pitfalls; Williams gives you the full machinery.
 
 ## Skip for interview preparation
 

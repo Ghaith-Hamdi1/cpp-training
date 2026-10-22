@@ -1,6 +1,6 @@
 # Reading guide: *Programming: Principles and Practice Using C++* (3rd Edition)
 
-A short reading plan for `P_P_P.pdf` in the repo root (Bjarne Stroustrup, 2024, 654 pages, C++20 plus a little C++23). It is a beginner-oriented textbook that teaches *why* C++ is designed the way it is, so it is the right book for the **foundations** (types, memory, classes, ownership, templates, containers) and the wrong book for multithreading or design patterns. For those, use the [interactive lessons](../interactive/index.html) and the [concurrency book guide](concurrency-in-action-reading-guide.md).
+A short reading plan for `books/Programming-Principles-and-Practice-Using-Cpp-3rd-Edition-Stroustrup.pdf` (Bjarne Stroustrup, 2024, 654 pages, C++20 plus a little C++23). It is a beginner-oriented textbook that teaches *why* C++ is designed the way it is, so it is the right book for the **foundations** (types, memory, classes, ownership, templates, containers) and the wrong book for multithreading or design patterns. For those, use the [interactive lessons](../interactive/index.html) and the [concurrency book guide](concurrency-in-action-reading-guide.md).
 
 **Page numbers.** The tables give *PDF viewer* page numbers, the number shown in your PDF reader.
 

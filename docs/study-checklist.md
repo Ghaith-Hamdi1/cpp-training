@@ -160,8 +160,8 @@ The job description mentions production bugs, unit tests and mentoring. Have one
 
 Not needed for Thursday. When you want to master move semantics, follow the two guides below. The Josuttis book covers what Meyers leaves out: the moved-from state, value categories and writing move operations. About 75 pages of the Josuttis book plus a few Meyers items.
 
-- [Effective Modern C++ move semantics path](effective-modern-cpp-reading-guide.md#special-focus-move-semantics-and-perfect-forwarding) (`effective.pdf`)
-- [C++ Move Semantics reading guide, Tier 1](move-semantics-complete-guide-reading-guide.md#tier-1-read-these-first-about-75-pages) (`semant.pdf`)
+- [Effective Modern C++ move semantics path](effective-modern-cpp-reading-guide.md#special-focus-move-semantics-and-perfect-forwarding) (`books/Effective-Modern-Cpp-Meyers.pdf`)
+- [C++ Move Semantics reading guide, Tier 1](move-semantics-complete-guide-reading-guide.md#tier-1-read-these-first-about-75-pages) (`books/Cpp-Move-Semantics-The-Complete-Guide-Josuttis.pdf`)
 
 - [ ] Meyers Item 17, special member function generation (PDF pages 127 to 133)
 - [ ] Meyers Items 24 and 28, universal references and reference collapsing (PDF pages 182 to 186 and 215 to 221)
@@ -179,10 +179,10 @@ Not needed for Thursday. When you want to master move semantics, follow the two 
 
 Do not read any of these books front to back. Use the reading guides to find the few sections you need:
 
-- Threading: [concurrency-in-action-reading-guide.md](concurrency-in-action-reading-guide.md) (`thread.pdf`; Tier 1 is about 47 pages)
-- Foundations (pointers, OOP, templates, STL): [programming-principles-and-practice-reading-guide.md](programming-principles-and-practice-reading-guide.md) (`P_P_P.pdf`)
-- Modern C++ items: [effective-modern-cpp-reading-guide.md](effective-modern-cpp-reading-guide.md) (`effective.pdf`; Tier 1 is about 85 pages)
-- Move semantics in depth: [move-semantics-complete-guide-reading-guide.md](move-semantics-complete-guide-reading-guide.md) (`semant.pdf`; Tier 1 is about 75 pages)
+- Threading: [concurrency-in-action-reading-guide.md](concurrency-in-action-reading-guide.md) (`books/Cpp-Concurrency-in-Action-2nd-Edition-Williams.pdf`; Tier 1 is about 47 pages)
+- Foundations (pointers, OOP, templates, STL): [programming-principles-and-practice-reading-guide.md](programming-principles-and-practice-reading-guide.md) (`books/Programming-Principles-and-Practice-Using-Cpp-3rd-Edition-Stroustrup.pdf`)
+- Modern C++ items: [effective-modern-cpp-reading-guide.md](effective-modern-cpp-reading-guide.md) (`books/Effective-Modern-Cpp-Meyers.pdf`; Tier 1 is about 85 pages)
+- Move semantics in depth: [move-semantics-complete-guide-reading-guide.md](move-semantics-complete-guide-reading-guide.md) (`books/Cpp-Move-Semantics-The-Complete-Guide-Josuttis.pdf`; Tier 1 is about 75 pages)
 
 ## Optional extras, only if you finish early
 
