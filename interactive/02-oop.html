@@ -261,6 +261,17 @@ if (h) { }                                              // OK: contextual conver
 // bool ok = h;   int n = h;   h + 1;                   // ERROR: explicit blocks accidental conversions
 </script>
 <p><code>operator()</code> makes a class callable (the idea behind lambdas, <code>std::function</code> and comparators). Mark single-argument conversions <code>explicit</code>, as for constructors.</p>
+<h3>User-defined literals</h3>
+<script type="text/x-cpp">
+constexpr long long operator""_ticks(unsigned long long v) { return static_cast<long long>(v) * 25; }
+constexpr double operator""_bp(long double v) { return static_cast<double>(v) / 10000.0; }
+
+auto px = 4_ticks;       // 100 (compiled)
+auto fee = 25.0_bp;      // 0.0025
+using namespace std::literals;
+auto name = "abc"s;      // std::string; also 5ms, 2s (chrono) and "view"sv
+</script>
+<p>A literal suffix is an <b>operator</b> you define: <code>operator""_name</code>. User suffixes must start with an underscore (the others are reserved for the standard library). Use them for units (ticks, basis points, bytes) so the meaning is in the code, not in a comment.</p>
 </section>
 
 <section data-title="Composition, relationships and design">
@@ -275,6 +286,7 @@ if (h) { }                                              // OK: contextual conver
 <tr><td><b>Association</b></td><td>Doctor treats Patients</td><td>reference or pointer parameter</td><td>independent</td></tr>
 </table>
 <div class="callout interview"><span class="label">Liskov Substitution</span>Code using a base must keep working with any derived type. If <code>Square : Rectangle</code> breaks on setting the width, inheritance was the wrong model: it must mean "behaves like", not "shares code".</div>
+<div class="callout tip"><span class="label">Going deeper</span>Multiple and virtual inheritance, the diamond problem, RTTI, private inheritance and copy-and-swap are in <a href="19-object-model.html">The Object Model in Depth</a>.</div>
 <p>Related notes in your repo: <a href="https://github.com/Ghaith-Hamdi1/cpp-training/blob/main/docs/02-cpp-oop/README.md">Module 2: C++ OOP</a>, <a href="https://github.com/Ghaith-Hamdi1/cpp-training/blob/main/docs/02-cpp-oop/13_objects_relationships.md">objects relationships</a>, and the learncpp.com recaps for chapters 14, 15, 21, 23, 24 and 25.</p>
 </section>
 

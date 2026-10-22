@@ -1,0 +1,185 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Object Model in Depth</title>
+<script>try{var t=JSON.parse(localStorage.getItem('cpptrain:theme'));if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body data-topic="objmodel" data-kind="lesson">
+<main>
+<h1>The Object Model in Depth</h1>
+<p class="lead">What lies beneath inheritance: multiple inheritance and object layout, the diamond and virtual inheritance, RTTI, private inheritance, <code>explicit</code> conversions and copy-and-swap. Builds on <a href="02-oop.html">Object-Oriented Programming</a>.</p>
+
+<section id="multiple" data-title="Multiple inheritance and object layout">
+<h2>Multiple inheritance and object layout</h2>
+<p>A class may have several bases. The sensible use is <b>several pure interfaces</b> (abstract classes with no data), as in Java:</p>
+<script type="text/x-cpp">
+struct Reader { virtual int read() = 0;        virtual ~Reader() = default; };
+struct Writer { virtual void write(int) = 0;   virtual ~Writer() = default; };
+struct File : Reader, Writer {                 // implements both interfaces
+    int v = 0;
+    int read() override { return v; }
+    void write(int x) override { v = x; }
+};
+</script>
+<figure class="fig"><svg viewBox="0 0 640 170" role="img" aria-label="A File object holds a Reader subobject with its vptr, a Writer subobject with its own vptr, then its own data; a Reader pointer and a Writer pointer point to different addresses"><defs><marker id="om1" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path class="ah" d="M0 0L10 5L0 10z"/></marker></defs>
+<text class="t" x="170" y="20">One File object in memory (24 bytes)</text>
+<rect class="acc" x="170" y="34" width="150" height="40" rx="5"/><text x="245" y="58" text-anchor="middle">Reader: vptr</text>
+<rect class="gd" x="320" y="34" width="150" height="40" rx="5"/><text x="395" y="58" text-anchor="middle">Writer: vptr</text>
+<rect class="wn" x="470" y="34" width="110" height="40" rx="5"/><text x="525" y="58" text-anchor="middle">int v</text>
+<text class="m" x="10" y="100">Reader* r = &amp;f</text><path class="ar" d="M120 96L210 76" marker-end="url(#om1)"/>
+<text class="m" x="10" y="128">Writer* w = &amp;f</text><path class="ar" d="M120 124L350 76" marker-end="url(#om1)"/>
+<text class="m" x="170" y="160">Converting File* to Writer* adjusts the address: the two pointers differ (compiled).</text></svg><figcaption>Each polymorphic base brings its own vptr, so the pointer value changes when you convert to the second base.</figcaption></figure>
+<ul>
+<li>The object is the bases laid out one after another, then the derived members. Compiled: <code>sizeof(File)</code> is <b>24</b> bytes (two vptrs and an <code>int</code>).</li>
+<li>Converting <code>File*</code> to the <b>second</b> base adjusts the pointer value (<code>static_cast</code> and implicit conversion do it for you). That is why you must not cast with <code>reinterpret_cast</code> or a C cast.</li>
+<li>Both bases are polymorphic, so <code>delete</code> through either needs a <b>virtual destructor</b>.</li>
+<li><b>Name clashes:</b> if both bases have a member <code>f</code>, calling <code>obj.f()</code> is ambiguous. Qualify it (<code>obj.Reader::f()</code>) or override it in the derived class.</li>
+<li>Multiple inheritance of <i>implementation</i> (bases with data) is where trouble starts: the diamond.</li>
+</ul>
+</section>
+
+<section id="diamond" data-title="The diamond problem and virtual inheritance">
+<h2>The diamond problem and virtual inheritance</h2>
+<figure class="fig"><svg viewBox="0 0 640 200" role="img" aria-label="Without virtual inheritance a Diamond contains two Base subobjects, one inside Left and one inside Right; with virtual inheritance Left and Right share a single Base"><defs><marker id="om2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path class="ah" d="M0 0L10 5L0 10z"/></marker></defs>
+<text class="t" x="10" y="18">Plain: two Base copies</text>
+<rect class="acc" x="40" y="30" width="80" height="28" rx="5"/><text x="80" y="49" text-anchor="middle">Base</text>
+<rect class="acc" x="170" y="30" width="80" height="28" rx="5"/><text x="210" y="49" text-anchor="middle">Base</text>
+<rect class="gd" x="40" y="80" width="80" height="28" rx="5"/><text x="80" y="99" text-anchor="middle">Left</text>
+<rect class="gd" x="170" y="80" width="80" height="28" rx="5"/><text x="210" y="99" text-anchor="middle">Right</text>
+<rect class="wn" x="105" y="140" width="100" height="28" rx="5"/><text x="155" y="159" text-anchor="middle">Diamond</text>
+<path class="ar" d="M80 80V60" marker-end="url(#om2)"/><path class="ar" d="M210 80V60" marker-end="url(#om2)"/><path class="ar" d="M120 140L85 110" marker-end="url(#om2)"/><path class="ar" d="M190 140L205 110" marker-end="url(#om2)"/>
+<text class="t" x="340" y="18">Virtual: one shared Base</text>
+<rect class="acc" x="440" y="30" width="80" height="28" rx="5"/><text x="480" y="49" text-anchor="middle">Base</text>
+<rect class="gd" x="370" y="80" width="80" height="28" rx="5"/><text x="410" y="99" text-anchor="middle">Left</text>
+<rect class="gd" x="510" y="80" width="80" height="28" rx="5"/><text x="550" y="99" text-anchor="middle">Right</text>
+<rect class="wn" x="440" y="140" width="100" height="28" rx="5"/><text x="490" y="159" text-anchor="middle">Diamond</text>
+<path class="ar" d="M420 80L460 60" marker-end="url(#om2)"/><path class="ar" d="M540 80L500 60" marker-end="url(#om2)"/><path class="ar" d="M460 140L420 110" marker-end="url(#om2)"/><path class="ar" d="M520 140L545 110" marker-end="url(#om2)"/>
+<text class="m" x="10" y="192">Plain: d.id is ambiguous (two ids). Virtual: one id.</text></svg><figcaption>Virtual inheritance makes the shared base appear once.</figcaption></figure>
+<script type="text/x-cpp">
+struct Base  { int id; };
+struct Left  : virtual Base {};          // "virtual" goes on the MIDDLE classes
+struct Right : virtual Base {};
+struct Diamond : Left, Right {};         // one Base inside; d.id is not ambiguous
+</script>
+<table>
+<tr><th></th><th>Plain inheritance</th><th>Virtual inheritance</th></tr>
+<tr><td>Base subobjects in <code>Diamond</code></td><td>two (compiled <code>sizeof</code> 8: two ids)</td><td>one (compiled <code>sizeof</code> 24: one id plus the machinery)</td></tr>
+<tr><td><code>d.id</code></td><td>ambiguous: write <code>d.Left::id</code></td><td>fine</td></tr>
+<tr><td>Constructor order (compiled)</td><td><code>Base Left Base Right Diamond</code>: Base built twice</td><td><code>VBase VLeft VRight VDiamond</code>: shared base once, <b>first</b></td></tr>
+<tr><td>Who initializes the base?</td><td>each middle class</td><td>the <b>most derived</b> class, directly</td></tr>
+<tr><td>Cost</td><td>none</td><td>extra pointer(s) per object, indirect access to the base, slower casts</td></tr>
+</table>
+<ul>
+<li>The standard library's <code>std::iostream</code> is the classic use: <code>istream</code> and <code>ostream</code> inherit <code>ios</code> virtually, so <code>iostream</code> has one stream state.</li>
+<li><b>Advice:</b> avoid diamonds. Use interfaces without data, or composition. When you need virtual inheritance, put the data in one place and let the most derived class initialize the base.</li>
+</ul>
+<div class="callout interview"><span class="label">Interview angle</span>"What is the diamond problem and how do you solve it?" Two paths to one base duplicate its members and make access ambiguous. <code>virtual</code> inheritance shares one copy; the most derived class constructs it first. It costs memory and indirection, so prefer interfaces and composition.</div>
+</section>
+
+<section id="rtti" data-title="RTTI: typeid and dynamic_cast">
+<h2>RTTI: <code>typeid</code> and <code>dynamic_cast</code></h2>
+<p><b>RTTI</b> (run-time type information) lets you ask for the <i>dynamic</i> type of an object behind a base pointer. It works only for <b>polymorphic</b> classes (at least one virtual function), because the type information lives next to the vtable.</p>
+<script type="text/x-cpp">
+Animal* a = new Dog;
+typeid(*a) == typeid(Dog);                    // true: the dynamic type (compiled)
+typeid(*a) == typeid(Cat);                    // false
+typeid(*a).name();                            // an implementation-defined name, for debugging only
+
+if (Dog* d = dynamic_cast<Dog*>(a)) { }       // set only if *a really is a Dog (or derived from Dog)
+Cat* c = dynamic_cast<Cat*>(a);               // nullptr: a Dog is not a Cat
+Cat& r = dynamic_cast<Cat&>(*a);              // a reference cannot be null: throws std::bad_cast
+
+Writer* w = dynamic_cast<Writer*>(readerPtr);  // a CROSS-cast: sideways between two bases of the same object
+</script>
+<table>
+<tr><th>Question</th><th>Answer</th></tr>
+<tr><td>What if the class has no virtual function?</td><td><code>typeid</code> gives the <b>static</b> type; <code>dynamic_cast</code> down does not compile</td></tr>
+<tr><td>Cost?</td><td><code>dynamic_cast</code> walks the class hierarchy at run time: slower than a virtual call, avoid it on hot paths</td></tr>
+<tr><td><code>static_cast</code> down instead?</td><td>no check: undefined behaviour if you are wrong</td></tr>
+<tr><td><code>-fno-rtti</code></td><td>compilers can turn RTTI off to save space; <code>typeid</code> and <code>dynamic_cast</code> then disappear (some embedded and low-latency code does this)</td></tr>
+</table>
+<div class="callout warn"><span class="label">A smell</span>Chains of <code>if (dynamic_cast&lt;A*&gt;...) else if (dynamic_cast&lt;B*&gt;...)</code> usually mean a missing virtual function or a Visitor (<a href="20-more-patterns.html">More Patterns</a>).</div>
+</section>
+
+<section id="private" data-title="Private inheritance versus composition">
+<h2>Private inheritance versus composition</h2>
+<table>
+<tr><th>Kind</th><th>Meaning</th><th>Converts to base outside?</th></tr>
+<tr><td><code>public</code> inheritance</td><td><b>is-a</b>: usable wherever a <code>Base</code> is</td><td>yes</td></tr>
+<tr><td><code>private</code> inheritance</td><td><b>implemented-in-terms-of</b>: an implementation detail</td><td>no (compiled: <code>Car*</code> to <code>Engine*</code> is not convertible)</td></tr>
+<tr><td><code>protected</code> inheritance</td><td>like private, but derived classes of the derived class see the base</td><td>no</td></tr>
+</table>
+<script type="text/x-cpp">
+struct Car : private Engine {
+    void drive() { start(); }                  // uses the base internally
+    using Engine::start;                       // re-export one member if you want to
+};
+// Car c; Engine* e = &c;                      // ERROR: the base is private
+</script>
+<ul>
+<li><b>Prefer composition</b> (a member <code>Engine engine_;</code>): it is simpler and does not expose the base's virtual functions to accidental overriding. Use private inheritance only to override a virtual function of the base, access a <code>protected</code> member, or get the <b>empty base optimisation</b> (an empty base takes no space; a member takes at least 1 byte).</li>
+<li>Never inherit publicly just to reuse code: if it is not <i>is-a</i>, it breaks the Liskov substitution principle (<a href="06-design-patterns.html">SOLID</a>).</li>
+</ul>
+</section>
+
+<section id="conversions" data-title="explicit, conversion operators and copy-and-swap">
+<h2><code>explicit</code>, conversion operators and copy-and-swap</h2>
+<script type="text/x-cpp">
+struct Meters { double v; Meters(double x) : v(x) {} };              // implicit: a double silently becomes Meters
+struct Feet   { double v; explicit Feet(double x) : v(x) {} };       // explicit: must be written out
+takeMeters(3.0);                                                     // compiles: surprising
+// takeFeet(3.0);                                                    // ERROR
+takeFeet(Feet(3.0));                                                 // OK
+
+struct Handle {
+    int fd;
+    explicit operator bool() const { return fd >= 0; }               // a conversion operator, but explicit
+};
+if (Handle h{3}) { }                                                 // OK: an if is a "contextual" conversion to bool
+// int n = h + 1;                                                    // ERROR: no implicit conversion to bool or int
+</script>
+<ul>
+<li><b>Mark single-argument constructors <code>explicit</code></b> unless an implicit conversion is clearly wanted (compiled: <code>double</code> converts to <code>Meters</code> but not to <code>Feet</code>).</li>
+<li><b><code>explicit operator bool</code></b> is the safe way to say "valid": it works in <code>if</code>, <code>while</code>, <code>&amp;&amp;</code> and <code>!</code>, but not in arithmetic or in comparisons with other types (the old "safe bool idiom" is obsolete). The standard streams and <code>std::optional</code> use it.</li>
+<li>A non-explicit <code>operator int()</code> lets your class take part in arithmetic and overload resolution in ways you did not plan.</li>
+</ul>
+<h3>Copy-and-swap</h3>
+<script type="text/x-cpp">
+class Buffer {
+    std::size_t n_; int* p_;
+public:
+    Buffer(const Buffer& o);                                         // deep copy (written once)
+    friend void swap(Buffer& a, Buffer& b) noexcept { std::swap(a.n_, b.n_); std::swap(a.p_, b.p_); }
+    Buffer& operator=(Buffer other) noexcept {                       // by VALUE: the copy is made before we touch *this
+        swap(*this, other);                                          // steal the copy's resources
+        return *this;                                                // `other` dies and frees our OLD resources
+    }
+};
+</script>
+<ul>
+<li><b>Strong exception guarantee:</b> if the copy throws, it happens before <code>*this</code> is touched.</li>
+<li><b>Self-assignment safe</b> without an <code>if (this != &amp;o)</code> check (compiled: <code>b1 = b1</code> worked).</li>
+<li>One operator serves copy <i>and</i> move assignment (<a href="13-move-semantics.html">Move Semantics</a>). Cost: a move-assignment written by hand can be a little faster.</li>
+</ul>
+</section>
+
+<section id="cheat" data-title="Interview cheat sheet">
+<h2>Interview cheat sheet</h2>
+<p>Say each answer aloud, then open it.</p>
+<details class="ex"><summary>What is the diamond problem and how is it solved?</summary><div><p>A class inherits the same base through two paths, so the base's members are duplicated and access is ambiguous. Virtual inheritance (<code>class Left : virtual Base</code>) makes all paths share one base subobject, which the most derived class constructs first. It adds memory and indirection, so prefer interfaces without data or composition.</p></div></details>
+<details class="ex"><summary>Why do <code>Reader*</code> and <code>Writer*</code> to the same <code>File</code> hold different addresses?</summary><div><p>With multiple inheritance the object contains each base subobject at its own offset, each with its own vptr. Converting to the second base adjusts the pointer to that subobject, which is why C casts and <code>reinterpret_cast</code> are wrong here.</p></div></details>
+<details class="ex"><summary>What does <code>dynamic_cast</code> need and what does it cost?</summary><div><p>A polymorphic class (a virtual function) because it reads the type information next to the vtable. It checks the real type at run time: null for pointers, <code>std::bad_cast</code> for references. It is slower than a virtual call, so avoid it on hot paths; repeated use suggests a missing virtual function or a Visitor.</p></div></details>
+<details class="ex"><summary><code>typeid</code> on a polymorphic versus non-polymorphic type?</summary><div><p>On a polymorphic object <code>typeid(*p)</code> gives the dynamic type. On a type with no virtual function it gives the static type, known at compile time. <code>type_info::name()</code> is implementation-defined and only for diagnostics.</p></div></details>
+<details class="ex"><summary>When is private inheritance appropriate?</summary><div><p>For "implemented in terms of": to override a virtual function of the base, access its protected members, or use the empty base optimisation. Otherwise prefer composition. It does not allow conversion to the base outside the class.</p></div></details>
+<details class="ex"><summary>What does <code>explicit</code> do on a constructor and on <code>operator bool</code>?</summary><div><p>On a constructor it forbids implicit conversions from the argument type (<code>Feet f = 3.0</code> fails). On <code>operator bool</code> it allows the conversion only in contexts such as <code>if</code> and <code>while</code>, not in arithmetic. Mark single-argument constructors <code>explicit</code> by default.</p></div></details>
+<details class="ex"><summary>What is copy-and-swap?</summary><div><p>Write the copy constructor and a non-throwing <code>swap</code>, then implement <code>operator=(T other)</code> by value that swaps with the parameter. The copy happens before <code>*this</code> is modified, giving the strong exception guarantee and safe self-assignment with one function.</p></div></details>
+</section>
+</main>
+
+<script src="assets/data/lessons.js"></script>
+<script src="assets/app.js"></script>
+</body>
+</html>

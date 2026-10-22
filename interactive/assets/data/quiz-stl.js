@@ -105,6 +105,38 @@ for (const auto& w : {"apple", "pear", "apple"})
 
     { sec: 's2', q: 'What is the difference between `std::vector<int> a(3, 7);` and `std::vector<int> b{3, 7};`?',
       opts: ['Both hold three elements equal to 7', '`a` holds {7, 7, 7}; `b` holds {3, 7}, because the initializer_list constructor wins for braces', '`a` does not compile', '`b` holds three elements'], a: 1,
-      why: 'Parentheses call the (count, value) constructor. Braces prefer a constructor taking std::initializer_list whenever one can match, so the two numbers become the elements.' }
+      why: 'Parentheses call the (count, value) constructor. Braces prefer a constructor taking std::initializer_list whenever one can match, so the two numbers become the elements.' },
+
+    { sec: 'keys', q: 'You use a struct as the key of `std::unordered_map`. What must you provide?',
+      opts: ['`operator<` only', '`operator==` and a hash function (a hash functor or a `std::hash` specialisation)', '`operator()` and `operator[]`', 'Nothing: the compiler generates both'], a: 1,
+      why: 'Hashing finds the bucket and equality finds the key inside it. Equal keys must produce equal hashes.' },
+
+    { sec: 'keys', q: 'Why is `operator<=` not a valid comparator for `std::map`?',
+      opts: ['It is slower', 'It breaks the strict weak ordering rules (an element is not less than itself), which is undefined behaviour', 'It does not compile', 'It reverses the order'], a: 1,
+      why: 'Ordered containers need `comp(a, a) == false`. With `<=` equal keys compare as "less", so lookups and inserts misbehave.' },
+
+    { sec: 'keys', q: 'What does a transparent comparator (`std::map<std::string, int, std::less<>>`) let you do?',
+      opts: ['Make the map thread-safe', 'Look up with a `string_view` or `const char*` without constructing a temporary `std::string`', 'Sort in descending order', 'Store duplicate keys'], a: 1,
+      why: '`std::less<>` accepts different but comparable types, so `find("abc")` does not allocate a `std::string`.' },
+
+    { sec: 'keys', q: 'A map key object is modified while it is stored in the container. What is the consequence?',
+      opts: ['Nothing', 'The key is in the wrong position (or bucket), so lookups and the container invariants break', 'The map re-sorts itself automatically', 'The program does not compile'], a: 1,
+      why: 'That is why map and set keys are `const`. To change a key, remove the element and insert a new one.' },
+
+    { sec: 's4', q: 'What does `try_emplace(key, std::move(value))` guarantee when the key already exists?',
+      opts: ['It overwrites the old value', 'It does nothing and leaves `value` untouched', 'It throws', 'It moves `value` and discards it'], a: 1,
+      why: 'Unlike `emplace` and `insert`, `try_emplace` does not touch its arguments when the key is present.' },
+
+    { sec: 's4', q: 'What is the difference between `std::map` and `std::multimap`?',
+      opts: ['`multimap` is hashed', '`multimap` allows several entries with the same key and has no `operator[]`', '`multimap` is faster', '`multimap` is unordered'], a: 1,
+      why: 'Use `equal_range(key)` to get all entries for a key.' },
+
+    { sec: 's6', q: 'Why does `std::copy(src.begin(), src.end(), out.begin())` with an empty `out` break, and what fixes it?',
+      opts: ['It is fine', 'It writes past the end; use `std::back_inserter(out)` so each assignment becomes a `push_back`', 'It needs `std::move`', 'It needs `reserve` only'], a: 1,
+      why: 'Algorithms assign through the output iterator and do not grow the destination. An inserter turns assignments into insertions.' },
+
+    { sec: 's7', q: 'What does `v | std::views::filter(f) | std::views::transform(g)` do when it is created?',
+      opts: ['It builds a new vector immediately', 'Nothing yet: it is a lazy view whose elements are computed when iterated', 'It sorts `v`', 'It copies `v`'], a: 1,
+      why: 'Views are lazy and non-owning. Work happens during iteration, with no temporary containers.' }
   ]
 };

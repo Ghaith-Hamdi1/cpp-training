@@ -1,0 +1,204 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>More Patterns and Feed-Handler Designs</title>
+<script>try{var t=JSON.parse(localStorage.getItem('cpptrain:theme'));if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body data-topic="patterns2" data-kind="lesson">
+<main>
+<h1>More Patterns and Feed-Handler Designs</h1>
+<p class="lead">Command with undo, Decorator, Adapter, Builder and Visitor with <code>std::variant</code>, with real code, plus the patterns that matter in a feed handler. Builds on <a href="06-design-patterns.html">Design Patterns</a>.</p>
+
+<section id="command" data-title="Command (with undo)">
+<h2>Command (with undo)</h2>
+<p>Turn an <b>action into an object</b>. Because it is an object you can store it, queue it, log it, send it, replay it, and <b>undo</b> it.</p>
+<figure class="fig"><svg viewBox="0 0 640 150" role="img" aria-label="An editor executes command objects and keeps them on a history stack; undo pops the last one and calls its undo"><defs><marker id="mp1" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path class="ah" d="M0 0L10 5L0 10z"/></marker></defs>
+<rect class="acc" x="10" y="50" width="110" height="40" rx="6"/><text x="65" y="74" text-anchor="middle">Editor (invoker)</text>
+<path class="ar" d="M120 70H190" marker-end="url(#mp1)"/><text class="m" x="125" y="62">run(cmd)</text>
+<rect class="gd" x="192" y="30" width="120" height="26" rx="5"/><text x="252" y="48" text-anchor="middle">Append(", world")</text>
+<rect class="gd" x="192" y="62" width="120" height="26" rx="5"/><text x="252" y="80" text-anchor="middle">Append("Hello")</text>
+<text class="m" x="192" y="108">history (stack of executed commands)</text>
+<path class="ar" d="M312 43H400" marker-end="url(#mp1)"/><rect class="wn" x="402" y="26" width="200" height="34" rx="6"/><text x="502" y="48" text-anchor="middle">undo(): pop, cmd.undo(doc)</text>
+<text class="m" x="10" y="140">Each command knows how to execute AND how to reverse itself.</text></svg><figcaption>The history of command objects is the undo stack.</figcaption></figure>
+<script type="text/x-cpp">
+struct Command {
+    virtual ~Command() = default;
+    virtual void execute(Document&) = 0;
+    virtual void undo(Document&) = 0;
+};
+struct Append : Command {
+    std::string s;
+    explicit Append(std::string x) : s(std::move(x)) {}
+    void execute(Document& d) override { d.text += s; }
+    void undo(Document& d) override { d.text.resize(d.text.size() - s.size()); }
+};
+class Editor {
+    Document doc_;
+    std::vector<std::unique_ptr<Command>> done_;
+public:
+    void run(std::unique_ptr<Command> c) { c->execute(doc_); done_.push_back(std::move(c)); }
+    void undo() { if (!done_.empty()) { done_.back()->undo(doc_); done_.pop_back(); } }
+};
+</script>
+<p>Compiled: two appends gave <code>"Hello, world"</code>, one undo gave <code>"Hello"</code>.</p>
+<ul>
+<li><b>Uses:</b> undo/redo, task queues and thread pools (a task is a command), macro recording, transaction logs, and <b>order messages</b> that can be stored and replayed.</li>
+<li>A lambda stored in a <code>std::function</code> is a lightweight command when you do not need undo.</li>
+<li>Store enough state to reverse the action (the old value), not just the new one.</li>
+</ul>
+</section>
+
+<section id="decorator" data-title="Decorator">
+<h2>Decorator</h2>
+<p>Add behaviour to an object <b>without changing its class</b> by wrapping it in another object with the <b>same interface</b>. Wrappers stack.</p>
+<figure class="fig"><svg viewBox="0 0 640 130" role="img" aria-label="A Bracket decorator wraps an Upper decorator which wraps a Plain sink; a call passes through all three"><rect class="wn" x="20" y="14" width="360" height="104" rx="10"/><text class="t" x="34" y="34">Bracket</text><rect class="gd" x="50" y="44" width="300" height="66" rx="8"/><text class="t" x="64" y="64">Upper</text><rect class="acc" x="90" y="74" width="220" height="30" rx="6"/><text x="200" y="94" text-anchor="middle">Plain</text>
+<text class="m" x="400" y="50">write("feed")</text><text class="m" x="400" y="70">Plain returns "feed"</text><text class="m" x="400" y="90">Upper makes it "FEED"</text><text class="m" x="400" y="110">Bracket makes it "[FEED]"</text></svg><figcaption>Each layer calls the one inside it and adds its own effect.</figcaption></figure>
+<script type="text/x-cpp">
+struct Sink { virtual ~Sink() = default; virtual std::string write(const std::string&) = 0; };
+struct Plain : Sink { std::string write(const std::string& s) override { return s; } };
+struct Bracket : Sink {
+    std::unique_ptr<Sink> inner;                                   // wraps ANY Sink
+    explicit Bracket(std::unique_ptr<Sink> i) : inner(std::move(i)) {}
+    std::string write(const std::string& s) override { return "[" + inner->write(s) + "]"; }
+};
+std::unique_ptr<Sink> s = std::make_unique<Bracket>(std::make_unique<Upper>(std::make_unique<Plain>()));
+s->write("feed");                                                  // "[FEED]" (compiled)
+</script>
+<ul>
+<li><b>vs inheritance:</b> combinations multiply with subclasses (<code>UpperBracketCompressed</code>...), while decorators are chosen and stacked at run time.</li>
+<li>Seen in: stream wrappers (buffered, compressed, encrypted), logging and metrics wrappers, retry and caching layers, middleware.</li>
+<li>The cost is one virtual call and one allocation per layer: keep them out of hot paths.</li>
+</ul>
+</section>
+
+<section id="adapter" data-title="Adapter">
+<h2>Adapter</h2>
+<p>Make an interface you <b>cannot change</b> fit the one your code <b>expects</b>. The adapter implements the expected interface and translates each call.</p>
+<script type="text/x-cpp">
+struct LegacyFeed { int priceInCents() const; };                   // a third-party class: cannot edit it
+struct PriceSource { virtual ~PriceSource() = default; virtual double price() const = 0; };   // what our code uses
+
+struct LegacyAdapter : PriceSource {
+    LegacyFeed feed;
+    double price() const override { return feed.priceInCents() / 100.0; }   // 10025 cents -> 100.25 (compiled)
+};
+</script>
+<ul>
+<li><b>Class or object adapter:</b> the sample holds the adaptee as a member (object adapter, preferred). Private inheritance gives a class adapter.</li>
+<li>A <code>std::function</code> or a lambda is often a quick adapter between two callable shapes. <code>std::stack</code> and <code>std::queue</code> are standard adapters over <code>deque</code>.</li>
+<li><b>Adapter vs Decorator:</b> an adapter <i>changes</i> the interface; a decorator keeps it and adds behaviour. <b>Facade</b> hides a subsystem behind a simpler interface.</li>
+</ul>
+</section>
+
+<section id="builder" data-title="Builder">
+<h2>Builder</h2>
+<p>Construct a complex object <b>step by step</b> with named steps, and validate at the end. Useful when a constructor would need many parameters.</p>
+<script type="text/x-cpp">
+class OrderBuilder {
+    Order o_;
+public:
+    OrderBuilder& symbol(std::string s)  { o_.sym = std::move(s); return *this; }
+    OrderBuilder& qty(int q)             { o_.qty = q; return *this; }
+    OrderBuilder& price(double p)        { o_.px = p; return *this; }
+    OrderBuilder& immediateOrCancel()    { o_.ioc = true; return *this; }
+    Order build() const { /* check qty > 0, price > 0, ... then */ return o_; }
+};
+Order o = OrderBuilder().symbol("ESZ5").qty(10).price(5000.25).immediateOrCancel().build();
+</script>
+<ul>
+<li>Each setter returns <code>*this</code> so calls chain (a <b>fluent interface</b>). Validate in <code>build()</code>: an order without a symbol never gets out.</li>
+<li><b>Alternatives in modern C++:</b> an aggregate with <b>designated initializers</b> (<code>Order{.sym = "ESZ5", .qty = 10}</code>, C++20) is shorter when no validation is needed; named parameters via a small options struct.</li>
+<li>The classic use is building trees or immutable objects; a builder avoids half-built objects.</li>
+</ul>
+</section>
+
+<section id="visitor" data-title="Visitor and std::variant">
+<h2>Visitor and <code>std::variant</code></h2>
+<p>Add a new <b>operation</b> over a closed set of types without editing them, by dispatching on the type. Classic C++ does it with double dispatch (<code>accept(Visitor&amp;)</code> and one <code>visit</code> per type); modern C++ does it with <b><code>std::variant</code> and <code>std::visit</code></b>.</p>
+<script type="text/x-cpp">
+struct Circle { double r; };
+struct Rect   { double w, h; };
+using Shape = std::variant<Circle, Rect>;                          // a closed set of alternatives, no base class, no virtuals
+
+struct Area {                                                      // one operator() per alternative
+    double operator()(const Circle& c) const { return 3.0 * c.r * c.r; }
+    double operator()(const Rect& r)   const { return r.w * r.h; }
+};
+
+std::vector<Shape> shapes{Circle{2}, Rect{3, 4}};
+double total = 0;
+for (const auto& s : shapes) total += std::visit(Area{}, s);       // 12 + 12 = 24 (compiled)
+</script>
+<table>
+<tr><th></th><th>Virtual functions</th><th><code>variant</code> + <code>visit</code></th></tr>
+<tr><td>Add a new <b>operation</b></td><td>edit every class</td><td>write one new visitor</td></tr>
+<tr><td>Add a new <b>type</b></td><td>write one new class</td><td>edit the variant and every visitor (the compiler reports the ones that do not handle it)</td></tr>
+<tr><td>Storage</td><td>pointers, heap, indirect calls</td><td>values stored inline, no allocation, no virtual call</td></tr>
+</table>
+<ul>
+<li>Use <b>virtual functions</b> when the set of types is open and operations are few; use <b>variant + visit</b> when the set of types is closed (message types, AST nodes, events) and you keep adding operations.</li>
+<li>A forgotten alternative is a <b>compile error</b>, not a silent bug.</li>
+<li>Variants are a natural fit for <b>feed messages</b>: <code>std::variant&lt;Add, Modify, Delete, Trade&gt;</code> and a visitor that updates the book.</li>
+</ul>
+</section>
+
+<section id="feed" data-title="Patterns in a feed handler">
+<h2>Patterns in a feed handler</h2>
+<table>
+<tr><th>Need</th><th>Pattern</th><th>Where it is covered</th></tr>
+<tr><td>Subscribers receive updates for the symbols they asked for</td><td><b>Observer</b> / publish-subscribe: a map from symbol to a list of subscribers</td><td><a href="06-design-patterns.html">Design Patterns</a></td></tr>
+<tr><td>Pick a parser or normaliser per venue at run time</td><td><b>Strategy</b> and <b>Factory</b></td><td><a href="06-design-patterns.html">Design Patterns</a></td></tr>
+<tr><td>Avoid allocation per message</td><td><b>Object pool</b>: preallocated slots and a free list</td><td><a href="12-low-latency.html">Low-Latency C++</a></td></tr>
+<tr><td>Handle message types without a class hierarchy</td><td><b>Visitor</b> over a <code>variant</code> (above)</td><td>this lesson</td></tr>
+<tr><td>Session behaviour: logon, sequence numbers, gaps, logout</td><td><b>State machine</b> (below)</td><td>this lesson</td></tr>
+<tr><td>Hand work between threads</td><td><b>Producer/consumer</b> and an SPSC queue</td><td><a href="12-low-latency.html">Low-Latency C++</a></td></tr>
+</table>
+<h3>A session state machine with <code>variant</code></h3>
+<figure class="fig"><svg viewBox="0 0 640 110" role="img" aria-label="Disconnected goes to LoggedOn on logon; LoggedOn stays on msg and goes to Stopped on logout"><defs><marker id="mp2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path class="ah" d="M0 0L10 5L0 10z"/></marker></defs>
+<rect class="box" x="10" y="30" width="130" height="40" rx="8"/><text x="75" y="55" text-anchor="middle">Disconnected</text>
+<path class="ar" d="M140 50H240" marker-end="url(#mp2)"/><text class="m" x="168" y="42">logon</text>
+<rect class="gd" x="242" y="30" width="150" height="40" rx="8"/><text x="317" y="55" text-anchor="middle">LoggedOn (nextSeq)</text>
+<path class="ar" d="M392 50H490" marker-end="url(#mp2)"/><text class="m" x="414" y="42">logout</text>
+<rect class="wn" x="492" y="30" width="130" height="40" rx="8"/><text x="557" y="55" text-anchor="middle">Stopped</text>
+<path class="ar" d="M300 28C300 4 350 4 350 28" marker-end="url(#mp2)" fill="none"/><text class="m" x="305" y="14">msg: nextSeq + 1</text>
+<text class="m" x="10" y="100">Events that do not apply to the current state leave it unchanged.</text></svg><figcaption>Each state carries only its own data.</figcaption></figure>
+<script type="text/x-cpp">
+struct Disconnected {};
+struct LoggedOn { int nextSeq = 1; };
+struct Stopped { std::string reason; };
+using Session = std::variant<Disconnected, LoggedOn, Stopped>;
+
+Session onEvent(const Session& s, const std::string& ev) {
+    return std::visit([&](const auto& st) -> Session {
+        using T = std::decay_t<decltype(st)>;
+        if constexpr (std::is_same_v<T, Disconnected>) { if (ev == "logon") return LoggedOn{}; }
+        else if constexpr (std::is_same_v<T, LoggedOn>) {
+            if (ev == "msg")    return LoggedOn{st.nextSeq + 1};
+            if (ev == "logout") return Stopped{"logout"};
+        }
+        return st;                                                 // not applicable: stay in the same state
+    }, s);
+}
+</script>
+<p>Compiled trace: <code>msg</code> while disconnected stayed <b>Disconnected</b>; after <code>logon</code> the state was <b>LoggedOn(next 1)</b>, two <code>msg</code> events moved it to <b>next 3</b>, <code>logout</code> gave <b>Stopped</b>, and a later <code>msg</code> stayed Stopped. Data such as the sequence number lives <b>in the state that needs it</b>, so it cannot be misused in another state. This is the State pattern without virtual functions (<a href="06-design-patterns.html">Design Patterns</a> shows the virtual version).</p>
+</section>
+
+<section id="cheat" data-title="Interview cheat sheet">
+<h2>Interview cheat sheet</h2>
+<p>Say each answer aloud, then open it.</p>
+<details class="ex"><summary>What is the Command pattern and how does it give you undo?</summary><div><p>It turns a request into an object with <code>execute</code> (and <code>undo</code>). The invoker keeps executed commands on a stack; undo pops the last one and calls its <code>undo</code>. Because commands are objects they can also be queued, logged, sent and replayed (orders, thread-pool tasks, macros).</p></div></details>
+<details class="ex"><summary>Decorator versus inheritance?</summary><div><p>A decorator wraps an object with the same interface and adds behaviour, chosen and stacked at run time. Inheritance fixes the combination at compile time and multiplies classes for every combination. Streams with buffering or compression, and logging wrappers, are decorators.</p></div></details>
+<details class="ex"><summary>Adapter versus Decorator versus Facade?</summary><div><p>An adapter changes an interface to the one a client expects. A decorator keeps the interface and adds behaviour. A facade offers a simpler interface to a whole subsystem. <code>std::stack</code> and <code>std::queue</code> are adapters.</p></div></details>
+<details class="ex"><summary>When would you use a Builder?</summary><div><p>When an object has many optional or related parts, so a constructor would take a long argument list, or when it must be validated before use. Chain named setters and validate in <code>build()</code>. For simple aggregates, designated initializers (C++20) may be enough.</p></div></details>
+<details class="ex"><summary>Visitor with virtual functions or with <code>std::variant</code>?</summary><div><p>Virtual functions make adding a type easy and adding an operation hard. A <code>variant</code> with <code>std::visit</code> makes adding an operation easy (one new visitor), keeps values inline without allocation or virtual calls, and the compiler flags every visitor that misses a new alternative. Use it when the set of types is closed, such as message types.</p></div></details>
+<details class="ex"><summary>How would you model a FIX or exchange session?</summary><div><p>As a state machine: states such as Disconnected, LoggedOn and Stopped, each holding only its own data (for example the next expected sequence number), and an <code>onEvent</code> function that returns the next state. A <code>variant</code> of state structs with <code>std::visit</code> makes invalid combinations unrepresentable and avoids virtual calls.</p></div></details>
+</section>
+</main>
+
+<script src="assets/data/lessons.js"></script>
+<script src="assets/app.js"></script>
+</body>
+</html>

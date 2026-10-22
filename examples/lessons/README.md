@@ -26,8 +26,10 @@ The folder names follow the lesson file names (`13-move-semantics` holds the les
 | 7 Types | `01_init_and_conversions.cpp` | initialization forms and brace traps, `auto` and `decltype`, conversions and promotions, casts, `enum class`, `constexpr` |
 | 8 STL, 14 Strings | `01_vector_map_algorithms.cpp` | vector growth, `map::operator[]` inserting, erase-remove, algorithms, heaps |
 | | `02_strings_regex_chrono.cpp` | `string_view`, `regex_match` vs `regex_search`, captures, `chrono` |
+| 8 STL | `03_keys_adaptors_ranges.cpp` | a case-insensitive comparator, a custom hash, transparent lookup, `try_emplace`, `multimap`, inserters, `erase_if`, ranges and views |
 | 9 Templates, 15 Compile-time | `01_templates_specialization_forwarding.cpp` | templates, specialization, perfect forwarding, variadics, fold expressions |
 | 9 Templates | `03_deduction_and_tools.cpp` | deduction by value, by reference and forwarding reference, class template argument deduction, alias and variable templates, template template parameters, `index_sequence` |
+| 14 Strings | `01_sso_numbers_format_streams.cpp` | small string optimisation and capacity, `from_chars`, `to_chars`, `stoi`, `std::format`, string and file streams |
 | | `02_traits_constexpr_concepts.cpp` | type traits, `if constexpr`, `enable_if`, concepts, `constexpr`, `consteval`, TMP |
 | 10 Patterns | `01_singleton_factory_strategy.cpp` | Meyers Singleton, factory and registry, three kinds of Strategy |
 | | `02_observer_state_crtp.cpp` | Observer that survives detaching, State with `variant`, CRTP |
@@ -47,5 +49,8 @@ The folder names follow the lesson file names (`13-move-semantics` holds the les
 | | `03_order_book_levels.cpp` | an order-book side as an array indexed by price tick, checked against `std::map` |
 | | `04_aos_vs_soa.cpp` | array of structs versus struct of arrays, and cache-line padding |
 | | `05_spsc_ring_padded.cpp` | an SPSC ring with a power-of-two mask, padded indices and a drop-newest policy |
+| 19 Object model | `01_multiple_inheritance_rtti_conversions.cpp` | two interfaces and pointer adjustment, the plain and virtual diamond, RTTI and cross-casts, private inheritance, `explicit`, copy-and-swap |
+| 20 More patterns | `01_command_decorator_adapter_builder_visitor.cpp` | Command with undo, Decorator, Adapter, Builder, Visitor with `variant`, a session state machine |
+| 6, 2, 8, 7, 18 | `16-types-and-casts/02_small_items.cpp` | `std::bind`, user-defined literals, `<random>`, `extern "C"` and placement new |
 
 Lesson 16 (coding rules) is about avoiding risky code, so it has no program. Some outputs vary between runs on purpose: the unsafe counter in `02_race_mutex_atomic.cpp` is a data race (undefined behavior) kept only to show lost updates.

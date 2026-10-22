@@ -115,6 +115,16 @@ public:
 };
 </script>
 <p><b>Placement new</b> constructs an object in memory that already exists, so no allocation happens. The program in <code>12-low-latency</code> replaces <code>operator new</code> with a counter and shows <b>0 heap allocations</b> on the pool path, 0 for a <code>pmr::vector</code> in an arena, and 1 for a <code>vector</code> with <code>reserve(100)</code>.</p>
+<script type="text/x-cpp">
+alignas(Order) unsigned char storage[sizeof(Order)];   // raw, correctly aligned memory: no object yet
+Order* o = new (storage) Order(7);                     // placement new: construct INTO this memory, nothing is allocated
+// ... use *o ...
+o->~Order();                                           // you must call the destructor yourself: never delete it
+</script>
+<ul>
+<li>The address of <code>o</code> equals the address of <code>storage</code> (compiled). The memory must be aligned and big enough.</li>
+<li>This is how <code>std::vector</code>, <code>std::optional</code> and every pool build objects in storage they already own. C++20 <code>std::construct_at</code> does the same without the <code>new</code> syntax.</li>
+</ul>
 </section>
 
 <section data-title="Cache-friendly data">

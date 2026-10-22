@@ -70,6 +70,38 @@ seconds back = ms;          // (B)`,
       code: String.raw`
 std::cout << s.find('z') == std::string::npos;`,
       opts: ['Prints 1 if z is absent', 'Prints 0 if z is absent', 'Does not compile as intended, because << binds tighter than ==', 'Always prints npos'], a: 2,
-      why: 'It parses as `(std::cout << s.find(\'z\')) == npos`, comparing a stream with a number. Parenthesise the comparison.' }
+      why: 'It parses as `(std::cout << s.find(\'z\')) == npos`, comparing a stream with a number. Parenthesise the comparison.' },
+
+    { sec: 'sso', q: 'What is the small string optimisation (SSO)?',
+      opts: ['Strings are compressed in memory', 'Short strings are stored inside the `std::string` object itself, so no heap allocation is needed', 'Strings are always stored in read-only memory', 'The compiler removes duplicate strings'], a: 1,
+      why: 'A `std::string` has room for a handful of characters (about 15 in libstdc++) inside the object. Longer text goes to the heap.' },
+
+    { sec: 'sso', q: 'Why call `reserve(1000)` before appending 1000 characters one at a time?',
+      opts: ['It makes the string read-only', 'It allocates once up front, so appending does not reallocate (compiled: 7 reallocations without it)', 'It removes the null terminator', 'It converts the string to a `string_view`'], a: 1,
+      why: 'Without `reserve`, capacity grows geometrically and each growth copies the characters and invalidates pointers and iterators.' },
+
+    { sec: 'sso', q: 'What happens to a pointer obtained from `s.c_str()` when you append to `s` and it reallocates?',
+      opts: ['It stays valid', 'It dangles: reallocation moves the characters and invalidates it', 'It is updated automatically', 'It becomes null'], a: 1,
+      why: 'Any operation that may reallocate invalidates pointers, references and iterators into the string.' },
+
+    { sec: 'numbers', q: 'What does `std::from_chars` return for the input "12x4" when parsing an `int`?',
+      opts: ['It throws `invalid_argument`', 'It parses 12 with no error and leaves `ptr` at "x4"', 'It returns 0 and an error', 'It parses 124'], a: 1,
+      why: 'It stops at the first character that cannot belong to the number and reports success. Compare `ptr` with the end of the input when the whole token must be numeric.' },
+
+    { sec: 'numbers', q: 'Why is `std::from_chars` preferred over `std::stoi` on a hot path?',
+      opts: ['It is the only way to parse an `int`', 'It does not throw, allocate or use the locale', 'It parses faster because it uses SIMD', 'It accepts leading whitespace'], a: 1,
+      why: '`from_chars` reports errors with a return value and works on a character range, so there are no exceptions, no temporary `string` and no locale lookup.' },
+
+    { sec: 'format', q: 'What is a drawback of `std::cout << std::hex << 255;` compared with `std::format("{:x}", 255)`?',
+      opts: ['It cannot print hex', 'The stream stays in hex mode: later integers are printed in hex too until you switch back', 'It allocates memory', 'It needs C++23'], a: 1,
+      why: 'Many stream manipulators are sticky. `std::format` is stateless: the format applies to that one replacement field only.' },
+
+    { sec: 'streams', q: 'Which loop reads a file line by line correctly?',
+      opts: ['`while (!f.eof()) { std::getline(f, line); use(line); }`', '`while (std::getline(f, line)) { use(line); }`', '`while (f) { f >> line; }` with no check afterwards', '`for (;;) { std::getline(f, line); }`'], a: 1,
+      why: '`eof()` is true only after a read has already failed, so the first form processes a bogus last line. Testing the read itself is correct.' },
+
+    { sec: 'streams', q: 'When is a `std::ofstream` closed if you never call `close()`?',
+      opts: ['Never', 'When its destructor runs at the end of its scope', 'When the program exits only', 'When the file is written'], a: 1,
+      why: 'File streams are RAII objects: the destructor flushes and closes the file.' }
   ]
 };

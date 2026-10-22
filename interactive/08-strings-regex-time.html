@@ -10,7 +10,7 @@
 <body data-topic="strings" data-kind="lesson">
 <main>
 <h1>Strings, Regex and Time</h1>
-<p class="lead">Three standard-library areas that appear in real code and interviews: text ownership, <code>&lt;regex&gt;</code> and <code>&lt;chrono&gt;</code>.</p>
+<p class="lead">Text in C++: ownership with <code>string</code> and <code>string_view</code>, how a string stores its characters, converting numbers, formatting and streams, then <code>&lt;regex&gt;</code> and <code>&lt;chrono&gt;</code>.</p>
 
 <section data-title="std::string and std::string_view">
 <h2><code>std::string</code> and <code>std::string_view</code></h2>
@@ -50,7 +50,135 @@ A view must not outlive its string and is <b>not null-terminated</b>: do not pas
 <div class="callout interview"><span class="label">Interview angle</span>View when you only read (accepts literals without a temporary); <code>const string&amp;</code> when you need null termination.</div>
 </section>
 
-<section data-title="Regular expressions: the basics">
+<section id="sso" data-title="Inside std::string: SSO and capacity">
+<h2>Inside <code>std::string</code>: SSO and capacity</h2>
+<figure class="fig"><svg viewBox="0 0 640 170" role="img" aria-label="A short string keeps its characters inside the string object; a long one keeps a pointer to heap memory"><defs><marker id="so1" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path class="ah" d="M0 0L10 5L0 10z"/></marker></defs>
+<text class="t" x="10" y="20">Short: "hello" (up to 15 chars)</text>
+<rect class="acc" x="10" y="32" width="300" height="34" rx="6"/><text x="160" y="54" text-anchor="middle">size 5 | chars live right here, no heap</text>
+<text class="t" x="10" y="100">Long: 40 chars</text>
+<rect class="acc" x="10" y="112" width="190" height="34" rx="6"/><text x="105" y="134" text-anchor="middle">size 40 | capacity | ptr</text>
+<path class="ar" d="M200 129H300" marker-end="url(#so1)"/>
+<rect class="wn" x="302" y="112" width="250" height="34" rx="6"/><text x="427" y="134" text-anchor="middle">heap block with the characters</text>
+<text class="m" x="330" y="54">sizeof(std::string) is 32 bytes (libstdc++)</text></svg><figcaption>The small string optimisation: no allocation for short text.</figcaption></figure>
+<p>A <code>std::string</code> is a small object (compiled: <b>32 bytes</b>, libstdc++) that holds a pointer, a size and a capacity. For short text it stores the characters <b>inside the object</b>, so there is no heap allocation: <b>SSO</b>. Compiled: an empty string has capacity <b>15</b>, <code>"hello"</code> was stored inside the object and a 40-character string was not.</p>
+<table>
+<tr><th>Fact</th><th>Why it matters</th></tr>
+<tr><td>SSO limit is implementation-defined (15 in libstdc++, 22 in libc++)</td><td>do not rely on the exact number</td></tr>
+<tr><td><b>Capacity</b> is the room before the next reallocation; <b>size</b> is the length</td><td><code>s.size() &lt;= s.capacity()</code></td></tr>
+<tr><td>Growth is geometric (usually doubling)</td><td>compiled: appending 1000 characters one at a time reallocated <b>7 times</b></td></tr>
+<tr><td><code>reserve(n)</code> allocates once up front</td><td>compiled: with <code>reserve(1000)</code> first, the buffer never moved</td></tr>
+<tr><td>A reallocation invalidates pointers, references and iterators into the string</td><td>do not keep <code>s.c_str()</code> across a modification</td></tr>
+<tr><td>Moving a long string steals the pointer; moving a short one copies the inline bytes</td><td>a move is cheap but never worse than a copy</td></tr>
+</table>
+<script type="text/x-cpp">
+std::string s;
+s.reserve(1000);                      // one allocation, then no reallocations while we append up to 1000
+for (int i = 0; i < 1000; ++i) s += 'a';
+
+std::string t = "a" + name + "b";    // each + may build a temporary: prefer append, a format call or an ostringstream
+</script>
+<div class="callout interview"><span class="label">Interview angle</span>"What is SSO?" Short strings are stored in the string object, so no heap allocation and no pointer chase. It is why short-string copies are cheap and why <code>string</code> moves are not always pointer steals. On a hot path <code>reserve</code> and avoid building strings at all (<a href="12-low-latency.html">Low-Latency C++</a>).</div>
+</section>
+
+<section id="numbers" data-title="Numbers and text: from_chars, to_chars, stoi">
+<h2>Numbers and text: <code>from_chars</code>, <code>to_chars</code>, <code>stoi</code></h2>
+<table>
+<tr><th>Function</th><th>Failure</th><th>Allocates?</th><th>Locale?</th><th>Use</th></tr>
+<tr><td><code>std::from_chars</code> / <code>to_chars</code> (C++17)</td><td>returns an error code, <b>no exception</b></td><td>no</td><td>no</td><td><b>hot paths</b>, parsing feeds</td></tr>
+<tr><td><code>std::stoi</code>, <code>stod</code>, <code>to_string</code></td><td>throws <code>invalid_argument</code> / <code>out_of_range</code></td><td>yes (a <code>string</code>)</td><td>yes (slower)</td><td>ordinary code</td></tr>
+<tr><td><code>atoi</code>, <code>strtol</code>, <code>sscanf</code></td><td>silent 0 or <code>errno</code></td><td>no</td><td>yes</td><td>avoid in new C++</td></tr>
+<tr><td><code>std::istringstream &gt;&gt;</code></td><td>sets <code>failbit</code></td><td>yes</td><td>yes</td><td>mixed text parsing</td></tr>
+</table>
+<script type="text/x-cpp">
+int v = 0;
+std::string_view num = "1234";
+auto [ptr, ec] = std::from_chars(num.data(), num.data() + num.size(), v);
+if (ec == std::errc{} && ptr == num.data() + num.size()) use(v);      // parsed the WHOLE input
+
+char buf[32];
+auto r = std::to_chars(buf, buf + sizeof buf, 255, 16);                // "ff": no allocation
+std::string_view out(buf, r.ptr - buf);
+</script>
+<ul>
+<li>Compiled: <code>from_chars("12x4")</code> parsed <b>12</b>, reported no error, and left <code>ptr</code> at <code>"x4"</code>. <b>Always check that <code>ptr</code> reached the end</b> when the whole token must be a number.</li>
+<li>Compiled: <code>stoi("abc")</code> threw <code>invalid_argument</code> and <code>stoi("99999999999")</code> threw <code>out_of_range</code>.</li>
+<li><code>from_chars</code> does not skip leading whitespace and does not accept a leading <code>+</code>.</li>
+<li>Floating-point <code>from_chars</code> needs a recent standard library (GCC 11+, MSVC 2019+).</li>
+</ul>
+<div class="callout tip"><span class="label">Feed handlers</span>Parse prices and quantities with <code>from_chars</code> straight out of the receive buffer through a <code>string_view</code>: no allocation, no exceptions, no locale (<a href="11-wire-formats.html">Wire Formats and Parsing</a>).</div>
+</section>
+
+<section id="format" data-title="Formatting: std::format and streams">
+<h2>Formatting: <code>std::format</code> and streams</h2>
+<script type="text/x-cpp">
+#include <format>                                   // C++20
+
+std::format("{:>8}|{:<8}|{:^8}|", "right", "left", "mid");   // "   right|left    |  mid   |"
+std::format("{:08.3f} {:#x} {:#b} {:+d} {}", 3.14159, 255, 5, 7, true);   // "0003.142 0xff 0b101 +7 true"
+std::format("{1} before {0}", "world", "hello");             // "hello before world": positional arguments
+</script>
+<table>
+<tr><th>Spec</th><th>Meaning</th></tr>
+<tr><td><code>{:&gt;8}</code> <code>{:&lt;8}</code> <code>{:^8}</code></td><td>right, left, centre in a field of width 8</td></tr>
+<tr><td><code>{:08.3f}</code></td><td>zero padded, width 8, 3 digits after the point</td></tr>
+<tr><td><code>{:#x}</code> <code>{:#b}</code></td><td>hex and binary with the <code>0x</code> / <code>0b</code> prefix</td></tr>
+<tr><td><code>{:+d}</code></td><td>always show the sign</td></tr>
+</table>
+<h3>Which one to use</h3>
+<table>
+<tr><th>Tool</th><th>Good</th><th>Bad</th></tr>
+<tr><td><code>std::format</code> (C++20)</td><td>type-safe, readable, fast, no state, errors at compile time</td><td>allocates a <code>std::string</code>; check your compiler supports it (GCC 13+)</td></tr>
+<tr><td><code>std::print</code> (C++23)</td><td><code>format</code> straight to <code>stdout</code></td><td>C++23</td></tr>
+<tr><td><code>operator&lt;&lt;</code> streams</td><td>works everywhere, extensible for your types</td><td>stateful (<code>std::hex</code> sticks!), verbose, slower</td></tr>
+<tr><td><code>printf</code></td><td>fast, familiar</td><td>no type checking: a wrong specifier is undefined behaviour</td></tr>
+</table>
+<div class="callout warn"><span class="label">Streams keep state</span><code>std::cout &lt;&lt; std::hex &lt;&lt; 255;</code> leaves every later integer printed in hex until you switch back with <code>std::dec</code>. <code>setw</code> applies only to the next output. <code>std::format</code> has none of this.</div>
+<ul>
+<li>To format your own type, specialise <code>std::formatter&lt;T&gt;</code> (or provide <code>operator&lt;&lt;</code> for streams).</li>
+<li><code>std::format_to(out, ...)</code> writes into an existing buffer or iterator to avoid the temporary string.</li>
+<li>Do not build log strings on a hot path unless the log level is enabled.</li>
+</ul>
+</section>
+
+<section id="streams" data-title="String streams and files">
+<h2>String streams and files</h2>
+<table>
+<tr><th>Type</th><th>Reads from / writes to</th><th>Header</th></tr>
+<tr><td><code>std::istringstream</code></td><td>reads from a <code>std::string</code></td><td><code>&lt;sstream&gt;</code></td></tr>
+<tr><td><code>std::ostringstream</code></td><td>builds a <code>std::string</code> (<code>.str()</code>)</td><td><code>&lt;sstream&gt;</code></td></tr>
+<tr><td><code>std::ifstream</code> / <code>ofstream</code> / <code>fstream</code></td><td>a file</td><td><code>&lt;fstream&gt;</code></td></tr>
+</table>
+<script type="text/x-cpp">
+std::istringstream in("42 3.5 word");
+int a; double b; std::string w;
+in >> a >> b >> w;                        // 42, 3.5, "word": >> skips whitespace and converts
+
+std::ostringstream out;
+out << "id=" << 7 << " px=" << 101.25;
+std::string s = out.str();                // "id=7 px=101.25"
+
+{
+    std::ofstream f("data.txt");          // opened by the constructor, CLOSED by the destructor (RAII)
+    f << "first line\nsecond line\n";
+}
+std::ifstream f("data.txt");
+std::string line;
+while (std::getline(f, line)) { /* one line at a time */ }     // the loop condition tests the read itself
+
+std::istringstream csv("ESZ5,5000.25,10");
+for (std::string field; std::getline(csv, field, ',');) { /* "ESZ5", "5000.25", "10" */ }
+</script>
+<ul>
+<li><b>Loop on the read, not on <code>eof()</code>:</b> <code>while (std::getline(f, line))</code> is right; <code>while (!f.eof())</code> processes the last line twice.</li>
+<li>Check the stream after opening: <code>if (!f) { /* could not open */ }</code>. A failed stream silently does nothing afterwards.</li>
+<li>Stream state bits: <code>good</code>, <code>eof</code>, <code>fail</code> (a format error, such as reading text into an <code>int</code>), <code>bad</code> (a hard I/O error). <code>clear()</code> resets them.</li>
+<li>Compiled: <code>getline(csv, field, ',')</code> split a three-field line, and a file of two lines read back as two lines.</li>
+<li>Files are closed by the destructor, so a plain scope is the RAII way to flush and close.</li>
+<li><code>std::endl</code> flushes every time (slow). Use <code>'\n'</code>.</li>
+</ul>
+</section>
+
+<section id="s2" data-title="Regular expressions: the basics">
 <h2>Regular expressions: the basics</h2>
 <p>A regex describes a <i>set of strings</i>. Match vs search is a favourite question:</p>
 <table>
@@ -82,7 +210,7 @@ std::regex_search("xabbbcx", re);    // true  : found inside
 <div class="callout tip"><span class="label">Backslashes</span>Write <code>"\\d+"</code> or a raw string <code>R"(\d+)"</code>. POSIX classes like <code>[[:alnum:]]</code> work in <code>std::regex</code> but not in the tester.</div>
 </section>
 
-<section data-title="Captures, replace and iterating matches">
+<section id="s3" data-title="Captures, replace and iterating matches">
 <h2>Captures, replace and iterating matches</h2>
 <p>Parentheses make <b>capture groups</b>; <code>std::smatch</code> holds the whole match at 0, groups after.</p>
 <script type="text/x-cpp">
@@ -112,7 +240,7 @@ std::string swapped = std::regex_replace(line, kv, "$2:$1");   // "21.5:tempC 40
 <div class="callout interview"><span class="label">Interview angle</span><code>regex_match("hello world", regex("hello"))</code> is false: it must cover the <b>entire</b> string. <code>regex_search</code> is true.</div>
 </section>
 
-<section data-title="Time with std::chrono">
+<section id="s4" data-title="Time with std::chrono">
 <h2>Time with <code>std::chrono</code></h2>
 <figure class="fig"><svg viewBox="0 0 640 110" role="img" aria-label="A clock produces time points, and subtracting two time points gives a duration"><defs><marker id="h2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path class="ah" d="M0 0L10 5L0 10z"/></marker></defs><rect class="acc" x="10" y="30" width="140" height="48" rx="8"/><text class="t" x="80" y="52" text-anchor="middle">Clock</text><text class="m" x="80" y="68" text-anchor="middle">steady_clock::now()</text><path class="ar" d="M150 54H218" marker-end="url(#h2)"/><rect class="wn" x="220" y="30" width="150" height="48" rx="8"/><text class="t" x="295" y="52" text-anchor="middle">Time point</text><text class="m" x="295" y="68" text-anchor="middle">an instant (t1, t0)</text><path class="ar" d="M370 54H438" marker-end="url(#h2)"/><text class="m" x="404" y="46" text-anchor="middle">t1 - t0</text><rect class="gd" x="440" y="30" width="190" height="48" rx="8"/><text class="t" x="535" y="52" text-anchor="middle">Duration</text><text class="m" x="535" y="68" text-anchor="middle">count + unit: 250 ms</text><text class="m" x="10" y="102">Elapsed time and timeouts: steady_clock (monotonic). Timestamps for people: system_clock (can jump).</text></svg><figcaption>Durations are type-safe: seconds and milliseconds cannot be confused.</figcaption></figure>
 <p>Three ideas, in this order:</p>
@@ -147,7 +275,7 @@ auto m = std::chrono::duration_cast<std::chrono::minutes>(s);   // 1 (truncates)
 <div class="callout warn"><span class="label">steady_clock for intervals</span><code>system_clock</code> can jump, giving negative or wrong intervals: bad for timeouts.</div>
 </section>
 
-<section data-title="Interview cheat sheet">
+<section id="s5" data-title="Interview cheat sheet">
 <h2>Interview cheat sheet</h2>
 <p>Answer aloud, then open.</p>
 <details><summary>When is a <code>string_view</code> dangerous?</summary>When it outlives the string it views: views of temporaries, of locals returned from a function, or of a string that is later modified or reallocated.</details>
@@ -155,6 +283,10 @@ auto m = std::chrono::duration_cast<std::chrono::minutes>(s);   // 1 (truncates)
 <details><summary>How do you iterate over every match?</summary><code>std::sregex_iterator</code> (or <code>std::cregex_iterator</code> for C strings) over the range, compared with a default-constructed end iterator.</details>
 <details><summary>Which clock for a timeout, and why?</summary><code>steady_clock</code>, because it is monotonic and unaffected by changes to the system time.</details>
 <details><summary>Why can <code>seconds = milliseconds</code> not compile but <code>milliseconds = seconds</code> can?</summary>Converting to a coarser unit would truncate, so it requires an explicit <code>duration_cast</code>. Converting to a finer unit is lossless, so it is implicit.</details>
+<details><summary>What is the small string optimisation?</summary>Short strings (about 15 characters in libstdc++) are stored inside the <code>std::string</code> object, so no heap allocation happens and copying is cheap. Longer strings keep a pointer to a heap block. <code>reserve</code> avoids repeated reallocations when you know the size.</details>
+<details><summary><code>from_chars</code> versus <code>stoi</code>?</summary><code>from_chars</code> (C++17) returns an error code, never throws, never allocates and ignores the locale, so it suits hot paths and feed parsing; check that the end pointer reached the end of the token. <code>stoi</code> throws <code>invalid_argument</code> or <code>out_of_range</code> and is for ordinary code.</details>
+<details><summary><code>std::format</code> versus streams versus <code>printf</code>?</summary><code>std::format</code> (C++20) is type-safe, stateless and readable. Streams are extensible but keep state (<code>std::hex</code> sticks) and are verbose. <code>printf</code> has no type checking, so a wrong specifier is undefined behaviour.</details>
+<details><summary>Why is <code>while (!f.eof())</code> the wrong way to read a file?</summary><code>eof</code> becomes true only after a read has failed, so the loop body runs once more with a failed read. Loop on the read itself: <code>while (std::getline(f, line))</code>.</details>
 <details><summary>Output: what does this print? <code>std::string s = "abc"; std::cout &lt;&lt; s.find('z') == std::string::npos;</code></summary>It does not compile as intended: <code>&lt;&lt;</code> binds tighter than <code>==</code>, so it tries to compare the stream with <code>npos</code>. Parenthesise: <code>std::cout &lt;&lt; (s.find('z') == std::string::npos);</code> prints 1.</details>
 </section>
 </main>

@@ -49,6 +49,8 @@ Each lesson has step-through memory visualizers or simulators, predict-the-outpu
 | 16 | [Coding Rules and Safe C++](https://ghaith-hamdi1.github.io/cpp-training/10-coding-rules.html) | [Quiz](https://ghaith-hamdi1.github.io/cpp-training/10-coding-rules-quiz.html) |
 | 17 | [Wire Formats and Parsing](https://ghaith-hamdi1.github.io/cpp-training/11-wire-formats.html) | [Quiz](https://ghaith-hamdi1.github.io/cpp-training/11-wire-formats-quiz.html) |
 | 18 | [Low-Latency C++](https://ghaith-hamdi1.github.io/cpp-training/12-low-latency.html) | [Quiz](https://ghaith-hamdi1.github.io/cpp-training/12-low-latency-quiz.html) |
+| 19 | [The Object Model in Depth](https://ghaith-hamdi1.github.io/cpp-training/19-object-model.html) | [Quiz](https://ghaith-hamdi1.github.io/cpp-training/19-object-model-quiz.html) |
+| 20 | [More Patterns and Feed-Handler Designs](https://ghaith-hamdi1.github.io/cpp-training/20-more-patterns.html) | [Quiz](https://ghaith-hamdi1.github.io/cpp-training/20-more-patterns-quiz.html) |
 
 **Working on the site.** After you change anything in `interactive/`, regenerate the derived files and run the checks (the same checks run in CI):
 

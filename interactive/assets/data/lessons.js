@@ -46,7 +46,11 @@ CT.lessons = [
   { id: 'wire', file: '11-wire-formats.html', quiz: '11-wire-formats-quiz.html', title: 'Wire Formats & Parsing', time: '60 min', hot: true, assess: 3,
     blurb: 'Bit manipulation, struct layout and padding, endianness, aliasing and memcpy, zero-copy parsing, fixed-point prices and sequence numbers.' },
   { id: 'latency', file: '12-low-latency.html', quiz: '12-low-latency-quiz.html', title: 'Low-Latency C++', time: '60 min', hot: true, assess: 3,
-    blurb: 'Tail latency, pools and arenas, cache-friendly data, order-book structures, SPSC queues, predictable hot paths and core pinning.' }
+    blurb: 'Tail latency, pools and arenas, cache-friendly data, order-book structures, SPSC queues, predictable hot paths and core pinning.' },
+  { id: 'objmodel', file: '19-object-model.html', quiz: '19-object-model-quiz.html', title: 'The Object Model in Depth', time: '40 min', hot: false, assess: 2,
+    blurb: 'Multiple inheritance and layout, the diamond and virtual inheritance, RTTI, private inheritance, explicit conversions and copy-and-swap.' },
+  { id: 'patterns2', file: '20-more-patterns.html', quiz: '20-more-patterns-quiz.html', title: 'More Patterns & Feed-Handler Designs', time: '40 min', hot: true, assess: 2,
+    blurb: 'Command with undo, Decorator, Adapter, Builder, Visitor with std::variant and a session state machine, with real code.' }
 ];
 
 /* When a section moves to another lesson, record where it went so old links keep working:
@@ -65,7 +69,8 @@ CT.moved = {
   '07-multithreading.html#s6': '18-atomics-memory-model.html#ops',        // the multithreading lesson was split in three
   '07-multithreading.html#s8': '17-tasks-parallelism.html#futures',
   '07-multithreading.html#s9': '17-tasks-parallelism.html#pool',
-  '07-multithreading.html#s10': '12-low-latency.html#s8'
+  '07-multithreading.html#s10': '12-low-latency.html#s8',
+  '04-stl.html#s8': '08-strings-regex-time.html#s1'       // the STL strings section is covered by the Strings lesson
 };
 
 /* Saved progress is stored per lesson id and section id. When ids change (a lesson is split or renamed), add a
@@ -139,6 +144,14 @@ CT.progressMigrations = [
     });
     store.set('weak:threads', stay);
     store.set('mock:missed', store.get('mock:missed', []).filter(function (id) { return id.indexOf('threads-') !== 0; }));   // the cheat sheet changed
+  } },
+  /* v4: the STL strings section was replaced by custom keys, and the cheat sheets of the STL and Strings lessons changed. */
+  { to: 4, run: function (store) {
+    store.set('done:stl', store.get('done:stl', []).filter(function (id) { return id !== 's8'; }));
+    if (store.get('last:stl', '') === 's8') store.set('last:stl', '');
+    var li = store.get('lastinfo', null);
+    if (li && li.id === 'stl' && li.sec === 's8') store.set('lastinfo', null);
+    store.set('mock:missed', store.get('mock:missed', []).filter(function (id) { return id.indexOf('stl-') !== 0 && id.indexOf('strings-') !== 0; }));
   } }
 ];
 

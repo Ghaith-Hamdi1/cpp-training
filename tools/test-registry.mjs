@@ -79,7 +79,7 @@ test('the real v2 migration splits the old core lesson progress and is idempoten
   const CT = loadRegistry();
   const s = makeStore({
     'done:core': ['s1', 's3', 's4', 's7', 's9'], 'last:core': 's6', 'lastinfo': { id: 'core', sec: 's6' },
-    'weak:core': { 'What does `std::move(x)` do?': 0, 'a question that stayed in core': 1 }, 'mock:missed': ['core-2', 'stl-1'], 'quiz:core': { best: 80, last: 70, total: 24 }
+    'weak:core': { 'What does `std::move(x)` do?': 0, 'a question that stayed in core': 1 }, 'mock:missed': ['core-2', 'wire-1'], 'quiz:core': { best: 80, last: 70, total: 24 }
   });
   assert.equal(CT.migrate(s), CT.schemaVersion());
   assert.deepEqual(s.get('done:core'), ['s1', 's7']);
@@ -90,7 +90,7 @@ test('the real v2 migration splits the old core lesson progress and is idempoten
   assert.equal(s.get('lastinfo', 'gone'), null);
   assert.deepEqual(s.get('weak:moves'), { 'What does `std::move(x)` do?': 0 });
   assert.deepEqual(s.get('weak:core'), { 'a question that stayed in core': 1 });
-  assert.deepEqual(s.get('mock:missed'), ['stl-1']);
+  assert.deepEqual(s.get('mock:missed'), ['wire-1']);
   assert.deepEqual(s.get('quiz:core'), { best: 80, last: 70, total: 24 });
   const before = JSON.stringify(s.dump());
   s.set('schema', 1);                          // an older export is imported
@@ -102,7 +102,7 @@ test('the real v3 migration splits the multithreading progress and is idempotent
   const CT = loadRegistry();
   const s = makeStore({
     'schema': 2, 'done:threads': ['s1', 's6', 's8', 's9', 's10', 's11'], 'last:threads': 's8', 'lastinfo': { id: 'threads', sec: 's9' },
-    'weak:threads': { 'What is false sharing?': 0, 'a question that stayed': 1 }, 'mock:missed': ['threads-3', 'stl-1']
+    'weak:threads': { 'What is false sharing?': 0, 'a question that stayed': 1 }, 'mock:missed': ['threads-3', 'wire-1']
   });
   assert.equal(CT.migrate(s), CT.schemaVersion());
   assert.deepEqual(s.get('done:threads'), ['s1', 's11']);
@@ -112,11 +112,20 @@ test('the real v3 migration splits the multithreading progress and is idempotent
   assert.equal(s.get('lastinfo', 'gone'), null);
   assert.deepEqual(s.get('weak:latency'), { 'What is false sharing?': 0 });
   assert.deepEqual(s.get('weak:threads'), { 'a question that stayed': 1 });
-  assert.deepEqual(s.get('mock:missed'), ['stl-1']);
+  assert.deepEqual(s.get('mock:missed'), ['wire-1']);
   const before = JSON.stringify(s.dump());
   s.set('schema', 2);
   CT.migrate(s);
   assert.equal(JSON.stringify(s.dump()), before, 'running it again must change nothing');
+});
+
+test('the real v4 migration drops the replaced STL strings tick and stale cheat-sheet ids', () => {
+  const CT = loadRegistry();
+  const s = makeStore({ 'schema': 3, 'done:stl': ['s1', 's8', 's9'], 'last:stl': 's8', 'mock:missed': ['stl-2', 'strings-1', 'wire-1'] });
+  assert.equal(CT.migrate(s), CT.schemaVersion());
+  assert.deepEqual(s.get('done:stl'), ['s1', 's9']);
+  assert.equal(s.get('last:stl'), '');
+  assert.deepEqual(s.get('mock:missed'), ['wire-1']);
 });
 
 console.log(passed + ' tests passed');

@@ -139,6 +139,22 @@ static_assert(N == 16, "math is broken");   // checked at compile time
 <tr><td>Global / namespace scope</td><td>internal linkage: visible only inside this <code>.cpp</code> file</td></tr>
 <tr><td>Class member</td><td>belongs to the class, shared by all objects</td></tr>
 </table>
+<h3>Linkage and <code>extern "C"</code></h3>
+<p>C++ <b>mangles</b> function names (it encodes the parameter types so that overloads get different symbols); C does not. To call C code, or to be called by it, tell the compiler to use C linkage:</p>
+<script type="text/x-cpp">
+extern "C" int compareInts(const void* a, const void* b);      // an unmangled symbol, callable from C
+
+std::qsort(arr, 5, sizeof(int), compareInts);                   // a C API taking a callback (compiled: sorted 12345)
+
+extern "C" {                                                    // a whole header of C declarations
+    #include "legacy.h"
+}
+</script>
+<ul>
+<li>An <code>extern "C"</code> function cannot be overloaded and cannot be a template or a member.</li>
+<li>Pointers to <code>extern "C"</code> functions are technically a different type from C++ function pointers; compilers accept them for C callbacks in practice.</li>
+<li><b>Linkage rules:</b> a non-<code>static</code>, non-<code>inline</code> function defined in a header and included twice gives a "multiple definition" link error; mark it <code>inline</code>. <code>extern</code> on a variable declares it without defining it.</li>
+</ul>
 </section>
 
 <section id="standards" data-title="What C++14, 17 and 20 added">

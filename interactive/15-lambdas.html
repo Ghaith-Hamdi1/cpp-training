@@ -108,6 +108,14 @@ std::vector<std::function<int(int)>> ops{ [](int x) { return x + 1; },
 <li><code>std::invoke(f, args...)</code> calls anything callable, including a member function pointer: <code>std::invoke(&amp;Account::balance, acct)</code>.</li>
 <li>A stateless lambda converts to a function pointer, handy for C APIs and callbacks.</li>
 </ul>
+<h3><code>std::bind</code>: know it, prefer a lambda</h3>
+<script type="text/x-cpp">
+using namespace std::placeholders;
+auto f = std::bind(add3, 1, _1, _2);     // fix the first argument, leave two open: f(2, 3) is add3(1, 2, 3)
+auto g = std::bind(add3, _2, _1, 9);     // placeholders can reorder: g(4, 5) is add3(5, 4, 9)
+auto h = [](int b, int c) { return add3(1, b, c); };   // the same as f, and easier to read
+</script>
+<p>Compiled: <code>f(2, 3)</code> gave 123, <code>g(4, 5)</code> gave 549 and the lambda gave 123. <code>std::bind</code> predates lambdas (C++11); it copies its arguments, hides overloads and produces unreadable errors. You will see it in older code, so be able to read it; in new code write a lambda, which also inlines better.</p>
 <div class="callout interview"><span class="label">Interview angle</span>"Lambda vs <code>std::function</code>?" A lambda has its own type and is inlined; <code>std::function</code> erases the type, costs an indirect call and maybe an allocation. Use it only when you must store different callables in one place.</div>
 </section>
 
