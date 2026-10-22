@@ -878,7 +878,7 @@
       const q = store.get('quiz:' + t.id, null);
       const pct = total ? Math.round((done / total) * 100) : 0;
       return '<div class="card"><span class="num">TOPIC ' + t.n + '</span><h3>' + esc(t.title) + '</h3><p>' + esc(t.blurb) + '</p>' +
-        '<div class="meta"><span class="pill">' + t.time + '</span>' + (t.hot ? '<span class="pill hot">core interview topic</span>' : '') +
+        '<div class="meta"><span class="pill">' + t.time + '</span>' + 
         '<span class="pill">' + (total ? done + '/' + total + ' sections' : 'not started') + '</span>' + (q ? '<span class="pill">quiz best ' + q.best + '%</span>' : '') +
         (Object.keys(store.get('weak:' + t.id, {})).length ? '<span class="pill hot">' + Object.keys(store.get('weak:' + t.id, {})).length + ' to review</span>' : '') + '</div>' +
         '<div class="bar-track"><span style="width:' + pct + '%"></span></div>' +

@@ -22,7 +22,7 @@ Then add one entry to `CT.lessons` in `interactive/assets/data/lessons.js`:
 - `id`: lowercase letters and digits. It is stored in saved progress, so **never rename it** without a migration.
 - The number shown on screen and the navigation order come from the **position in the array**, not from the file name. New lessons get the next free file number and go at the end, or wherever they belong in the order.
 - `assess`: how many questions the level check draws from this lesson (0 leaves it out; it cannot exceed the quiz size).
-- `hot`: a core interview topic (shown with a badge and weighted up in the level check).
+- `hot`: a core interview topic (weighted up in the level check).
 
 The search index, mock-interview bank, offline cache, home page, menus, pager and level check all pick the lesson up from the registry. Run the generators after editing (see section 8).
 
