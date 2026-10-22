@@ -1172,7 +1172,7 @@
       const secList = Object.keys(secs).map((k) => secs[k]).sort((a, b) => b.missed - a.missed || a.t.n - b.t.n);
       root.innerHTML = '<div class="result ' + (pct >= 60 ? 'good' : 'bad') + '"><div class="score">' + right + ' / ' + order.length + ' (' + pct + '%): ' + level + '</div><p>' + advice + '</p>' +
         '<p style="color:var(--muted)">' + unknown + ' marked &ldquo;don&rsquo;t know&rdquo; or skipped, ' + (order.length - right - unknown) + ' answered wrongly. Honest gaps are the most useful result: start with the &ldquo;don&rsquo;t know&rdquo; ones.</p></div>' +
-        '<h3>By topic, weakest first</h3>' + rows.map((r) => { const t = topicOf(r.id); return '<div class="miss"><div class="qq">' + esc(t.n + '. ' + t.title) + (t.hot ? ' <span class="pill hot">core topic</span>' : '') + ': ' + r.p.right + ' / ' + r.p.n + '</div>' +
+        '<h3>By topic, weakest first</h3>' + rows.map((r) => { const t = topicOf(r.id); return '<div class="miss"><div class="qq">' + esc(t.n + '. ' + t.title) + ': ' + r.p.right + ' / ' + r.p.n + '</div>' +
           '<div class="bar-track"><span style="width:' + r.pc + '%"></span></div><div class="pickrow"><a class="btn sm" href="' + t.file + '">Lesson</a><a class="btn sm ghost" href="' + t.quiz + '">Topic quiz</a></div></div>'; }).join('') +
         '<p style="color:var(--muted)">Only 2 to 5 questions per topic, so treat each topic score as a hint, not a verdict.</p>' +
         '<h3>Sections to review</h3><p style="color:var(--muted)">Every section these questions drew on, missed ones first. Worth a read even when you answered correctly.</p>' +
