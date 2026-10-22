@@ -158,6 +158,7 @@ auto m = std::chrono::duration_cast<std::chrono::minutes>(s);   // 1 (truncates)
 <details><summary>Output: what does this print? <code>std::string s = "abc"; std::cout &lt;&lt; s.find('z') == std::string::npos;</code></summary>It does not compile as intended: <code>&lt;&lt;</code> binds tighter than <code>==</code>, so it tries to compare the stream with <code>npos</code>. Parenthesise: <code>std::cout &lt;&lt; (s.find('z') == std::string::npos);</code> prints 1.</details>
 </section>
 </main>
+<script src="assets/data/lessons.js"></script>
 <script src="assets/app.js"></script>
 <script>
 (function () {

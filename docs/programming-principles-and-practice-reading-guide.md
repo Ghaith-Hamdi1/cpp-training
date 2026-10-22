@@ -52,9 +52,9 @@ These are the ownership and memory chapters that every other C++ topic builds on
 | 17.6 to 17.9 Other operations, remaining `Vector` problems, changing size | 513 to 523 | 3. Move semantics; 4. How `vector` grows |
 | 18.1 to 18.3 Templates, generalizing `Vector`, range checking and exceptions | 527 to 541 | 5. Function and class templates |
 | 19.1 to 19.3, 19.6 Containers, sequences and iterators, linked lists, `vector`/`list`/`string` | 559 to 572 and 585 to 586 | 4. Iterators, Sequence containers |
-| 20.1 to 20.6 `map`, `unordered_map`, `set`, container overview | 591 to 609 | 4. Associative containers; Which container? |
+| 20.1 to 20.6 `map`, `unordered_map`, `set`, container overview | 591 to 609 | 4. Associative and unordered containers; Which container should I use? |
 | 21.1 to 21.2, 21.5 Standard algorithms, function objects, sorting and searching | 617 to 626 and 633 to 635 | 4. Algorithms; 3. Lambdas |
-| 9.11 String streams | 296 to 297 | 8. Strings, regex and time |
+| 9.11 String streams | 296 to 297 | 8. Strings, Regex & Time |
 
 ## Special focus: pointers
 

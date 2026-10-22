@@ -3,6 +3,7 @@
 import { readFileSync, writeFileSync, readdirSync, existsSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { loadRegistry } from './lib/registry.mjs';
 
 const root = resolve(fileURLToPath(new URL('../interactive', import.meta.url)));
 const out = join(root, 'assets', 'data', 'search-index.js');
@@ -10,7 +11,7 @@ const decode = (s) => s.replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&qu
 const text = (h) => decode(h.replace(/<[^>]+>/g, ' ')).replace(/\s+/g, ' ').trim();
 
 const entries = [];
-for (const f of readdirSync(root).filter((n) => /^\d\d-.*\.html$/.test(n) && !n.endsWith('-quiz.html')).sort()) {
+for (const f of loadRegistry().lessons.map((l) => l.file)) {
   const html = readFileSync(join(root, f), 'utf8');
   const title = text((html.match(/<h1[^>]*>([\s\S]*?)<\/h1>/) || [, f])[1]);
   const main = (html.match(/<main[^>]*>([\s\S]*)<\/main>/) || [, ''])[1];

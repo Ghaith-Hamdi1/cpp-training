@@ -4,12 +4,13 @@
 import { readFileSync, writeFileSync, readdirSync, existsSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { loadRegistry } from './lib/registry.mjs';
 
 const root = resolve(fileURLToPath(new URL('../interactive', import.meta.url)));
 const out = join(root, 'assets', 'data', 'mock-bank.js');
 
 const bank = [];
-for (const f of readdirSync(root).filter((n) => /^\d\d-.*\.html$/.test(n) && !n.endsWith('-quiz.html')).sort()) {
+for (const f of loadRegistry().lessons.map((l) => l.file)) {
   const html = readFileSync(join(root, f), 'utf8').replace(/\r\n/g, '\n');
   const topic = (html.match(/data-topic="([^"]+)"/) || [])[1];
   const sec = html.match(/<section[^>]*data-title="Interview cheat sheet"[^>]*>([\s\S]*?)<\/section>/);

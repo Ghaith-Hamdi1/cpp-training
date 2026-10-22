@@ -4,6 +4,7 @@ import { readFileSync, readdirSync, existsSync } from 'node:fs';
 import { join, dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import vm from 'node:vm';
+import { loadRegistry, sectionIds } from './lib/registry.mjs';
 
 const root = resolve(fileURLToPath(new URL('../interactive', import.meta.url)));
 const errors = [];
@@ -41,19 +42,50 @@ for (const f of readdirSync(dataDir).filter((n) => n.startsWith('quiz-'))) {
 }
 
 
-// Every quiz question's sec must be a section id that exists in its lesson (the assessment links to it).
-const lessonOf = { basics: '01-basics', oop: '02-oop', core: '03-core-language', stl: '04-stl', templates: '05-templates', patterns: '06-design-patterns', threads: '07-multithreading', strings: '08-strings-regex-time', compiletime: '09-compile-time', rules: '10-coding-rules' };
-for (const [topic, lesson] of Object.entries(lessonOf)) {
-  const html = readFileSync(join(root, lesson + '.html'), 'utf8');
-  const main = (html.match(/<main[^>]*>([\s\S]*)<\/main>/) || [, ''])[1];
-  const ids = new Set([...main.matchAll(/<section([^>]*)>/g)].map((m, i) => (m[1].match(/\sid="([^"]+)"/) || [, 's' + (i + 1)])[1]));
+// Registry checks (assets/data/lessons.js): every lesson has its pages and quiz data, ids are unique,
+// moved sections point at real places, and every quiz question's sec is a section of its lesson.
+const reg = loadRegistry();
+const seenIds = new Set(), seenFiles = new Set();
+const sections = {};
+reg.lessons.forEach((l, k) => {
+  const where = 'lessons.js #' + (k + 1) + ' (' + l.id + ')';
+  for (const f of ['id', 'file', 'quiz', 'title', 'time', 'blurb']) if (typeof l[f] !== 'string' || !l[f]) err(where + ': missing ' + f);
+  if (!/^[a-z][a-z0-9]*$/.test(l.id || '')) err(where + ': id must be lowercase letters and digits');
+  if (seenIds.has(l.id)) err(where + ': duplicate id');
+  seenIds.add(l.id);
+  for (const f of [l.file, l.quiz]) {
+    if (seenFiles.has(f)) err(where + ': ' + f + ' is used twice');
+    seenFiles.add(f);
+    if (!existsSync(join(root, f))) err(where + ': ' + f + ' does not exist');
+  }
+  if (!Number.isInteger(l.assess) || l.assess < 0) err(where + ': assess must be a whole number');
+  if (existsSync(join(root, l.file))) {
+    const html = readFileSync(join(root, l.file), 'utf8');
+    if (!new RegExp('data-topic="' + l.id + '"').test(html)) err(where + ': ' + l.file + ' needs data-topic="' + l.id + '"');
+    sections[l.file] = new Set(sectionIds(html));
+  }
+  const dataFile = join(dataDir, 'quiz-' + l.id + '.js');
+  if (!existsSync(dataFile)) { err(where + ': assets/data/quiz-' + l.id + '.js does not exist'); return; }
   const ctx = { CT: { quizData: {} } };
-  vm.runInNewContext(readFileSync(join(dataDir, 'quiz-' + topic + '.js'), 'utf8'), ctx);
-  ctx.CT.quizData[topic].questions.forEach((q, i) => {
-    if (!q.sec) err('quiz-' + topic + '.js #' + (i + 1) + ': missing sec');
-    else if (!ids.has(q.sec)) err('quiz-' + topic + '.js #' + (i + 1) + ': sec "' + q.sec + '" is not a section of ' + lesson + '.html');
+  vm.runInNewContext(readFileSync(dataFile, 'utf8'), ctx);
+  const qs = (ctx.CT.quizData[l.id] || {}).questions || [];
+  if (l.assess > qs.length) err(where + ': assess is ' + l.assess + ' but the quiz has only ' + qs.length + ' questions');
+  qs.forEach((q, i) => {
+    if (!q.sec) err('quiz-' + l.id + '.js #' + (i + 1) + ': missing sec');
+    else if (sections[l.file] && !sections[l.file].has(q.sec)) err('quiz-' + l.id + '.js #' + (i + 1) + ': sec "' + q.sec + '" is not a section of ' + l.file);
   });
+});
+for (const f of readdirSync(root).filter((n) => /^\d\d-.*\.html$/.test(n))) {
+  if (!seenFiles.has(f)) err(f + ' looks like a lesson or quiz page but is not listed in lessons.js');
 }
+Object.entries(reg.moved).forEach(([from, to]) => {
+  const [ff, fid] = from.split('#'), [tf, tid] = to.split('#');
+  if (!reg.lessons.some((l) => l.file === ff)) err('moved: ' + from + ' is not a lesson page');
+  else if (sections[ff] && sections[ff].has(fid)) err('moved: ' + from + ' still exists on its old page, so it never redirects');
+  if (!sections[tf] || !sections[tf].has(tid)) err('moved: ' + from + ' points at ' + to + ', which does not exist');
+});
+const versions = reg.progressMigrations.map((m) => m.to);
+if (new Set(versions).size !== versions.length || versions.some((v) => !Number.isInteger(v) || v < 2)) err('lessons.js: progressMigrations need distinct whole-number versions, starting at 2');
 
 if (errors.length) { console.error(errors.join('\n')); process.exit(1); }
 console.log('interactive/: all checks passed');

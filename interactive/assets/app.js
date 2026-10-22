@@ -7,28 +7,9 @@
 (function () {
   'use strict';
 
-  const TOPICS = [
-    { id: 'basics', n: 1, title: 'C++ Basics & Pointers', file: '01-basics.html', quiz: '01-basics-quiz.html', time: '60 min', hot: false,
-      blurb: 'Types, functions, memory, pointers, references, const and dynamic allocation, built up from zero.' },
-    { id: 'oop', n: 2, title: 'Object-Oriented Programming', file: '02-oop.html', quiz: '02-oop-quiz.html', time: '60 min', hot: false,
-      blurb: 'Classes, constructors, rule of 3/5/0, inheritance, virtual functions, abstract classes, operator overloading.' },
-    { id: 'core', n: 3, title: 'Core Language & Modern C++', file: '03-core-language.html', quiz: '03-core-language-quiz.html', time: '75 min', hot: true,
-      blurb: 'RAII, move semantics, smart pointers, lambdas, exceptions, casts and the C++11/14/17 features interviewers ask about.' },
-    { id: 'stl', n: 4, title: 'The STL', file: '04-stl.html', quiz: '04-stl-quiz.html', time: '60 min', hot: false,
-      blurb: 'Containers, iterators, algorithms, complexity, iterator invalidation and how to choose the right container.' },
-    { id: 'templates', n: 5, title: 'Templates', file: '05-templates.html', quiz: '05-templates-quiz.html', time: '60 min', hot: true,
-      blurb: 'Function and class templates, specialization, forwarding references, variadic templates, type traits, if constexpr.' },
-    { id: 'patterns', n: 6, title: 'Design Patterns', file: '06-design-patterns.html', quiz: '06-design-patterns-quiz.html', time: '50 min', hot: true,
-      blurb: 'Singleton, Factory, Strategy, Observer and State in modern C++, plus the idioms you should recognise.' },
-    { id: 'threads', n: 7, title: 'Multithreading', file: '07-multithreading.html', quiz: '07-multithreading-quiz.html', time: '90 min', hot: true,
-      blurb: 'From your first thread to mutexes, deadlocks, atomics, condition variables, futures and thread pools.' },
-    { id: 'strings', n: 8, title: 'Strings, Regex & Time', file: '08-strings-regex-time.html', quiz: '08-strings-regex-time-quiz.html', time: '40 min', hot: false,
-      blurb: 'string versus string_view, regular expressions with a live tester, and measuring time with chrono clocks and durations.' },
-    { id: 'compiletime', n: 9, title: 'Type Traits & Compile-time C++', file: '09-compile-time.html', quiz: '09-compile-time-quiz.html', time: '45 min', hot: true,
-      blurb: 'Type traits, SFINAE, if constexpr, constexpr and consteval, and classic template metaprogramming.' },
-    { id: 'rules', n: 10, title: 'Coding Rules & Safe C++', file: '10-coding-rules.html', quiz: '10-coding-rules-quiz.html', time: '30 min', hot: true,
-      blurb: 'MISRA and AUTOSAR C++14, typical safety rules and why they exist, and static analysis in practice.' }
-  ];
+  // The lesson list lives in assets/data/lessons.js (loaded before this file). The number shown is the position.
+  if (!(window.CT && window.CT.lessons)) throw new Error('assets/data/lessons.js must be loaded before app.js');
+  const TOPICS = window.CT.lessons.map((t, i) => Object.assign({ n: i + 1 }, t));
 
   const $ = (s, r) => (r || document).querySelector(s);
   const $$ = (s, r) => Array.from((r || document).querySelectorAll(s));
@@ -237,6 +218,11 @@
 
   function buildLesson(main) {
     const id = document.body.dataset.topic;
+    const wanted = decodeURIComponent(location.hash.slice(1));
+    if (wanted && !document.getElementById(wanted)) {            // a link to a section that has moved to another lesson
+      const moved = CT.resolveMoved(location.pathname.split('/').pop(), wanted);
+      if (moved) { location.replace(moved); return; }
+    }
     const secs = $$('main > section');
     secs.forEach((s, i) => {
       if (!s.id) s.id = 's' + (i + 1);
@@ -782,7 +768,7 @@
   /* ---------------- export / import of progress ---------------- */
   /* Progress lives in this browser's localStorage only. The code below turns the ticks and best
      scores into a short text code that can be pasted into another browser or machine. */
-  const PROGRESS_KEY = /^(checklist|mock:missed|(done|total|quiz):[a-z]+)$/;
+  const PROGRESS_KEY = /^(checklist|mock:missed|(done|total|quiz):[a-z][a-z0-9]*)$/;
   const hash32 = (s) => {
     let h = 0x811c9dc5;
     for (let i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 0x01000193) >>> 0; }
@@ -803,7 +789,7 @@
     return d;
   }
   function makeCode() {
-    const p = b64e(JSON.stringify({ v: 1, d: collectProgress() }));
+    const p = b64e(JSON.stringify({ v: 1, s: CT.schemaVersion(), d: collectProgress() }));
     return 'CPP1.' + p + '.' + hash32(p);
   }
   function parseCode(text) {
@@ -828,9 +814,10 @@
       }
     });
     if (!Object.keys(data).length) throw new Error('The code contains no progress.');
-    return { data, count };
+    const schema = Number.isInteger(obj.s) && obj.s >= 1 && obj.s <= 99 ? obj.s : 1;
+    return { data, count, schema };
   }
-  function applyProgress(data, replace) {
+  function applyProgress(data, replace, schema) {
     if (replace) {
       try { Object.keys(localStorage).forEach((k) => { if (k.indexOf('cpptrain:') === 0 && PROGRESS_KEY.test(k.slice(9))) localStorage.removeItem(k); }); } catch (e) { /* ignore */ }
     }
@@ -842,6 +829,8 @@
       else if (typeof v === 'number') store.set(k, Math.max(cur, v));
       else if (v.best > (cur.best || 0)) store.set(k, v);                                    // keep the better quiz score
     });
+    // A code from an older schema holds old ids: mark the browser as old so the migrations run again after the reload.
+    if (schema < CT.schemaVersion()) store.set('schema', replace ? schema : Math.min(store.get('schema', CT.schemaVersion()), schema));
   }
 
   function progressTools(el) {
@@ -876,7 +865,7 @@
       try { parsed = parseCode(q('pt-in').value); } catch (e) { say(e.message, 'bad'); return; }
       const replace = q('pt-replace').checked;
       if (replace && !confirm('Replace the checklist ticks, lesson ticks and quiz scores in this browser with the imported ones?')) return;
-      applyProgress(parsed.data, replace);
+      applyProgress(parsed.data, replace, parsed.schema);
       say('Imported ' + parsed.count + ' item' + (parsed.count === 1 ? '' : 's') + (replace ? ' (replaced)' : ' (merged)') + '. Reloading the page...', 'good');
       setTimeout(() => location.reload(), 900);
     });
@@ -945,7 +934,8 @@
   }
 
   /* ---------------- level check: a mixed quiz that scores each topic ---------------- */
-  const ASSESS_COUNTS = { threads: 5, core: 4, templates: 4, patterns: 3, stl: 3, oop: 3, basics: 2, strings: 2, compiletime: 2, rules: 2 };
+  const ASSESS_COUNTS = {};                                  // lesson id -> questions drawn (the `assess` field in lessons.js)
+  TOPICS.forEach((t) => { if (t.assess > 0) ASSESS_COUNTS[t.id] = t.assess; });
   function assess(sel) {
     const root = typeof sel === 'string' ? $(sel) : sel;
     root.classList.add('quiz');
@@ -1129,6 +1119,7 @@
   }
 
   function boot() {
+    CT.migrate(store);
     const kind = document.body.dataset.kind || 'lesson';
     renderCodeBlocks();
     buildHeader(kind);
@@ -1152,6 +1143,6 @@
     if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(() => { /* optional */ });
   }
 
-  window.CT = { quizData: {}, TOPICS, stepper, threadsim, quiz, assess, mock, highlight, fmt, esc };
+  window.CT = Object.assign(window.CT || {}, { quizData: {}, TOPICS, stepper, threadsim, quiz, assess, mock, highlight, fmt, esc });
   boot();
 })();
