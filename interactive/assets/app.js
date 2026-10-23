@@ -168,7 +168,7 @@
       '<a href="' + t.quiz + '"' + (t.id === cur && kind === 'quiz' ? ' class="cur"' : '') + '>&nbsp;&nbsp;&nbsp;&nbsp;&#8627; Quiz</a>').join('');
     const h = document.createElement('header');
     h.className = 'top';
-    h.innerHTML = '<a class="brand" href="index.html">C++ Study Guide</a><span class="spacer"></span>' +
+    h.innerHTML = '<a class="brand" href="index.html"><span class="logo">C++</span><span>Study Guide</span></a><span class="spacer"></span>' +
       '<button class="icon-btn" id="search-btn" type="button" aria-label="Search the lessons (press /)">&#128269;</button>' +
       '<details class="menu"><summary>Topics &#9662;</summary><div class="panel">' + links + '</div></details>' +
       '<button class="icon-btn" id="theme" type="button" aria-label="Toggle light or dark theme">&#9680;</button><div class="progress"></div>';
@@ -999,7 +999,7 @@
       const done = store.get('done:' + t.id, []).length;
       const q = store.get('quiz:' + t.id, null);
       const pct = total ? Math.round((done / total) * 100) : 0;
-      return '<div class="card"><span class="num">TOPIC ' + t.n + '</span><h3>' + esc(t.title) + '</h3><p>' + esc(t.blurb) + '</p>' +
+      return '<div class="card"><span class="num">Lesson ' + t.n + '</span><h3>' + esc(t.title) + '</h3><p>' + esc(t.blurb) + '</p>' +
         '<div class="meta"><span class="pill">' + t.time + '</span>' + 
         '<span class="pill">' + (total ? done + '/' + total + ' sections' : 'not started') + '</span>' + (q ? '<span class="pill">quiz best ' + q.best + '%</span>' : '') +
         (Object.keys(store.get('weak:' + t.id, {})).length ? '<span class="pill hot">' + Object.keys(store.get('weak:' + t.id, {})).length + ' to review</span>' : '') + '</div>' +
