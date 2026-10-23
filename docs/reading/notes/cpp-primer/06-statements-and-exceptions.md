@@ -14,7 +14,7 @@ Date finished:
 
 ## What to read (PDF pages)
 
-- 5.3 to 5.4 Conditional and iterative statements (pp. 203 to 218)
+- 5.3 to 5.5 Conditional, iterative and jump statements (pp. 203 to 221)
 - **5.6 try blocks and exception handling** (pp. 222 to 229)
 
 ## Checkpoint questions
@@ -25,15 +25,19 @@ Answer each in two sentences, in your own words.
 
    Answer:
 
-2. **What does a `throw` do to the functions between it and the `catch`?**
+2. **An `if` has no braces and is followed by an `else`: which `if` does the `else` belong to?**
 
    Answer:
 
-3. **Why catch exceptions by reference?**
+3. **What does a `throw` do to the functions between it and the `catch`?**
 
    Answer:
 
-4. **Which destructors run during unwinding?**
+4. **Why catch exceptions by reference?**
+
+   Answer:
+
+5. **Which destructors run during unwinding?**
 
    Answer:
 

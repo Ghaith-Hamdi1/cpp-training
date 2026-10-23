@@ -22,17 +22,17 @@ Time = core reading at about 10 pages an hour (pages with code you type in and r
 
 | Phase | Theme | Core reading | Lessons and quizzes | Exercises | **Core total** | Deepen reading (optional) |
 |---|---|---|---|---|---|---|
-| [1](phase-1-core-language-foundations.md) | Core language foundations | 160 pages, 16.0 h | 1.7 h | 2.3 h | **19.9 h** | 86 pages, 8.6 h |
+| [1](phase-1-core-language-foundations.md) | Core language foundations | 190 pages, 19.0 h | 1.7 h | 2.3 h | **22.9 h** | 86 pages, 8.6 h |
 | [2](phase-2-classes-memory-and-object-oriented-design.md) | Classes, memory and object-oriented design | 220 pages, 22.0 h | 1.7 h | 0.8 h | **24.5 h** | 84 pages, 8.4 h |
 | [3](phase-3-the-standard-library-and-generic-programming.md) | The standard library and generic programming | 231 pages, 23.1 h | 3.3 h | 0.4 h | **26.8 h** | 67 pages, 6.7 h |
 | [4](phase-4-raii-exceptions-and-advanced-language-tools.md) | RAII, exceptions and advanced language tools | 66 pages, 6.6 h | 0.6 h | 0.0 h | **7.2 h** | 23 pages, 2.3 h |
-| [5](phase-5-modern-cpp.md) | Modern C++ (C++11 to C++20) | 207 pages, 20.7 h | 2.8 h | 0.8 h | **24.3 h** | 118 pages, 11.8 h |
+| [5](#phase-5-modern-c-c-11-to-c-20) | Modern C++ (C++11 to C++20) | 207 pages, 20.7 h | 2.8 h | 0.8 h | **24.3 h** | 118 pages, 11.8 h |
 | [6](phase-6-design-patterns-and-solid.md) | Design patterns and SOLID | 0 pages, 0.0 h | 1.5 h | 0.0 h | **1.5 h** | 10 pages, 1.0 h |
 | [7](phase-7-concurrency-and-the-memory-model.md) | Concurrency and the memory model | 109 pages, 10.9 h | 2.7 h | 0.8 h | **14.4 h** | 39 pages, 3.9 h |
 | [8](phase-8-performance-memory-layout-and-binary-data.md) | Performance, memory layout and binary data | 15 pages, 1.5 h | 2.0 h | 0.4 h | **3.9 h** | 7 pages, 0.7 h |
-| | **Total** | 1008 pages | | | **122.5 h** | 434 pages, 43.4 h |
+| | **Total** | 1038 pages | | | **125.5 h** | 434 pages, 43.4 h |
 
-The core path is about **122 hours**: roughly 20 weeks at 6 hours a week, or 10 weeks at 12. Adding every deepen list brings it to about **166 hours**. If you only want a refresher on what you already know, skim the "core reading" at 25 pages an hour and spend your time on the lessons, quizzes and recap questions.
+The core path is about **125 hours**: roughly 21 weeks at 6 hours a week, or 10 weeks at 12. Adding every deepen list brings it to about **169 hours**. If you only want a refresher on what you already know, skim the "core reading" at 25 pages an hour and spend your time on the lessons, quizzes and recap questions.
 
 Do the phases in order, because each builds on the one before. The lesson numbers on the site follow the same order, so lessons 1 to 20 are exactly phases 1 to 8 read top to bottom. Phase 6 (design patterns) uses `unique_ptr`, lambdas and `variant` from phases 3 and 5. Phase 7 (concurrency) needs move semantics, lambdas and RAII. Phase 8 needs phases 1 to 3 and the cache and threads ideas from phase 7; it can be read last or interleaved with phase 7.
 

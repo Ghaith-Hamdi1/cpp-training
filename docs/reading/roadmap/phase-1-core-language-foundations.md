@@ -4,7 +4,7 @@
 
 *Types, expressions, control flow, functions, pointers, references, strings and vectors.*
 
-**Time:** about **19.9 hours** (16.0 h reading, 1.7 h lessons and quizzes, 2.3 h exercises), plus 8.6 h if you also read the deepen list.
+**Time:** about **22.9 hours** (19.0 h reading, 1.7 h lessons and quizzes, 2.3 h exercises), plus 8.6 h if you also read the deepen list.
 
 ## Big topics
 
@@ -18,13 +18,14 @@
 | **Strings and vectors** | `std::string` and `std::vector` as the default tools, iterators as a first idea, `string_view`, C strings and why to avoid them. |
 | **Scope, lifetime and storage** | Stack, heap and static storage, namespaces, `static`, linkage, the compile-link process. |
 
-## Core reading (160 pages)
+## Core reading (190 pages)
 
 | Book | Chapters and sections | PDF pages | Pages | What it gives you |
 |---|---|---|---|---|
 | Primer | ch. 2 Variables and Basic Types (2.1 to 2.6) | 61 to 109 | 49 | Types, `const`, compound types, `auto`/`decltype`, defining your own structs |
 | Primer | ch. 3 Strings, Vectors and Arrays (3.2 to 3.6) | 113 to 161 | 49 | `string`, `vector`, iterators, built-in arrays |
-| Primer | 4.8 Bitwise operators; 4.11 Type conversions | 181 to 184; 188 to 194 | 11 | Bit operations and every implicit conversion |
+| Primer | 4.2 to 4.5 Operators (short-circuit `&&`/`||`, prefix versus postfix `++`); 4.8 Bitwise operators; 4.11 Type conversions | 168 to 178; 181 to 184; 188 to 194 | 22 | Operator rules, bit operations and every implicit conversion |
+| Primer | 5.3 to 5.5 Statements: `switch` fall-through, the dangling `else`, loops and jumps | 203 to 221 | 19 | Control flow rules that hide subtle bugs |
 | Primer | ch. 6 Functions (6.1 to 6.7) | 231 to 281 | 51 | Argument passing, overloading, function matching, function pointers |
 
 ## Deepen (optional, 86 pages)

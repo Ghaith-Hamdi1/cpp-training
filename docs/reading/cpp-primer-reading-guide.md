@@ -70,7 +70,7 @@ The sections that teach what the lessons rely on: types and `const`, strings and
 | **18.3** Multiple and virtual inheritance | 831 to 847 | Constructing multiple bases, name ambiguity, the diamond, `virtual` base classes. | 4. Multiple inheritance and object layout; The diamond problem and virtual inheritance |
 | **19.2** Run-time type identification | 854 to 860 | `dynamic_cast`, `typeid`, `type_info`. | 4. RTTI: typeid and dynamic_cast |
 
-## Tier 2: read next if you have time (about 285 pages)
+## Tier 2: read next if you have time (about 293 pages)
 
 | Section | PDF pages | What it teaches | Matching lesson section |
 |---|---|---|---|
@@ -79,9 +79,10 @@ The sections that teach what the lessons rely on: types and `const`, strings and
 | **2.6** Defining our own data structures | 101 to 109 | Structs, in-class initializers, headers and include guards. | 1. How a C++ program is built |
 | **3.1** Namespace using declarations | 111 to 112 | Why headers should not contain `using` declarations. | 1. How a C++ program is built |
 | **3.6** Multidimensional arrays | 154 to 161 | Arrays of arrays and pointers into them. | 1. Arrays, C-strings and std::string |
+| **4.2 to 4.3** Arithmetic, logical and relational operators | 168 to 172 | Integer division and `%` with negative operands, overflow, and short-circuit evaluation of `&&` and `||`, which makes `p && p->x` safe. | 1. Operators and control flow |
 | **4.4 to 4.5** Assignment, increment and decrement | 173 to 178 | Assignment returns an lvalue; prefer prefix `++`. | 1. Operators and control flow |
 | **4.8** The bitwise operators | 181 to 184 | Shifts, masks and `bitset`. | 19. Integers and bit manipulation |
-| **5.3 to 5.4** Conditional and iterative statements | 203 to 218 | `switch` and fall-through, the dangling `else`, range-for, `do`-`while`. | 1. Operators and control flow |
+| **5.3 to 5.5** Conditional, iterative and jump statements | 203 to 221 | `switch` and fall-through, the dangling `else`, range-for, `do`-`while`, and `break`, `continue` and `goto`. | 1. Operators and control flow |
 | **6.1** Function basics | 231 to 236 | Parameters, local and `static` objects, separate compilation. | 1. Functions and passing arguments |
 | **6.5** Features for specialized uses | 265 to 270 | Default arguments, `inline`, `constexpr` functions, `assert` and `NDEBUG`. | 2. const, constexpr and static |
 | **6.6** Function matching | 271 to 275 | How the compiler picks an overload and when it is ambiguous. | 1. Functions and passing arguments |

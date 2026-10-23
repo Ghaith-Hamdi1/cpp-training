@@ -10,8 +10,8 @@ An ordered plan for reading the book to learn the language and library properly,
 | 2 | Compound types, const and auto | **2.3**; **2.4**; 2.5 | 79 to 87; 88 to 95; 96 to 100 | 22 | 3 h |
 | 3 | Structs, strings and vectors | 2.6; 3.1; **3.2**; **3.3** | 101 to 109; 111 to 112; 113 to 124; 125 to 134 | 33 | 4 h |
 | 4 | Iterators and arrays | **3.4**; **3.5**; 3.6 | 135 to 141; 142 to 153; 154 to 161 | 27 | 4 h |
-| 5 | Expressions and conversions | **4.1**; 4.4 to 4.5; 4.8; **4.11** | 163 to 167; 173 to 178; 181 to 184; 188 to 194 | 22 | 3 h |
-| 6 | Statements and a first look at exceptions | 5.3 to 5.4; **5.6** | 203 to 218; 222 to 229 | 24 | 3 h |
+| 5 | Expressions and conversions | **4.1**; 4.2 to 4.3; 4.4 to 4.5; 4.8; **4.11** | 163 to 167; 168 to 172; 173 to 178; 181 to 184; 188 to 194 | 27 | 4 h |
+| 6 | Statements and a first look at exceptions | 5.3 to 5.5; **5.6** | 203 to 221; 222 to 229 | 27 | 4 h |
 | 7 | Functions: arguments and returns | 6.1; **6.2**; **6.3** | 231 to 236; 237 to 250; 251 to 258 | 28 | 4 h |
 | 8 | Functions: overloading and function pointers | **6.4**; 6.5; 6.6; **6.7** | 259 to 264; 265 to 270; 271 to 275; 276 to 281 | 23 | 3 h |
 | 9 | Classes: abstract data types | **7.1**; **7.2**; 7.3 | 283 to 296; 297 to 299; 300 to 310 | 28 | 4 h |
@@ -40,7 +40,7 @@ An ordered plan for reading the book to learn the language and library properly,
 | 32 | Memory control, enums, unions, nested classes | 19.1; 19.3; 19.4; 19.5 to 19.6 | 849 to 853; 861 to 863; 864 to 871; 872 to 880 | 25 | 4 h |
 | 33 | Optional extras | 17.2; 19.7 to 19.8 | 752 to 756; 881 to 893 | 18 | 3 h |
 
-Bold sections are the ones to read most carefully. In all it is about 110 hours across roughly 752 pages (107 hours for sessions 1 to 32, without the optional extras), which is 11 to 16 weeks at two or three sessions a week. Time estimates assume about 10 pages an hour plus the exercises and checkpoint work; they are guidelines.
+Bold sections are the ones to read most carefully. In all it is about 112 hours across roughly 760 pages (109 hours for sessions 1 to 32, without the optional extras), which is 11 to 16 weeks at two or three sessions a week. Time estimates assume about 10 pages an hour plus the exercises and checkpoint work; they are guidelines.
 
 ## How to read each session
 
@@ -62,8 +62,8 @@ Chapters 2 to 7. After this you can write ordinary C++ programs and design a sim
 | 2 | What does a reference give you that a pointer does not, and the other way round?<br>Read `const int* const p` aloud.<br>Why can a `const int&` bind to a temporary but an `int&` cannot?<br>What does `auto` drop when it deduces a type, and how do you keep it? | Lesson 1 (Pointers from scratch, References, const and pointers) and its quiz; practice 09 (`pointer-basics`) |
 | 3 | Why does a header file never contain `using namespace std;`?<br>What is the difference between `vector<int> v(10)` and `vector<int> v{10}`?<br>Why does `v[5] = 1` on an empty vector not add an element, and what happens instead?<br>How do you loop over a string and change each character in place? | Lesson 6 (The STL), section 2 (vector); practice 06 (`count-words`) and 08 (`trim`) |
 | 4 | What does the range `[begin, end)` mean, and why is `end` one past the last element?<br>Why does an array passed to a function lose its size?<br>What is pointer arithmetic, and why is `p + 1` not "add one byte"?<br>Why do C-style strings need a terminating `\0`, and what breaks without it? | Lesson 1, section 10 (Arrays, C-strings and std::string) and the classic memory bugs; practice 01 to 05 |
-| 5 | Which of `i = i++ + 1` and `a[i] = i++` are undefined behavior, and why?<br>What is an lvalue and what is an rvalue, in your own words?<br>What does `static_cast` do that a C-style cast hides?<br>Why does `-1 < 1u` evaluate to false? | Lesson 2, sections 3 and 4 (conversions and casts) and its quiz |
-| 6 | What happens when a `switch` case has no `break`?<br>What does a `throw` do to the functions between it and the `catch`?<br>Why catch exceptions by reference?<br>Which destructors run during unwinding? | Lesson 9 (Core Language: RAII and Exceptions), sections 1 and 2 |
+| 5 | Which of `i = i++ + 1` and `a[i] = i++` are undefined behavior, and why?<br>What is an lvalue and what is an rvalue, in your own words?<br>What does `static_cast` do that a C-style cast hides?<br>Why does `-1 < 1u` evaluate to false?<br>Why does `p && p->x` not crash when `p` is null?<br>Why prefer `++it` to `it++` for an iterator or a class type? | Lesson 2, sections 3 and 4 (conversions and casts) and its quiz |
+| 6 | What happens when a `switch` case has no `break`?<br>An `if` has no braces and is followed by an `else`: which `if` does the `else` belong to?<br>What does a `throw` do to the functions between it and the `catch`?<br>Why catch exceptions by reference?<br>Which destructors run during unwinding? | Lesson 9 (Core Language: RAII and Exceptions), sections 1 and 2 |
 | 7 | When do you pass by value, by reference and by `const` reference?<br>Why is returning a reference to a local variable a bug?<br>What does an array parameter really receive?<br>What does `static` mean on a local variable? | Lesson 1, section 4 (passing-arguments step-through) and its quiz; practice 02 and 03 |
 | 8 | Why do two functions that differ only in return type not overload?<br>What makes an overloaded call ambiguous?<br>Write a function parameter that accepts a function pointer.<br>What does `inline` really permit? | Lesson 7 (Lambdas), section 1; practice 04 (`join-all`) |
 | 9 | What does `const` after a member function promise, and what does `this` become inside it?<br>What is the only difference between `struct` and `class`?<br>What is an invariant, and which function should establish it?<br>When is `mutable` justified? | Lesson 3 (OOP), sections 1 and 2; practice 10 up to its constructor |

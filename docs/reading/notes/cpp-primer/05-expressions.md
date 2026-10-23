@@ -15,6 +15,7 @@ Date finished:
 ## What to read (PDF pages)
 
 - **4.1 Fundamentals** (pp. 163 to 167)
+- 4.2 to 4.3 Arithmetic, logical and relational operators (pp. 168 to 172)
 - 4.4 to 4.5 Assignment, increment and decrement (pp. 173 to 178)
 - 4.8 The bitwise operators (pp. 181 to 184)
 - **4.11 Type conversions** (pp. 188 to 194)
@@ -36,6 +37,14 @@ Answer each in two sentences, in your own words.
    Answer:
 
 4. **Why does `-1 < 1u` evaluate to false?**
+
+   Answer:
+
+5. **Why does `p && p->x` not crash when `p` is null?**
+
+   Answer:
+
+6. **Why prefer `++it` to `it++` for an iterator or a class type?**
 
    Answer:
 
