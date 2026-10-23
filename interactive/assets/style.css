@@ -563,10 +563,10 @@ details.aq.dk > summary .mark { color: var(--warn); }
 .stepper .st-mem .mem-group { border: 1px solid var(--border); border-top-width: 4px; border-radius: 10px; padding: 8px 12px 12px; background: var(--card); }
 .stepper .mem-group h5 { margin: 0 0 8px; font-size: 0.72rem; letter-spacing: 0.08em; color: var(--fg); }
 .stepper .mem-group h5 small { margin-left: 6px; font-size: 0.68rem; letter-spacing: 0; text-transform: none; font-weight: 400; color: var(--muted); }
-.stepper .g-stack { border-top-color: hsl(210 70% 55%); background: color-mix(in srgb, hsl(210 70% 55%) 6%, var(--card)); }
-.stepper .g-heap { border-top-color: hsl(32 88% 52%); background: color-mix(in srgb, hsl(32 88% 52%) 8%, var(--card)); border-style: dashed; border-top-style: solid; }
-.stepper .g-static { border-top-color: hsl(150 50% 42%); background: color-mix(in srgb, hsl(150 50% 42%) 7%, var(--card)); }
-.stepper .g-call, .stepper .g-inst, .stepper .g-queue, .stepper .g-threads { border-top-color: hsl(270 45% 60%); background: color-mix(in srgb, hsl(270 45% 60%) 6%, var(--card)); }
+.stepper .st-mem .g-stack { border-top-color: hsl(255 60% 66%); background: color-mix(in srgb, hsl(255 60% 66%) 6%, var(--card)); }
+.stepper .st-mem .g-heap { border-top-color: hsl(32 88% 52%); background: color-mix(in srgb, hsl(32 88% 52%) 8%, var(--card)); border-style: dashed; border-top-style: solid; }
+.stepper .st-mem .g-static { border-top-color: hsl(150 50% 42%); background: color-mix(in srgb, hsl(150 50% 42%) 7%, var(--card)); }
+.stepper .st-mem .g-call, .stepper .st-mem .g-inst, .stepper .st-mem .g-queue, .stepper .st-mem .g-threads { border-top-color: hsl(325 50% 62%); background: color-mix(in srgb, hsl(325 50% 62%) 6%, var(--card)); }
 .stepper .cell { --vc: var(--accent); border: 1px solid color-mix(in srgb, var(--vc) 45%, var(--border)); border-left: 6px solid var(--vc); background: color-mix(in srgb, var(--vc) 12%, var(--card)); }
 .stepper .cell .nm { color: color-mix(in srgb, var(--vc) 75%, var(--fg)); font-weight: 600; }
 .stepper .cell.ptr { border-left-width: 6px; }
@@ -577,7 +577,7 @@ details.aq.dk > summary .mark { color: var(--warn); }
 .st-arrow { stroke-width: 2.2; }
 .st-legend .lg.chg { background: transparent; box-shadow: 0 0 0 2px var(--accent); border-color: transparent; }
 .st-legend .lg.col { border: 0; width: 22px; background: linear-gradient(90deg, hsl(210 75% 56%) 50%, hsl(28 90% 55%) 50%); }
-.stepper .g-layout, .stepper .g-buffer { border-top-color: hsl(190 60% 45%); background: color-mix(in srgb, hsl(190 60% 45%) 7%, var(--card)); }
+.stepper .st-mem .g-layout, .stepper .st-mem .g-buffer { border-top-color: hsl(190 60% 45%); background: color-mix(in srgb, hsl(190 60% 45%) 7%, var(--card)); }
 
 /* C++ Puzzles page */
 .pz-form { margin: 12px 0; display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
