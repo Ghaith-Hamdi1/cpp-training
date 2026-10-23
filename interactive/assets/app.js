@@ -1135,6 +1135,26 @@
     const sections = $$('section[data-ck-section]', main);
     const sum = $('#ck-summary', main);
 
+    const tabs = $$('.ck-tab', main);
+    function showTab(id, remember) {
+      const hit = sections.some((s) => s.id === id) ? id : (sections[0] || {}).id;
+      sections.forEach((s) => { s.hidden = s.id !== hit; });
+      tabs.forEach((t) => { const on = t.dataset.tab === hit; t.classList.toggle('on', on); t.setAttribute('aria-selected', String(on)); t.tabIndex = on ? 0 : -1; });
+      if (remember) { store.set('cktab', hit); try { history.replaceState(null, '', '#' + hit); } catch (e) { /* file: pages */ } }
+    }
+    tabs.forEach((t, i) => {
+      t.addEventListener('click', () => showTab(t.dataset.tab, true));
+      t.addEventListener('keydown', (e) => {
+        const to = e.key === 'ArrowRight' ? i + 1 : e.key === 'ArrowLeft' ? i - 1 : -1;
+        if (to < 0 || !tabs[(to + tabs.length) % tabs.length]) return;
+        e.preventDefault();
+        const nt = tabs[(to + tabs.length) % tabs.length];
+        showTab(nt.dataset.tab, true);
+        nt.focus();
+      });
+    });
+    if (tabs.length) showTab(decodeURIComponent(location.hash.slice(1)) || store.get('cktab', ''), false);
+
     function paint() {
       boxes.forEach((b) => b.closest('label').classList.toggle('on', b.checked));
       sections.forEach((s) => {
@@ -1143,6 +1163,8 @@
         const c = $('.ck-count', s);
         if (c) c.textContent = n + ' / ' + bs.length;
         s.classList.toggle('complete', bs.length > 0 && n === bs.length);
+        const t = tabs.find((x) => x.dataset.tab === s.id);
+        if (t) { $('.ck-tab-count', t).textContent = n + '/' + bs.length; t.classList.toggle('complete', bs.length > 0 && n === bs.length); }
       });
       const total = boxes.length;
       const n = boxes.filter((b) => b.checked).length;

@@ -1,20 +1,22 @@
 # Study checklist
 
-A step-by-step plan through the lessons, in the order they build on each other. Each stage lists its lessons with their sections and quizzes.
+A step-by-step plan through the lessons and the books, one phase at a time. The phases are the same eight as the [C++ roadmap](reading/roadmap/README.md), and lessons 1 to 20 run through them in order. Each phase lists its lessons with their sections and quizzes, the core book reading, the practice exercises and a recap check.
 
-**Want ticks that save?** Use the interactive version: <https://ghaith-hamdi1.github.io/cpp-training/study-checklist.html> (also at [`interactive/study-checklist.html`](../interactive/study-checklist.html)). Its checkboxes are clickable, remember your progress on your device, show a progress bar, and work offline. The boxes below are for reading on GitHub or for editing the file yourself.
+**Want ticks that save?** Use the interactive version: <https://ghaith-hamdi1.github.io/cpp-training/study-checklist.html> (also at [`interactive/study-checklist.html`](../interactive/study-checklist.html)). It has one tab per phase and its checkboxes remember your progress in your browser.
 
 - Site: <https://ghaith-hamdi1.github.io/cpp-training/> (works offline after one visit)
 - Or open [`interactive/index.html`](../interactive/index.html) from a clone of the repo.
 - Time boxes are guides. If a block runs long, finish the quiz and move on.
 
-**How to study every lesson:** read a section, run its visualizer or simulator, predict the output before revealing it, then tick "I understand this section" only when you could explain it aloud. End each lesson with its quiz and retry only the questions you missed. Use the search box in the header when a term comes up. Run code snippets with the "Try in Compiler Explorer" button (add `-pthread` for thread code).
+**How to study every lesson:** read a section, run its visualizer or simulator, predict the output before revealing it, then tick "I understand this section" only when you could explain it aloud. End each lesson with its quiz and retry only the questions you missed.
 
 ---
 
-## Stage 1: Core language foundations (about 1.5 hours)
+## Phase 1: Core language foundations (about 19.9 hours)
 
-Types, memory, pointers, references, initialization and conversions.
+Types, expressions, control flow, functions, pointers, references, strings and vectors.. Roadmap page: [phase-1-core-language-foundations.md](reading/roadmap/phase-1-core-language-foundations.md).
+
+### Lessons and quizzes
 
 **C++ Basics & Pointers:** [01-basics.html](../interactive/01-basics.html), quiz: [01-basics-quiz.html](../interactive/01-basics-quiz.html) (22 questions).
 
@@ -44,9 +46,26 @@ Types, memory, pointers, references, initialization and conversions.
 - [ ] Cheat sheet (say each answer aloud)
 - [ ] Take the quiz, then retry the missed questions
 
-## Stage 2: Classes and object-oriented design (about 1.5 hours)
+### Book reading (core)
 
-Classes, copy control, inheritance, virtual functions, and how objects are laid out in memory.
+- [ ] C++ Primer: ch. 2 Variables and Basic Types (2.1 to 2.6) (PDF pages 61 to 109)
+- [ ] C++ Primer: ch. 3 Strings, Vectors and Arrays (3.2 to 3.6) (PDF pages 113 to 161)
+- [ ] C++ Primer: 4.8 Bitwise operators; 4.11 Type conversions (PDF pages 181 to 184; 188 to 194)
+- [ ] C++ Primer: ch. 6 Functions (6.1 to 6.7) (PDF pages 231 to 281)
+
+### Practice
+
+- [ ] Practice exercises: 01 to 09 (C strings, pointers, `trim`, `parseUnsigned`) ([examples/practice](../examples/practice/README.md))
+
+### Recap
+
+- [ ] Recap check. Explain from memory: what `int* const p` means, why `int{3.7}` is an error, what `v[i]` does that `v.at(i)` does not, why an array parameter is really a pointer, and what the linker error "undefined reference" means.
+
+## Phase 2: Classes, memory and object-oriented design (about 24.5 hours)
+
+Class design, copy control, operator overloading, inheritance, virtual functions, the object model.. Roadmap page: [phase-2-classes-memory-and-object-oriented-design.md](reading/roadmap/phase-2-classes-memory-and-object-oriented-design.md).
+
+### Lessons and quizzes
 
 **Object-Oriented Programming:** [02-oop.html](../interactive/02-oop.html), quiz: [02-oop-quiz.html](../interactive/02-oop-quiz.html) (26 questions).
 
@@ -72,9 +91,28 @@ Classes, copy control, inheritance, virtual functions, and how objects are laid 
 - [ ] Cheat sheet (say each answer aloud)
 - [ ] Take the quiz, then retry the missed questions
 
-## Stage 3: The library and generic programming (about 3.5 hours)
+### Book reading (core)
 
-Strings, containers, iterators, algorithms, lambdas and templates.
+- [ ] C++ Primer: ch. 7 Classes (7.1 to 7.6) (PDF pages 283 to 335)
+- [ ] C++ Primer: 12.1.2 Managing memory directly; 12.2.1 `new` and arrays (PDF pages 487 to 492; 506 to 509)
+- [ ] C++ Primer: ch. 13 Copy Control (13.1 to 13.5) (PDF pages 525 to 559)
+- [ ] C++ Primer: ch. 14 Overloaded Operations and Conversions (14.1 to 14.9) (PDF pages 581 to 619)
+- [ ] C++ Primer: ch. 15 Object-Oriented Programming (15.1 to 15.9) (PDF pages 621 to 679)
+- [ ] C++ Primer: 18.3 Multiple and virtual inheritance; 19.2 Run-time type identification (PDF pages 831 to 847; 854 to 860)
+
+### Practice
+
+- [ ] Practice exercises: 10 (`MyString`) and 11 (Shapes) ([examples/practice](../examples/practice/README.md))
+
+### Recap
+
+- [ ] Recap check. Explain aloud how `virtual` works in memory (vptr, vtable, slot), why a base destructor must be virtual, what the Rule of Zero says, and why `Animal a = dog;` slices.
+
+## Phase 3: The standard library and generic programming (about 26.8 hours)
+
+Streams, containers, iterators, algorithms, templates.. Roadmap page: [phase-3-the-standard-library-and-generic-programming.md](reading/roadmap/phase-3-the-standard-library-and-generic-programming.md).
+
+### Lessons and quizzes
 
 **Strings, Regex & Time:** [08-strings-regex-time.html](../interactive/08-strings-regex-time.html), quiz: [08-strings-regex-time-quiz.html](../interactive/08-strings-regex-time-quiz.html) (23 questions).
 
@@ -128,9 +166,29 @@ Strings, containers, iterators, algorithms, lambdas and templates.
 - [ ] Cheat sheet (say each answer aloud)
 - [ ] Take the quiz, then retry the missed questions
 
-## Stage 4: RAII and exceptions (about 0.5 hours)
+### Book reading (core)
 
-Tying resources to objects, exceptions, and the exception-safety guarantees.
+- [ ] C++ Primer: ch. 8 The IO Library (PDF pages 339 to 353)
+- [ ] C++ Primer: ch. 9 Sequential Containers (9.1 to 9.6) (PDF pages 355 to 403)
+- [ ] C++ Primer: ch. 10 Generic Algorithms (10.1 to 10.6) (PDF pages 405 to 447)
+- [ ] C++ Primer: ch. 11 Associative Containers (11.1 to 11.4) (PDF pages 449 to 477)
+- [ ] C++ Primer: ch. 16 Templates: 16.1 to 16.3, 16.5 (skip 16.2.5 to 16.2.7 and 16.4 until phase 5) (PDF pages 681 to 706; 707 to 718; 723 to 727; 735 to 743)
+- [ ] Effective Modern C++: Items 31 to 32: lambdas (PDF pages 234 to 247)
+- [ ] C++ Primer: ch. 17: 17.1 tuple; 17.3 regular expressions; 17.4 random numbers (PDF pages 747 to 751; 757 to 773; 774 to 780)
+
+### Practice
+
+- [ ] Practice exercises: 12 (`Stack<T>`) ([examples/practice](../examples/practice/README.md))
+
+### Recap
+
+- [ ] Recap check. Explain: how a lambda is compiled (a closure class with `operator()`), when `vector` invalidates iterators, why `map::operator[]` can insert, what a strict weak ordering is, how a template is instantiated, and why `std::sort` does not work on `std::list`.
+
+## Phase 4: RAII, exceptions and advanced language tools (about 7.2 hours)
+
+Exceptions and RAII, namespaces, unions and enums, memory control.. Roadmap page: [phase-4-raii-exceptions-and-advanced-language-tools.md](reading/roadmap/phase-4-raii-exceptions-and-advanced-language-tools.md).
+
+### Lessons and quizzes
 
 **Core Language: RAII & Exceptions:** [03-core-language.html](../interactive/03-core-language.html), quiz: [03-core-language-quiz.html](../interactive/03-core-language-quiz.html) (17 questions).
 
@@ -142,9 +200,21 @@ Tying resources to objects, exceptions, and the exception-safety guarantees.
 - [ ] Cheat sheet (say each answer aloud)
 - [ ] Take the quiz, then retry the missed questions
 
-## Stage 5: Modern C++ (about 3 hours)
+### Book reading (core)
 
-Vocabulary types, moving instead of copying, who owns an object, and compile-time programming.
+- [ ] C++ Primer: 5.6 `try` blocks; 18.1 Exception handling; 18.2 Namespaces (PDF pages 222 to 228; 801 to 830)
+- [ ] C++ Primer: 19.1 Controlling memory allocation; 19.3 enumerations; 19.5 nested classes; 19.6 `union` (PDF pages 849 to 853; 861 to 863; 872 to 875; 876 to 880)
+- [ ] Programming: Principles and Practice: RAII, exceptions and resource management: 18.4 to 18.5 (PDF pages 542 to 553)
+
+### Recap
+
+- [ ] Recap check. Explain: what stack unwinding does, why a destructor must not throw, the difference between basic and strong guarantee and how copy-and-swap gives the strong one.
+
+## Phase 5: Modern C++ (C++11 to C++20) (about 24.3 hours)
+
+Move semantics, smart pointers, forwarding, `constexpr`, vocabulary types, concepts.. Roadmap page: [phase-5-modern-cpp.md](reading/roadmap/phase-5-modern-cpp.md).
+
+### Lessons and quizzes
 
 **Vocabulary Types:** [21-vocabulary-types.html](../interactive/21-vocabulary-types.html), quiz: [21-vocabulary-types-quiz.html](../interactive/21-vocabulary-types-quiz.html) (13 questions).
 
@@ -188,9 +258,30 @@ Vocabulary types, moving instead of copying, who owns an object, and compile-tim
 - [ ] Cheat sheet (say each answer aloud)
 - [ ] Take the quiz, then retry the missed questions
 
-## Stage 6: Design patterns (about 1.5 hours)
+### Book reading (core)
 
-Common patterns in modern C++, with real code.
+- [ ] C++ Primer: 12.1 smart pointers (shared_ptr, unique_ptr, weak_ptr) (PDF pages 479 to 486; 493 to 504)
+- [ ] C++ Primer: 13.6 Moving objects (PDF pages 560 to 579)
+- [ ] C++ Primer: 16.2.5 to 16.2.7 deduction, `std::move`, forwarding; 16.4 variadic templates (PDF pages 716 to 722; 728 to 734)
+- [ ] Effective Modern C++: Items 1, 2, 5, 7: deduction, `auto`, `()` versus `{}` (PDF pages 27 to 41; 55 to 61; 67 to 76)
+- [ ] Effective Modern C++: Item 15 `constexpr` (PDF pages 115 to 121)
+- [ ] Effective Modern C++: Items 18 to 22: `unique_ptr`, `shared_ptr`, `weak_ptr`, `make_*`, Pimpl (PDF pages 136 to 174)
+- [ ] Effective Modern C++: Items 23, 24, 25, 28: `move`, `forward`, universal references, reference collapsing (PDF pages 176 to 195; 215 to 221)
+- [ ] Effective Modern C++: Items 26 to 27, 29, 41, 42: overloading, cheap moves, pass by value, emplacement (PDF pages 195 to 215; 221 to 225; 299 to 320)
+
+### Practice
+
+- [ ] Practice exercises: 15 (`optional`/`variant`) and 16 (concepts) ([examples/practice](../examples/practice/README.md))
+
+### Recap
+
+- [ ] Recap check. Explain: what `std::move` does at run time (nothing), why `return std::move(local)` hurts, the three value categories, what a forwarding reference is, why `make_shared` needs one allocation, and what a concept replaces.
+
+## Phase 6: Design patterns and SOLID (about 1.5 hours)
+
+Common designs in modern C++, with real code.. Roadmap page: [phase-6-design-patterns-and-solid.md](reading/roadmap/phase-6-design-patterns-and-solid.md).
+
+### Lessons and quizzes
 
 **Design Patterns:** [06-design-patterns.html](../interactive/06-design-patterns.html), quiz: [06-design-patterns-quiz.html](../interactive/06-design-patterns-quiz.html) (20 questions).
 
@@ -216,9 +307,15 @@ Common patterns in modern C++, with real code.
 - [ ] Cheat sheet (say each answer aloud)
 - [ ] Take the quiz, then retry the missed questions
 
-## Stage 7: Concurrency (about 2.5 hours)
+### Recap
 
-Threads, locks, futures, atomics and the memory model.
+- [ ] Recap check. Explain: when Strategy is just a lambda, why Singleton is a global with a nicer name, how Observer avoids dangling subscribers, and how `variant` plus `visit` replaces a Visitor class hierarchy.
+
+## Phase 7: Concurrency and the memory model (about 14.4 hours)
+
+Threads, mutexes, condition variables, futures and pools, atomics.. Roadmap page: [phase-7-concurrency-and-the-memory-model.md](reading/roadmap/phase-7-concurrency-and-the-memory-model.md).
+
+### Lessons and quizzes
 
 **Multithreading:** [07-multithreading.html](../interactive/07-multithreading.html), quiz: [07-multithreading-quiz.html](../interactive/07-multithreading-quiz.html) (28 questions).
 
@@ -254,9 +351,29 @@ Threads, locks, futures, atomics and the memory model.
 - [ ] Cheat sheet (say each answer aloud)
 - [ ] Take the quiz, then retry the missed questions
 
-## Stage 8: Performance (about 2 hours)
+### Book reading (core)
 
-Binary formats and parsing, and predictable, fast code.
+- [ ] C++ Concurrency in Action: Why threads and launching them: 1.1, 1.2.3, 2.1, 2.2 (PDF pages 25 to 30; 32 to 33; 40 to 50)
+- [ ] C++ Concurrency in Action: Sharing data and mutexes: 3.1, 3.2.1 to 3.2.3 (PDF pages 60 to 74)
+- [ ] C++ Concurrency in Action: Deadlock and locking: 3.2.4 to 3.2.8, 3.3.1 (PDF pages 74 to 91)
+- [ ] C++ Concurrency in Action: Waiting for events and results: 4.1, 4.2.1 to 4.2.4 (PDF pages 96 to 113)
+- [ ] C++ Concurrency in Action: Thread counts and a pool: 2.4, 9.1.1 (PDF pages 54 to 57; 324 to 326)
+- [ ] C++ Concurrency in Action: The memory model and data structures: 5.1, 5.3 overview, 6.1 to 6.2.2 (PDF pages 148 to 151; 165 to 170; 197 to 206)
+- [ ] C++ Concurrency in Action: Performance and bugs: 8.2, 11.1 to 11.2.1 (PDF pages 283 to 289; 363 to 367)
+
+### Practice
+
+- [ ] Practice exercises: 13 (`SafeCounter`) and 14 (`BoundedQueue<T>`) ([examples/practice](../examples/practice/README.md))
+
+### Recap
+
+- [ ] Recap check. Explain: what a data race is and why it is undefined behavior, why a mutex per method is not enough, the four conditions for deadlock, why `wait` needs a predicate, what release and acquire guarantee, and what the ABA problem is.
+
+## Phase 8: Performance, memory layout and binary data (about 3.9 hours)
+
+Cache, allocation, struct layout, endianness, parsing, queues.. Roadmap page: [phase-8-performance-memory-layout-and-binary-data.md](reading/roadmap/phase-8-performance-memory-layout-and-binary-data.md).
+
+### Lessons and quizzes
 
 **Binary Data & Parsing:** [11-wire-formats.html](../interactive/11-wire-formats.html), quiz: [11-wire-formats-quiz.html](../interactive/11-wire-formats-quiz.html) (21 questions).
 
@@ -283,6 +400,18 @@ Binary formats and parsing, and predictable, fast code.
 - [ ] Threads, cores and busy-polling
 - [ ] Cheat sheet (say each answer aloud)
 - [ ] Take the quiz, then retry the missed questions
+
+### Book reading (core)
+
+- [ ] C++ Primer: 17.2 `bitset`; 19.8 bit-fields, `volatile`, `extern "C"` (PDF pages 752 to 756; 883 to 892)
+
+### Practice
+
+- [ ] Practice exercises: 17 (`BucketTable`) ([examples/practice](../examples/practice/README.md))
+
+### Recap
+
+- [ ] Recap check. Explain: why the average hides the tail, how an object pool works, why a struct is bigger than the sum of its members, what endianness is and the portable way to read a big-endian value, and what false sharing is.
 
 ## Final review
 

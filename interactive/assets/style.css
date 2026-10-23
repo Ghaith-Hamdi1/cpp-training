@@ -606,3 +606,14 @@ details.aq.dk > summary .mark { color: var(--warn); }
 .site-foot ul { padding-left: 1.2em; }
 .site-foot a { color: var(--muted); }
 .site-foot a:hover { color: var(--accent); }
+
+/* Study checklist: one tab per phase */
+.ck-tabs { display: flex; gap: 6px; overflow-x: auto; margin: 0 0 16px; padding-bottom: 4px; border-bottom: 1px solid var(--border); }
+.ck-tab { flex: none; font: inherit; font-size: 0.88rem; font-weight: 600; padding: 8px 14px; border: 1px solid transparent; border-bottom: 0; border-radius: var(--radius-sm) var(--radius-sm) 0 0; background: transparent; color: var(--muted); cursor: pointer; white-space: nowrap; }
+.ck-tab:hover { color: var(--fg); background: var(--code-bg); }
+.ck-tab.on { color: var(--accent); background: var(--card); border-color: var(--border); box-shadow: inset 0 -2px 0 var(--accent); }
+.ck-tab .ck-tab-count { margin-left: 6px; font: 600 0.72rem var(--mono); color: var(--muted); }
+.ck-tab.complete .ck-tab-count { color: var(--good); }
+.ck-section .ck-sub { margin: 1.4em 0 0.2em; font-size: 0.78rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+.ck-section h4 { margin: 1.2em 0 0.2em; font-size: 1rem; }
+@media print { .ck-tabs { display: none; } .ck-section[hidden] { display: block !important; } main > section.ck-section[hidden] { display: block !important; } }
