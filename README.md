@@ -25,7 +25,7 @@ The lessons work offline after one visit. From a clone you can also open [`inter
 | [`notes/`](notes/) | **Reading notes**: one template file per reading session for each of the four books (pages to read, checkpoint questions, empty sections for your notes). See the reading plans in `docs/`. |
 | [`LearnCPP/`](LearnCPP/Recaps/README.md) | The **Recaps**: personal recaps of the learncpp.com chapters, with solved exercises under [`LearnCPP/Recaps/solutions/`](LearnCPP/Recaps/solutions/). Slower and more thorough than the training notes. |
 | [`tools/`](tools/) | Scripts that check the interactive site: links, quiz data, the search index and the offline cache list. |
-| [`books/`](books/) | Four reference books as PDFs, named by title: *C++ Concurrency in Action* (Williams), *Programming: Principles and Practice Using C++* (Stroustrup), *Effective Modern C++* (Meyers) and *C++ Move Semantics: The Complete Guide* (Josuttis). Each has a reading guide in `docs/`. |
+| [`books/`](books/) | Five reference books as PDFs, named by title: *C++ Primer*, 5th ed. (Lippman, Lajoie and Moo; no reading guide yet), *C++ Concurrency in Action* (Williams), *Programming: Principles and Practice Using C++* (Stroustrup), *Effective Modern C++* (Meyers) and *C++ Move Semantics: The Complete Guide* (Josuttis). The other four each have a reading guide and a reading plan in `docs/reading/`. |
 
 ## The lessons
 
