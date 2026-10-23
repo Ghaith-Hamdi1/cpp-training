@@ -188,7 +188,7 @@ extern "C" {                                                    // a whole heade
 
 <section id="standards" data-title="What C++14, 17 and 20 added">
 <h2>What C++14, 17 and 20 added</h2>
-<p>"What modern features do you use?" Know these and why:</p>
+<p>A map of which standard added what, so you know which flag a feature needs:</p>
 <table>
 <tr><th>Standard</th><th>Feature</th><th>One-liner</th></tr>
 <tr><td>C++11</td><td>move semantics, smart pointers, lambdas, <code>auto</code>, <code>constexpr</code>, <code>std::thread</code>, variadic templates, <code>nullptr</code>, range-for</td><td>The big modernisation.</td></tr>
@@ -196,17 +196,7 @@ extern "C" {                                                    // a whole heade
 <tr><td>C++17</td><td><code>std::optional</code>, <code>std::variant</code>, <code>std::string_view</code>, structured bindings, <code>if constexpr</code>, fold expressions, <code>std::filesystem</code>, parallel algorithms, <code>std::scoped_lock</code>, CTAD</td><td>Vocabulary types and compile-time branching.</td></tr>
 <tr><td>C++20</td><td>concepts, ranges, <code>std::span</code>, <code>operator&lt;=&gt;</code>, coroutines, modules, <code>std::jthread</code>, <code>std::format</code></td><td>Constraints on templates, composable algorithms.</td></tr>
 </table>
-<script type="text/x-cpp">
-std::optional<int> parse(const std::string& s);          // "maybe an int" without magic values
-if (auto n = parse("42")) { use(*n); }
-
-std::variant<int, std::string> v = "hi";                 // type-safe union
-std::visit([](auto&& x) { std::cout << x; }, v);
-
-void print(std::string_view sv);                         // non-owning pointer + length: no copy, accepts literals and strings
-// it must not outlive the text it views, see Strings, Regex & Time
-</script>
-<p>Full lists: <a href="https://github.com/AnthonyCalandra/modern-cpp-features">modern-cpp-features</a>, <a href="https://github.com/changkun/modern-cpp-tutorial">modern-cpp-tutorial</a>. Your notes: <a href="https://github.com/Ghaith-Hamdi1/cpp-training/blob/main/docs/03-cpp-standard-library/README.md">Module 3</a>.</p>
+<p>The C++17 and C++20 vocabulary types (<code>optional</code>, <code>variant</code>, <code>span</code>, <code>string_view</code>) have their own lesson: <a href="21-vocabulary-types.html">Vocabulary Types</a>. Full lists: <a href="https://github.com/AnthonyCalandra/modern-cpp-features">modern-cpp-features</a>, <a href="https://github.com/changkun/modern-cpp-tutorial">modern-cpp-tutorial</a>. Your notes: <a href="https://github.com/Ghaith-Hamdi1/cpp-training/blob/main/docs/03-cpp-standard-library/README.md">Module 3</a>.</p>
 </section>
 
 <section id="cheat" data-title="Cheat sheet">

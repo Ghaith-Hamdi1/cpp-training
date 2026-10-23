@@ -47,10 +47,10 @@ int main()
     holder.join();
 
     PriceTable t;
-    t.set("ESZ5", 5000.25);
+    t.set("apple", 5000.25);
     std::vector<std::thread> readers;
     std::vector<double> seen(4);
-    for (int i = 0; i < 4; ++i) readers.emplace_back([&, i] { seen[i] = t.get("ESZ5"); });
+    for (int i = 0; i < 4; ++i) readers.emplace_back([&, i] { seen[i] = t.get("apple"); });
     for (auto& r : readers) r.join();
     std::cout << "shared_mutex: four readers saw " << seen[0] << ' ' << seen[1] << ' ' << seen[2] << ' ' << seen[3] << '\n';
 

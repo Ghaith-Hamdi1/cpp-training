@@ -11,8 +11,8 @@
 #include <vector>
 
 // user-defined literals
-constexpr long long operator""_ticks(unsigned long long v) { return static_cast<long long>(v) * 25; }   // one tick = 25 units
-constexpr double operator""_bp(long double v) { return static_cast<double>(v) / 10000.0; }              // basis points
+constexpr long long operator""_km(unsigned long long v) { return static_cast<long long>(v) * 1000; }   // kilometres to metres
+constexpr double operator""_pct(long double v) { return static_cast<double>(v) / 100.0; }              // percent to a fraction
 std::string operator""_s(const char* s, std::size_t n) { return std::string(s, n); }
 
 // extern "C": a function with C linkage can be passed to C APIs and called from C code
@@ -49,7 +49,7 @@ int main()
     double sum = 0; for (int i = 0; i < 10000; ++i) sum += nd(gen);
     std::cout << "10000 normal samples have mean near 0: " << (std::abs(sum / 10000) < 0.05) << '\n';
 
-    std::cout << "literals: 4_ticks = " << 4_ticks << ", 25.0_bp = " << 25.0_bp << ", \"abc\"_s has size " << "abc"_s.size() << '\n';
+    std::cout << "literals: 4_km = " << 4_km << ", 25.0_pct = " << 25.0_pct << ", \"abc\"_s has size " << "abc"_s.size() << '\n';
 
     int arr[] = {5, 1, 4, 2, 3};
     std::qsort(arr, 5, sizeof(int), compareInts);                      // a C API taking a C-linkage callback

@@ -21,11 +21,11 @@ struct NoCase {                                                       // strict 
     }
 };
 
-struct Instrument { std::string venue; int id; bool operator==(const Instrument&) const = default; };
-struct InstrumentHash {
-    std::size_t operator()(const Instrument& i) const {
-        std::size_t h = std::hash<std::string>{}(i.venue);
-        h ^= std::hash<int>{}(i.id) + 0x9e3779b97f4a7c15ULL + (h << 6) + (h >> 2);   // combine the two member hashes
+struct Product { std::string shop; int id; bool operator==(const Product&) const = default; };
+struct ProductHash {
+    std::size_t operator()(const Product& p) const {
+        std::size_t h = std::hash<std::string>{}(p.shop);
+        h ^= std::hash<int>{}(p.id) + 0x9e3779b97f4a7c15ULL + (h << 6) + (h >> 2);   // combine the two member hashes
         return h;
     }
 };
@@ -40,10 +40,10 @@ int main()
     std::string_view key = "apple";
     std::cout << "transparent find with a string_view key: " << (t.find(key) != t.end()) << '\n';
 
-    std::unordered_map<Instrument, double, InstrumentHash> px;
-    px[{"CME", 7}] = 101.5;
-    px[{"CME", 8}] = 99.0;
-    std::cout << "custom hash: " << px.size() << " entries, CME/7 -> " << px[{"CME", 7}] << '\n';
+    std::unordered_map<Product, double, ProductHash> price;
+    price[{"north", 7}] = 101.5;
+    price[{"north", 8}] = 99.0;
+    std::cout << "custom hash: " << price.size() << " entries, north/7 -> " << price[{"north", 7}] << '\n';
 
     std::map<int, std::string> a{{1, "old"}};
     std::string payload(40, 'p');
@@ -52,11 +52,11 @@ int main()
     a.try_emplace(2, std::move(payload));                              // new key: the string really is moved in
     std::cout << "try_emplace on a new key moved it: source size " << payload.size() << ", stored size " << a[2].size() << '\n';
 
-    std::multimap<std::string, int> mm{{"ESZ5", 1}, {"ESZ5", 2}, {"NQZ5", 9}};
-    auto [lo, hi] = mm.equal_range("ESZ5");
+    std::multimap<std::string, int> mm{{"fruit", 1}, {"fruit", 2}, {"veg", 9}};
+    auto [lo, hi] = mm.equal_range("fruit");
     int cnt = 0, sum = 0;
     for (auto it = lo; it != hi; ++it) { ++cnt; sum += it->second; }
-    std::cout << "multimap: key ESZ5 appears " << mm.count("ESZ5") << " times, equal_range sums " << sum << " over " << cnt << '\n';
+    std::cout << "multimap: key fruit appears " << mm.count("fruit") << " times, equal_range sums " << sum << " over " << cnt << '\n';
 
     std::vector<int> src{3, 1, 2};
     std::vector<int> out;

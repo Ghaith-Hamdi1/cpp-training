@@ -74,7 +74,7 @@ int main()
     std::remove("strings_demo.tmp");
 
     // splitting a CSV line with getline
-    std::istringstream csv("ESZ5,5000.25,10");
+    std::istringstream csv("apple,5000.25,10");
     std::vector<std::string> fields;
     for (std::string x; std::getline(csv, x, ',');) fields.push_back(x);
     std::cout << "split into " << fields.size() << " fields, second is " << fields[1] << '\n';

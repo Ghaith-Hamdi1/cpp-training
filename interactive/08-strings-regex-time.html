@@ -165,8 +165,8 @@ std::ifstream f("data.txt");
 std::string line;
 while (std::getline(f, line)) { /* one line at a time */ }     // the loop condition tests the read itself
 
-std::istringstream csv("ESZ5,5000.25,10");
-for (std::string field; std::getline(csv, field, ',');) { /* "ESZ5", "5000.25", "10" */ }
+std::istringstream csv("apple,5000.25,10");
+for (std::string field; std::getline(csv, field, ',');) { /* "apple", "5000.25", "10" */ }
 </script>
 <ul>
 <li><b>Loop on the read, not on <code>eof()</code>:</b> <code>while (std::getline(f, line))</code> is right; <code>while (!f.eof())</code> processes the last line twice.</li>

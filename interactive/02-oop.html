@@ -155,7 +155,7 @@ public:
 <tr><th>Rule</th><th>What you write</th><th>When</th></tr>
 <tr><td><b>Rule of 0</b></td><td>none of them</td><td>The goal. Hold resources in members that manage themselves: <code>std::vector</code>, <code>std::string</code>, <code>std::unique_ptr</code>.</td></tr>
 <tr><td><b>Rule of 3</b></td><td>destructor, copy ctor, copy assign</td><td>The class owns a raw resource and must define copying.</td></tr>
-<tr><td><b>Rule of 5</b></td><td>the 3 plus move ctor and move assign</td><td>Same, and you also want cheap moves (see Core Language).</td></tr>
+<tr><td><b>Rule of 5</b></td><td>the 3 plus move ctor and move assign</td><td>Same, and you also want cheap moves (see <a href="13-move-semantics.html">Move Semantics</a>).</td></tr>
 </table>
 <script type="text/x-cpp">
 class NoCopy {
@@ -259,34 +259,25 @@ std::ostream& operator<<(std::ostream& os, const Vec2& v) {   // MUST be non-mem
 <li>Keep usual semantics: <code>==</code> with <code>!=</code>, <code>&lt;</code> a strict weak ordering. C++20 <code>&lt;=&gt;</code> generates all comparisons.</li>
 <li>No new operators; <code>::</code> <code>.</code> <code>.*</code> <code>?:</code> cannot be overloaded.</li>
 </ul>
-<h3>Callable objects and conversions</h3>
+<h3>Callable objects</h3>
 <script type="text/x-cpp">
 struct Greater {                                        // a functor: an object you can call like a function
     bool operator()(int a, int b) const { return a > b; }
 };
 std::sort(v.begin(), v.end(), Greater{});               // a lambda is a compiler-made functor
-
-class Handle {
-    int id_ = 0;
-public:
-    explicit operator bool() const { return id_ != 0; } // allowed in conditions only
-};
-Handle h;
-if (h) { }                                              // OK: contextual conversion
-// bool ok = h;   int n = h;   h + 1;                   // ERROR: explicit blocks accidental conversions
 </script>
-<p><code>operator()</code> makes a class callable (the idea behind lambdas, <code>std::function</code> and comparators). Mark single-argument conversions <code>explicit</code>, as for constructors.</p>
+<p><code>operator()</code> makes a class callable (the idea behind lambdas, <code>std::function</code> and comparators). Conversion operators, and why to mark them <code>explicit</code>, are covered earlier, in <i>explicit, conversion operators and copy-and-swap</i>.</p>
 <h3>User-defined literals</h3>
 <script type="text/x-cpp">
-constexpr long long operator""_ticks(unsigned long long v) { return static_cast<long long>(v) * 25; }
-constexpr double operator""_bp(long double v) { return static_cast<double>(v) / 10000.0; }
+constexpr long long operator""_km(unsigned long long v) { return static_cast<long long>(v) * 1000; }   // kilometres to metres
+constexpr double operator""_pct(long double v) { return static_cast<double>(v) / 100.0; }              // percent to a fraction
 
-auto px = 4_ticks;       // 100 (compiled)
-auto fee = 25.0_bp;      // 0.0025
+auto dist = 4_km;        // 4000 (compiled)
+auto rate = 25.0_pct;    // 0.25
 using namespace std::literals;
 auto name = "abc"s;      // std::string; also 5ms, 2s (chrono) and "view"sv
 </script>
-<p>A literal suffix is an <b>operator</b> you define: <code>operator""_name</code>. User suffixes must start with an underscore (the others are reserved for the standard library). Use them for units (ticks, basis points, bytes) so the meaning is in the code, not in a comment.</p>
+<p>A literal suffix is an <b>operator</b> you define: <code>operator""_name</code>. User suffixes must start with an underscore (the others are reserved for the standard library). Use them for units (kilometres, percent, bytes) so the meaning is in the code, not in a comment.</p>
 <!-- read-more:start -->
 <div class="callout tip"><span class="label">Read more</span>
 <p><b>Programming: Principles and Practice (Stroustrup)</b></p>
@@ -459,7 +450,6 @@ for (const auto& s : shapes) std::cout << s->area() << '\n';
 <details class="ex"><summary>What is a pure virtual function and an abstract class?</summary><div><p>A pure virtual function is declared <code>= 0</code> and has no required implementation. A class with at least one cannot be instantiated; it defines an interface that derived classes must implement.</p></div></details>
 <details class="ex"><summary>What is the Rule of Three / Five / Zero?</summary><div><p>Three: if you define a destructor, copy constructor or copy assignment, define all three. Five: add the move constructor and move assignment. Zero: design classes so none are needed by holding resources in self-managing members like <code>vector</code> and <code>unique_ptr</code>. Remember that declaring a destructor or a copy operation suppresses the move operations, so moves silently become copies.</p></div></details>
 <details class="ex"><summary>What is object slicing?</summary><div><p>Copying a derived object into a base-class value discards the derived members and virtual behaviour. Avoid it by passing polymorphic objects by reference or pointer.</p></div></details>
-<details class="ex"><summary>What does <code>explicit</code> do?</summary><div><p>It stops a constructor (or conversion operator) from being used for implicit conversions. Without it, <code>void f(Account); f(5);</code> could silently build an <code>Account</code> from 5.</p></div></details>
 <details class="ex"><summary>Can a constructor be virtual? Can a destructor be pure virtual?</summary><div><p>A constructor cannot be virtual: the vptr is set up by the constructor, so there is no dynamic type yet. A destructor <i>can</i> be pure virtual to make a class abstract, but it still needs a body because derived destructors call it.</p></div></details>
 <details class="ex"><summary>Composition or inheritance?</summary><div><p>Prefer composition. Use public inheritance only for a true is-a relationship where you need runtime polymorphism, and make sure it satisfies Liskov substitution.</p></div></details>
 <details class="ex"><summary>What does <code>explicit</code> do on a constructor and on <code>operator bool</code>?</summary><div><p>On a constructor it forbids implicit conversions from the argument type (<code>Feet f = 3.0</code> fails). On <code>operator bool</code> it allows the conversion only in contexts such as <code>if</code> and <code>while</code>, not in arithmetic. Mark single-argument constructors <code>explicit</code> by default.</p></div></details>

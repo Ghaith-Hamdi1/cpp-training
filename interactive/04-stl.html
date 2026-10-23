@@ -240,9 +240,9 @@ std::string payload(40, 'p');
 a.try_emplace(1, std::move(payload));     // key 1 exists: nothing happens, payload still holds 40 chars
 a.try_emplace(2, std::move(payload));     // new key: the string is moved into the map
 
-std::multimap<std::string, int> mm{{"ESZ5", 1}, {"ESZ5", 2}, {"NQZ5", 9}};   // duplicate keys allowed
-auto [lo, hi] = mm.equal_range("ESZ5");   // the range of all entries with that key
-mm.count("ESZ5");                         // 2: there is no operator[] because a key may have many values
+std::multimap<std::string, int> mm{{"fruit", 1}, {"fruit", 2}, {"veg", 9}};   // duplicate keys allowed
+auto [lo, hi] = mm.equal_range("fruit");   // the range of all entries with that key
+mm.count("fruit");                         // 2: there is no operator[] because a key may have many values
 </script>
 <ul>
 <li><code>multimap</code> and <code>multiset</code> allow duplicate keys and keep equal keys in insertion order. There is no <code>operator[]</code>.</li>
@@ -279,16 +279,16 @@ struct NoCase {                                          // an ordering that ign
 std::map<std::string, int, NoCase> m;                    // the comparator is part of the TYPE
 m["Alpha"] = 1; m["ALPHA"] = 2;                          // the same key: size is 1 (compiled: 2 keys with "beta")
 
-struct Instrument { std::string venue; int id; bool operator==(const Instrument&) const = default; };
-struct InstrumentHash {
-    std::size_t operator()(const Instrument& i) const {
-        std::size_t h = std::hash<std::string>{}(i.venue);
-        h ^= std::hash<int>{}(i.id) + 0x9e3779b97f4a7c15ULL + (h << 6) + (h >> 2);   // combine the member hashes
+struct Product { std::string shop; int id; bool operator==(const Product&) const = default; };
+struct ProductHash {
+    std::size_t operator()(const Product& p) const {
+        std::size_t h = std::hash<std::string>{}(p.shop);
+        h ^= std::hash<int>{}(p.id) + 0x9e3779b97f4a7c15ULL + (h << 6) + (h >> 2);   // combine the member hashes
         return h;
     }
 };
-std::unordered_map<Instrument, double, InstrumentHash> px;
-px[{"CME", 7}] = 101.5;
+std::unordered_map<Product, double, ProductHash> price;
+price[{"north", 7}] = 101.5;
 </script>
 <table>
 <tr><th>Container</th><th>Key must provide</th><th>Rule</th></tr>
