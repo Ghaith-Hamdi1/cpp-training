@@ -2,7 +2,7 @@
 
 A map of every big C++ topic, grouped into seven phases from solid fundamentals to advanced tools to modern C++, with the exact book chapters (PDF pages) to read in each phase, the lessons and exercises that go with them, and a time estimate. Use it as a **reading guide** when you want to study a phase properly, and as a **recap** when you want to check that you can still explain the topics. The [topic index](#topic-index-where-to-look) at the end is the quick reminder.
 
-All page numbers are **PDF viewer pages** (the number your PDF reader shows). The books are in [`books/`](../../books/).
+All page numbers are **PDF viewer pages** (the number your PDF reader shows). The books are in [`books/`](../../books).
 
 ## The five books
 
@@ -429,4 +429,4 @@ A one-page reminder: every big topic, the lesson that teaches it and the book ch
 - **Programming: Principles and Practice** teaches C++20 style from the start (it uses `span`, concepts and `std::format`), but stays introductory on templates and has no threading chapter.
 - **Skip on a first pass:** Primer chapters 1, 4 (except 4.8 and 4.11), 5 and the Text-Query case studies in 12.3, 15.9 and 15.8; the Primer appendix; PPP chapters on graphics and the calculator (10 to 14, 6 to 7); Concurrency in Action chapter 7 (lock-free data structures) until phase 6 is solid.
 - Each phase's book sections come from the reading guides and plans next to this file, which were checked against the PDFs. The C++ Primer sections use printed page numbers shifted by 29 to PDF pages, checked at chapter openings.
-- **Notes templates** for the Primer-style sessions live in [`notes/`](../../notes/).
+- **Notes templates** for the Primer-style sessions live in [`notes/`](notes).

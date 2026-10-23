@@ -19,7 +19,7 @@
 - It keeps the property of passed argument (rvalue or lvalue)
 
 ```cpp
-// Perfect forwarding with universal references and std::forward (examples/04-templates-and-design-patterns/05-perfect-forwarding/67_perfect_forwarding.cpp)
+// Perfect forwarding with universal references and std::forward (examples/course/04-templates-and-design-patterns/05-perfect-forwarding/67_perfect_forwarding.cpp)
 template <typename T, typename ... Args,
         std::enable_if_t<!std::is_constructible<T, int>::value, bool> = true>
 T create(Args&& ... args){

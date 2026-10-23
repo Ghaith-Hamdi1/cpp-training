@@ -17,4 +17,4 @@
 
 *(the source slide displays these 12 pattern names as a two-column list, reproduced above as a table purely to preserve the two-column layout; only Singleton, State and Strategy are elaborated further in this module)*
 
-> Note: `examples/04-templates-and-design-patterns/06-design-patterns/71_observer_dp.cpp` is a bonus Observer pattern example that ships with this module's examples but has no dedicated slide/subsection in the source deck (only Singleton, State and Strategy are covered as slides).
+> Note: `examples/course/04-templates-and-design-patterns/06-design-patterns/71_observer_dp.cpp` is a bonus Observer pattern example that ships with this module's examples but has no dedicated slide/subsection in the source deck (only Singleton, State and Strategy are covered as slides).

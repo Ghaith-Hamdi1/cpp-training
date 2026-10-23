@@ -3,7 +3,7 @@
 - Class templates: like function templates, class templates define a type that will be applicable for the whole class (visible for all members variables and functions)
 - Every class template called with a type represents a new type. For example, Test<A> has a different type from Test<B>.
 - Template class should be declared and defined in header files as well
-- [Diagram — two side-by-side code panels labeled "Declaration" and "Definition", shown as an image in the source and not text-extractable. Representative code below from `examples/04-templates-and-design-patterns/01-templates/61_templates_classes.cpp`:]
+- [Diagram — two side-by-side code panels labeled "Declaration" and "Definition", shown as an image in the source and not text-extractable. Representative code below from `examples/course/04-templates-and-design-patterns/01-templates/61_templates_classes.cpp`:]
 
   ```cpp
   // Declaration
@@ -34,7 +34,7 @@
 
 - Class templates: template specialization for particular type is possible for classes as well
   - The class has to be defined with specific type
-  - [Diagram — code panel labeled "Specialization", shown as an image in the source. Representative code below from `examples/04-templates-and-design-patterns/01-templates/61_templates_classes.cpp`:]
+  - [Diagram — code panel labeled "Specialization", shown as an image in the source. Representative code below from `examples/course/04-templates-and-design-patterns/01-templates/61_templates_classes.cpp`:]
 
   ```cpp
   template<>
@@ -67,7 +67,7 @@
   - See example provided for demo
 
   ```cpp
-  // Partial template specialization (examples/04-templates-and-design-patterns/01-templates/61_templates_classes.cpp)
+  // Partial template specialization (examples/course/04-templates-and-design-patterns/01-templates/61_templates_classes.cpp)
   template<typename T>
   class DerivedA : public A<T, int>
   {

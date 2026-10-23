@@ -37,10 +37,10 @@
 # Standard iteration pattern
 
 - Generally, to iterate through a container, we use the following pattern:
-  - [Code screenshot in source — "Forward iterator" pattern and "Reverse iterator" pattern shown side by side; not extractable as text. Recovered equivalent code below from `examples/03-cpp-standard-library/04-iterators/45_iterators.cpp`]
+  - [Code screenshot in source — "Forward iterator" pattern and "Reverse iterator" pattern shown side by side; not extractable as text. Recovered equivalent code below from `examples/course/03-cpp-standard-library/04-iterators/45_iterators.cpp`]
 
 ```cpp
-// Trimmed excerpt — full runnable example: examples/03-cpp-standard-library/04-iterators/45_iterators.cpp
+// Trimmed excerpt — full runnable example: examples/course/03-cpp-standard-library/04-iterators/45_iterators.cpp
 #include <iostream>
 #include <vector>
 #include <map>

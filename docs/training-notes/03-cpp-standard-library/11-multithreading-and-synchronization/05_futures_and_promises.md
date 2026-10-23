@@ -47,7 +47,7 @@ All three produce a `std::future`, but fit different situations:
 - Treat this as a safety net, not a design crutch: always set a value or exception on every code path, including error paths
 
 ```cpp
-// Trimmed excerpt — full runnable example: examples/03-cpp-standard-library/11-multithreading-and-synchronization/57_promise_future.cpp
+// Trimmed excerpt — full runnable example: examples/course/03-cpp-standard-library/11-multithreading-and-synchronization/57_promise_future.cpp
 #include <iostream>
 #include <future>
 #include <thread>

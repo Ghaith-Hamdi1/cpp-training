@@ -6,7 +6,7 @@
 - The type held by `priority_queue` must implement the `operator<` or define its own comparer
 
 ```cpp
-// Trimmed excerpt — full runnable example: examples/03-cpp-standard-library/02-sequence-containers/36_priority_queue.cpp
+// Trimmed excerpt — full runnable example: examples/course/03-cpp-standard-library/02-sequence-containers/36_priority_queue.cpp
 #include <iostream>
 #include <queue>
 

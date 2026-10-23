@@ -47,10 +47,10 @@
   - Make code easier to read
   - Make code maintenance easier
 
-Reference example, `examples/01-cpp-basics/10-constants-typedef-and-alias/09_constants.cpp`:
+Reference example, `examples/course/01-cpp-basics/10-constants-typedef-and-alias/09_constants.cpp`:
 
 ```cpp
-// Trimmed excerpt — full runnable example: examples/01-cpp-basics/10-constants-typedef-and-alias/09_constants.cpp
+// Trimmed excerpt — full runnable example: examples/course/01-cpp-basics/10-constants-typedef-and-alias/09_constants.cpp
 #include <iostream>
 
 constexpr int greater(int x, int y)

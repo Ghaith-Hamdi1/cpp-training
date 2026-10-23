@@ -6,7 +6,7 @@
 - Same as set, key object needs to have comparison operator
 
 ```cpp
-// Trimmed excerpt — full runnable example: examples/03-cpp-standard-library/03-associative-containers/39_multiset.cpp
+// Trimmed excerpt — full runnable example: examples/course/03-cpp-standard-library/03-associative-containers/39_multiset.cpp
 #include <iostream>
 #include <set>
 

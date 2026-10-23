@@ -49,7 +49,7 @@
   - [Diagram — In case of ambiguities, the origin base class should be specified]
 
 ```cpp
-// Trimmed excerpt — full runnable example: examples/02-cpp-oop/08-inheritance/21_inheritance.cpp
+// Trimmed excerpt — full runnable example: examples/course/02-cpp-oop/08-inheritance/21_inheritance.cpp
 #include <iostream>
 #include <string>
 

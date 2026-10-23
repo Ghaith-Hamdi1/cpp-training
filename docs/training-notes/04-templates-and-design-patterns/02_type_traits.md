@@ -6,7 +6,7 @@
 - Generally used at compile time to make some verifications on template types properties
 
 ```cpp
-// Representative example (examples/04-templates-and-design-patterns/02-type-traits/62_type_traits.cpp)
+// Representative example (examples/course/04-templates-and-design-patterns/02-type-traits/62_type_traits.cpp)
 template<typename T>
 T multiply(T& a, T& b)
 {

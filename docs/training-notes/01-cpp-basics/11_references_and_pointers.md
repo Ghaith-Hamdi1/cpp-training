@@ -53,10 +53,10 @@ int& a = x;
   - Cannot bind a non-const lvalue reference of type `int&` to an rvalue of type `int` (see provided sample code)
   - Cannot bind an rvalue reference of type `int&&` to an lvalue of type `int` (see provided sample code)
 
-Reference example, `examples/01-cpp-basics/11-references-and-pointers/14_references.cpp`:
+Reference example, `examples/course/01-cpp-basics/11-references-and-pointers/14_references.cpp`:
 
 ```cpp
-// Trimmed excerpt — full runnable example: examples/01-cpp-basics/11-references-and-pointers/14_references.cpp
+// Trimmed excerpt — full runnable example: examples/course/01-cpp-basics/11-references-and-pointers/14_references.cpp
 #include <iostream>
 
 void func1(int& x)
@@ -158,7 +158,7 @@ int main(){
   - ADVANTAGE 1: gain of time
   - ADVANTAGE 2: modifying the argument in the function will modify the original value
 
-Reference example, `examples/01-cpp-basics/11-references-and-pointers/13_pointers.cpp`:
+Reference example, `examples/course/01-cpp-basics/11-references-and-pointers/13_pointers.cpp`:
 
 ```cpp
 #include <iostream>
@@ -213,10 +213,10 @@ int main()
 - Advantage: can return `nullptr` when an empty return is needed
 - The returned variable by address should point to a valid variable
 
-Reference example, `examples/01-cpp-basics/11-references-and-pointers/15_return_address_reference.cpp`:
+Reference example, `examples/course/01-cpp-basics/11-references-and-pointers/15_return_address_reference.cpp`:
 
 ```cpp
-// Trimmed excerpt — full runnable example: examples/01-cpp-basics/11-references-and-pointers/15_return_address_reference.cpp
+// Trimmed excerpt — full runnable example: examples/course/01-cpp-basics/11-references-and-pointers/15_return_address_reference.cpp
 #include <iostream>
 
 

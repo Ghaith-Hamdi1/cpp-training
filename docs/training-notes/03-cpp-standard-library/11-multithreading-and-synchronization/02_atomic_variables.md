@@ -41,7 +41,7 @@ Every atomic operation takes an optional `std::memory_order` — it controls not
 **Practical guidance**: reach for `std::mutex` first for anything beyond a simple counter/flag; when an atomic is the right tool, keep the default `memory_order_seq_cst` unless you've measured a real bottleneck and understand exactly which acquire/release pairing you need.
 
 ```cpp
-// Trimmed excerpt (already close to minimal) — full runnable example: examples/03-cpp-standard-library/11-multithreading-and-synchronization/54_atomic.cpp
+// Trimmed excerpt (already close to minimal) — full runnable example: examples/course/03-cpp-standard-library/11-multithreading-and-synchronization/54_atomic.cpp
 #include <iostream>
 #include <atomic>
 #include <thread>

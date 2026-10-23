@@ -6,7 +6,7 @@
   - Function templates should always be defined in header files (".h") — *recovered from a character-interleaved fragment in the source text layer; see Conversion notes.*
 
   ```cpp
-  // Representative example (examples/04-templates-and-design-patterns/01-templates/60_templates_functions.cpp)
+  // Representative example (examples/course/04-templates-and-design-patterns/01-templates/60_templates_functions.cpp)
   template<typename T, typename U>
   T function(const U& u)
   {
@@ -26,7 +26,7 @@
   - Annotation on the example: *"Template specialization is called when `function` is called with A type as parameter"*
 
   ```cpp
-  // Function template specialization (examples/04-templates-and-design-patterns/01-templates/60_templates_functions.cpp)
+  // Function template specialization (examples/course/04-templates-and-design-patterns/01-templates/60_templates_functions.cpp)
   template<typename T, typename U>
   T function(const U& u)
   {

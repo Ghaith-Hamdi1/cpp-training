@@ -22,7 +22,7 @@
   - Do not call virtual method in constructor of destructor
 
 ```cpp
-// Trimmed excerpt — full runnable example: examples/02-cpp-oop/09-polymorphism/22_polymorphism.cpp
+// Trimmed excerpt — full runnable example: examples/course/02-cpp-oop/09-polymorphism/22_polymorphism.cpp
 #include <iostream>
 #include <vector>
 

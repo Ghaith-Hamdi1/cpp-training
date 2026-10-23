@@ -7,7 +7,7 @@
 - Friend classes: same friend concept, but a friend class can access any private member at any part of the class
 
 ```cpp
-// examples/02-cpp-oop/07-friend-functions-and-classes/20_friend.cpp
+// examples/course/02-cpp-oop/07-friend-functions-and-classes/20_friend.cpp
 #include <iostream>
 
 class Storage; // forward declaration for class Storage

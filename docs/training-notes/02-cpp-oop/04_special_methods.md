@@ -35,7 +35,7 @@
   - Different ways to call constructor
 
 ```cpp
-// Trimmed excerpt — full runnable example: examples/02-cpp-oop/04-special-methods/17_constructors_destructors.cpp
+// Trimmed excerpt — full runnable example: examples/course/02-cpp-oop/04-special-methods/17_constructors_destructors.cpp
 #include <iostream>
 #include <string>
 
@@ -127,7 +127,7 @@ int main()
   - Can prevent moving an object by deleting move constructor or declaring it as private
 
 ```cpp
-// Trimmed excerpt — full runnable example: examples/02-cpp-oop/04-special-methods/18_move_copy_semantic.cpp
+// Trimmed excerpt — full runnable example: examples/course/02-cpp-oop/04-special-methods/18_move_copy_semantic.cpp
 #include <iostream>
 
 class Copy {

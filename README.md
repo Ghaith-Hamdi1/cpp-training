@@ -19,13 +19,12 @@ The lessons work offline after one visit. From a clone you can also open [`inter
 | Path | What it is |
 |---|---|
 | [`interactive/`](interactive/index.html) | The **Lessons**: interactive lessons with quizzes, published with GitHub Pages. Plain HTML, CSS and JavaScript, with no build step. |
-| [`docs/`](docs/README.md) and [`examples/`](examples/) | The **Training notes** ([`docs/training-notes/`](docs/training-notes/README.md)): a company course as concise, slide-style Markdown (four modules) with matching source code. The docs folder also holds the topic map, the study checklist, the [reading guides and plans](docs/reading/) and the [maintainer docs](docs/maintaining/). |
+| [`docs/`](docs/README.md) | Everything written: the [roadmap and reading guides](docs/reading/cpp-roadmap.md), the [training notes](docs/training-notes/README.md) (a company course in four modules), the [learncpp.com recaps](docs/learncpp-recaps/README.md), the topic map, the study checklist and the [maintainer docs](docs/maintaining). |
 | [`examples/lessons/`](examples/lessons/README.md) | **Runnable programs** for the main lesson snippets: complete, compiled and checked with g++ (`make` builds them all). |
+| [`examples/course/`](examples/course) | The **course code**: the programs that go with the four training-notes modules. |
 | [`examples/practice/`](examples/practice/README.md) | **Practice set**: 17 write-it-yourself coding exercises (C strings, pointers, a String class, templates, threads, vocabulary types, concepts) with tests and verified solutions, plus model answers to the questions they raise. |
-| [`notes/`](notes/) | **Reading notes**: one template file per reading session for each of the four books (pages to read, checkpoint questions, empty sections for your notes). See the reading plans in `docs/`. |
-| [`LearnCPP/`](LearnCPP/Recaps/README.md) | The **Recaps**: personal recaps of the learncpp.com chapters, with solved exercises under [`LearnCPP/Recaps/solutions/`](LearnCPP/Recaps/solutions/). Slower and more thorough than the training notes. |
-| [`tools/`](tools/) | Scripts that check the interactive site: links, quiz data, the search index and the offline cache list. |
-| [`books/`](books/) | Five reference books as PDFs, named by title: *C++ Primer*, 5th ed. (Lippman, Lajoie and Moo; no reading guide yet), *C++ Concurrency in Action* (Williams), *Programming: Principles and Practice Using C++* (Stroustrup), *Effective Modern C++* (Meyers) and *C++ Move Semantics: The Complete Guide* (Josuttis). The other four each have a reading guide and a reading plan in `docs/reading/`. |
+| [`tools/`](tools) | Scripts that check the interactive site: links, quiz data, the search index and the offline cache list. |
+| [`books/`](books) | Five reference books as PDFs, named by title: *C++ Primer*, 5th ed. (Lippman, Lajoie and Moo; no reading guide yet), *C++ Concurrency in Action* (Williams), *Programming: Principles and Practice Using C++* (Stroustrup), *Effective Modern C++* (Meyers) and *C++ Move Semantics: The Complete Guide* (Josuttis). The other four each have a reading guide and a reading plan in `docs/reading/`. |
 
 ## The lessons
 

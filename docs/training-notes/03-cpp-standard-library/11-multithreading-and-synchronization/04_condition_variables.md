@@ -41,7 +41,7 @@
 A very common real use: a thread-safe producer/consumer queue — producers lock, push, `notify_one()`; consumers lock and `wait()` on `!queue.empty()`, blocking at zero CPU cost until there's something to process.
 
 ```cpp
-// Trimmed excerpt — full runnable example: examples/03-cpp-standard-library/11-multithreading-and-synchronization/56_condition_variable.cpp
+// Trimmed excerpt — full runnable example: examples/course/03-cpp-standard-library/11-multithreading-and-synchronization/56_condition_variable.cpp
 #include <iostream>
 #include <thread>
 #include <condition_variable>

@@ -51,7 +51,7 @@ ptr_var = nullptr;
 - Do not use an already-allocated pointer to allocate it again
   - We sometimes need to check if a pointer is `nullptr` before allocation
 
-Reference example, `examples/01-cpp-basics/13-memory-allocation/16_memory_allocation.cpp`:
+Reference example, `examples/course/01-cpp-basics/13-memory-allocation/16_memory_allocation.cpp`:
 
 ```cpp
 #include <iostream>

@@ -35,7 +35,7 @@
 - `std::tuple` can be used as well for parameter pack management (see examples)
 
 ```cpp
-// Recursive variadic template class (examples/04-templates-and-design-patterns/04-variadic-templates/64_variadic_templates.cpp)
+// Recursive variadic template class (examples/course/04-templates-and-design-patterns/04-variadic-templates/64_variadic_templates.cpp)
 template<typename ... ARGS>
 class Test
 {
@@ -87,7 +87,7 @@ void foo(const T& t, const ARGS&... args)
 ```
 
 ```cpp
-// std::tuple used for parameter pack management (examples/04-templates-and-design-patterns/04-variadic-templates/65_tuple.cpp)
+// std::tuple used for parameter pack management (examples/course/04-templates-and-design-patterns/04-variadic-templates/65_tuple.cpp)
 std::tuple<int, A, std::string> tuple;
 tuple = std::make_tuple<int, A, std::string>(1, A(), "Hello");
 
@@ -99,7 +99,7 @@ std::tuple_element_t<2, decltype(tuple2)> te;
 ```
 
 ```cpp
-// Variadic template combined with std::tuple (examples/04-templates-and-design-patterns/04-variadic-templates/66_variadic_with_tuple.cpp)
+// Variadic template combined with std::tuple (examples/course/04-templates-and-design-patterns/04-variadic-templates/66_variadic_with_tuple.cpp)
 template<typename...Ts>
 class Wrapper
 {

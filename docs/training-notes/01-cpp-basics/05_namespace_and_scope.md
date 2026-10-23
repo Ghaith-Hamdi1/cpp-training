@@ -70,7 +70,7 @@ int add(int x, int y) {
 } // x and y are no longer available here (out of scope)
 ```
 
-Reference example, `examples/01-cpp-basics/05-namespace-and-scope/03_scope.cpp`:
+Reference example, `examples/course/01-cpp-basics/05-namespace-and-scope/03_scope.cpp`:
 
 ```cpp
 #include <iostream>
@@ -93,7 +93,7 @@ int main()
 } // main's y and x go out of scope and are destroyed here
 ```
 
-Namespace usage reference, `examples/01-cpp-basics/05-namespace-and-scope/02_namespace.cpp`:
+Namespace usage reference, `examples/course/01-cpp-basics/05-namespace-and-scope/02_namespace.cpp`:
 
 ```cpp
 #include <iostream>

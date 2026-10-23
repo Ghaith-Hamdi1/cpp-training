@@ -6,7 +6,7 @@
 - Strategies or behaviors can be changed without changing the context source code
 
 ```cpp
-// Representative example (examples/04-templates-and-design-patterns/06-design-patterns/70_strategy_dp.cpp)
+// Representative example (examples/course/04-templates-and-design-patterns/06-design-patterns/70_strategy_dp.cpp)
 class TransportStrategy
 {
 public:

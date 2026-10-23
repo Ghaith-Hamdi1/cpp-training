@@ -60,10 +60,10 @@
 - Be careful! Dangling passed variables by reference
 - Copy of lambda
 
-## Reference example: lambdas and functions, `examples/01-cpp-basics/06-functions/06_functions_lambda.cpp`
+## Reference example: lambdas and functions, `examples/course/01-cpp-basics/06-functions/06_functions_lambda.cpp`
 
 ```cpp
-// Trimmed excerpt — full runnable example: examples/01-cpp-basics/06-functions/06_functions_lambda.cpp
+// Trimmed excerpt — full runnable example: examples/course/01-cpp-basics/06-functions/06_functions_lambda.cpp
 #include <iostream>
 #include <functional>
 

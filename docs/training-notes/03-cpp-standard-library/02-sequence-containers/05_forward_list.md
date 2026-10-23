@@ -7,7 +7,7 @@
 - Operations can be done only from front (`push_front`, `pop_front`)
 
 ```cpp
-// Trimmed excerpt — full runnable example: examples/03-cpp-standard-library/02-sequence-containers/33_forward_list.cpp
+// Trimmed excerpt — full runnable example: examples/course/03-cpp-standard-library/02-sequence-containers/33_forward_list.cpp
 #include <iostream>
 #include <forward_list>
 

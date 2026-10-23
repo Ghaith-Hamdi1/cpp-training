@@ -38,7 +38,7 @@
 - `.substr()` to get a substring from another
 
 ```cpp
-// Trimmed excerpt — full runnable example: examples/03-cpp-standard-library/09-string/51_strings.cpp
+// Trimmed excerpt — full runnable example: examples/course/03-cpp-standard-library/09-string/51_strings.cpp
 #include <iostream>
 #include <string>
 

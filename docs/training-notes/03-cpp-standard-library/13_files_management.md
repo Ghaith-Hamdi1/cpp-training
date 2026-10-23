@@ -11,7 +11,7 @@
 - See examples provided for more details
 
 ```cpp
-// Trimmed excerpt — full runnable example: examples/03-cpp-standard-library/13-files-management/58_file_management.cpp
+// Trimmed excerpt — full runnable example: examples/course/03-cpp-standard-library/13-files-management/58_file_management.cpp
 #include <iostream>
 #include <fstream>
 #include <vector>

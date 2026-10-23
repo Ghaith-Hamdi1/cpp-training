@@ -11,7 +11,7 @@
   ```
 
 ```cpp
-// Trimmed excerpt — full runnable example: examples/03-cpp-standard-library/02-sequence-containers/31_deque.cpp
+// Trimmed excerpt — full runnable example: examples/course/03-cpp-standard-library/02-sequence-containers/31_deque.cpp
 #include <iostream>
 #include <deque>
 

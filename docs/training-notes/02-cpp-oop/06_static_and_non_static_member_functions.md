@@ -16,7 +16,7 @@
   - Example of use
 
 ```cpp
-// examples/02-cpp-oop/06-static-and-non-static-member-functions/19_static_members.cpp
+// examples/course/02-cpp-oop/06-static-and-non-static-member-functions/19_static_members.cpp
 #include <iostream>
 
 class IDGenerator

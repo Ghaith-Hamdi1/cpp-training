@@ -14,7 +14,7 @@
   - Refer to example for details on how to use clocks
 
 ```cpp
-// Trimmed excerpt — full runnable example: examples/03-cpp-standard-library/10-date-and-time-management/52_time_management.cpp
+// Trimmed excerpt — full runnable example: examples/course/03-cpp-standard-library/10-date-and-time-management/52_time_management.cpp
 #include <iostream>
 #include <chrono>
 #include <thread>

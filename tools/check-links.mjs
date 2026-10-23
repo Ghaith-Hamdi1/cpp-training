@@ -38,7 +38,7 @@ function check(from, target, label) {
 }
 
 const walk = (dir, ok) => readdirSync(dir, { withFileTypes: true }).flatMap((e) => {
-  if (['node_modules', '.git', 'LearnCPP'].includes(e.name)) return [];
+  if (['node_modules', '.git'].includes(e.name)) return [];
   const p = join(dir, e.name);
   return e.isDirectory() ? walk(p, ok) : ok(e.name) ? [p] : [];
 });
@@ -52,7 +52,7 @@ for (const f of walk(join(repo, 'interactive'), (x) => x.endsWith('.html'))) {
 const mds = [join(repo, 'README.md'), ...walk(join(repo, 'docs'), (x) => x.endsWith('.md')), ...walk(join(repo, 'examples'), (x) => x === 'README.md')];
 for (const f of mds) {
   const rel = f.slice(repo.length + 1).replace(/\\/g, '/');
-  const md = readFileSync(f, 'utf8').replace(/```[\s\S]*?```/g, '');
+  const md = readFileSync(f, 'utf8').replace(/```[\s\S]*?```/g, '').replace(/`[^`\n]*`/g, '');
   for (const m of md.matchAll(/\]\((<[^>]+>|[^)\s]+)\)/g)) {
     const t = m[1].replace(/^<|>$/g, '');
     if (/^(https?:|mailto:)/i.test(t) && !t.startsWith(SITE)) continue;

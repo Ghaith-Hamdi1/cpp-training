@@ -6,7 +6,7 @@
 - Comparer has to be provided to change the sorting order
 
 ```cpp
-// Trimmed excerpt — full runnable example: examples/03-cpp-standard-library/03-associative-containers/37_set.cpp
+// Trimmed excerpt — full runnable example: examples/course/03-cpp-standard-library/03-associative-containers/37_set.cpp
 #include <iostream>
 #include <set>
 

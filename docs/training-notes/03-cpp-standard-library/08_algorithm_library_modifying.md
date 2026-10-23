@@ -23,7 +23,7 @@
   - Both of them return an iterator to the new container end
 
 ```cpp
-// Trimmed excerpt — full runnable example: examples/03-cpp-standard-library/08-algorithm-library-modifying/50_modifying.cpp
+// Trimmed excerpt — full runnable example: examples/course/03-cpp-standard-library/08-algorithm-library-modifying/50_modifying.cpp
 #include <iostream>
 #include <string>
 #include <vector>

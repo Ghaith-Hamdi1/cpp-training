@@ -7,7 +7,7 @@
 - Using the `operator[]` and `at()` function is not allowed unlike map
 
 ```cpp
-// Trimmed excerpt — full runnable example: examples/03-cpp-standard-library/03-associative-containers/40_multimap.cpp
+// Trimmed excerpt — full runnable example: examples/course/03-cpp-standard-library/03-associative-containers/40_multimap.cpp
 #include <iostream>
 #include <map>
 

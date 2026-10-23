@@ -82,7 +82,7 @@
 - A function-local `static` variable has the same one-time thread-safe init guarantee since C++11 — simplest option for a single global/class-level instance
 
 ```cpp
-// Trimmed excerpt — full runnable example: examples/03-cpp-standard-library/11-multithreading-and-synchronization/55_mutexes.cpp
+// Trimmed excerpt — full runnable example: examples/course/03-cpp-standard-library/11-multithreading-and-synchronization/55_mutexes.cpp
 #include <iostream>
 #include <thread>
 #include <mutex>

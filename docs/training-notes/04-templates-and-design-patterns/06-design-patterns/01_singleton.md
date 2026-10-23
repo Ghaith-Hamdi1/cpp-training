@@ -5,7 +5,7 @@
 - source: https://refactoring.guru/design-patterns/singleton
 
 ```cpp
-// Representative example (examples/04-templates-and-design-patterns/06-design-patterns/68_singleton.cpp)
+// Representative example (examples/course/04-templates-and-design-patterns/06-design-patterns/68_singleton.cpp)
 class Singleton
 {
 public:

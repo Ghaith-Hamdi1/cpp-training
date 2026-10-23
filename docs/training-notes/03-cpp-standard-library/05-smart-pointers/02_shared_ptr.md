@@ -12,10 +12,10 @@
 
 - In this case, destructors of `x1` and `x2` are **not called**!!
 - What happens? When `x1` goes out of scope (`shared_ptr`), it is already held by `x2` and vice versa -> `use_count` is not 0 -> destructor is not called
-- *(the on-slide code diagram illustrating this was an embedded image, not extractable as text; the equivalent circular-reference pattern is reconstructed below from `examples/03-cpp-standard-library/05-smart-pointers/47_shared_ptr.cpp`'s `X` class)*
+- *(the on-slide code diagram illustrating this was an embedded image, not extractable as text; the equivalent circular-reference pattern is reconstructed below from `examples/course/03-cpp-standard-library/05-smart-pointers/47_shared_ptr.cpp`'s `X` class)*
 
 ```cpp
-// Trimmed excerpt — full runnable example: examples/03-cpp-standard-library/05-smart-pointers/47_shared_ptr.cpp
+// Trimmed excerpt — full runnable example: examples/course/03-cpp-standard-library/05-smart-pointers/47_shared_ptr.cpp
 #include <iostream>
 #include <memory>
 #include <string>

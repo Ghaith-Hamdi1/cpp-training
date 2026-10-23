@@ -6,7 +6,7 @@
 - Objects that are stored in `unordered_set` need to overload `operator==`
 
 ```cpp
-// Trimmed excerpt — full runnable example: examples/03-cpp-standard-library/03-associative-containers/41_unordered_set.cpp
+// Trimmed excerpt — full runnable example: examples/course/03-cpp-standard-library/03-associative-containers/41_unordered_set.cpp
 #include <iostream>
 #include <unordered_set>
 

@@ -62,7 +62,7 @@ T a = const_cast<T>(const T);
 T* a = reinterpret_cast<T*>(U*);
 ```
 
-## Reference example, `examples/01-cpp-basics/12-type-conversion/12_casting.cpp`
+## Reference example, `examples/course/01-cpp-basics/12-type-conversion/12_casting.cpp`
 
 ```cpp
 #include <iostream>

@@ -23,7 +23,7 @@
   - Move operation should leave the moved object in valid state. Since moved object is a temporary object (r-value), it will be deleted anyway and if we have pointers they will be deleted (and memory that it is pointing to will be lost)
 
 ```cpp
-// Trimmed excerpt — full runnable example: examples/02-cpp-oop/12-operators-overloading/26_assignment_move_operators.cpp
+// Trimmed excerpt — full runnable example: examples/course/02-cpp-oop/12-operators-overloading/26_assignment_move_operators.cpp
 #include <iostream>
 
 class A {
@@ -131,7 +131,7 @@ int main()
     - Typecast samples
 
 ```cpp
-// Trimmed excerpt — full runnable example: examples/02-cpp-oop/12-operators-overloading/27_operators_overloading.cpp
+// Trimmed excerpt — full runnable example: examples/course/02-cpp-oop/12-operators-overloading/27_operators_overloading.cpp
 #include <string>
 #include <iostream>
 
@@ -203,7 +203,7 @@ int main()
 ```
 
 ```cpp
-// Trimmed excerpt — full runnable example: examples/02-cpp-oop/12-operators-overloading/28_operator_overload_samples.cpp
+// Trimmed excerpt — full runnable example: examples/course/02-cpp-oop/12-operators-overloading/28_operator_overload_samples.cpp
 #include <iostream>
 #include <vector>
 

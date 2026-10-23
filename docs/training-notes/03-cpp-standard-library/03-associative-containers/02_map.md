@@ -7,7 +7,7 @@
 - Using the `operator[]` creates a pair if it does not exist, so the value existence does not have to be checked using this operator
 
 ```cpp
-// Trimmed excerpt — full runnable example: examples/03-cpp-standard-library/03-associative-containers/38_map.cpp
+// Trimmed excerpt — full runnable example: examples/course/03-cpp-standard-library/03-associative-containers/38_map.cpp
 #include <iostream>
 #include <map>
 

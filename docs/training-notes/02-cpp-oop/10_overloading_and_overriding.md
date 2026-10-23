@@ -27,7 +27,7 @@
   - [Diagram — extracted labels: class hierarchy with `Car` at the top, `ElectricCar` and `GasolineCar` both inheriting (virtually) from `Car`, and `HybridCar` at the bottom inheriting from both `ElectricCar` and `GasolineCar` — the classic diamond shape]
 
 ```cpp
-// Trimmed excerpt — full runnable example: examples/02-cpp-oop/10-overloading-and-overriding/23_overloading.cpp
+// Trimmed excerpt — full runnable example: examples/course/02-cpp-oop/10-overloading-and-overriding/23_overloading.cpp
 #include <iostream>
 
 class Base
@@ -79,7 +79,7 @@ int main()
 ```
 
 ```cpp
-// Trimmed excerpt — full runnable example: examples/02-cpp-oop/10-overloading-and-overriding/24_overriding.cpp
+// Trimmed excerpt — full runnable example: examples/course/02-cpp-oop/10-overloading-and-overriding/24_overriding.cpp
 #include <iostream>
 
 class Base
@@ -163,7 +163,7 @@ int main()
 ```
 
 ```cpp
-// examples/02-cpp-oop/08-inheritance/25_diamond_problem.cpp
+// examples/course/02-cpp-oop/08-inheritance/25_diamond_problem.cpp
 #include <iostream>
 
 class Car 

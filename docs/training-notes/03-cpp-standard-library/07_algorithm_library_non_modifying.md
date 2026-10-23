@@ -17,7 +17,7 @@
   - The first version uses the equality operator to compare the elements, while the second version uses the given binary predicate `p`.
 
 ```cpp
-// Trimmed excerpt — full runnable example: examples/03-cpp-standard-library/07-algorithm-library-non-modifying/49_non_modifying_algorithm.cpp
+// Trimmed excerpt — full runnable example: examples/course/03-cpp-standard-library/07-algorithm-library-non-modifying/49_non_modifying_algorithm.cpp
 #include <iostream>
 #include <string>
 #include <vector>

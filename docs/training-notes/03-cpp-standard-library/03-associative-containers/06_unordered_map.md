@@ -7,7 +7,7 @@
 - The `operator[]` and `at()` function are available for `unordered_map`
 
 ```cpp
-// Trimmed excerpt — full runnable example: examples/03-cpp-standard-library/03-associative-containers/42_unordered_map.cpp
+// Trimmed excerpt — full runnable example: examples/course/03-cpp-standard-library/03-associative-containers/42_unordered_map.cpp
 #include <iostream>
 #include <unordered_map>
 #include <string>

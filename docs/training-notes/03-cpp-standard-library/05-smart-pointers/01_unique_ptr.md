@@ -11,7 +11,7 @@
 - Always be careful about object ownership — a moved `unique_ptr` is no longer valid and may go out of scope and be destroyed
 
 ```cpp
-// Trimmed excerpt — full runnable example: examples/03-cpp-standard-library/05-smart-pointers/46_unique_ptr.cpp
+// Trimmed excerpt — full runnable example: examples/course/03-cpp-standard-library/05-smart-pointers/46_unique_ptr.cpp
 #include <iostream>
 #include <memory>
 

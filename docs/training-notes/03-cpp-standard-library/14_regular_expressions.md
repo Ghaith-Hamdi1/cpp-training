@@ -43,7 +43,7 @@
   - `std::regex_replace`: attempts to replace matching regex pattern by a given string
 
 ```cpp
-// Trimmed excerpt — full runnable example: examples/03-cpp-standard-library/14-regular-expressions/59_regex.cpp
+// Trimmed excerpt — full runnable example: examples/course/03-cpp-standard-library/14-regular-expressions/59_regex.cpp
 #include <iostream>
 #include <regex>
 #include <string>

@@ -59,7 +59,7 @@ int main() {
 }
 ```
 
-Corresponds to `examples/01-cpp-basics/01-introduction-to-cpp/01_first_program.cpp` (the deck's build/run example below uses argument handling, matching that file):
+Corresponds to `examples/course/01-cpp-basics/01-introduction-to-cpp/01_first_program.cpp` (the deck's build/run example below uses argument handling, matching that file):
 
 ```cpp
 #include <iostream>

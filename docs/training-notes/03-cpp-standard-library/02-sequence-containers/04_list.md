@@ -6,7 +6,7 @@
 - Iteration is bidirectional (will be discovered in iterators section)
 
 ```cpp
-// Trimmed excerpt — full runnable example: examples/03-cpp-standard-library/02-sequence-containers/32_list.cpp
+// Trimmed excerpt — full runnable example: examples/course/03-cpp-standard-library/02-sequence-containers/32_list.cpp
 #include <iostream>
 #include <list>
 

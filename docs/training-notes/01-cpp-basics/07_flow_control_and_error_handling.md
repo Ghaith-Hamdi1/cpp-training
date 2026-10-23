@@ -74,7 +74,7 @@ for (init_statement; boolean_condition; expression) {
 
 ## Reference example: conditionals and loops
 
-`examples/01-cpp-basics/07-flow-control-and-error-handling/04_conditional_statements.cpp`:
+`examples/course/01-cpp-basics/07-flow-control-and-error-handling/04_conditional_statements.cpp`:
 
 ```cpp
 #include <iostream>
@@ -117,7 +117,7 @@ int main()
 }
 ```
 
-`examples/01-cpp-basics/07-flow-control-and-error-handling/05_looping_statements.cpp`:
+`examples/course/01-cpp-basics/07-flow-control-and-error-handling/05_looping_statements.cpp`:
 
 ```cpp
 #include <iostream>
@@ -165,7 +165,7 @@ int vect[]{3, 40, 10, 56, 2, 4};
 - Throw Exception
 - Halt the program
 
-Reference example, `examples/01-cpp-basics/07-flow-control-and-error-handling/07_error_handling.cpp`:
+Reference example, `examples/course/01-cpp-basics/07-flow-control-and-error-handling/07_error_handling.cpp`:
 
 ```cpp
 #include <iostream>

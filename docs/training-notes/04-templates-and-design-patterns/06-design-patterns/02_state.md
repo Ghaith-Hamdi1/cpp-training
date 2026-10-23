@@ -6,7 +6,7 @@
 - See examples for typical implementation
 
 ```cpp
-// Representative example (examples/04-templates-and-design-patterns/06-design-patterns/69_state_dp.cpp) — Context/CarState FSM
+// Representative example (examples/course/04-templates-and-design-patterns/06-design-patterns/69_state_dp.cpp) — Context/CarState FSM
 class Context // state machine class
 {
     class CarState

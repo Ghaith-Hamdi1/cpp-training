@@ -80,7 +80,7 @@ public:
 - The value itself has no meaning beyond equality/ordering — don't treat it as an index or count
 
 ```cpp
-// Trimmed excerpt — full runnable example: examples/03-cpp-standard-library/11-multithreading-and-synchronization/53_multithreading.cpp
+// Trimmed excerpt — full runnable example: examples/course/03-cpp-standard-library/11-multithreading-and-synchronization/53_multithreading.cpp
 #include <iostream>
 #include <thread>
 #include <chrono>

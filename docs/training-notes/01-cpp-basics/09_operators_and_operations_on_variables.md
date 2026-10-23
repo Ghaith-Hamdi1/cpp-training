@@ -8,7 +8,7 @@
 - Unary postfix operators (`a++`) always associate left-to-right
 - Best practice is to use parentheses to avoid ambiguities
 
-Reference example, `examples/01-cpp-basics/09-operators-and-operations-on-variables/10_operators.cpp`:
+Reference example, `examples/course/01-cpp-basics/09-operators-and-operations-on-variables/10_operators.cpp`:
 
 ```cpp
 #include <iostream>

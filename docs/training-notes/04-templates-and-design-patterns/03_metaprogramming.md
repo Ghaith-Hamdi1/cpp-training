@@ -12,7 +12,7 @@
 - Limitation: many compilers allow a maximum number of recursion depth
 
 ```cpp
-// Representative example (examples/04-templates-and-design-patterns/03-metaprogramming/63_metaprogramming.cpp)
+// Representative example (examples/course/04-templates-and-design-patterns/03-metaprogramming/63_metaprogramming.cpp)
 template<int N>
 struct Fact
 {

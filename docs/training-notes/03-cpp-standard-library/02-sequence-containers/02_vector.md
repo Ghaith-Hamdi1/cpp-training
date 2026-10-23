@@ -15,7 +15,7 @@
   - we can act on size by methods `emplace`, `emplace_back`, `push_back`, `pop_back`, `clear`, `erase`, `resize`, `insert`
 
 ```cpp
-// Trimmed excerpt — full runnable example: examples/03-cpp-standard-library/02-sequence-containers/30_vector.cpp
+// Trimmed excerpt — full runnable example: examples/course/03-cpp-standard-library/02-sequence-containers/30_vector.cpp
 #include <iostream>
 #include <vector>
 

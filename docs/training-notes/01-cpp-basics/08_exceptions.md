@@ -42,10 +42,10 @@
 
 ## Reference examples
 
-`examples/01-cpp-basics/08-exceptions/08_exceptions.cpp`:
+`examples/course/01-cpp-basics/08-exceptions/08_exceptions.cpp`:
 
 ```cpp
-// Trimmed excerpt — full runnable example: examples/01-cpp-basics/08-exceptions/08_exceptions.cpp
+// Trimmed excerpt — full runnable example: examples/course/01-cpp-basics/08-exceptions/08_exceptions.cpp
 #include <iostream>
 #include <exception>
 #include <string>
@@ -89,7 +89,7 @@ int main() {
 }
 ```
 
-`examples/01-cpp-basics/08-exceptions/11_stack_unwinding.cpp` (illustrates stack unwinding across nested calls A → B → C → D):
+`examples/course/01-cpp-basics/08-exceptions/11_stack_unwinding.cpp` (illustrates stack unwinding across nested calls A → B → C → D):
 
 ```cpp
 #include <iostream>

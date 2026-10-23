@@ -7,7 +7,7 @@
 - The `operator[]` and `at()` function are not available for `unordered_multimap`
 
 ```cpp
-// Trimmed excerpt — full runnable example: examples/03-cpp-standard-library/03-associative-containers/44_unordered_multimap.cpp
+// Trimmed excerpt — full runnable example: examples/course/03-cpp-standard-library/03-associative-containers/44_unordered_multimap.cpp
 #include <iostream>
 #include <unordered_map>
 #include <string>
