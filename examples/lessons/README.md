@@ -35,7 +35,7 @@ The folder names follow the lesson file names (`13-move-semantics` holds the les
 |  | `02_observer_state_crtp.cpp` | Observer that survives detaching, State with `variant`, CRTP |
 | 16 Multithreading | `01_threads_basics_and_guard.cpp` | `std::thread`, `std::ref`, join guard, `jthread` |
 |  | `02_race_mutex_atomic.cpp` | a real lost-update race, fixed with a mutex and with an atomic |
-|  | `03_interface_race_and_deadlock.cpp` | `try_pop`, `scoped_lock` with opposite orders, hierarchical mutex |
+|  | `03_interface_race_and_deadlock.cpp` | `try_pop`, `scoped_lock` with opposite orders |
 |  | `04_condvar_queue_and_thread_pool.cpp` | condition variable, blocking queue, thread pool |
 |  | `05_async_atomics_spsc.cpp` | `async`, `promise`, `packaged_task`, release/acquire, CAS, lock-free SPSC queue |
 |  | `06_mutex_types.cpp` | `recursive_mutex`, `timed_mutex` with `try_lock_for`, a `shared_mutex` price table, `call_once` |

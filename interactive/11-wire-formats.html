@@ -190,7 +190,7 @@ std::bit_cast<std::uint32_t>(1.0f);                 // 0x3f800000: the bits of a
 <script type="text/x-cpp">
 struct Field { int tag; std::string_view value; };
 
-// "1=D|2=north|3=12345|"  ->  (35,"D")  (49,"north")  (34,"12345")
+// "1=D|2=north|3=12345|"  ->  (1,"D")  (2,"north")  (3,"12345")
 std::optional<Field> nextField(std::string_view& rest) {
     auto bar = rest.find('|');
     if (bar == std::string_view::npos) return std::nullopt;       // incomplete: reject

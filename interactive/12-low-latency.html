@@ -171,7 +171,7 @@ o->~Task();                                           // you must call the destr
 <path class="ar" d="M325 112V72" marker-end="url(#l5)"/><text class="t" x="325" y="130" text-anchor="middle">highest non-empty bucket</text>
 <text class="m" x="10" y="156">Update = one array write. When the highest bucket empties, scan down to the next one.</text>
 </svg><figcaption>A bounded key range turns a map into a flat array.</figcaption></figure>
-<p>When the keys are <b>integers in a small, known range</b> (histogram buckets, status codes, price levels, sensor ids), a plain array indexed by <code>key - base</code> beats a <code>std::map</code> or a hash map. The operations are always the same: <b>update a bucket, find the highest non-empty one, look up an item by id</b>.</p>
+<p>When the keys are <b>integers in a small, known range</b> (histogram buckets, status codes, small scores, sensor ids), a plain array indexed by <code>key - base</code> beats a <code>std::map</code> or a hash map. The operations are always the same: <b>update a bucket, find the highest non-empty one, look up an item by id</b>.</p>
 <table>
 <tr><th>Structure</th><th>Update</th><th>Highest key</th><th>Trade-offs</th></tr>
 <tr><td><code>std::map&lt;key, count&gt;</code></td><td>O(log n)</td><td>O(1) (<code>begin()</code> or <code>rbegin()</code>)</td><td>simple and sorted, but a heap node per key (allocation, pointer chasing)</td></tr>
