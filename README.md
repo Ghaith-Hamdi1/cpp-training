@@ -10,7 +10,7 @@ Study material for learning C++ and revising it, in three parts: **Lessons** (in
 | **Follow a plan** | The [study checklist](https://ghaith-hamdi1.github.io/cpp-training/study-checklist.html), with clickable boxes that remember your progress |
 | **Find one topic** | The [topic map](docs/topic-map.md): where each topic appears in the notes, the recaps and the lessons |
 | **Read the source notes** | The [training notes index](docs/README.md) |
-| **Go deeper with the books** | The reading guides for [C++ Concurrency in Action](docs/concurrency-in-action-reading-guide.md), [Programming: Principles and Practice](docs/programming-principles-and-practice-reading-guide.md), [Effective Modern C++](docs/effective-modern-cpp-reading-guide.md) and [C++ Move Semantics](docs/move-semantics-complete-guide-reading-guide.md) |
+| **Go deeper with the books** | The reading guides for [C++ Concurrency in Action](docs/concurrency-in-action-reading-guide.md), [Programming: Principles and Practice](docs/programming-principles-and-practice-reading-guide.md), [Effective Modern C++](docs/effective-modern-cpp-reading-guide.md) and [C++ Move Semantics](docs/move-semantics-complete-guide-reading-guide.md). For an ordered path through each book, session by session: the reading plans for [Programming: Principles and Practice](docs/programming-principles-and-practice-reading-plan.md), [Effective Modern C++](docs/effective-modern-cpp-reading-plan.md), [C++ Concurrency in Action](docs/concurrency-in-action-reading-plan.md) and [C++ Move Semantics](docs/move-semantics-reading-plan.md) |
 
 The lessons work offline after one visit. From a clone you can also open [`interactive/index.html`](interactive/index.html) directly; no install is needed.
 
