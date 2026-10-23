@@ -134,7 +134,7 @@ std::cout << data;                      // guaranteed to print 42
 <tr><td><b>Reference count</b></td><td>increment <code>relaxed</code>, decrement <code>acq_rel</code></td><td>adding a reference needs no ordering; the thread that drops the last one must see every other thread's writes before it deletes</td></tr>
 <tr><td><b>Spinlock</b></td><td>lock <code>acquire</code>, unlock <code>release</code></td><td>a critical section must not leak out of the lock in either direction</td></tr>
 <tr><td><b>Shutdown flag</b></td><td><code>relaxed</code> if nothing else depends on it, else <code>release</code>/<code>acquire</code></td><td>a flag alone only needs to be seen eventually</td></tr>
-<tr><td><b>SPSC queue indices</b></td><td>own index <code>relaxed</code>, other's <code>acquire</code>, publish <code>release</code></td><td>see the ring buffer in <a href="12-low-latency.html">Low-Latency C++</a></td></tr>
+<tr><td><b>SPSC queue indices</b></td><td>own index <code>relaxed</code>, other's <code>acquire</code>, publish <code>release</code></td><td>see the ring buffer in <a href="12-low-latency.html">Performance &amp; Memory</a></td></tr>
 </table>
 <script type="text/x-cpp">
 struct Counted {                                                 // like shared_ptr's control block

@@ -272,7 +272,7 @@ std::transform(std::execution::par_unseq, a.begin(), a.end(), out.begin(), f);
 <li>With g++ you usually need Intel TBB installed and <code>-ltbb</code> for real parallelism; without a parallel backend the same code runs serially (as in the compiled example here).</li>
 <li>Exceptions escaping the callback call <code>std::terminate</code>.</li>
 </ul>
-<div class="callout tip"><span class="label">Choose</span>Parallel algorithms for data parallelism over a container; a pool or <code>std::async</code> for independent tasks; a queue and a pinned thread for a latency-critical pipeline (<a href="12-low-latency.html">Low-Latency C++</a>).</div>
+<div class="callout tip"><span class="label">Choose</span>Parallel algorithms for data parallelism over a container; a pool or <code>std::async</code> for independent tasks; a queue and a pinned thread for a latency-critical pipeline (<a href="12-low-latency.html">Performance &amp; Memory</a>).</div>
 <!-- read-more:start -->
 <div class="callout tip"><span class="label">Read more</span>
 <p><b>C++ Concurrency in Action (Williams)</b></p>

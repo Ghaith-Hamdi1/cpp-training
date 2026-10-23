@@ -69,6 +69,22 @@ template <int N> struct Fact { static constexpr int value = Fact<N-1>::value * N
 
     { sec: 's4', q: 'Which is the modern replacement for computing a value with recursive template structs?',
       opts: ['A macro', 'A `constexpr` function', 'A virtual function', 'A global variable'], a: 1,
-      why: 'Ordinary-looking `constexpr` functions are shorter, more readable and can also be used at run time.' }
+      why: 'Ordinary-looking `constexpr` functions are shorter, more readable and can also be used at run time.' },
+
+    { sec: 'concepts', q: 'What is a C++20 concept?',
+      opts: ['A runtime check that throws an exception', 'A named compile-time condition on template arguments', 'A kind of virtual base class', 'A macro that expands to enable_if'], a: 1,
+      why: 'A concept is a compile-time boolean over types, such as `std::integral<T>`, that constrains a template. A call with a type that does not satisfy it is rejected at the call site with a readable message.' },
+
+    { sec: 'concepts', q: 'What happens here?',
+      code: String.raw`
+template <std::integral T>
+T twice(T v) { return v * 2; }
+twice(2.5);`,
+      opts: ['It returns 5.0', 'It returns 4 (the double is truncated)', 'A compile error: the constraint std::integral<double> is not satisfied', 'A run-time exception'], a: 2,
+      why: 'A `double` is not integral, so the constrained template is not a candidate and the call fails to compile with a message that names the unmet constraint. Without the concept the function would happily return 5.0.' },
+
+    { sec: 'concepts', q: 'In `requires(T a, T b) { { a + b } -> std::convertible_to<T>; }`, what does the part in braces express?',
+      opts: ['That a + b must compile and its result must be convertible to T', 'That a and b must be equal', 'That + must be commutative', 'That T must be an integer type'], a: 0,
+      why: 'A requires-expression lists operations that must be valid; `{ expr } -> Concept` also constrains the type of the result. It checks syntax and types only, not mathematical properties such as commutativity.' }
   ]
 };

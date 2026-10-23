@@ -154,7 +154,9 @@ Strings, containers, iterators, algorithms, templates, type traits and concepts,
 - [ ] Custom keys: comparators and hashes
 - [ ] Which container should I use?
 - [ ] Algorithms
-- [ ] Useful companions and pitfalls
+- [ ] Ranges and views (C++20)
+- [ ] Common pitfalls
+- [ ] Random numbers: `<random>`
 - [ ] Cheat sheet (say each answer aloud)
 - [ ] Take the quiz, then retry the missed questions
 
@@ -172,10 +174,11 @@ Strings, containers, iterators, algorithms, templates, type traits and concepts,
 - [ ] Cheat sheet (say each answer aloud)
 - [ ] Take the quiz, then retry the missed questions
 
-**Type Traits & Compile-time C++:** [09-compile-time.html](../interactive/09-compile-time.html), quiz: [09-compile-time-quiz.html](../interactive/09-compile-time-quiz.html) (15 questions).
+**Type Traits & Compile-time C++:** [09-compile-time.html](../interactive/09-compile-time.html), quiz: [09-compile-time-quiz.html](../interactive/09-compile-time-quiz.html) (18 questions).
 
 - [ ] Type traits
 - [ ] `enable_if` and SFINAE
+- [ ] Concepts and `requires` (C++20)
 - [ ] `constexpr`, `consteval`, `constinit`
 - [ ] Template metaprogramming (TMP)
 - [ ] Cheat sheet (say each answer aloud)
@@ -188,13 +191,13 @@ Common patterns in modern C++, with real code.
 **Design Patterns:** [06-design-patterns.html](../interactive/06-design-patterns.html), quiz: [06-design-patterns-quiz.html](../interactive/06-design-patterns-quiz.html) (20 questions).
 
 - [ ] What patterns are and are not
+- [ ] SOLID principles
 - [ ] Singleton
 - [ ] Factory
 - [ ] Strategy (try the widget)
 - [ ] Observer (subscribe and unsubscribe in the demo)
 - [ ] State (use the turnstile demo)
 - [ ] Other patterns worth recognising
-- [ ] SOLID principles
 - [ ] Cheat sheet (say each answer aloud)
 - [ ] Take the quiz, then retry the missed questions
 

@@ -351,7 +351,22 @@ std::erase(v, 3);                                       // C++20: one call
 </script>
 </div></details>
 <div class="callout warn"><span class="label">Strict weak ordering</span>Use <code>&lt;</code>, never <code>&lt;=</code>: a comparator true for equal elements can crash <code>sort</code> or corrupt a <code>set</code>. <code>sort</code> is not stable; use <code>stable_sort</code>.</div>
-<h3>Ranges (C++20): a first look</h3>
+<!-- read-more:start -->
+<div class="callout tip"><span class="label">Read more</span>
+<p><b>Programming: Principles and Practice (Stroustrup)</b></p>
+<ul>
+<li>21.1 to 21.2, 21.5 Standard algorithms, function objects, sorting and searching (PDF pages 617 to 626 and 633 to 635)</li>
+</ul>
+<p><b>C++ Move Semantics (Josuttis)</b></p>
+<ul>
+<li>Chapter 14 Moving algorithms and iterators (PDF pages 219 to 228)</li>
+</ul>
+</div>
+<!-- read-more:end -->
+</section>
+
+<section id="ranges" data-title="Ranges and views (C++20)">
+<h2>Ranges and views (C++20)</h2>
 <script type="text/x-cpp">
 #include <ranges>
 
@@ -368,29 +383,11 @@ for (int x : evenSquares) use(x);                             // computed on dem
 <li>A view does not own its data: if the container dies or reallocates, the view dangles, like <code>string_view</code>.</li>
 <li>Ranges make pipelines readable; you do not need to know every view.</li>
 </ul>
-<!-- read-more:start -->
-<div class="callout tip"><span class="label">Read more</span>
-<p><b>Programming: Principles and Practice (Stroustrup)</b></p>
-<ul>
-<li>21.1 to 21.2, 21.5 Standard algorithms, function objects, sorting and searching (PDF pages 617 to 626 and 633 to 635)</li>
-</ul>
-<p><b>C++ Move Semantics (Josuttis)</b></p>
-<ul>
-<li>Chapter 14 Moving algorithms and iterators (PDF pages 219 to 228)</li>
-</ul>
-</div>
-<!-- read-more:end -->
 </section>
 
-<section id="s9" data-title="Useful companions and pitfalls">
-<h2>Useful companions and pitfalls</h2>
-<script type="text/x-cpp">
-std::pair<int, std::string> p{1, "a"};              p.first; p.second;
-auto t = std::make_tuple(1, 2.5, "x");              std::get<1>(t);   // 2.5
-auto [id, name] = p;                                // structured binding (C++17)
-std::optional<int> maybe = std::nullopt;            // "value or nothing"
-std::array<int, 3> a{1, 2, 3};                      // fixed-size, knows its size
-</script>
+<section id="s9" data-title="Common pitfalls">
+<h2>Common pitfalls</h2>
+<p><code>pair</code>, <code>tuple</code>, <code>optional</code> and <code>variant</code> are covered in <a href="21-vocabulary-types.html">Vocabulary Types</a>.</p>
 <table>
 <tr><th>Pitfall</th><th>Fix</th></tr>
 <tr><td>Using an iterator/pointer/reference after a <code>push_back</code> reallocated the vector</td><td><code>reserve</code> up front, or re-fetch the iterator, or index instead</td></tr>
@@ -401,7 +398,10 @@ std::array<int, 3> a{1, 2, 3};                      // fixed-size, knows its siz
 <tr><td><code>auto x = v[0]</code> copies the element</td><td><code>const auto&amp; x = v[0]</code></td></tr>
 <tr><td><code>std::find</code> on a <code>map</code> is O(n)</td><td>use the member <code>m.find(key)</code>, O(log n)</td></tr>
 </table>
-<h3>Random numbers: <code>&lt;random&gt;</code></h3>
+</section>
+
+<section id="random" data-title="Random numbers">
+<h2>Random numbers: <code>&lt;random&gt;</code></h2>
 <script type="text/x-cpp">
 std::mt19937 gen(12345);                          // an ENGINE: produces raw random bits (here seeded for repeatability)
 std::uniform_int_distribution<int> dice(1, 6);    // a DISTRIBUTION: shapes the bits into the numbers you want

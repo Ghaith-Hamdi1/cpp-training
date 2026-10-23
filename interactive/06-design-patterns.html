@@ -25,7 +25,21 @@
 <div class="callout tip"><span class="label">Modern C++ shortens many</span>A lambda or <code>std::function</code> replaces Strategy and Command hierarchies; <code>std::visit</code> replaces Visitor; smart pointers are a Proxy; RAII is built in.</div>
 </section>
 
-<section data-title="Singleton">
+<section id="s8" data-title="SOLID principles">
+<h2>SOLID principles</h2>
+<p><b>SOLID</b> are five design principles. Most patterns in this lesson exist to serve one of them, so read this table first and refer back to it.</p>
+<table>
+<tr><th></th><th>Principle</th><th>In one sentence</th><th>Pattern that serves it</th></tr>
+<tr><td><b>S</b></td><td>Single Responsibility</td><td>a class has one reason to change</td><td>split parsing, logic and I/O into separate classes</td></tr>
+<tr><td><b>O</b></td><td>Open/Closed</td><td>open for extension, closed for modification: add behaviour by adding code, not editing old code</td><td>Strategy, Factory registry, Decorator</td></tr>
+<tr><td><b>L</b></td><td>Liskov Substitution</td><td>a derived object must be usable wherever the base is expected without breaking correctness</td><td>correct inheritance hierarchies</td></tr>
+<tr><td><b>I</b></td><td>Interface Segregation</td><td>prefer several small interfaces over one fat one</td><td>narrow abstract classes</td></tr>
+<tr><td><b>D</b></td><td>Dependency Inversion</td><td>depend on abstractions, not concrete classes; inject dependencies</td><td>Strategy, Observer, dependency injection (instead of Singleton)</td></tr>
+</table>
+<p>Notes: <a href="https://github.com/Ghaith-Hamdi1/cpp-training/blob/main/docs/04-templates-and-design-patterns/06-design-patterns/README.md">Module 4</a>, <a href="https://github.com/Ghaith-Hamdi1/cpp-training/tree/main/examples/04-templates-and-design-patterns/06-design-patterns/">examples</a>.</p>
+</section>
+
+<section id="s2" data-title="Singleton">
 <h2>Singleton</h2>
 <figure class="fig"><svg viewBox="0 0 640 120" role="img" aria-label="Every caller gets the same single instance"><defs><marker id="g1" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path class="ah" d="M0 0L10 5L0 10z"/></marker></defs><rect class="acc" x="10" y="14" width="150" height="30" rx="6"/><text x="85" y="34" text-anchor="middle">code in file A</text><rect class="acc" x="10" y="76" width="150" height="30" rx="6"/><text x="85" y="96" text-anchor="middle">thread B</text><path class="ar" d="M160 29L258 52M160 91L258 68" marker-end="url(#g1)"/><rect class="box" x="260" y="36" width="170" height="48" rx="8"/><text class="t" x="345" y="58" text-anchor="middle">Logger::instance()</text><text class="m" x="345" y="74" text-anchor="middle">static local, built once</text><path class="ar" d="M430 60H498" marker-end="url(#g1)"/><rect class="gd" x="500" y="36" width="130" height="48" rx="8"/><text class="t" x="565" y="64" text-anchor="middle">the one Logger</text></svg><figcaption>Thread-safe creation since C++11; its methods still need their own locking.</figcaption></figure>
 <p><b>Intent:</b> exactly one instance with global access (logger, config).</p>
@@ -56,7 +70,7 @@ Logger::instance().log("hello");
 </ul>
 </section>
 
-<section data-title="Factory">
+<section id="s3" data-title="Factory">
 <h2>Factory</h2>
 <figure class="fig"><svg viewBox="0 0 640 130" role="img" aria-label="The caller asks the factory for a shape and only sees the Shape interface"><defs><marker id="g2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path class="ah" d="M0 0L10 5L0 10z"/></marker></defs><rect class="acc" x="10" y="45" width="110" height="40" rx="8"/><text x="65" y="70" text-anchor="middle">caller</text><path class="ar" d="M120 65H188" marker-end="url(#g2)"/><text class="m" x="154" y="56" text-anchor="middle">Kind::Circle</text><rect class="wn" x="190" y="45" width="130" height="40" rx="8"/><text class="t" x="255" y="70" text-anchor="middle">makeShape()</text><path class="ar" d="M320 65H388" marker-end="url(#g2)"/><text class="m" x="354" y="56" text-anchor="middle">unique_ptr</text><rect class="box" x="390" y="45" width="110" height="40" rx="8"/><text class="t" x="445" y="70" text-anchor="middle">Shape</text><rect class="gd" x="530" y="14" width="100" height="34" rx="6"/><text x="580" y="36" text-anchor="middle">Circle</text><rect class="gd" x="530" y="82" width="100" height="34" rx="6"/><text x="580" y="104" text-anchor="middle">Square</text><path class="ln" d="M530 31L500 55M530 99L500 75" stroke-dasharray="4 3"/><text class="m" x="10" y="124">The caller never names Circle or Square.</text></svg><figcaption>New type means editing the factory, unless it keeps a registry.</figcaption></figure>
 <p><b>Intent:</b> create objects without the caller naming the concrete class; it gets something usable only through an interface.</p>
@@ -89,7 +103,7 @@ std::cout << s->area();
 </ul>
 </section>
 
-<section data-title="Strategy">
+<section id="s4" data-title="Strategy">
 <h2>Strategy</h2>
 <figure class="fig"><svg viewBox="0 0 640 130" role="img" aria-label="A context holds a swappable strategy"><defs><marker id="g3" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path class="ah" d="M0 0L10 5L0 10z"/></marker></defs><rect class="acc" x="10" y="40" width="150" height="50" rx="8"/><text class="t" x="85" y="62" text-anchor="middle">Checkout</text><text class="m" x="85" y="78" text-anchor="middle">holds a strategy</text><path class="ar" d="M160 65H258" marker-end="url(#g3)"/><rect class="box" x="260" y="40" width="150" height="50" rx="8" stroke-dasharray="5 4"/><text class="t" x="335" y="62" text-anchor="middle">PricingStrategy</text><text class="m" x="335" y="78" text-anchor="middle">apply(price)</text><rect class="gd" x="470" y="10" width="160" height="30" rx="6"/><text x="550" y="30" text-anchor="middle">Regular: price</text><rect class="gd" x="470" y="50" width="160" height="30" rx="6"/><text x="550" y="70" text-anchor="middle">Member: price * 0.9</text><rect class="gd" x="470" y="90" width="160" height="30" rx="6"/><text x="550" y="110" text-anchor="middle">a lambda</text><path class="ln" d="M470 25L412 55M470 65L412 65M470 105L412 75" stroke-dasharray="4 3"/></svg><figcaption>The client picks the algorithm; modern C++ often uses a lambda instead of a class.</figcaption></figure>
 <p><b>Intent:</b> interchangeable algorithms chosen <i>at runtime</i> without changing the user (sort order, pricing, retry policy).</p>
@@ -126,7 +140,7 @@ template <typename Pricing> class Checkout3 { /* ... Pricing{}(price) ... */ };
 <div class="callout interview"><span class="label">Strategy vs State</span>Similar shape, different intent. <b>Strategy</b>: the <i>client</i> picks the algorithm; strategies are independent. <b>State</b>: the object changes its own behaviour as its state changes, and states trigger the transitions.</div>
 </section>
 
-<section data-title="Observer">
+<section id="s5" data-title="Observer">
 <h2>Observer</h2>
 <figure class="fig"><svg viewBox="0 0 640 130" role="img" aria-label="A subject notifies every attached observer when it changes"><defs><marker id="g4" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path class="ah" d="M0 0L10 5L0 10z"/></marker></defs><rect class="wn" x="10" y="40" width="160" height="50" rx="8"/><text class="t" x="90" y="62" text-anchor="middle">Subject</text><text class="m" x="90" y="78" text-anchor="middle">set(value)</text><path class="ar" d="M170 55L338 28M170 65H338M170 75L338 102" marker-end="url(#g4)"/><text class="m" x="250" y="46">update(v)</text><rect class="gd" x="340" y="12" width="140" height="32" rx="6"/><text x="410" y="33" text-anchor="middle">Display</text><rect class="gd" x="340" y="49" width="140" height="32" rx="6"/><text x="410" y="70" text-anchor="middle">Logger</text><rect class="gd" x="340" y="86" width="140" height="32" rx="6"/><text x="410" y="107" text-anchor="middle">Alarm</text><text class="m" x="500" y="56">the subject does not</text><text class="m" x="500" y="72">know who they are</text></svg><figcaption>Watch for dangling observers, and iterate over a copy while notifying.</figcaption></figure>
 <p><b>Intent:</b> a <i>subject</i> notifies its <i>observers</i> on change without knowing who they are (events, signals, pub/sub). Try it:</p>
@@ -172,7 +186,7 @@ listeners.push_back([](double t) { std::cout << "temp = " << t << '\n'; });
 <!-- read-more:end -->
 </section>
 
-<section data-title="State">
+<section id="s6" data-title="State">
 <h2>State</h2>
 <p><b>Intent:</b> behaviour changes with internal state, replacing scattered <code>if (state == ...)</code> checks (a turnstile). Send events:</p>
 <div id="w-state"></div>
@@ -199,7 +213,7 @@ using StateV = std::variant<Locked, Unlocked>;
 <p>Use it when valid operations depend on "what mode am I in": connections, parsers, protocol handlers. Explicit transitions make illegal states unrepresentable and testable.</p>
 </section>
 
-<section data-title="Other patterns worth recognising">
+<section id="s7" data-title="Other patterns worth recognising">
 <h2>Other patterns worth recognising</h2>
 <table>
 <tr><th>Pattern</th><th>Idea</th><th>Where you already see it in C++</th></tr>
@@ -234,20 +248,6 @@ struct Circle : Shape<Circle> {
 </ul>
 </div>
 <!-- read-more:end -->
-</section>
-
-<section data-title="SOLID principles">
-<h2>SOLID principles</h2>
-<p>Patterns are tools; <b>SOLID</b> says why they work.</p>
-<table>
-<tr><th></th><th>Principle</th><th>In one sentence</th><th>Pattern that serves it</th></tr>
-<tr><td><b>S</b></td><td>Single Responsibility</td><td>a class has one reason to change</td><td>split parsing, logic and I/O into separate classes</td></tr>
-<tr><td><b>O</b></td><td>Open/Closed</td><td>open for extension, closed for modification: add behaviour by adding code, not editing old code</td><td>Strategy, Factory registry, Decorator</td></tr>
-<tr><td><b>L</b></td><td>Liskov Substitution</td><td>a derived object must be usable wherever the base is expected without breaking correctness</td><td>correct inheritance hierarchies</td></tr>
-<tr><td><b>I</b></td><td>Interface Segregation</td><td>prefer several small interfaces over one fat one</td><td>narrow abstract classes</td></tr>
-<tr><td><b>D</b></td><td>Dependency Inversion</td><td>depend on abstractions, not concrete classes; inject dependencies</td><td>Strategy, Observer, dependency injection (instead of Singleton)</td></tr>
-</table>
-<p>Notes: <a href="https://github.com/Ghaith-Hamdi1/cpp-training/blob/main/docs/04-templates-and-design-patterns/06-design-patterns/README.md">Module 4</a>, <a href="https://github.com/Ghaith-Hamdi1/cpp-training/tree/main/examples/04-templates-and-design-patterns/06-design-patterns/">examples</a>.</p>
 </section>
 
 <section id="s9" data-title="Cheat sheet">
