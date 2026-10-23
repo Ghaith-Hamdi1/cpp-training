@@ -1,6 +1,6 @@
 # Practice set: write it yourself
 
-Fourteen "implement this function or class" exercises, short and focused, to be written without looking things up. Each folder has:
+Seventeen "implement this function or class" exercises, short and focused, to be written without looking things up. Each folder has:
 
 - `exercise.cpp`: the task in a comment at the top, a stub for you to fill in, and a set of tests in `main`.
 - `solution.cpp`: a worked solution that passes the same tests. Look only after you have tried.
@@ -39,8 +39,11 @@ The program prints which checks failed, and `all checks passed` when you are don
 | 12 | `Stack<T>`: a class template | templates, `std::move`, move-only types | medium |
 | 13 | `SafeCounter` | `std::mutex`, `lock_guard`, `mutable` | easy |
 | 14 | `BoundedQueue<T>` | condition variables, predicates, back-pressure | hard |
+| 15 | `parsePort`, `parseValue`, `describe` | `optional`, `variant`, `std::visit`, `from_chars` (lesson 3, Vocabulary Types) | medium |
+| 16 | `Summable` concept, `sumAll`, `kind` | `requires`, constrained templates, overloading by concept (lesson 13) | medium |
+| 17 | `BucketTable`: an array indexed by key | O(1) updates, tracking the highest bucket, checking against `std::map` (lesson 20) | medium |
 
-Suggested order if you have limited time: 01, 02, 03, 05, 06, 07, then 10, 11, 14.
+Suggested order if you have limited time: 01, 02, 03, 05, 06, 07, then 10, 11, 14. Exercises 15 to 17 compile with `-std=c++20`.
 
 ## Questions with model answers
 
