@@ -118,8 +118,9 @@ RAII, exceptions, moving instead of copying, who owns an object, and callables.
 - [ ] Cheat sheet (say each answer aloud)
 - [ ] Take the quiz, then retry the missed questions
 
-**Lambdas & Callables:** [15-lambdas.html](../interactive/15-lambdas.html), quiz: [15-lambdas-quiz.html](../interactive/15-lambdas-quiz.html) (13 questions).
+**Lambdas & Callables:** [15-lambdas.html](../interactive/15-lambdas.html), quiz: [15-lambdas-quiz.html](../interactive/15-lambdas-quiz.html) (15 questions).
 
+- [ ] Before lambdas: function pointers and functors
 - [ ] What a lambda is
 - [ ] Captures: by value and by reference (step through; dangling captures)
 - [ ] `mutable`, init-capture, generic and recursive lambdas

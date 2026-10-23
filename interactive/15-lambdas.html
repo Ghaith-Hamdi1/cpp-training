@@ -10,7 +10,57 @@
 <body data-topic="lambdas" data-kind="lesson">
 <main>
 <h1>Lambdas and Callables</h1>
-<p class="lead">How a lambda works, captures and their lifetime traps, init-capture, generic lambdas, and when to use a function pointer, functor, lambda or <code>std::function</code>.</p>
+<p class="lead">Function pointers and functors first, then how a lambda works, captures and their lifetime traps, init-capture, generic lambdas, and when to use a function pointer, functor, lambda or <code>std::function</code>.</p>
+
+<section id="before" data-title="Before lambdas: function pointers and functors">
+<h2>Before lambdas: function pointers and functors</h2>
+<p>Algorithms such as <code>std::sort</code> and <code>std::count_if</code> take "something callable". Before C++11 there were two ways to supply it, and a lambda is a shorter way to write the second.</p>
+<h3>A function pointer</h3>
+<script type="text/x-cpp">
+bool descending(int a, int b) { return a > b; }
+int twice(int x) { return 2 * x; }
+void apply(int (*f)(int), int x) { std::cout << f(x) << '\n'; }   // a parameter that points to a function
+
+std::vector<int> v{5, 2, 9, 1};
+std::sort(v.begin(), v.end(), descending);          // 9 5 2 1: pass the function by name
+apply(twice, 21);                                   // 42
+</script>
+<ul>
+<li>A function pointer is just an address (8 bytes). It can point to any function with the <b>same signature</b>, chosen at run time.</li>
+<li>It has <b>no state</b>: the function sees only its arguments and globals. To give <code>descending</code> a limit you would need a global variable.</li>
+<li>The call goes through the pointer, so the compiler usually cannot inline it.</li>
+</ul>
+<h3>A functor (function object)</h3>
+<p>A <b>functor</b> is a class with an <code>operator()</code>. An object of it can be called like a function, and it can <b>carry state</b> in its members.</p>
+<script type="text/x-cpp">
+struct GreaterThan {
+    int limit;                                       // the state
+    bool operator()(int x) const { return x > limit; }
+};
+GreaterThan gt{4};
+gt(5);                                               // true
+gt(3);                                               // false
+std::count_if(v.begin(), v.end(), GreaterThan{1});   // 3: how many elements are above 1
+</script>
+<ul>
+<li>Each functor class is its own type, so a template like <code>std::count_if</code> knows exactly which <code>operator()</code> to call and can <b>inline</b> it.</li>
+<li>The cost: a whole class, written away from the place where it is used, for one small piece of logic.</li>
+</ul>
+<div class="callout tip"><span class="label">So what is a lambda?</span>A lambda is a functor the compiler writes for you, in place: <code>[limit](int x) { return x &gt; limit; }</code> is the <code>GreaterThan</code> above, with <code>limit</code> as its member. The next sections show how it works and where it goes wrong.</div>
+<!-- read-more:start -->
+<div class="callout tip"><span class="label">Read more</span>
+<p><b>Programming: Principles and Practice (Stroustrup)</b></p>
+<ul>
+<li>21.1 to 21.2, 21.5 Standard algorithms, function objects, sorting and searching (PDF pages 617 to 626 and 633 to 635)</li>
+</ul>
+<p><b>Effective Modern C++ (Meyers)</b></p>
+<ul>
+<li>Item 31, Avoid default capture modes (PDF pages 234 to 242)</li>
+<li>Item 32, Use init capture to move objects into closures (PDF pages 242 to 247)</li>
+</ul>
+</div>
+<!-- read-more:end -->
+</section>
 
 <section id="anatomy" data-title="What a lambda is">
 <h2>What a lambda is</h2>
@@ -81,19 +131,6 @@ const int limit = [&] { return fast ? 100 : 10; }();
 <li>A lambda cannot name itself. For recursion, pass it to itself: <code>auto fact = [](auto self, int n) -&gt; int { return n &lt;= 1 ? 1 : n * self(self, n - 1); };</code> (compiled: 5! = 120), or use <code>std::function</code>.</li>
 <li><code>[this]</code> in a member function captures the pointer; <code>[*this]</code> copies the object.</li>
 </ul>
-<!-- read-more:start -->
-<div class="callout tip"><span class="label">Read more</span>
-<p><b>Programming: Principles and Practice (Stroustrup)</b></p>
-<ul>
-<li>21.1 to 21.2, 21.5 Standard algorithms, function objects, sorting and searching (PDF pages 617 to 626 and 633 to 635)</li>
-</ul>
-<p><b>Effective Modern C++ (Meyers)</b></p>
-<ul>
-<li>Item 31, Avoid default capture modes (PDF pages 234 to 242)</li>
-<li>Item 32, Use init capture to move objects into closures (PDF pages 242 to 247)</li>
-</ul>
-</div>
-<!-- read-more:end -->
 </section>
 
 <section id="callables" data-title="Function pointer, functor, lambda, std::function">

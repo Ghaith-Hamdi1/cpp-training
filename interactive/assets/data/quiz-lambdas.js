@@ -62,6 +62,14 @@ std::cout << f() << f() << n;`,
 
     { sec: 'callables', q: 'When may constructing a `std::function` allocate on the heap?',
       opts: ['Never', 'When the stored callable is too large for its small internal buffer', 'Only for function pointers', 'Always'], a: 1,
-      why: 'Implementations keep small callables inline and heap-allocate bigger ones. The threshold is implementation-defined (compiled with libstdc++: a 64-byte capture allocated).' }
+      why: 'Implementations keep small callables inline and heap-allocate bigger ones. The threshold is implementation-defined (compiled with libstdc++: a 64-byte capture allocated).' },
+
+    { sec: 'before', q: 'Why can a plain function pointer not carry a "limit" value for a comparison?',
+      opts: ['Function pointers cannot be passed to algorithms', 'A function pointer is only an address: the function has no state beyond its arguments and globals', 'Because functions cannot take int parameters', 'Because the limit would have to be const'], a: 1,
+      why: 'A function pointer holds just the address of code. To bring in state you need a global variable, an extra argument, or a function object (a functor or a lambda) that stores it in a member.' },
+
+    { sec: 'before', q: 'What is a functor?',
+      opts: ['A function that returns a function', 'A class with an `operator()`, so its objects can be called like functions and can hold state', 'Another name for a function pointer', 'A macro that expands to a lambda'], a: 1,
+      why: 'A functor is a function object: an instance of a class with `operator()`. A lambda is a functor the compiler writes for you, with the captured variables as members.' }
   ]
 };
