@@ -17,7 +17,7 @@ std::cout << byVal() << byRef();`,
       why: 'A unique_ptr cannot be copied, so `[p]` does not compile. An init-capture creates the lambda\'s own member initialised with `std::move(p)`. A lambda that owns a unique_ptr is itself move-only.' },
 
     { sec: 'anatomy', q: 'What does the compiler generate for a lambda expression?',
-      opts: ['A function pointer', 'An unnamed class with a call operator and a member for each capture', 'A `std::function` object', 'A macro'], a: 1,
+      opts: ['A plain function pointer that points to the body', 'An unnamed class with a call operator and one member per capture', 'A std::function object that holds the body of the lambda', 'A preprocessor macro that is expanded at the call site'], a: 1,
       why: 'Every lambda has its own closure type: captures become members and the body becomes `operator()`. That is why calls can be inlined.' },
 
     { sec: 'anatomy', q: 'Which lambda converts to a plain function pointer?',
@@ -37,11 +37,11 @@ std::cout << f() << f() << n;`,
       why: 'Capturing by value copies `x` into the lambda. The reference captures would dangle once the function returns.' },
 
     { sec: 'captures', q: 'In a member function, what does the capture `[=]` capture (and why is relying on it deprecated in C++20)?',
-      opts: ['A copy of the whole object', 'The `this` pointer (not a copy of the object), so it dangles if the object dies', 'Nothing', 'A reference to a copy of the object'], a: 1,
+      opts: ['A copy of the whole object, so it is always safe to keep around later', 'The this pointer (not the object), so it dangles if the object dies', 'No members: [=] captures only local variables', 'A reference to a private copy of the whole object that it holds'], a: 1,
       why: '`[=]` implicitly captures `this` by pointer. C++20 deprecates that: write `[=, this]` to be explicit, or `[*this]` to copy the object.' },
 
     { sec: 'advanced', q: 'What does `mutable` allow on a lambda?',
-      opts: ['Modifying variables captured by reference', 'Modifying the lambda\'s own by-value copies of captured variables', 'Capturing non-copyable types', 'Calling the lambda from several threads'], a: 1,
+      opts: ['Modifying variables that were captured by reference', 'Modifying the lambda\'s own by-value copies of captures', 'Capturing types that cannot be copied, such as unique_ptr', 'Calling the lambda from several threads safely at once'], a: 1,
       why: 'By-value captures are `const` inside the call operator unless the lambda is `mutable`. The changes affect the lambda\'s copy, not the original.' },
 
     { sec: 'advanced', q: 'What do three successive calls of `[n = 0]() mutable { return ++n; }` return (the same lambda object)?',
@@ -49,27 +49,27 @@ std::cout << f() << f() << n;`,
       why: 'The init-capture creates a member `n` initialized to 0 once; `mutable` lets each call increment it, so the state persists between calls.' },
 
     { sec: 'advanced', q: 'What makes `[](const auto& a, const auto& b) { return a < b; }` a generic lambda?',
-      opts: ['The `const` qualifiers', 'The `auto` parameters turn `operator()` into a template', 'The empty capture list', 'Nothing: it is invalid'], a: 1,
+      opts: ['The const qualifiers on the parameters', 'The auto parameters make operator() a template', 'The empty capture list at the start', 'auto parameters are invalid in lambdas'], a: 1,
       why: 'A C++14 generic lambda has a templated call operator, so it works for any pair of types that support `<`.' },
 
     { sec: 'callables', q: 'Why is `std::sort` with a lambda comparator usually faster than with a `std::function` comparator?',
-      opts: ['`std::function` is not allowed in sort', 'The lambda\'s exact type is known at compile time, so the call can be inlined; `std::function` needs an indirect call', 'Lambdas run on the GPU', 'There is no difference'], a: 1,
+      opts: ['std::function cannot be used as a sort comparator', 'The lambda\'s type is known at compile time, so the call can inline', 'Lambdas are compiled to run on the graphics card instead', 'Both comparators run at the same speed'], a: 1,
       why: 'A template parameter keeps the closure type, so the comparison is inlined into the sort loop. Type erasure costs an indirect call per comparison.' },
 
     { sec: 'callables', q: 'When do you genuinely need `std::function` rather than a template parameter?',
-      opts: ['Whenever you pass a lambda', 'To store callables of different types with the same signature in one container or member', 'To call a function faster', 'To capture by reference'], a: 1,
+      opts: ['Whenever you pass a lambda to a function template', 'To store callables of different types with one signature together', 'To make a call faster than the equivalent template would be', 'To capture variables by reference instead of by value'], a: 1,
       why: 'A member or container needs one concrete type. `std::function` erases the different closure types behind a single signature.' },
 
     { sec: 'callables', q: 'When may constructing a `std::function` allocate on the heap?',
-      opts: ['Never', 'When the stored callable is too large for its small internal buffer', 'Only for function pointers', 'Always'], a: 1,
+      opts: ['It stores the callable inline in the object, up to any size', 'When the callable is too big for its small internal buffer', 'Only when it wraps a plain function pointer or a lambda', 'Each std::function allocates on the heap when constructed'], a: 1,
       why: 'Implementations keep small callables inline and heap-allocate bigger ones. The threshold is implementation-defined (compiled with libstdc++: a 64-byte capture allocated).' },
 
     { sec: 'before', q: 'Why can a plain function pointer not carry a "limit" value for a comparison?',
-      opts: ['Function pointers cannot be passed to algorithms', 'A function pointer is only an address: the function has no state beyond its arguments and globals', 'Because functions cannot take int parameters', 'Because the limit would have to be const'], a: 1,
+      opts: ['Function pointers cannot be passed to standard algorithms such as sort', 'It is only an address: the function has no state besides arguments and globals', 'Functions cannot take int parameters, only pointers to them', 'The limit would have to be declared as a const variable first'], a: 1,
       why: 'A function pointer holds just the address of code. To bring in state you need a global variable, an extra argument, or a function object (a functor or a lambda) that stores it in a member.' },
 
     { sec: 'before', q: 'What is a functor?',
-      opts: ['A function that returns a function', 'A class with an `operator()`, so its objects can be called like functions and can hold state', 'Another name for a function pointer', 'A macro that expands to a lambda'], a: 1,
+      opts: ['A function that returns another function when it is called later', 'A class with an operator(), so objects are callable and can hold state', 'Another name for a function pointer in older C++ code bases', 'A macro that expands to a lambda expression at compile time'], a: 1,
       why: 'A functor is a function object: an instance of a class with `operator()`. A lambda is a functor the compiler writes for you, with the captured variables as members.' }
   ]
 };

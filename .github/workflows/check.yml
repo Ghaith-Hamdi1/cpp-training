@@ -15,6 +15,7 @@ jobs:
         with:
           node-version: 20
       - run: node tools/check-interactive.mjs
+      - run: node tools/check-quiz-balance.mjs
       - run: node tools/check-links.mjs
       - run: node tools/build-read-more.mjs --check
       - run: node tools/build-search-index.mjs --check

@@ -3,14 +3,14 @@ CT.quizData.strings = {
   id: 'strings',
   questions: [
     { sec: 's1', q: 'What is the key difference between `std::string` and `std::string_view`?',
-      opts: ['string_view is faster because it uses SIMD', '`std::string` owns its characters, `string_view` only points at someone else\'s', 'string_view can modify the text, string cannot', 'There is no difference apart from the name'], a: 1,
+      opts: ['string_view is faster because it uses vectorised instructions internally', 'string owns its characters; string_view only points at someone else\'s', 'string_view can modify the text in place, which string cannot do', 'They are the same type under two names; both own their text'], a: 1,
       why: 'A view is a pointer plus a length with no ownership. It never allocates, but it is only valid while the underlying characters are alive.' },
 
     { sec: 's1', q: 'What is wrong with this code?',
       code: String.raw`
 std::string_view name = std::string("temporary");
 std::cout << name;`,
-      opts: ['Nothing, it prints temporary', 'It does not compile', 'The view dangles: the temporary string is destroyed at the end of the first statement', 'string_view cannot be printed'], a: 2,
+      opts: ['It prints temporary without any problem', 'It does not compile because of the temporary string object', 'The view dangles: the temporary string dies after the first statement', 'string_view cannot be printed with cout, only std::string can'], a: 2,
       why: 'The temporary `std::string` dies at the semicolon, so `name` points at freed memory. Reading it is undefined behaviour.' },
 
     { sec: 's1', q: 'Which parameter type is best for a function that only reads text and should accept literals, std::string and substrings without copying?',
@@ -22,7 +22,7 @@ std::cout << name;`,
       why: '`find` returns the constant `npos`, a very large unsigned value. Comparing the result to -1 through an `int` is a classic bug.' },
 
     { sec: 's1', q: 'Is it safe to pass `sv.data()` of a `std::string_view` to a C function expecting a null-terminated string?',
-      opts: ['Yes, it is always null-terminated', 'No, a view is not guaranteed to be null-terminated', 'Yes, but only for literals', 'No, `data()` does not exist for views'], a: 1,
+      opts: ['Yes: a view is null-terminated, just like a C string', 'No: a view is not guaranteed to be null-terminated', 'Yes, but only when the view refers to a string literal', 'No: a view has no data() member that could be passed on'], a: 1,
       why: 'A view of a substring does not end in `\\0`. Convert to `std::string` first if you need a C string.' },
 
     { sec: 's2', q: 'What does `std::regex_match("xabcx", std::regex("abc"))` return?',
@@ -42,15 +42,15 @@ std::cout << name;`,
       why: 'A `std::sregex_iterator` constructed over the range walks all matches; compare it with a default-constructed iterator to detect the end.' },
 
     { sec: 's2', q: 'Why should you not construct a `std::regex` inside a hot loop?',
-      opts: ['It is not thread safe', 'Constructing compiles the pattern, which is expensive; build it once and reuse it', 'It leaks memory', 'The compiler forbids it'], a: 1,
+      opts: ['It is not thread safe, so concurrent loops corrupt its internal state', 'Construction compiles the pattern, which is expensive; build it once', 'It leaks memory each time one is constructed in a loop', 'The compiler forbids constructing regex objects inside loop bodies'], a: 1,
       why: 'Pattern compilation happens at construction. Create it once (for example as a `static const`) and reuse it.' },
 
     { sec: 's2', q: 'What does an invalid pattern such as `std::regex("(")` do?',
-      opts: ['Silently matches nothing', 'Throws `std::regex_error` at construction', 'Causes a compile error', 'Matches everything'], a: 1,
+      opts: ['It silently matches no input and carries on', 'It throws std::regex_error when constructed', 'It is rejected by the compiler at compile time', 'It matches all strings, like an empty pattern'], a: 1,
       why: 'Patterns are parsed at run time, so an invalid one throws `std::regex_error` when the regex object is built.' },
 
     { sec: 's4', q: 'Which clock should you use to measure how long an operation took or to implement a timeout?',
-      opts: ['`system_clock`, because it is the most accurate', '`steady_clock`, because it is monotonic', '`high_resolution_clock`, always', 'Any of them behaves the same'], a: 1,
+      opts: ['`system_clock`, because it is the most accurate', '`steady_clock`, because it is monotonic', '`high_resolution_clock`, since it has the finest tick', 'The three clocks behave the same for this purpose'], a: 1,
       why: '`system_clock` can jump when the system time changes. `steady_clock` never goes backwards, which is what interval measurement needs.' },
 
     { sec: 's4', q: 'Which line does NOT compile?',
@@ -69,31 +69,31 @@ seconds back = ms;          // (B)`,
     { sec: 's1', q: 'What does this statement do?',
       code: String.raw`
 std::cout << s.find('z') == std::string::npos;`,
-      opts: ['Prints 1 if z is absent', 'Prints 0 if z is absent', 'Does not compile as intended, because << binds tighter than ==', 'Always prints npos'], a: 2,
+      opts: ['It prints 1 if z is absent, as the expression suggests', 'It prints 0 if z is absent, as the expression suggests', 'It does not compile as intended: << binds tighter than ==', 'It prints npos only when z is absent from the string'], a: 2,
       why: 'It parses as `(std::cout << s.find(\'z\')) == npos`, comparing a stream with a number. Parenthesise the comparison.' },
 
     { sec: 'sso', q: 'What is the small string optimisation (SSO)?',
-      opts: ['Strings are compressed in memory', 'Short strings are stored inside the `std::string` object itself, so no heap allocation is needed', 'Strings are always stored in read-only memory', 'The compiler removes duplicate strings'], a: 1,
+      opts: ['Strings are compressed in memory to save space on the heap', 'Short strings live inside the string object, so no heap allocation', 'Strings are stored in read-only memory by the compiler', 'The compiler merges duplicate strings into a single shared copy'], a: 1,
       why: 'A `std::string` has room for a handful of characters (about 15 in libstdc++) inside the object. Longer text goes to the heap.' },
 
     { sec: 'sso', q: 'Why call `reserve(1000)` before appending 1000 characters one at a time?',
-      opts: ['It makes the string read-only', 'It allocates once up front, so appending does not reallocate (compiled: 7 reallocations without it)', 'It removes the null terminator', 'It converts the string to a `string_view`'], a: 1,
+      opts: ['It makes the string read-only afterwards, which speeds up reads', 'It allocates once, so appending never reallocates', 'It removes the null terminator from the buffer to save one byte', 'It converts the string into a string_view over the same buffer'], a: 1,
       why: 'Without `reserve`, capacity grows geometrically and each growth copies the characters and invalidates pointers and iterators.' },
 
     { sec: 'sso', q: 'What happens to a pointer obtained from `s.c_str()` when you append to `s` and it reallocates?',
-      opts: ['It stays valid', 'It dangles: reallocation moves the characters and invalidates it', 'It is updated automatically', 'It becomes null'], a: 1,
+      opts: ['It stays valid, since the string owns the memory it points to', 'It dangles: reallocation moves the characters and invalidates it', 'It is updated automatically by the string whenever it reallocates', 'It becomes a null pointer, which is safe to test and ignore'], a: 1,
       why: 'Any operation that may reallocate invalidates pointers, references and iterators into the string.' },
 
     { sec: 'numbers', q: 'What does `std::from_chars` return for the input "12x4" when parsing an `int`?',
-      opts: ['It throws `invalid_argument`', 'It parses 12 with no error and leaves `ptr` at "x4"', 'It returns 0 and an error', 'It parses 124'], a: 1,
+      opts: ['It throws invalid_argument for the bad input', 'It parses 12 with no error and leaves ptr at x4', 'It returns 0 together with an error code', 'It parses 124, skipping the stray character'], a: 1,
       why: 'It stops at the first character that cannot belong to the number and reports success. Compare `ptr` with the end of the input when the whole token must be numeric.' },
 
     { sec: 'numbers', q: 'Why is `std::from_chars` preferred over `std::stoi` on a hot path?',
-      opts: ['It is the only way to parse an `int`', 'It does not throw, allocate or use the locale', 'It parses faster because it uses SIMD', 'It accepts leading whitespace'], a: 1,
+      opts: ['It is the standard way to parse an int in C++', 'It does not throw, allocate or use the locale', 'It is faster because it uses vector instructions', 'It accepts leading whitespace and plus signs'], a: 1,
       why: '`from_chars` reports errors with a return value and works on a character range, so there are no exceptions, no temporary `string` and no locale lookup.' },
 
     { sec: 'format', q: 'What is a drawback of `std::cout << std::hex << 255;` compared with `std::format("{:x}", 255)`?',
-      opts: ['It cannot print hex', 'The stream stays in hex mode: later integers are printed in hex too until you switch back', 'It allocates memory', 'It needs C++23'], a: 1,
+      opts: ['It cannot print numbers in hexadecimal, only in decimal', 'The stream stays in hex mode, so later integers print in hex too', 'It allocates a temporary string each time it prints a number', 'It needs C++23 to compile, unlike std::format'], a: 1,
       why: 'Many stream manipulators are sticky. `std::format` is stateless: the format applies to that one replacement field only.' },
 
     { sec: 'streams', q: 'Which loop reads a file line by line correctly?',
@@ -101,7 +101,7 @@ std::cout << s.find('z') == std::string::npos;`,
       why: '`eof()` is true only after a read has already failed, so the first form processes a bogus last line. Testing the read itself is correct.' },
 
     { sec: 'streams', q: 'When is a `std::ofstream` closed if you never call `close()`?',
-      opts: ['Never', 'When its destructor runs at the end of its scope', 'When the program exits only', 'When the file is written'], a: 1,
+      opts: ['Only when you call close() yourself at some point', 'When its destructor runs at the end of its scope', 'When the whole program exits normally', 'When the last line is written to the file'], a: 1,
       why: 'File streams are RAII objects: the destructor flushes and closes the file.' }
   ]
 };

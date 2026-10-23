@@ -73,6 +73,7 @@ The search index, mock-questions bank, offline cache, home page, menus, pager an
 - `sec` is required and must be a section id of the lesson (checked by the tools). The level check and the "Re-read this" links use it.
 - Two to four options, a single correct index `a`, no duplicate options, and a `why` that teaches.
 - About 15 to 25 questions per lesson, a mix of recall and "what does this print / what is wrong".
+- **Make the wrong options as plausible and as long as the right one.** The options are shuffled, so the only cues left are length and extreme words. Write each wrong option as a real misconception in a similar number of characters, avoid `always`, `never`, `nothing` and `only` in wrong options unless the right one has them too, and let the longest option be a wrong one about as often as the right one. `node tools/check-quiz-balance.mjs` fails when a quiz gives the answer away by length.
 
 ## 6. Runnable examples and the study checklist
 

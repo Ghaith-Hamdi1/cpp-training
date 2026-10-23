@@ -11,27 +11,27 @@ CT.quizData.types = {
       why: '`reinterpret_cast` reinterprets raw bits between unrelated types and bypasses the type system. Prefer `static_cast`, and avoid C-style casts, which can silently act as any of them.' },
 
     { sec: 'deduction', q: 'What does `auto x = {1, 2, 3};` deduce?',
-      opts: ['std::vector<int>', 'int[3]', 'std::initializer_list<int>', 'It does not compile'], a: 2,
+      opts: ['std::vector<int>, because braces build a vector', 'int[3], a built-in array of three ints', 'std::initializer_list<int>, not a vector', 'A compile error, since auto cannot take a braced list'], a: 2,
       why: 'A braced list with `auto =` deduces `std::initializer_list`. It is a famous gotcha: write the type explicitly if you want a vector.' },
 
     { sec: 'deduction', q: 'What is the problem with `for (auto [key, value] : myMap)` for a `std::map<std::string, BigObject>`?',
-      opts: ['It does not compile', 'It copies each pair every iteration; use `const auto&` to avoid it', 'It modifies the map', 'It skips the first element'], a: 1,
+      opts: ['It does not compile, because structured bindings need a const map', 'It copies each pair every iteration; use const auto& instead', 'It modifies the map\'s keys while iterating over them', 'It skips the first element of the map'], a: 1,
       why: '`auto` deduces a value type, so each element is copied. Write `for (const auto& [key, value] : myMap)`.' },
 
     { sec: 'const', q: 'What is the difference between `const` and `constexpr`?',
-      opts: ['None', '`constexpr` guarantees the value can be computed at compile time; `const` only means read-only after initialization', '`const` is for functions, `constexpr` for variables', '`constexpr` values live on the heap'], a: 1,
+      opts: ['They are the same keyword, spelled differently in C++11 and later', 'constexpr can be evaluated at compile time; const is only read-only', 'const is for functions only, constexpr is for variables only', 'constexpr values always live on the heap, so they are slower to read'], a: 1,
       why: 'A `const int` may be initialized at runtime. A `constexpr` variable must be a compile-time constant, usable in template arguments and array sizes.' },
 
     { sec: 'standards', q: 'Which of these was introduced in C++17?',
-      opts: ['Move semantics', '`std::optional` and structured bindings', 'Lambdas', 'Concepts'], a: 1,
+      opts: ['Move semantics and rvalue references', 'std::optional and structured bindings', 'Lambda expressions and generic auto parameters', 'Concepts, ranges and coroutines together'], a: 1,
       why: 'Move semantics, lambdas and smart pointers came in C++11; `optional`, `variant`, `string_view`, structured bindings and `if constexpr` in C++17; concepts and ranges in C++20.' },
 
     { sec: 'const', q: 'What are the three meanings of `static` in C++?',
-      opts: ['Constant, shared, and fast', 'Persistent local variable, internal linkage at file scope, and class-level member', 'Heap allocation, stack allocation, and global', 'Only one: shared across threads'], a: 1,
+      opts: ['Constant, shared and fast, depending on where the keyword is written', 'A persistent local, internal linkage at file scope, a class-level member', 'Heap allocation, stack allocation and global storage, depending on the context', 'A synonym for volatile, a synonym for const, and a synonym for global'], a: 1,
       why: 'Inside a function it persists across calls; at namespace scope it hides the name in the translation unit; on a class member it is shared by all instances.' },
 
     { sec: 'init', q: 'What does `int a; std::cout << a;` do inside a function?',
-      opts: ['Prints 0', 'Prints some defined garbage value', 'Reading the uninitialized local is undefined behaviour', 'Does not compile'], a: 2,
+      opts: ['Prints 0, since locals start zeroed', 'Prints some leftover value, but the program is still valid', 'Undefined behavior: reading an uninitialized local', 'Does not compile, because a has no initializer'], a: 2,
       why: 'A default-initialized local `int` has an indeterminate value; reading it is undefined behaviour. Initialize with `int a{};` or a value.' },
 
     { sec: 'init', q: 'How many elements does `std::vector<int> v{3, 7};` contain?',
@@ -39,7 +39,7 @@ CT.quizData.types = {
       why: 'Braces prefer the `initializer_list` constructor. `std::vector<int> v(3, 7)` with parentheses gives three 7s.' },
 
     { sec: 'init', q: 'What happens with `int x{3.7};`?',
-      opts: ['`x` is 3', '`x` is 4', 'Compile error: narrowing conversion in braces', 'Undefined behaviour at runtime'], a: 2,
+      opts: ['x is 3, truncated just as a C-style cast would do it', 'x is 4, because the value is rounded to the nearest int', 'Compile error: narrowing conversion inside braces', 'Undefined behavior at run time, because 3.7 does not fit'], a: 2,
       why: 'List-initialization rejects narrowing conversions. `int x = 3.7;` would compile and silently truncate.' },
 
     { sec: 'deduction', q: 'Given `const int ci = 9;`, what are the types of `auto a = ci;` and `decltype(ci) b = 10;`?',
@@ -55,7 +55,7 @@ CT.quizData.types = {
       why: 'Types smaller than `int` are promoted to `int` before arithmetic, so the sum is 300. Only storing it back into a `uint8_t` wraps it to 44.' },
 
     { sec: 'conversions', q: 'Why does `int m = Level::Error;` fail when `Level` is an `enum class`?',
-      opts: ['Scoped enums have no integer values', 'A scoped enum does not convert implicitly: you need `static_cast<int>`', '`Error` is a reserved word', 'Enums cannot be assigned to `int`'], a: 1,
+      opts: ['Scoped enums have no underlying integer value, only names', 'A scoped enum does not convert implicitly; use static_cast<int>', 'Error is a reserved word, so it cannot be used as an enum member', 'Enums can never be assigned to an int variable in C++'], a: 1,
       why: 'That is a feature of `enum class`: no silent conversion to integers and no names leaking into the enclosing scope.' },
 
     { sec: 'casts', q: 'What is `static_cast<int>(-3.9)`?',
