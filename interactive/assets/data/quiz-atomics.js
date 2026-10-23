@@ -50,7 +50,7 @@ std::cout << data;`,
       why: 'The release store and acquire load synchronize-with each other, so earlier writes happen-before the reader\'s later reads.' },
 
     { sec: 'ordering', q: 'A producer stores the flag with `release`, but the consumer loads it with `relaxed`. What is guaranteed about the data written before the store?',
-      opts: ['It is visible, because the store was a release operation on the flag', 'Nothing: without an acquire on the reading side there is no ordering', 'It is visible on x86 only, not on weaker architectures such as ARM', 'The program does not compile when memory orders are mixed like this'], a: 1,
+      opts: ['It is visible, because the store was a release operation on the flag', 'Nothing: without an acquire on the reading side there is no ordering', 'It is guaranteed visible only if the data is declared volatile', 'The program does not compile when memory orders are mixed like this'], a: 1,
       why: 'Both sides must take part. A relaxed load does not synchronize, so reading the data afterwards can be a data race.' },
 
     { sec: 'ordering', q: 'What does "A happens-before B" mean?',

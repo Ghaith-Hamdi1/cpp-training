@@ -49,7 +49,7 @@ void print(T) { /* (2) */ }`,
       why: 'A plain `if` is run-time, so both branches are always compiled. Code that is invalid for some `T` breaks the build unless you use `if constexpr`.' },
 
     { sec: 's3', q: 'Which statement about a `constexpr` function is correct?',
-      opts: ['It is evaluated at compile time, whatever its arguments', 'It may run at compile time for constant arguments, and also at run time', 'It can be called from main and from other constexpr functions', 'It cannot take parameters, since it must be a constant'], a: 1,
+      opts: ['It is evaluated at compile time, whatever its arguments', 'It may run at compile time for constant arguments, and also at run time', 'It can only be called from main and from other constexpr functions', 'It cannot take parameters, since it must be a constant'], a: 1,
       why: '`constexpr` allows compile-time evaluation; it does not force it. Use a `constexpr` variable or `consteval` to guarantee it.' },
 
     { sec: 's3', q: 'What does `consteval` (C++20) add?',

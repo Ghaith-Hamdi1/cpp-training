@@ -38,7 +38,7 @@ std::cout << (&a == &b);`,
       why: '`unique_ptr` makes ownership explicit, prevents leaks, and avoids slicing (returning by value would slice). It can be converted to `shared_ptr` if needed.' },
 
     { sec: 's3', q: 'What must the abstract base class of objects created by a factory have?',
-      opts: ['A static member that holds the number of instances created so far', 'A virtual destructor, since objects are deleted through base pointers', 'A public copy constructor so that objects can be cloned easily', 'No data members, only pure virtual functions in the class'], a: 1,
+      opts: ['A static member that holds the number of instances created so far', 'A virtual destructor, since objects are deleted through base pointers', 'A public copy constructor so that objects can be cloned easily', 'At least one data member, to hold the id of the created object'], a: 1,
       why: 'Without a virtual destructor, deleting a derived object through a base pointer is undefined behavior.' },
 
     { sec: 's4', q: 'What is the Strategy pattern for?',
@@ -74,7 +74,7 @@ std::cout << (&a == &b);`,
       why: 'An adapter wraps one interface (deque) to present the interface clients expect (a stack). `queue` and `priority_queue` work the same way.' },
 
     { sec: 's7', q: 'How do Adapter and Decorator differ?',
-      opts: ['They are the same pattern under two different names in books', 'Adapter changes the interface; Decorator keeps it and adds behaviour', 'Decorator is a creational pattern, while Adapter is structural', 'Adapter is available when you use class templates'], a: 1,
+      opts: ['They are the same pattern under two different names in books', 'Adapter changes the interface; Decorator keeps it and adds behaviour', 'Decorator is a creational pattern, while Adapter is structural', 'Adapter requires class templates, while Decorator does not'], a: 1,
       why: 'Adapter converts interfaces; Decorator wraps an object with the same interface to add responsibilities (for example buffering or logging).' },
 
     { sec: 's7', q: 'What does CRTP (`struct Circle : Shape<Circle>`) provide?',

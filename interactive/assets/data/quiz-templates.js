@@ -27,11 +27,11 @@ maxOf(3, 2.5);`,
       code: String.raw`
 template <typename T, std::size_t N>
 struct Buffer { T data[N]; };`,
-      opts: ['A parameter that is not a class type but a built-in type', 'A compile-time constant value such as N used as a template argument', 'A parameter that cannot be deduced by the compiler from the call', 'A parameter passed by reference to the template instead of by value'], a: 1,
+      opts: ['A parameter that is not allowed to be a class template', 'A compile-time constant value such as N used as a template argument', 'A parameter that cannot be deduced by the compiler from the call', 'A parameter passed by reference to the template instead of by value'], a: 1,
       why: '`N` is a value known at compile time, which is how `std::array<int, 5>` encodes its size in its type.' },
 
     { sec: 's3', q: 'Which statement about partial specialization is true?',
-      opts: ['It is allowed for function templates as well as for class templates', 'It is allowed for class templates, not function templates (overload instead)', 'It is not allowed for templates in standard C++ code', 'It is allowed for templates that have non-type parameters'], a: 1,
+      opts: ['It is allowed for function templates as well as for class templates', 'It is allowed for class templates, not function templates (overload instead)', 'It is not allowed for templates in standard C++ code', 'It is allowed only when every template parameter is a non-type parameter'], a: 1,
       why: 'Class templates can be partially specialized (for example `Foo<T*>`). Function templates cannot, so you overload them.' },
 
     { sec: 's4', q: 'In `template <typename T> void f(T&& x);` what is `T&&`?',
@@ -47,7 +47,7 @@ struct Buffer { T data[N]; };`,
       why: 'If either side is an lvalue reference the result is an lvalue reference. Only rvalue-reference-to-rvalue-reference stays an rvalue reference.' },
 
     { sec: 's4', q: 'What is the difference between `std::move(x)` and `std::forward<T>(x)`?',
-      opts: ['They are the same: both just cast their argument to T&&', 'move always casts to an rvalue; forward does so only if the argument was one', 'forward makes a copy of its argument before passing it on', 'move works on standard library containers and on strings'], a: 1,
+      opts: ['They are the same: both just cast their argument to T&&', 'move always casts to an rvalue; forward does so only if the argument was one', 'forward makes a copy of its argument before passing it on', 'move works only on standard library containers and on strings'], a: 1,
       why: '`std::forward` preserves the value category of a forwarding reference argument, enabling perfect forwarding. `std::move` unconditionally says "this may be stolen from".' },
 
     { sec: 's4', q: 'What is the purpose of perfect forwarding?',

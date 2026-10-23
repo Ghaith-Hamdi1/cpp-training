@@ -39,7 +39,7 @@ int main() {
       why: 'The guard\'s destructor only runs the cleanup while it is still active. `release()` deactivates it once the work has succeeded.' },
 
     { sec: 'raii-types', q: 'What does the Rule of Zero say?',
-      opts: ['Rely on generated constructors and write none by hand', 'Use RAII members, so no destructor, copy or move needs writing by hand', 'Delete the copy constructor of each class you write', 'Classes must have zero data members to stay in a valid state'], a: 1,
+      opts: ['Give every class a default constructor and no other constructor', 'Use RAII members, so no destructor, copy or move needs writing by hand', 'Delete the copy constructor of each class you write', 'Classes must have zero data members to stay in a valid state'], a: 1,
       why: 'If every member manages itself (`vector`, `string`, `unique_ptr`), the compiler-generated special members are correct and you write none.' },
 
     { sec: 's7', q: 'Inside a `catch` block, what is the difference between `throw;` and `throw e;`?',

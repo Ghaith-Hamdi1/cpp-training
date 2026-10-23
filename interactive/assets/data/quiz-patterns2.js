@@ -31,7 +31,7 @@ CT.quizData.patterns2 = {
       why: 'That is the fluent interface style.' },
 
     { sec: 'visitor', q: 'What is the advantage of `std::variant` with `std::visit` over virtual functions for a closed set of message types?',
-      opts: ['It is shorter to write than an equivalent class hierarchy', 'New operations are one visitor; storage is inline; a missed case fails to build', 'It supports an unlimited, open set of types from many libraries', 'It needs no header and no extra include anywhere in the program'], a: 1,
+      opts: ['It is always shorter to write in every case, even with many operations', 'New operations are one visitor; storage is inline; a missed case fails to build', 'It supports an unlimited, open set of types from many libraries', 'It needs no header and no extra include anywhere in the program'], a: 1,
       why: 'When the set of types is closed and operations keep growing, the variant fits better. With an open set of types, virtual functions fit better.' },
 
     { sec: 'visitor', q: 'You add a new alternative to a `std::variant` used with `std::visit`. What happens to a visitor that does not handle it?',

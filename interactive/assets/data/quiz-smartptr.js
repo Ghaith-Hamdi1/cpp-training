@@ -7,7 +7,7 @@ CT.quizData.smartptr = {
 auto p = std::make_unique<int>(5);   // (1)
 auto q = p;                          // (2)
 auto r = std::move(p);               // (3)`,
-      opts: ['(1)', '(2) because unique_ptr cannot be copied', '(3) because you cannot move a unique_ptr', 'A std::move of the pointer'], a: 1,
+      opts: ['(1)', '(2) because unique_ptr cannot be copied', '(3) because you cannot move a unique_ptr', 'None: all three lines compile'], a: 1,
       why: '`unique_ptr` has exclusive ownership, so its copy constructor is deleted. It is move-only, which is what (3) does.' },
 
     { sec: 'shared', q: 'What does this print?',

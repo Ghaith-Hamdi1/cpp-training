@@ -68,7 +68,7 @@ for (std::size_t i = 0; i < v.size() - 1; ++i) { /* ... */ }`,
       why: 'Algorithms assume `comp(a, a)` is false. Violating that can cause out-of-bounds reads in `std::sort` and corrupt ordered containers.' },
 
     { sec: 's2', q: 'What is the difference between `push_back` and `emplace_back`?',
-      opts: ['emplace_back inserts the new element at the front instead of the back', 'emplace_back constructs the element in place, avoiding a temporary', 'push_back is faster than emplace_back for most element types', 'They behave the same for most types, so the choice is style'], a: 1,
+      opts: ['emplace_back inserts the new element at the front instead of the back', 'emplace_back constructs the element in place, avoiding a temporary', 'push_back is faster than emplace_back for most element types', 'They are identical for every type, including types with expensive constructors'], a: 1,
       why: '`push_back(obj)` copies or moves an existing object. `emplace_back(args...)` builds it directly inside the container. For trivial types the two compile to the same thing.' },
 
     { sec: 's7', q: 'What must be true before calling `std::lower_bound` or `std::binary_search` on a range?',
