@@ -73,6 +73,8 @@ node tools/check-guides.mjs         # reading guides against the lessons
 node tools/test-registry.mjs        # progress migrations
 ```
 
+To try the site locally run `node tools/serve.mjs` and open <http://localhost:8123/>.
+
 The roadmap pages and the C++ Primer guide and plan are generated: edit `tools/roadmap-data.mjs` or `tools/primer-data.mjs` and rebuild, never the Markdown. After you change a page range, run `node tools/check-book-pages.mjs`. It opens the PDFs in `books/` (needs `pdftotext` from poppler, so it is not part of CI) and checks that each section really starts on the page given.
 
 ## Further reading
