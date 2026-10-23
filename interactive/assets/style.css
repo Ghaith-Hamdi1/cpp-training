@@ -617,3 +617,17 @@ details.aq.dk > summary .mark { color: var(--warn); }
 .ck-section .ck-sub { margin: 1.4em 0 0.2em; font-size: 0.78rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
 .ck-section h4 { margin: 1.2em 0 0.2em; font-size: 1rem; }
 @media print { .ck-tabs { display: none; } .ck-section[hidden] { display: block !important; } main > section.ck-section[hidden] { display: block !important; } }
+
+/* phase line above a lesson or quiz title */
+.eyebrow { margin: 0 0 4px; font-size: 0.82rem; color: var(--muted); }
+.eyebrow b { color: var(--fg); font-weight: 650; }
+.eyebrow a { color: var(--muted); }
+.eyebrow a:hover { color: var(--accent); }
+
+/* small screens: bigger tap targets on the checklist, denser phase tabs */
+@media (max-width: 520px) {
+  .ck-tabs { grid-template-columns: repeat(auto-fit, minmax(98px, 1fr)); }
+  .ck-tab { padding: 10px 6px; font-size: 0.84rem; }
+  .ck-list .t a, .ck-section .ck-note a { display: inline-block; padding: 8px 6px; margin-left: 0; }
+  .callout { font-size: 0.93rem; }
+}

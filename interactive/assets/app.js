@@ -200,6 +200,19 @@
     document.addEventListener('click', (e) => { const m = $('.menu', h); if (m && !m.contains(e.target)) m.open = false; });
   }
 
+  function phaseLine(main, kind) {
+    const t = topicOf(document.body.dataset.topic);
+    const ph = t && (CT.phases || []).filter((p) => p.n === t.phase)[0];
+    const h1 = $('h1', main);
+    if (!ph || !h1) return;
+    const roadmap = 'https://github.com/Ghaith-Hamdi1/cpp-training/blob/main/docs/reading/roadmap/' + ph.page;
+    const el = document.createElement('p');
+    el.className = 'eyebrow';
+    el.innerHTML = '<b>Phase ' + ph.n + ' of ' + CT.phases.length + '</b>: ' + esc(ph.name) + ' &middot; ' + (kind === 'quiz' ? 'quiz for ' : '') + 'lesson ' + t.n + ' of ' + TOPICS.length +
+      ' &middot; <a href="study-checklist.html#phase-' + ph.n + '">checklist</a> &middot; <a href="' + roadmap + '">book reading</a>';
+    h1.parentNode.insertBefore(el, h1);
+  }
+
   function buildPager(main, kind) {
     const t = topicOf(document.body.dataset.topic);
     if (!t) return;
@@ -1438,8 +1451,8 @@
     renderCodeBlocks();
     buildHeader(kind);
     const main = $('main');
-    if (kind === 'lesson' && main) { buildLesson(main); buildPager(main, 'lesson'); }
-    else if (kind === 'quiz' && main) { main.classList.add('solo'); buildPager(main, 'quiz'); }
+    if (kind === 'lesson' && main) { buildLesson(main); buildPager(main, 'lesson'); phaseLine(main, 'lesson'); }
+    else if (kind === 'quiz' && main) { main.classList.add('solo'); buildPager(main, 'quiz'); phaseLine(main, 'quiz'); }
     else if (kind === 'home') { if (main) main.classList.add('solo'); home(); }
     else if (kind === 'checklist' && main) { main.classList.add('solo'); checklist(main); }
     else if (kind === 'mock' && main) { main.classList.add('solo'); }

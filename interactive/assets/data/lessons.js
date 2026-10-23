@@ -5,51 +5,64 @@
  *
  * To add a lesson: create <file> and <quiz> (and assets/data/quiz-<id>.js), then add one entry below.
  * Navigation order and the displayed number come from the position in this array, not from the file name.
- * Fields: id (lowercase letters and digits, used in saved progress), file, quiz, title, time, assess (questions drawn
+ * Fields: id (lowercase letters and digits, used in saved progress), phase (1 to 8, the roadmap phase the lesson belongs to; see CT.phases), file, quiz, title, time, assess (questions drawn
  * for the level check: 2 for every lesson, so the check is even; 0 leaves the lesson out), blurb.
  */
 window.CT = window.CT || {};
 
+/* The eight phases of the C++ roadmap (docs/reading/roadmap). tools/build-checklist.mjs checks that every lesson's phase and
+ * every phase's name and page match the roadmap files, so edit both together. */
+CT.phases = [
+  { n: 1, name: 'Core language foundations', page: 'phase-1-core-language-foundations.md' },
+  { n: 2, name: 'Classes, memory and object-oriented design', page: 'phase-2-classes-memory-and-object-oriented-design.md' },
+  { n: 3, name: 'The standard library and generic programming', page: 'phase-3-the-standard-library-and-generic-programming.md' },
+  { n: 4, name: 'RAII, exceptions and advanced language tools', page: 'phase-4-raii-exceptions-and-advanced-language-tools.md' },
+  { n: 5, name: 'Modern C++ (C++11 to C++20)', page: 'phase-5-modern-cpp.md' },
+  { n: 6, name: 'Design patterns and SOLID', page: 'phase-6-design-patterns-and-solid.md' },
+  { n: 7, name: 'Concurrency and the memory model', page: 'phase-7-concurrency-and-the-memory-model.md' },
+  { n: 8, name: 'Performance, memory layout and binary data', page: 'phase-8-performance-memory-layout-and-binary-data.md' }
+];
+
 CT.lessons = [
-  { id: 'basics', file: '01-basics.html', quiz: '01-basics-quiz.html', title: 'C++ Basics & Pointers', time: '60 min', assess: 2,
+  { id: 'basics', file: '01-basics.html', quiz: '01-basics-quiz.html', title: 'C++ Basics & Pointers', time: '60 min', assess: 2, phase: 1,
     blurb: 'Types, functions, memory, pointers, references, const and dynamic allocation, built up from zero.' },
-  { id: 'types', file: '16-types-and-casts.html', quiz: '16-types-and-casts-quiz.html', title: 'Types, Initialization & Casts', time: '40 min', assess: 2,
+  { id: 'types', file: '16-types-and-casts.html', quiz: '16-types-and-casts-quiz.html', title: 'Types, Initialization & Casts', time: '40 min', assess: 2, phase: 1,
     blurb: 'Initialization forms and brace traps, auto and decltype, implicit conversions, the named casts, const, constexpr and static.' },
-  { id: 'oop', file: '02-oop.html', quiz: '02-oop-quiz.html', title: 'Object-Oriented Programming', time: '60 min', assess: 2,
+  { id: 'oop', file: '02-oop.html', quiz: '02-oop-quiz.html', title: 'Object-Oriented Programming', time: '60 min', assess: 2, phase: 2,
     blurb: 'Classes, constructors, rule of 3/5/0, inheritance, virtual functions, abstract classes, operator overloading.' },
-  { id: 'objmodel', file: '19-object-model.html', quiz: '19-object-model-quiz.html', title: 'The Object Model in Depth', time: '40 min', assess: 2,
+  { id: 'objmodel', file: '19-object-model.html', quiz: '19-object-model-quiz.html', title: 'The Object Model in Depth', time: '40 min', assess: 2, phase: 2,
     blurb: 'Multiple inheritance and layout, the diamond and virtual inheritance, RTTI and private inheritance.' },
-  { id: 'strings', file: '08-strings-regex-time.html', quiz: '08-strings-regex-time-quiz.html', title: 'Strings, Regex & Time', time: '40 min', assess: 2,
+  { id: 'strings', file: '08-strings-regex-time.html', quiz: '08-strings-regex-time-quiz.html', title: 'Strings, Regex & Time', time: '40 min', assess: 2, phase: 3,
     blurb: 'string versus string_view, regular expressions with a live tester, and measuring time with chrono clocks and durations.' },
-  { id: 'stl', file: '04-stl.html', quiz: '04-stl-quiz.html', title: 'The STL', time: '60 min', assess: 2,
+  { id: 'stl', file: '04-stl.html', quiz: '04-stl-quiz.html', title: 'The STL', time: '60 min', assess: 2, phase: 3,
     blurb: 'Containers, iterators, algorithms, complexity, iterator invalidation and how to choose the right container.' },
-  { id: 'lambdas', file: '15-lambdas.html', quiz: '15-lambdas-quiz.html', title: 'Lambdas & Callables', time: '35 min', assess: 2,
+  { id: 'lambdas', file: '15-lambdas.html', quiz: '15-lambdas-quiz.html', title: 'Lambdas & Callables', time: '35 min', assess: 2, phase: 3,
     blurb: 'Captures and their lifetime traps, init-capture, generic lambdas, and function pointer versus functor versus lambda versus std::function.' },
-  { id: 'templates', file: '05-templates.html', quiz: '05-templates-quiz.html', title: 'Templates', time: '60 min', assess: 2,
+  { id: 'templates', file: '05-templates.html', quiz: '05-templates-quiz.html', title: 'Templates', time: '60 min', assess: 2, phase: 3,
     blurb: 'Function and class templates, specialization, forwarding references, variadic templates, type traits, if constexpr.' },
-  { id: 'core', file: '03-core-language.html', quiz: '03-core-language-quiz.html', title: 'Core Language: RAII & Exceptions', time: '35 min', assess: 2,
+  { id: 'core', file: '03-core-language.html', quiz: '03-core-language-quiz.html', title: 'Core Language: RAII & Exceptions', time: '35 min', assess: 2, phase: 4,
     blurb: 'RAII and scope guards, stack unwinding, the exception-safety guarantees, noexcept, and exceptions versus return values.' },
-  { id: 'vocab', file: '21-vocabulary-types.html', quiz: '21-vocabulary-types-quiz.html', title: 'Vocabulary Types', time: '35 min', assess: 2,
+  { id: 'vocab', file: '21-vocabulary-types.html', quiz: '21-vocabulary-types-quiz.html', title: 'Vocabulary Types', time: '35 min', assess: 2, phase: 5,
     blurb: 'pair and tuple, optional, variant and visit, expected, span and string_view: the small types that make interfaces honest.' },
-  { id: 'moves', file: '13-move-semantics.html', quiz: '13-move-semantics-quiz.html', title: 'Move Semantics', time: '45 min', assess: 2,
+  { id: 'moves', file: '13-move-semantics.html', quiz: '13-move-semantics-quiz.html', title: 'Move Semantics', time: '45 min', assess: 2, phase: 5,
     blurb: 'Value categories, what std::move really does, writing move operations, copy elision and the move traps.' },
-  { id: 'smartptr', file: '14-smart-pointers.html', quiz: '14-smart-pointers-quiz.html', title: 'Smart Pointers & Ownership', time: '40 min', assess: 2,
+  { id: 'smartptr', file: '14-smart-pointers.html', quiz: '14-smart-pointers-quiz.html', title: 'Smart Pointers & Ownership', time: '40 min', assess: 2, phase: 5,
     blurb: 'unique_ptr, shared_ptr and weak_ptr, the control block, cycles, custom deleters and how to pass ownership around.' },
-  { id: 'compiletime', file: '09-compile-time.html', quiz: '09-compile-time-quiz.html', title: 'Type Traits & Compile-time C++', time: '45 min', assess: 2,
+  { id: 'compiletime', file: '09-compile-time.html', quiz: '09-compile-time-quiz.html', title: 'Type Traits & Compile-time C++', time: '45 min', assess: 2, phase: 5,
     blurb: 'Type traits, SFINAE, concepts and requires, if constexpr, constexpr and consteval, and classic template metaprogramming.' },
-  { id: 'patterns', file: '06-design-patterns.html', quiz: '06-design-patterns-quiz.html', title: 'Design Patterns', time: '50 min', assess: 2,
+  { id: 'patterns', file: '06-design-patterns.html', quiz: '06-design-patterns-quiz.html', title: 'Design Patterns', time: '50 min', assess: 2, phase: 6,
     blurb: 'Singleton, Factory, Strategy, Observer and State in modern C++, plus the idioms you should recognise.' },
-  { id: 'patterns2', file: '20-more-patterns.html', quiz: '20-more-patterns-quiz.html', title: 'More Patterns', time: '40 min', assess: 2,
+  { id: 'patterns2', file: '20-more-patterns.html', quiz: '20-more-patterns-quiz.html', title: 'More Patterns', time: '40 min', assess: 2, phase: 6,
     blurb: 'Command with undo, Decorator, Adapter, Builder, Visitor with std::variant and a protocol state machine, with real code.' },
-  { id: 'threads', file: '07-multithreading.html', quiz: '07-multithreading-quiz.html', title: 'Multithreading', time: '60 min', assess: 2,
+  { id: 'threads', file: '07-multithreading.html', quiz: '07-multithreading-quiz.html', title: 'Multithreading', time: '60 min', assess: 2, phase: 7,
     blurb: 'From your first thread to data races, mutexes, deadlocks, condition variables and the other mutex types.' },
-  { id: 'tasks', file: '17-tasks-parallelism.html', quiz: '17-tasks-parallelism-quiz.html', title: 'Tasks & Parallelism', time: '45 min', assess: 2,
+  { id: 'tasks', file: '17-tasks-parallelism.html', quiz: '17-tasks-parallelism-quiz.html', title: 'Tasks & Parallelism', time: '45 min', assess: 2, phase: 7,
     blurb: 'Futures and async, promises, thread pools and work stealing, latch, barrier, semaphore, stop_token and parallel algorithms.' },
-  { id: 'atomics', file: '18-atomics-memory-model.html', quiz: '18-atomics-memory-model-quiz.html', title: 'Atomics & the Memory Model', time: '55 min', assess: 2,
+  { id: 'atomics', file: '18-atomics-memory-model.html', quiz: '18-atomics-memory-model-quiz.html', title: 'Atomics & the Memory Model', time: '55 min', assess: 2, phase: 7,
     blurb: 'Atomic operations, compare-and-swap, memory orders and happens-before with a simulator, ordering patterns and concurrent data structures.' },
-  { id: 'wire', file: '11-wire-formats.html', quiz: '11-wire-formats-quiz.html', title: 'Binary Data & Parsing', time: '60 min', assess: 2,
+  { id: 'wire', file: '11-wire-formats.html', quiz: '11-wire-formats-quiz.html', title: 'Binary Data & Parsing', time: '60 min', assess: 2, phase: 8,
     blurb: 'Bit manipulation, struct layout and padding, endianness, aliasing and memcpy, zero-copy parsing, fixed-point numbers and sequence numbers.' },
-  { id: 'latency', file: '12-low-latency.html', quiz: '12-low-latency-quiz.html', title: 'Performance & Memory', time: '60 min', assess: 2,
+  { id: 'latency', file: '12-low-latency.html', quiz: '12-low-latency-quiz.html', title: 'Performance & Memory', time: '60 min', assess: 2, phase: 8,
     blurb: 'Tail latency, pools and arenas, cache-friendly data, lookup structures, SPSC queues, predictable hot paths and core pinning.' }
 ];
 

@@ -51,6 +51,14 @@ for (const l of reg.lessons) {
 }
 const idOfFile = Object.fromEntries(reg.lessons.map((l) => [l.file, l.id]));
 for (const p of PHASES) p.ids = p.lessonFiles.map((fl) => { if (!idOfFile[fl]) throw new Error('roadmap phase ' + p.n + ' names an unknown lesson file ' + fl); return idOfFile[fl]; });
+// the registry (lessons.js) names the phase of every lesson and the phases themselves; they must match the roadmap files
+if (!reg.phases || reg.phases.length !== PHASES.length) throw new Error('lessons.js CT.phases must list the ' + PHASES.length + ' roadmap phases');
+for (const p of PHASES) {
+  const rp = reg.phases[p.n - 1];
+  if (!rp || rp.n !== p.n || rp.name !== p.name || rp.page !== p.file) throw new Error('lessons.js CT.phases[' + (p.n - 1) + '] does not match ' + p.file + ' (name "' + p.name + '")');
+  const inReg = reg.lessons.filter((l) => l.phase === p.n).map((l) => l.id);
+  if (inReg.join() !== p.ids.join()) throw new Error('phase ' + p.n + ': lessons.js has [' + inReg + '] but ' + p.file + ' lists [' + p.ids + ']');
+}
 const used = PHASES.flatMap((p) => p.ids);
 for (const l of reg.lessons) if (!used.includes(l.id)) throw new Error('lesson ' + l.id + ' is not in any phase of the roadmap');
 
