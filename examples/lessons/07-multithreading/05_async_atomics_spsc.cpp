@@ -1,4 +1,4 @@
-// Lesson 15: futures and async (results and exceptions), promise, packaged_task, release/acquire publishing,
+// Lesson 16: futures and async (results and exceptions), promise, packaged_task, release/acquire publishing,
 // compare_exchange, a single-producer single-consumer lock-free ring buffer. Compile with -pthread.
 #include <atomic>
 #include <chrono>

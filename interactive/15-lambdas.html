@@ -129,11 +129,11 @@ auto g = std::bind(add3, _2, _1, 9);     // placeholders can reorder: g(4, 5) is
 auto h = [](int b, int c) { return add3(1, b, c); };   // the same as f, and easier to read
 </script>
 <p>Compiled: <code>f(2, 3)</code> gave 123, <code>g(4, 5)</code> gave 549 and the lambda gave 123. <code>std::bind</code> predates lambdas (C++11); it copies its arguments, hides overloads and produces unreadable errors. You will see it in older code, so be able to read it; in new code write a lambda, which also inlines better.</p>
-<div class="callout interview"><span class="label">Interview angle</span>"Lambda vs <code>std::function</code>?" A lambda has its own type and is inlined; <code>std::function</code> erases the type, costs an indirect call and maybe an allocation. Use it only when you must store different callables in one place.</div>
+<div class="callout interview"><span class="label">Key point</span>"Lambda vs <code>std::function</code>?" A lambda has its own type and is inlined; <code>std::function</code> erases the type, costs an indirect call and maybe an allocation. Use it only when you must store different callables in one place.</div>
 </section>
 
-<section id="cheat" data-title="Interview cheat sheet">
-<h2>Interview cheat sheet</h2>
+<section id="cheat" data-title="Cheat sheet">
+<h2>Cheat sheet</h2>
 <p>Answer aloud, then open.</p>
 <details class="ex"><summary>What is a lambda and what does the compiler generate?</summary><div><p>An unnamed function object: the compiler creates a unique class with the captured variables as members and the body as <code>operator()</code>. Because it has its own type, calls can be inlined.</p></div></details>
 <details class="ex"><summary>Capture by value vs by reference?</summary><div><p>By value copies the variable when the lambda is created (const inside unless <code>mutable</code>). By reference stores a reference to the live variable and dangles if the lambda outlives it. Capture by value for lambdas that escape the scope or run on another thread.</p></div></details>

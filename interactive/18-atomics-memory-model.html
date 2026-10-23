@@ -113,7 +113,7 @@ std::cout << data;                      // guaranteed to print 42
 <li>A <b>fence</b> (<code>std::atomic_thread_fence</code>) gives the ordering without tying it to one variable. Know it exists; reach for acquire/release on the atomic first.</li>
 <li>Without any synchronization, two threads touching the same non-atomic variable (one writing) is a <b>data race: undefined behaviour</b>, not merely "stale data".</li>
 </ul>
-<div class="callout interview"><span class="label">Interview angle</span>"What does acquire/release guarantee?" Everything written before the release is visible after the matching acquire. Say <i>synchronizes-with</i> and <i>happens-before</i>, and that <code>seq_cst</code> is the safe default.</div>
+<div class="callout interview"><span class="label">Key point</span>"What does acquire/release guarantee?" Everything written before the release is visible after the matching acquire. Say <i>synchronizes-with</i> and <i>happens-before</i>, and that <code>seq_cst</code> is the safe default.</div>
 <!-- read-more:start -->
 <div class="callout tip"><span class="label">Read more</span>
 <p><b>C++ Concurrency in Action (Williams)</b></p>
@@ -162,7 +162,7 @@ Widget* get() {
 }
 </script>
 <p>Without the release/acquire pair, another thread could see the pointer before the constructor's writes. In practice use a function-local <code>static</code> or <code>std::call_once</code> and let the compiler do this.</p>
-<div class="callout tip"><span class="label">Be honest in interviews</span>Start with a mutex or <code>seq_cst</code>, measure, and weaken orders only when you can say which happens-before edge each one provides. "I use acquire/release for publication, relaxed for counters" is the answer interviewers want.</div>
+<div class="callout tip"><span class="label">Be honest about what you know</span>Start with a mutex or <code>seq_cst</code>, measure, and weaken orders only when you can say which happens-before edge each one provides. "I use acquire/release for publication, relaxed for counters" is a sound rule of thumb.</div>
 <!-- read-more:start -->
 <div class="callout tip"><span class="label">Read more</span>
 <p><b>C++ Concurrency in Action (Williams)</b></p>
@@ -226,8 +226,8 @@ void push(int v) {
 <!-- read-more:end -->
 </section>
 
-<section id="cheat" data-title="Interview cheat sheet">
-<h2>Interview cheat sheet</h2>
+<section id="cheat" data-title="Cheat sheet">
+<h2>Cheat sheet</h2>
 <p>Say each answer aloud, then open it.</p>
 <details class="ex"><summary><code>std::atomic</code> vs mutex?</summary><div><p>An atomic makes operations on a single variable indivisible, usually lock-free and cheap. A mutex protects any critical section, including invariants over several variables, but may block. Use atomics for counters and flags, mutexes for compound state.</p></div></details>
 <details class="ex"><summary>Is <code>volatile</code> a substitute for <code>atomic</code>?</summary><div><p>No. <code>volatile</code> prevents some compiler optimisations but gives no atomicity and no inter-thread ordering. Using it for synchronization is a data race.</p></div></details>

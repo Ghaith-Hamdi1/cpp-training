@@ -68,7 +68,7 @@ auto q = std::move(p);                       // OK: ownership moves, p is now nu
 <li><b>Polymorphism:</b> <code>unique_ptr&lt;Base&gt;</code> holding a <code>Derived</code> needs a <b>virtual destructor</b> on <code>Base</code>, as with any <code>delete</code> through a base pointer.</li>
 <li><code>.get()</code> returns the raw pointer without giving up ownership; <code>.release()</code> gives it up (you must delete it); <code>.reset()</code> destroys the object now.</li>
 </ul>
-<div class="callout interview"><span class="label">Interview angle</span>Why <code>make_unique</code>? No naked <code>new</code>, the type is written once, and before C++17 <code>f(unique_ptr&lt;A&gt;(new A), g())</code> could leak when <code>g()</code> threw between the two steps.</div>
+<div class="callout interview"><span class="label">Key point</span>Why <code>make_unique</code>? No naked <code>new</code>, the type is written once, and before C++17 <code>f(unique_ptr&lt;A&gt;(new A), g())</code> could leak when <code>g()</code> threw between the two steps.</div>
 <!-- read-more:start -->
 <div class="callout tip"><span class="label">Read more</span>
 <p><b>Effective Modern C++ (Meyers)</b></p>
@@ -160,8 +160,8 @@ Session raw; raw.self();               // throws std::bad_weak_ptr: no shared_pt
 </table>
 </section>
 
-<section id="cheat" data-title="Interview cheat sheet">
-<h2>Interview cheat sheet</h2>
+<section id="cheat" data-title="Cheat sheet">
+<h2>Cheat sheet</h2>
 <p>Answer aloud, then open.</p>
 <details class="ex"><summary><code>unique_ptr</code> vs <code>shared_ptr</code> vs <code>weak_ptr</code>?</summary><div><p><code>unique_ptr</code>: sole owner, move-only, zero overhead. <code>shared_ptr</code>: reference-counted shared ownership with a control block and atomic count. <code>weak_ptr</code>: non-owning observer used to break cycles and to check whether a shared object is still alive (<code>lock()</code>).</p></div></details>
 <details class="ex"><summary>Is <code>shared_ptr</code> thread-safe?</summary><div><p>The reference count is atomic, so copying and destroying <code>shared_ptr</code>s from different threads is safe. The pointed-to object is <b>not</b> protected: concurrent access to it still needs synchronization. Concurrently modifying the same <code>shared_ptr</code> variable is also a race.</p></div></details>

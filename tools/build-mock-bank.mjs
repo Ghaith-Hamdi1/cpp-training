@@ -1,4 +1,4 @@
-// Builds interactive/assets/data/mock-bank.js: every interview cheat-sheet question with its answer, for the mock interview page.
+// Builds interactive/assets/data/mock-bank.js: every cheat-sheet question with its answer, for the mock questions page.
 // A data file (instead of fetching the lesson pages) keeps the page working when opened straight from disk (file://).
 // Usage: node tools/build-mock-bank.mjs [--check]   (--check fails if the file is stale)
 import { readFileSync, writeFileSync, readdirSync, existsSync } from 'node:fs';
@@ -13,7 +13,7 @@ const bank = [];
 for (const f of loadRegistry().lessons.map((l) => l.file)) {
   const html = readFileSync(join(root, f), 'utf8').replace(/\r\n/g, '\n');
   const topic = (html.match(/data-topic="([^"]+)"/) || [])[1];
-  const sec = html.match(/<section[^>]*data-title="Interview cheat sheet"[^>]*>([\s\S]*?)<\/section>/);
+  const sec = html.match(/<section[^>]*data-title="Cheat sheet"[^>]*>([\s\S]*?)<\/section>/);
   if (!topic || !sec) continue;
   let i = 0;
   for (const m of sec[1].matchAll(/<details[^>]*>\s*<summary[^>]*>([\s\S]*?)<\/summary>([\s\S]*?)<\/details>/g)) {

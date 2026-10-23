@@ -1,4 +1,4 @@
-// Lesson 15: recursive_mutex (and why it is a smell), timed_mutex with try_lock_for, shared_mutex for a read-mostly
+// Lesson 16: recursive_mutex (and why it is a smell), timed_mutex with try_lock_for, shared_mutex for a read-mostly
 // table, and call_once. Compile with -std=c++20 -pthread.
 #include <chrono>
 #include <iostream>

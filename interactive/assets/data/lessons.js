@@ -15,6 +15,8 @@ CT.lessons = [
     blurb: 'Types, functions, memory, pointers, references, const and dynamic allocation, built up from zero.' },
   { id: 'types', file: '16-types-and-casts.html', quiz: '16-types-and-casts-quiz.html', title: 'Types, Initialization & Casts', time: '40 min', assess: 2,
     blurb: 'Initialization forms and brace traps, auto and decltype, implicit conversions, the named casts, const, constexpr and static.' },
+  { id: 'vocab', file: '21-vocabulary-types.html', quiz: '21-vocabulary-types-quiz.html', title: 'Vocabulary Types', time: '35 min', assess: 2,
+    blurb: 'pair and tuple, optional, variant and visit, expected, span and string_view: the small types that make interfaces honest.' },
   { id: 'oop', file: '02-oop.html', quiz: '02-oop-quiz.html', title: 'Object-Oriented Programming', time: '60 min', assess: 2,
     blurb: 'Classes, constructors, rule of 3/5/0, inheritance, virtual functions, abstract classes, operator overloading.' },
   { id: 'objmodel', file: '19-object-model.html', quiz: '19-object-model-quiz.html', title: 'The Object Model in Depth', time: '40 min', assess: 2,
@@ -34,23 +36,21 @@ CT.lessons = [
   { id: 'templates', file: '05-templates.html', quiz: '05-templates-quiz.html', title: 'Templates', time: '60 min', assess: 2,
     blurb: 'Function and class templates, specialization, forwarding references, variadic templates, type traits, if constexpr.' },
   { id: 'compiletime', file: '09-compile-time.html', quiz: '09-compile-time-quiz.html', title: 'Type Traits & Compile-time C++', time: '45 min', assess: 2,
-    blurb: 'Type traits, SFINAE, if constexpr, constexpr and consteval, and classic template metaprogramming.' },
+    blurb: 'Type traits, SFINAE, concepts and requires, if constexpr, constexpr and consteval, and classic template metaprogramming.' },
   { id: 'patterns', file: '06-design-patterns.html', quiz: '06-design-patterns-quiz.html', title: 'Design Patterns', time: '50 min', assess: 2,
     blurb: 'Singleton, Factory, Strategy, Observer and State in modern C++, plus the idioms you should recognise.' },
-  { id: 'patterns2', file: '20-more-patterns.html', quiz: '20-more-patterns-quiz.html', title: 'More Patterns & Feed-Handler Designs', time: '40 min', assess: 2,
-    blurb: 'Command with undo, Decorator, Adapter, Builder, Visitor with std::variant and a session state machine, with real code.' },
+  { id: 'patterns2', file: '20-more-patterns.html', quiz: '20-more-patterns-quiz.html', title: 'More Patterns', time: '40 min', assess: 2,
+    blurb: 'Command with undo, Decorator, Adapter, Builder, Visitor with std::variant and a protocol state machine, with real code.' },
   { id: 'threads', file: '07-multithreading.html', quiz: '07-multithreading-quiz.html', title: 'Multithreading', time: '60 min', assess: 2,
     blurb: 'From your first thread to data races, mutexes, deadlocks, condition variables and the other mutex types.' },
   { id: 'tasks', file: '17-tasks-parallelism.html', quiz: '17-tasks-parallelism-quiz.html', title: 'Tasks & Parallelism', time: '45 min', assess: 2,
     blurb: 'Futures and async, promises, thread pools and work stealing, latch, barrier, semaphore, stop_token and parallel algorithms.' },
   { id: 'atomics', file: '18-atomics-memory-model.html', quiz: '18-atomics-memory-model-quiz.html', title: 'Atomics & the Memory Model', time: '55 min', assess: 2,
     blurb: 'Atomic operations, compare-and-swap, memory orders and happens-before with a simulator, ordering patterns and concurrent data structures.' },
-  { id: 'wire', file: '11-wire-formats.html', quiz: '11-wire-formats-quiz.html', title: 'Wire Formats & Parsing', time: '60 min', assess: 2,
-    blurb: 'Bit manipulation, struct layout and padding, endianness, aliasing and memcpy, zero-copy parsing, fixed-point prices and sequence numbers.' },
-  { id: 'latency', file: '12-low-latency.html', quiz: '12-low-latency-quiz.html', title: 'Low-Latency C++', time: '60 min', assess: 2,
-    blurb: 'Tail latency, pools and arenas, cache-friendly data, order-book structures, SPSC queues, predictable hot paths and core pinning.' },
-  { id: 'rules', file: '10-coding-rules.html', quiz: '10-coding-rules-quiz.html', title: 'Coding Rules & Safe C++', time: '30 min', assess: 2,
-    blurb: 'MISRA and AUTOSAR C++14, typical safety rules and why they exist, and static analysis in practice.' }
+  { id: 'wire', file: '11-wire-formats.html', quiz: '11-wire-formats-quiz.html', title: 'Binary Data & Parsing', time: '60 min', assess: 2,
+    blurb: 'Bit manipulation, struct layout and padding, endianness, aliasing and memcpy, zero-copy parsing, fixed-point numbers and sequence numbers.' },
+  { id: 'latency', file: '12-low-latency.html', quiz: '12-low-latency-quiz.html', title: 'Performance & Memory', time: '60 min', assess: 2,
+    blurb: 'Tail latency, pools and arenas, cache-friendly data, lookup structures, SPSC queues, predictable hot paths and core pinning.' }
 ];
 
 /* When a section moves to another lesson, record where it went so old links keep working:
@@ -188,6 +188,14 @@ CT.progressMigrations = [
     });
     store.set('weak:objmodel', stay);
     store.set('mock:missed', store.get('mock:missed', []).filter(function (id) { return id.indexOf('objmodel-') !== 0 && id.indexOf('oop-') !== 0; }));
+  } },
+  /* v7: the Coding Rules lesson was removed (its tooling material is now a section of Basics) and many cheat sheets were reworded:
+     forget the rules progress and the saved missed mock questions. */
+  { to: 7, run: function (store) {
+    ['done:', 'last:', 'quiz:', 'total:', 'weak:'].forEach(function (p) { store.set(p + 'rules', p === 'done:' ? [] : p === 'weak:' ? {} : p === 'last:' ? '' : null); });
+    var li = store.get('lastinfo', null);
+    if (li && li.id === 'rules') store.set('lastinfo', null);
+    store.set('mock:missed', []);
   } }
 ];
 

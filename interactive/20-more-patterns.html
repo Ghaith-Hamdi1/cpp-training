@@ -186,8 +186,8 @@ Session onEvent(const Session& s, const std::string& ev) {
 <p>Compiled trace: <code>msg</code> while disconnected stayed <b>Disconnected</b>; after <code>logon</code> the state was <b>LoggedOn(next 1)</b>, two <code>msg</code> events moved it to <b>next 3</b>, <code>logout</code> gave <b>Stopped</b>, and a later <code>msg</code> stayed Stopped. Data such as the sequence number lives <b>in the state that needs it</b>, so it cannot be misused in another state. This is the State pattern without virtual functions (<a href="06-design-patterns.html">Design Patterns</a> shows the virtual version).</p>
 </section>
 
-<section id="cheat" data-title="Interview cheat sheet">
-<h2>Interview cheat sheet</h2>
+<section id="cheat" data-title="Cheat sheet">
+<h2>Cheat sheet</h2>
 <p>Say each answer aloud, then open it.</p>
 <details class="ex"><summary>What is the Command pattern and how does it give you undo?</summary><div><p>It turns a request into an object with <code>execute</code> (and <code>undo</code>). The invoker keeps executed commands on a stack; undo pops the last one and calls its <code>undo</code>. Because commands are objects they can also be queued, logged, sent and replayed (orders, thread-pool tasks, macros).</p></div></details>
 <details class="ex"><summary>Decorator versus inheritance?</summary><div><p>A decorator wraps an object with the same interface and adds behaviour, chosen and stacked at run time. Inheritance fixes the combination at compile time and multiplies classes for every combination. Streams with buffering or compression, and logging wrappers, are decorators.</p></div></details>

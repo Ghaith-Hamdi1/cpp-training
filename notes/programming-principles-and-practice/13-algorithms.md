@@ -59,4 +59,4 @@ What I got wrong when I compared it with the book:
 
 ## After this session
 
-Lessons 10 (Algorithms) and 8 (Lambdas); quiz for lesson 10
+Lessons 11 (Algorithms) and 9 (Lambdas); quiz for lesson 11

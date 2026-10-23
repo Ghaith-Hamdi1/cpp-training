@@ -3,19 +3,19 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>C++ Interview Prep</title>
+<title>C++ Study Guide</title>
 <script>try{var t=JSON.parse(localStorage.getItem('cpptrain:theme'));if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
 <link rel="stylesheet" href="assets/style.css">
 </head>
 <body data-topic="home" data-kind="home">
 <main>
-<h1>C++ Interview Prep</h1>
-<p class="lead">Interactive lessons with quizzes, from pointers to thread pools and parsing a market-data feed. Works offline; your progress is saved in this browser.</p>
+<h1>C++ Study Guide</h1>
+<p class="lead">Interactive lessons with quizzes, from pointers and memory to templates, concurrency and performance. Works offline; your progress is saved in this browser.</p>
 
 <div id="resume"></div>
 <div class="tools">
 <a class="tool" href="assess.html"><b>Level check</b><span>Mixed questions from every lesson: your level and your weakest topics.</span></a>
-<a class="tool" href="mock-interview.html"><b>Mock interview</b><span>Random cheat-sheet questions. Answer aloud, then reveal.</span></a>
+<a class="tool" href="mock-interview.html"><b>Mock questions</b><span>Random cheat-sheet questions. Answer aloud, then reveal.</span></a>
 <a class="tool" href="puzzles.html"><b>C++ Puzzles</b><span>163 "what does this print?" puzzles from CppQuiz.org, with explanations.</span></a>
 <a class="tool" href="study-checklist.html"><b>Study checklist</b><span>A step-by-step plan with tick boxes.</span></a>
 </div>
@@ -27,13 +27,13 @@
 <p>Each lesson builds on the ones before it, so going in order works best. Do a lesson, then its quiz.</p>
 <table>
 <tr><th>Stage</th><th>Lessons</th><th>What you learn</th></tr>
-<tr><td><b>1. Foundations</b></td><td><a href="01-basics.html">1. Basics</a>, <a href="16-types-and-casts.html">2. Types</a></td><td>Types, memory, pointers, references, initialization and conversions.</td></tr>
-<tr><td><b>2. Objects</b></td><td><a href="02-oop.html">3. OOP</a>, <a href="19-object-model.html">4. Object Model</a></td><td>Classes, inheritance, virtual functions, and how objects are laid out in memory.</td></tr>
-<tr><td><b>3. Ownership and modern C++</b></td><td><a href="03-core-language.html">5. Core Language</a>, <a href="13-move-semantics.html">6. Move Semantics</a>, <a href="14-smart-pointers.html">7. Smart Pointers</a>, <a href="15-lambdas.html">8. Lambdas</a></td><td>RAII, exceptions, moving instead of copying, who owns an object, and callables.</td></tr>
-<tr><td><b>4. The library and generic code</b></td><td><a href="08-strings-regex-time.html">9. Strings</a>, <a href="04-stl.html">10. STL</a>, <a href="05-templates.html">11. Templates</a>, <a href="09-compile-time.html">12. Compile-time C++</a></td><td>Strings, containers, iterators, algorithms, templates, type traits and constexpr.</td></tr>
-<tr><td><b>5. Design</b></td><td><a href="06-design-patterns.html">13. Design Patterns</a>, <a href="20-more-patterns.html">14. More Patterns</a></td><td>Common patterns in modern C++, with real code.</td></tr>
-<tr><td><b>6. Concurrency</b></td><td><a href="07-multithreading.html">15. Multithreading</a>, <a href="17-tasks-parallelism.html">16. Tasks</a>, <a href="18-atomics-memory-model.html">17. Atomics</a></td><td>Threads, locks, futures, atomics and the memory model.</td></tr>
-<tr><td><b>7. Performance and safety</b></td><td><a href="11-wire-formats.html">18. Wire Formats</a>, <a href="12-low-latency.html">19. Low-Latency</a>, <a href="10-coding-rules.html">20. Coding Rules</a></td><td>Binary formats, predictable fast code, and rules for safe C++.</td></tr>
+<tr><td><b>1. Foundations</b></td><td><a href="01-basics.html">1. Basics</a>, <a href="16-types-and-casts.html">2. Types</a>, <a href="21-vocabulary-types.html">3. Vocabulary Types</a></td><td>Types, memory, pointers, references, initialization, conversions, and the small types that make interfaces honest.</td></tr>
+<tr><td><b>2. Objects</b></td><td><a href="02-oop.html">4. OOP</a>, <a href="19-object-model.html">5. Object Model</a></td><td>Classes, inheritance, virtual functions, and how objects are laid out in memory.</td></tr>
+<tr><td><b>3. Ownership and modern C++</b></td><td><a href="03-core-language.html">6. Core Language</a>, <a href="13-move-semantics.html">7. Move Semantics</a>, <a href="14-smart-pointers.html">8. Smart Pointers</a>, <a href="15-lambdas.html">9. Lambdas</a></td><td>RAII, exceptions, moving instead of copying, who owns an object, and callables.</td></tr>
+<tr><td><b>4. The library and generic code</b></td><td><a href="08-strings-regex-time.html">10. Strings</a>, <a href="04-stl.html">11. STL</a>, <a href="05-templates.html">12. Templates</a>, <a href="09-compile-time.html">13. Compile-time C++</a></td><td>Strings, containers, iterators, algorithms, templates, type traits and concepts, and compile-time computation.</td></tr>
+<tr><td><b>5. Design</b></td><td><a href="06-design-patterns.html">14. Design Patterns</a>, <a href="20-more-patterns.html">15. More Patterns</a></td><td>Common patterns in modern C++, with real code.</td></tr>
+<tr><td><b>6. Concurrency</b></td><td><a href="07-multithreading.html">16. Multithreading</a>, <a href="17-tasks-parallelism.html">17. Tasks</a>, <a href="18-atomics-memory-model.html">18. Atomics</a></td><td>Threads, locks, futures, atomics and the memory model.</td></tr>
+<tr><td><b>7. Performance</b></td><td><a href="11-wire-formats.html">19. Binary Data</a>, <a href="12-low-latency.html">20. Performance &amp; Memory</a></td><td>Binary formats and parsing, and predictable, fast code.</td></tr>
 </table>
 
 <h2>Where this comes from</h2>

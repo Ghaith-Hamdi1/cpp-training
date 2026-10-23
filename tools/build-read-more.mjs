@@ -55,7 +55,7 @@ const EXTRA = {
     { book: 'emc', label: 'Items 26 to 27 Overloading on universal references and its alternatives (tag dispatch, enable_if)', pages: '195 to 215', deepens: ['enable_if and SFINAE'] }
   ]
 };
-/* lessons whose guide rows for a book are replaced by the fuller list in EXTRA (the guides pick interview essentials, these lessons go deeper) */
+/* lessons whose guide rows for a book are replaced by the fuller list in EXTRA (the guides pick the essentials, these lessons go deeper) */
 const REPLACE = { tasks: ['cia'], atomics: ['cia'] };
 
 /* guide rows that name a whole lesson ("Move semantics", "Smart pointers") are placed by a hint on the row's book and label:
@@ -167,7 +167,7 @@ function build(l, lessonNo, source) {
       const parts = hasSection(lessonNo, name) ? [name] : name.split(',');
       for (const p of parts) {
         const n = norm(p);
-        let i = secs.findIndex((s) => n && (s.title.includes(n) || n.includes(s.title)) && s.title !== 'interview cheat sheet');
+        let i = secs.findIndex((s) => n && (s.title.includes(n) || n.includes(s.title)) && s.title !== 'cheat sheet');
         if (i < 0) i = 0;                                                         // a lesson-level name: the note goes under the first section
         targets.add(i);
       }

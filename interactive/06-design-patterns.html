@@ -10,7 +10,7 @@
 <body data-topic="patterns" data-kind="lesson">
 <main>
 <h1>Design Patterns in C++</h1>
-<p class="lead">Named, proven solutions to recurring design problems. The five most likely in interviews (Singleton, Factory, Strategy, Observer, State), how modern C++ changes them, and SOLID.</p>
+<p class="lead">Named, proven solutions to recurring design problems. The five most common (Singleton, Factory, Strategy, Observer, State), how modern C++ changes them, and SOLID.</p>
 
 <section data-title="What patterns are and are not">
 <h2>What patterns are and are not</h2>
@@ -21,7 +21,7 @@
 <tr><td><b>Structural</b></td><td>how objects are composed</td><td>Adapter, Decorator, Proxy, PIMPL</td></tr>
 <tr><td><b>Behavioural</b></td><td>how objects interact and share responsibility</td><td>Strategy, Observer, State, Command, Visitor</td></tr>
 </table>
-<div class="callout warn"><span class="label">Not goals</span>Each pattern adds indirection: use one only for a real problem, and say <i>when not to use it</i> in interviews.</div>
+<div class="callout warn"><span class="label">Not goals</span>Each pattern adds indirection: use one only for a real problem, and know <i>when not to use it</i>.</div>
 <div class="callout tip"><span class="label">Modern C++ shortens many</span>A lambda or <code>std::function</code> replaces Strategy and Command hierarchies; <code>std::visit</code> replaces Visitor; smart pointers are a Proxy; RAII is built in.</div>
 </section>
 
@@ -250,8 +250,8 @@ struct Circle : Shape<Circle> {
 <p>Notes: <a href="https://github.com/Ghaith-Hamdi1/cpp-training/blob/main/docs/04-templates-and-design-patterns/06-design-patterns/README.md">Module 4</a>, <a href="https://github.com/Ghaith-Hamdi1/cpp-training/tree/main/examples/04-templates-and-design-patterns/06-design-patterns/">examples</a>.</p>
 </section>
 
-<section id="s9" data-title="Interview cheat sheet">
-<h2>Interview cheat sheet</h2>
+<section id="s9" data-title="Cheat sheet">
+<h2>Cheat sheet</h2>
 <details class="ex"><summary>How do you make a Singleton thread-safe in C++?</summary><div><p>Use a function-local static (Meyers Singleton). Since C++11 its initialization is guaranteed thread-safe and happens exactly once. Alternatives are <code>std::call_once</code> with an <code>std::once_flag</code>, or creating it before threads start. Hand-written double-checked locking is easy to get wrong. Remember the object's own methods still need locking if they mutate shared state.</p></div></details>
 <details class="ex"><summary>What is wrong with Singleton?</summary><div><p>It is global mutable state with a nice name: hidden dependencies, tight coupling, hard to test or mock, awkward lifetime and destruction order, and a problem for multithreading. Prefer passing a reference (dependency injection) unless a single shared instance is truly inherent.</p></div></details>
 <details class="ex"><summary>Strategy vs State?</summary><div><p>Both delegate behaviour to a swappable object. Strategy: the client selects an interchangeable algorithm and strategies are independent. State: the context changes its behaviour as its own state changes, and transitions are driven by the states or context.</p></div></details>

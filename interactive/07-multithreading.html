@@ -292,7 +292,7 @@ std::once_flag flag;
 void init() { std::call_once(flag, [] { loadConfig(); }); }   // eight threads may call init(): loadConfig runs exactly once
 </script>
 <p>Use it (or a function-local <code>static</code>) for lazy initialization shared by several threads, instead of a hand-written double-checked lock.</p>
-<div class="callout interview"><span class="label">Interview angle</span>"When would you use a recursive mutex?" Rarely, and say so: it usually means a method that locks calls another that also locks. Restructure into a locking public method and a lock-assuming private one.</div>
+<div class="callout interview"><span class="label">Key point</span>"When would you use a recursive mutex?" Rarely, and say so: it usually means a method that locks calls another that also locks. Restructure into a locking public method and a lock-assuming private one.</div>
 <!-- read-more:start -->
 <div class="callout tip"><span class="label">Read more</span>
 <p><b>C++ Concurrency in Action (Williams)</b></p>
@@ -357,7 +357,7 @@ If <code>pop()</code> returned by value and the copy threw after removal, the el
 <tr><td><code>if (!file_exists(p)) create(p);</code></td><td>an atomic "create if absent" call (for example the OS <code>O_EXCL</code> flag)</td></tr>
 <tr><td><code>if (counter.load() &gt; 0) counter--;</code></td><td>a <code>compare_exchange</code> loop</td></tr>
 </table>
-<div class="callout interview"><span class="label">Interview angle</span>"Mutex in every method, so thread-safe?" No: each call is safe, the caller's <i>sequence</i> is not. Provide combined operations like <code>try_pop</code> and protect the <b>whole invariant</b>.</div>
+<div class="callout interview"><span class="label">Key point</span>"Mutex in every method, so thread-safe?" No: each call is safe, the caller's <i>sequence</i> is not. Provide combined operations like <code>try_pop</code> and protect the <b>whole invariant</b>.</div>
 <!-- read-more:start -->
 <div class="callout tip"><span class="label">Read more</span>
 <p><b>C++ Concurrency in Action (Williams)</b></p>
@@ -453,7 +453,7 @@ std::thread tA, tB;                  // both threads are started elsewhere, runn
 void funcA() { tB.join(); }          // A waits for B to finish...
 void funcB() { tA.join(); }          // ...and B waits for A to finish: neither ever returns
 </script></div>
-<div class="callout interview"><span class="label">Interview angle</span>"Prevent deadlock?" Global lock order; <code>std::scoped_lock</code>; no foreign code under a lock; short locks; no nesting; <code>try_lock</code> with back-off. Re-locking a non-recursive mutex you own is undefined behavior.</div>
+<div class="callout interview"><span class="label">Key point</span>"Prevent deadlock?" Global lock order; <code>std::scoped_lock</code>; no foreign code under a lock; short locks; no nesting; <code>try_lock</code> with back-off. Re-locking a non-recursive mutex you own is undefined behavior.</div>
 <!-- read-more:start -->
 <div class="callout tip"><span class="label">Read more</span>
 <p><b>C++ Concurrency in Action (Williams)</b></p>
@@ -491,7 +491,7 @@ cv.notify_one();                             // wake one waiting thread
 </script>
 <p>Watch the hand-over:</p>
 <div id="st-cv"></div>
-<h3>Three rules interviewers check</h3>
+<h3>Three rules to follow</h3>
 <ol>
 <li><b>Always wait with a predicate.</b> Spurious wakeups happen, and another consumer may take the item first.</li>
 <li><b>Change the state under the mutex</b>, then notify. Otherwise a lost wakeup: the waiter sees false, you notify, it then sleeps forever.</li>
@@ -570,8 +570,8 @@ public:
 <!-- read-more:end -->
 </section>
 
-<section id="s12" data-title="Interview cheat sheet">
-<h2>Interview cheat sheet</h2>
+<section id="s12" data-title="Cheat sheet">
+<h2>Cheat sheet</h2>
 <p>Say each answer aloud, then open it.</p>
 <details class="ex"><summary>What is the difference between a process and a thread?</summary><div><p>A process has its own address space; threads of one process share memory but each has its own stack and registers. Thread creation and switching are cheaper, communication is easy (shared memory) but needs synchronization.</p></div></details>
 <details class="ex"><summary>What is a data race? Is it the same as a race condition?</summary><div><p>A data race is unsynchronised concurrent access to the same memory with at least one write: undefined behavior in C++. A race condition is the wider class of bugs where correctness depends on timing, which can exist even without a data race (two correctly locked steps that needed to be one atomic operation).</p></div></details>

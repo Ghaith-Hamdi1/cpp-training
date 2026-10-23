@@ -1,4 +1,4 @@
-/* C++ Interview Prep: shared lesson/quiz engine. Vanilla JS, no dependencies.
+/* C++ Study Guide: shared lesson/quiz engine. Vanilla JS, no dependencies.
  *
  * A page declares <body data-topic="..." data-kind="lesson|quiz|home"> and this
  * script builds the header, table of contents, progress tracking and pager.
@@ -162,13 +162,13 @@
     const cur = document.body.dataset.topic;
     const links = '<a href="study-checklist.html"' + (kind === 'checklist' ? ' class="cur"' : '') + '>Study checklist</a>' +
       '<a href="assess.html"' + (kind === 'assess' ? ' class="cur"' : '') + '>Level check</a>' +
-      '<a href="mock-interview.html"' + (kind === 'mock' ? ' class="cur"' : '') + '>Mock interview</a>' +
+      '<a href="mock-interview.html"' + (kind === 'mock' ? ' class="cur"' : '') + '>Mock questions</a>' +
       '<a href="puzzles.html"' + (kind === 'puzzles' ? ' class="cur"' : '') + '>C++ Puzzles</a>' + TOPICS.map((t) =>
       '<a href="' + t.file + '"' + (t.id === cur && kind === 'lesson' ? ' class="cur"' : '') + '>' + t.n + '. ' + esc(t.title) + '</a>' +
       '<a href="' + t.quiz + '"' + (t.id === cur && kind === 'quiz' ? ' class="cur"' : '') + '>&nbsp;&nbsp;&nbsp;&nbsp;&#8627; Quiz</a>').join('');
     const h = document.createElement('header');
     h.className = 'top';
-    h.innerHTML = '<a class="brand" href="index.html">C++ Interview Prep</a><span class="spacer"></span>' +
+    h.innerHTML = '<a class="brand" href="index.html">C++ Study Guide</a><span class="spacer"></span>' +
       '<button class="icon-btn" id="search-btn" type="button" aria-label="Search the lessons (press /)">&#128269;</button>' +
       '<details class="menu"><summary>Topics &#9662;</summary><div class="panel">' + links + '</div></details>' +
       '<button class="icon-btn" id="theme" type="button" aria-label="Toggle light or dark theme">&#9680;</button><div class="progress"></div>';
@@ -974,7 +974,7 @@
       const prev = store.get(key, null);
       const full = order.length === cfg.questions.length;
       store.set(key, { best: full ? Math.max(pct, prev ? prev.best : 0) : (prev ? prev.best : 0), last: full ? pct : (prev ? prev.last : pct), total: cfg.questions.length });
-      const verdict = pct >= 90 ? 'Excellent. You are interview-ready on this topic.' : pct >= 70 ? 'Solid. Review the explanations below and retry the ones you missed.' :
+      const verdict = pct >= 90 ? 'Excellent. You know this topic well.' : pct >= 70 ? 'Solid. Review the explanations below and retry the ones you missed.' :
         pct >= 50 ? 'Getting there. Re-read the lesson sections for the questions you missed.' : 'Go back through the lesson, then try again. This is a normal first score for new material.';
       root.innerHTML = '<div class="result ' + (pct >= 70 ? 'good' : 'bad') + '"><div class="score">' + right + ' / ' + order.length + ' (' + pct + '%)</div><p>' + verdict + '</p></div>' +
         (missed.length ? '<h3>Questions to review</h3>' + missed.map((q) => '<div class="miss"><div class="qq">' + fmt(q.q) + '</div>' + (q.code ? codeHtml(q.code) : '') +
@@ -1275,8 +1275,8 @@
       const right = order.filter(ok).length;
       const unknown = order.filter((x) => x.dk || x.pick < 0).length;
       const pct = Math.round((right / order.length) * 100);
-      const level = pct >= 80 ? 'Interview-ready' : pct >= 60 ? 'Solid, with gaps' : pct >= 40 ? 'Developing' : 'Early stage';
-      const advice = pct >= 80 ? 'Keep sharp: use the mock interview and retake the quizzes of your weakest topics.' :
+      const level = pct >= 80 ? 'Strong' : pct >= 60 ? 'Solid, with gaps' : pct >= 40 ? 'Developing' : 'Early stage';
+      const advice = pct >= 80 ? 'Keep sharp: use the mock questions and retake the quizzes of your weakest topics.' :
         pct >= 60 ? 'Fix the weakest topics below, then retest.' :
         pct >= 40 ? 'Work through the lessons of the weakest topics first, then their quizzes.' : 'Start with the lessons in order (basics first), then take each quiz. This is a normal first score.';
       store.set('assess:last', { pct: pct });
@@ -1312,7 +1312,7 @@
     intro();
   }
 
-  /* ---------------- mock interview: random cheat-sheet questions ---------------- */
+  /* ---------------- mock questions: random cheat-sheet questions ---------------- */
   function mock() {
     const root = $('#mock');
     const MKEY = 'mock:missed';

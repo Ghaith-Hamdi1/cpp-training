@@ -209,8 +209,8 @@ void print(std::string_view sv);                         // non-owning pointer +
 <p>Full lists: <a href="https://github.com/AnthonyCalandra/modern-cpp-features">modern-cpp-features</a>, <a href="https://github.com/changkun/modern-cpp-tutorial">modern-cpp-tutorial</a>. Your notes: <a href="https://github.com/Ghaith-Hamdi1/cpp-training/blob/main/docs/03-cpp-standard-library/README.md">Module 3</a>.</p>
 </section>
 
-<section id="cheat" data-title="Interview cheat sheet">
-<h2>Interview cheat sheet</h2>
+<section id="cheat" data-title="Cheat sheet">
+<h2>Cheat sheet</h2>
 <p>Answer aloud, then open.</p>
 <details class="ex"><summary>When would you use <code>dynamic_cast</code>?</summary><div><p>For a checked downcast from a polymorphic base to a derived type when you cannot express the need through a virtual function. It returns null (pointers) or throws <code>bad_cast</code> (references) on failure. Frequent use suggests a design problem.</p></div></details>
 <details class="ex"><summary>The four named casts?</summary><div><p><code>static_cast</code> for well-defined conversions, <code>dynamic_cast</code> for checked downcasts, <code>const_cast</code> to add or remove <code>const</code> (modifying a truly const object is UB), <code>reinterpret_cast</code> to reinterpret bits (rarely correct). Never a C cast: it can silently pick any of them.</p></div></details>

@@ -75,6 +75,11 @@ reg.lessons.forEach((l, k) => {
     else if (sections[l.file] && !sections[l.file].has(q.sec)) err('quiz-' + l.id + '.js #' + (i + 1) + ': sec "' + q.sec + '" is not a section of ' + l.file);
   });
 });
+// the level check page must load the quiz data of every lesson, or its questions silently go missing
+{
+  const assess = readFileSync(join(root, 'assess.html'), 'utf8');
+  for (const l of reg.lessons) if (!assess.includes('assets/data/quiz-' + l.id + '.js')) err('assess.html: does not load assets/data/quiz-' + l.id + '.js');
+}
 for (const f of readdirSync(root).filter((n) => /^\d\d-.*\.html$/.test(n))) {
   if (!seenFiles.has(f)) err(f + ' looks like a lesson or quiz page but is not listed in lessons.js');
 }

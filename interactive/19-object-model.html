@@ -84,7 +84,7 @@ struct Diamond : Left, Right {};         // one Base inside; d.id is not ambiguo
 <li>The standard library's <code>std::iostream</code> is the classic use: <code>istream</code> and <code>ostream</code> inherit <code>ios</code> virtually, so <code>iostream</code> has one stream state.</li>
 <li><b>Advice:</b> avoid diamonds. Use interfaces without data, or composition. When you need virtual inheritance, put the data in one place and let the most derived class initialize the base.</li>
 </ul>
-<div class="callout interview"><span class="label">Interview angle</span>"What is the diamond problem and how do you solve it?" Two paths to one base duplicate its members and make access ambiguous. <code>virtual</code> inheritance shares one copy; the most derived class constructs it first. It costs memory and indirection, so prefer interfaces and composition.</div>
+<div class="callout interview"><span class="label">Key point</span>"What is the diamond problem and how do you solve it?" Two paths to one base duplicate its members and make access ambiguous. <code>virtual</code> inheritance shares one copy; the most derived class constructs it first. It costs memory and indirection, so prefer interfaces and composition.</div>
 <!-- read-more:start -->
 <div class="callout tip"><span class="label">Read more</span>
 <p><b>Programming: Principles and Practice (Stroustrup)</b></p>
@@ -141,8 +141,8 @@ struct Car : private Engine {
 </ul>
 </section>
 
-<section id="cheat" data-title="Interview cheat sheet">
-<h2>Interview cheat sheet</h2>
+<section id="cheat" data-title="Cheat sheet">
+<h2>Cheat sheet</h2>
 <p>Say each answer aloud, then open it.</p>
 <details class="ex"><summary>What is the diamond problem and how is it solved?</summary><div><p>A class inherits the same base through two paths, so the base's members are duplicated and access is ambiguous. Virtual inheritance (<code>class Left : virtual Base</code>) makes all paths share one base subobject, which the most derived class constructs first. It adds memory and indirection, so prefer interfaces without data or composition.</p></div></details>
 <details class="ex"><summary>Why do <code>Reader*</code> and <code>Writer*</code> to the same <code>File</code> hold different addresses?</summary><div><p>With multiple inheritance the object contains each base subobject at its own offset, each with its own vptr. Converting to the second base adjusts the pointer to that subobject, which is why C casts and <code>reinterpret_cast</code> are wrong here.</p></div></details>

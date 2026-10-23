@@ -34,7 +34,7 @@ g++ -std=c++17 -Wall -Wextra main.cpp -o main
 ./main
 </script>
 <div class="callout tip"><span class="label">Habit to build now</span>Always compile with <code>-Wall -Wextra</code>. The compiler warns about many of the bugs this lesson describes (uninitialized variables, unused values, signed/unsigned comparisons).</div>
-<div class="callout interview"><span class="label">Interview angle</span>"Compile error vs linker error?" A compile error is a syntax or type problem inside one file. A linker error ("undefined reference") means a function was declared and called but never defined anywhere you linked.</div>
+<div class="callout interview"><span class="label">Key point</span>"Compile error vs linker error?" A compile error is a syntax or type problem inside one file. A linker error ("undefined reference") means a function was declared and called but never defined anywhere you linked.</div>
 </section>
 
 <section data-title="Variables and types">
@@ -216,7 +216,7 @@ std::cout << p[2];     // 30   p[i] is exactly *(p + i)
 </script>
 <div class="callout warn"><span class="label">Careful</span>Never dereference <code>nullptr</code> and never read past the end of an array. Both are undefined behavior. C++ will not stop you.</div>
 <div class="callout tip"><span class="label">What a pointer does not know</span>Only an address and a type: not <b>how many</b> elements, nor <b>who</b> frees them. Root of most pointer bugs.</div>
-<div class="callout interview"><span class="label">Interview angle</span>"What is the difference between <code>NULL</code> and <code>nullptr</code>?" <code>NULL</code> is a macro for a null pointer constant, usually plain <code>0</code> (an integer), so <code>f(NULL)</code> can call <code>f(int)</code> instead of <code>f(char*)</code>. <code>nullptr</code> has its own type and only converts to pointers.</div>
+<div class="callout interview"><span class="label">Key point</span>"What is the difference between <code>NULL</code> and <code>nullptr</code>?" <code>NULL</code> is a macro for a null pointer constant, usually plain <code>0</code> (an integer), so <code>f(NULL)</code> can call <code>f(int)</code> instead of <code>f(char*)</code>. <code>nullptr</code> has its own type and only converts to pointers.</div>
 <!-- read-more:start -->
 <div class="callout tip"><span class="label">Read more</span>
 <p><b>Programming: Principles and Practice (Stroustrup)</b></p>
@@ -303,7 +303,7 @@ int*  arr = new int[100];    delete[] arr;      // array: new[] / delete[]  (mus
 <tr><td><b>Mismatch</b></td><td><code>new[]</code> freed with <code>delete</code>, or the reverse</td></tr>
 </table>
 <div class="callout tip"><span class="label">Modern C++</span>Avoid raw <code>new</code>/<code>delete</code>: use <code>std::vector</code> and <code>std::unique_ptr</code> (<a href="14-smart-pointers.html">Smart Pointers</a>).</div>
-<div class="callout interview"><span class="label">Interview angle</span>"What does <code>new</code> do beyond <code>malloc</code>?" It calls the constructor, throws <code>std::bad_alloc</code> on failure (instead of returning null), and returns a correctly typed pointer. <code>delete</code> calls the destructor and then frees the memory.</div>
+<div class="callout interview"><span class="label">Key point</span>"What does <code>new</code> do beyond <code>malloc</code>?" It calls the constructor, throws <code>std::bad_alloc</code> on failure (instead of returning null), and returns a correctly typed pointer. <code>delete</code> calls the destructor and then frees the memory.</div>
 <!-- read-more:start -->
 <div class="callout tip"><span class="label">Read more</span>
 <p><b>Programming: Principles and Practice (Stroustrup)</b></p>
@@ -377,8 +377,26 @@ int good() {
 <div class="callout warn"><span class="label">Tooling</span>Test with <code>-fsanitize=address,undefined</code>: it reports leaks, out-of-bounds, use-after-free and overflow with the exact line.</div>
 </section>
 
-<section id="s12" data-title="Interview cheat sheet">
-<h2>Interview cheat sheet</h2>
+<section id="tooling" data-title="Tooling: warnings, sanitizers, static analysis">
+<h2>Tooling: warnings, sanitizers, static analysis</h2>
+<p>C++ trusts you, so let tools check what the language will not. Use them in layers, cheapest first.</p>
+<table>
+<tr><th>Layer</th><th>What it catches</th><th>How</th></tr>
+<tr><td>Compiler warnings</td><td>many beginner mistakes at once: uninitialized variables, signed/unsigned comparisons, missing returns</td><td><code>-Wall -Wextra</code>, and <code>-Werror</code> in CI</td></tr>
+<tr><td>Sanitizers</td><td>what only shows at run time: out-of-bounds, use after free, leaks, undefined behavior, data races</td><td><code>-fsanitize=address,undefined</code> (and <code>-fsanitize=thread</code> for threads)</td></tr>
+<tr><td>Static analyzer</td><td>rule violations, null dereferences, leaks and dead code found by reading the source, without running it</td><td><code>clang-tidy</code>, <code>cppcheck</code></td></tr>
+<tr><td>Formatter</td><td>style, so reviews are about logic</td><td><code>clang-format</code></td></tr>
+</table>
+<script type="text/x-cpp">
+g++ -std=c++17 -Wall -Wextra -g -fsanitize=address,undefined main.cpp -o main
+./main            // a bug now stops with the exact line, not with a mystery crash later
+</script>
+<div class="callout warn"><span class="label">A clean report is not a proof</span>Analyzers give false positives and miss things, and a sanitizer only checks the paths your test actually ran. They reduce risk; they do not replace design, review and tests.</div>
+<div class="callout tip"><span class="label">Coding standards</span>Safety-critical projects (cars, medical devices) add written rules such as MISRA C++ or the AUTOSAR C++14 guidelines, checked automatically. The common themes are the ones in this course: initialize everything, no C-style casts, no naked <code>new</code>/<code>delete</code>, no silent narrowing, and no <code>using namespace</code> in headers.</div>
+</section>
+
+<section id="s12" data-title="Cheat sheet">
+<h2>Cheat sheet</h2>
 <p>Answer aloud, then open.</p>
 <details class="ex"><summary>Pointer vs reference?</summary><div><p>A pointer holds an address, can be null, can be re-pointed, and needs <code>*</code> to use. A reference is a permanent alias that must be initialized and cannot be null. Use references for parameters, pointers when "nothing" is a valid value or you need to re-point.</p></div></details>
 <details class="ex"><summary>Stack vs heap?</summary><div><p>The stack holds locals and is freed automatically when the scope ends; it is fast but small. The heap holds <code>new</code>-allocated objects that live until you free them; it is large but slower and you must manage the lifetime (or let a smart pointer do it).</p></div></details>

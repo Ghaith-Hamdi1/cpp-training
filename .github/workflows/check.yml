@@ -20,6 +20,7 @@ jobs:
       - run: node tools/build-search-index.mjs --check
       - run: node tools/build-mock-bank.mjs --check
       - run: node tools/build-precache.mjs --check
+      - run: node tools/build-checklist.mjs --check
       - run: node tools/verify-checklist.mjs
       - run: node tools/check-guides.mjs
       - run: node tools/test-registry.mjs

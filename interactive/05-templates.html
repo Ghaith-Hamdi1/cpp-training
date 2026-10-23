@@ -29,7 +29,7 @@ maxOf<double>(3, 2.5);// explicit: T = double, the int is converted
 <p>The template is not compiled itself. Each new type <b>instantiates</b> a real function: no runtime cost, more binary size, and errors appear only when a bad type is used.</p>
 <p>Pick a type:</p>
 <div id="w-inst"></div>
-<div class="callout interview"><span class="label">Interview angle</span>Templates: <b>compile-time</b> (static) polymorphism, fastest, inlinable, more code, types known at compile time. Virtual: <b>runtime</b>, one code path, mixed objects, a vtable indirection.</div>
+<div class="callout interview"><span class="label">Key point</span>Templates: <b>compile-time</b> (static) polymorphism, fastest, inlinable, more code, types known at compile time. Virtual: <b>runtime</b>, one code path, mixed objects, a vtable indirection.</div>
 <!-- read-more:start -->
 <div class="callout tip"><span class="label">Read more</span>
 <p><b>Programming: Principles and Practice (Stroustrup)</b></p>
@@ -318,8 +318,8 @@ std::string describe(const T& v) {
 <!-- read-more:end -->
 </section>
 
-<section id="s9" data-title="Interview cheat sheet">
-<h2>Interview cheat sheet</h2>
+<section id="s9" data-title="Cheat sheet">
+<h2>Cheat sheet</h2>
 <details class="ex"><summary>How are template arguments deduced?</summary><div><p>From the arguments of the call, by the shape of the parameter. By value (<code>T x</code>): <code>const</code> and references are dropped and arrays decay to pointers. By reference (<code>T&amp; x</code>): <code>const</code> and the array size are kept. <code>T&amp;&amp;</code> is a forwarding reference. No conversions take part, so <code>maxOf(3, 2.5)</code> fails; name <code>T</code> explicitly.</p></div></details>
 <details class="ex"><summary>What are alias templates and variable templates?</summary><div><p>An alias template is a parameterised <code>using</code> (<code>template&lt;class T&gt; using Vec = std::vector&lt;T&gt;;</code>), which a <code>typedef</code> cannot be. A variable template is a constant or variable per type (<code>template&lt;class T&gt; constexpr T zero = T{};</code>); <code>std::is_integral_v</code> is one.</p></div></details>
 <details class="ex"><summary>What happens when you use a function template?</summary><div><p>The compiler deduces the template arguments from the call, then <b>instantiates</b> a concrete function for that combination of types (once per distinct combination across the program), and compiles it like normal code. The template itself generates no code.</p></div></details>

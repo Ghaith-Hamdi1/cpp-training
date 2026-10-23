@@ -1,6 +1,6 @@
 # Reading guide: *C++ Concurrency in Action* (2nd Edition)
 
-A short reading plan for `books/Cpp-Concurrency-in-Action-2nd-Edition-Williams.pdf` (Anthony Williams, 592 pages). The book is a reference that goes far beyond what an interview tests, so do **not** read it cover to cover. Use the [interactive multithreading lesson](../interactive/07-multithreading.html) and its quiz first, then read the book sections below for the topics where you need more depth.
+A short reading plan for `books/Cpp-Concurrency-in-Action-2nd-Edition-Williams.pdf` (Anthony Williams, 592 pages). The book is a reference that goes far beyond what a first pass needs, so do **not** read it cover to cover. Use the [interactive multithreading lesson](../interactive/07-multithreading.html) and its quiz first, then read the book sections below for the topics where you need more depth.
 
 **Page numbers.** The tables give *PDF viewer* page numbers, the number shown in your PDF reader.
 
@@ -12,30 +12,30 @@ The sections were chosen from the book's table of contents and from reading samp
 
 | Book section | PDF pages | Matching lesson section |
 |---|---|---|
-| 1.1 What is concurrency? | 25 to 30 | 15. Why threads? The mental model |
-| 1.2.3 When not to use concurrency | 32 to 33 | 15. Why threads? The mental model |
-| 2.1 Basic thread management (launching, joining, detaching, waiting in exceptional circumstances, running in the background) | 40 to 47 | 15. Your first thread |
-| 2.2 Passing arguments to a thread function | 47 to 50 | 15. Your first thread |
-| 3.1 Problems with sharing data between threads (invariants, race conditions) | 60 to 63 | 15. Shared data and data races |
-| 3.2.1 to 3.2.3 Mutexes in C++, structuring code to protect data, race conditions inherent in interfaces | 64 to 74 | 15. Mutexes; 15. Races hidden in interfaces |
-| 3.2.4 to 3.2.5 Deadlock: the problem, the solution and further guidelines | 74 to 82 | 15. Deadlock |
-| 4.1 Waiting for an event: condition variables and a thread-safe queue | 96 to 104 | 15. Condition variables |
+| 1.1 What is concurrency? | 25 to 30 | 16. Why threads? The mental model |
+| 1.2.3 When not to use concurrency | 32 to 33 | 16. Why threads? The mental model |
+| 2.1 Basic thread management (launching, joining, detaching, waiting in exceptional circumstances, running in the background) | 40 to 47 | 16. Your first thread |
+| 2.2 Passing arguments to a thread function | 47 to 50 | 16. Your first thread |
+| 3.1 Problems with sharing data between threads (invariants, race conditions) | 60 to 63 | 16. Shared data and data races |
+| 3.2.1 to 3.2.3 Mutexes in C++, structuring code to protect data, race conditions inherent in interfaces | 64 to 74 | 16. Mutexes; 16. Races hidden in interfaces |
+| 3.2.4 to 3.2.5 Deadlock: the problem, the solution and further guidelines | 74 to 82 | 16. Deadlock |
+| 4.1 Waiting for an event: condition variables and a thread-safe queue | 96 to 104 | 16. Condition variables |
 
 ## Tier 2: read next if you have time (about 55 pages)
 
 | Book section | PDF pages | Matching lesson section |
 |---|---|---|
-| 2.4 Choosing the number of threads at runtime | 54 to 57 | 16. Thread pools and producer/consumer |
-| 3.2.6 to 3.2.8 `std::unique_lock`, transferring mutex ownership, locking granularity | 82 to 87 | 15. Mutexes |
-| 3.3.1 Protecting shared data during initialization (`std::call_once`) | 88 to 91 | 15. Other mutex types and call_once |
-| 4.2.1 to 4.2.4 Futures: `std::async`, `std::packaged_task`, `std::promise`, saving an exception | 105 to 113 | 16. Futures and async; 16. promise, shared_future and packaged_task |
-| 5.1 Memory model basics, and 5.3 Synchronizing operations through the memory ordering overview | 148 to 151 and 165 to 170 | 17. Atomic operations; 17. Memory orders and happens-before |
-| 6.1 to 6.2.2 Designing for concurrency, a thread-safe stack and a queue with condition variables | 197 to 206 | 15. Races hidden in interfaces; 15. Condition variables; 17. Thread-safe data structures |
-| 8.2 Factors affecting the performance of concurrent code (cache ping-pong, false sharing, oversubscription) | 283 to 289 | 19. Threads, cores and busy-polling |
-| 9.1.1 The simplest possible thread pool | 324 to 326 | 16. Thread pools and producer/consumer; 16. Work stealing and sizing a pool |
-| 11.1 Types of concurrency-related bugs, and 11.2.1 reviewing code to locate them | 363 to 367 | 15. Debugging and common bugs |
+| 2.4 Choosing the number of threads at runtime | 54 to 57 | 17. Thread pools and producer/consumer |
+| 3.2.6 to 3.2.8 `std::unique_lock`, transferring mutex ownership, locking granularity | 82 to 87 | 16. Mutexes |
+| 3.3.1 Protecting shared data during initialization (`std::call_once`) | 88 to 91 | 16. Other mutex types and call_once |
+| 4.2.1 to 4.2.4 Futures: `std::async`, `std::packaged_task`, `std::promise`, saving an exception | 105 to 113 | 17. Futures and async; 17. promise, shared_future and packaged_task |
+| 5.1 Memory model basics, and 5.3 Synchronizing operations through the memory ordering overview | 148 to 151 and 165 to 170 | 18. Atomic operations; 18. Memory orders and happens-before |
+| 6.1 to 6.2.2 Designing for concurrency, a thread-safe stack and a queue with condition variables | 197 to 206 | 16. Races hidden in interfaces; 16. Condition variables; 18. Thread-safe data structures |
+| 8.2 Factors affecting the performance of concurrent code (cache ping-pong, false sharing, oversubscription) | 283 to 289 | 20. Threads, cores and busy-polling |
+| 9.1.1 The simplest possible thread pool | 324 to 326 | 17. Thread pools and producer/consumer; 17. Work stealing and sizing a pool |
+| 11.1 Types of concurrency-related bugs, and 11.2.1 reviewing code to locate them | 363 to 367 | 16. Debugging and common bugs |
 
-## Skip for interview preparation
+## Skip on a first read
 
 - Chapter 7, lock-free data structures.
 - The rest of chapter 5: fences, release sequences and the remaining orderings.

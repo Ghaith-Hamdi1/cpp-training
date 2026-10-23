@@ -302,7 +302,7 @@ CPU_ZERO(&set);
 CPU_SET(3, &set);
 pthread_setaffinity_np(pthread_self(), sizeof(set), &set);
 </script>
-<div class="callout tip"><span class="label">Interview angle</span>"How would you design a market-data feed handler?" Reader thread pinned to a core, reading the socket and parsing with zero copy into preallocated structures; an SPSC queue to a book-builder thread, which updates array-based books and publishes; no allocation, locks, exceptions or logging on the path; bounded queues with a stated drop or recovery policy; sequence-number gap detection; and p99.9 latency measured under realistic load.</div>
+<div class="callout tip"><span class="label">Key point</span>"How would you design a market-data feed handler?" Reader thread pinned to a core, reading the socket and parsing with zero copy into preallocated structures; an SPSC queue to a book-builder thread, which updates array-based books and publishes; no allocation, locks, exceptions or logging on the path; bounded queues with a stated drop or recovery policy; sequence-number gap detection; and p99.9 latency measured under realistic load.</div>
 <!-- read-more:start -->
 <div class="callout tip"><span class="label">Read more</span>
 <p><b>C++ Concurrency in Action (Williams)</b></p>
@@ -314,8 +314,8 @@ pthread_setaffinity_np(pthread_self(), sizeof(set), &set);
 <!-- read-more:end -->
 </section>
 
-<section id="s9" data-title="Interview cheat sheet">
-<h2>Interview cheat sheet</h2>
+<section id="s9" data-title="Cheat sheet">
+<h2>Cheat sheet</h2>
 <p>Answer aloud, then open.</p>
 <details class="ex"><summary>Why does tail latency matter more than the average in a feed handler?</summary><div><p>The rare slow case (p99.9) is what produces a stale book or a missed trade, and the average hides it: a mean of 281 ns can coexist with a p99.9 of 80 microseconds. Measure and report percentiles, and remove sources of unpredictable delay.</p></div></details>
 <details class="ex"><summary>Why avoid <code>new</code> on the hot path, and what do you do instead?</summary><div><p>The allocator can take a lock, walk free lists, fragment and call the kernel, so its cost is unpredictable. Allocate at startup: <code>reserve</code> containers, use an object pool or an arena (<code>std::pmr::monotonic_buffer_resource</code>), and use fixed buffers instead of strings and vectors for small data.</p></div></details>

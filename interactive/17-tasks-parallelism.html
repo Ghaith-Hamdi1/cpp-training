@@ -283,8 +283,8 @@ std::transform(std::execution::par_unseq, a.begin(), a.end(), out.begin(), f);
 <!-- read-more:end -->
 </section>
 
-<section id="cheat" data-title="Interview cheat sheet">
-<h2>Interview cheat sheet</h2>
+<section id="cheat" data-title="Cheat sheet">
+<h2>Cheat sheet</h2>
 <p>Say each answer aloud, then open it.</p>
 <details class="ex"><summary><code>std::async</code> vs <code>std::thread</code>?</summary><div><p><code>async</code> returns a <code>future</code> carrying the result and any exception, and may use a pool or defer execution (use <code>launch::async</code> to force a thread). <code>thread</code> gives raw control with no result channel. A future from <code>async</code> blocks in its destructor.</p></div></details>
 <details class="ex"><summary>What are <code>promise</code>, <code>future</code> and <code>packaged_task</code>?</summary><div><p>A <code>promise</code> is the write end of a one-shot channel, a <code>future</code> the read end. A <code>packaged_task</code> wraps a callable and fulfils a future with its result or exception, which is how a pool returns results. A <code>shared_future</code> is a copyable read end for several waiters.</p></div></details>

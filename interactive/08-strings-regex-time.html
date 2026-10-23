@@ -47,7 +47,7 @@ A view must not outlive its string and is <b>not null-terminated</b>: do not pas
 <li><code>string_view</code> for read-only parameters; <code>std::string</code> for what you store.</li>
 <li>Building big strings in a loop: <code>append</code> or <code>reserve</code>, not chained <code>+</code> temporaries.</li>
 </ul>
-<div class="callout interview"><span class="label">Interview angle</span>View when you only read (accepts literals without a temporary); <code>const string&amp;</code> when you need null termination.</div>
+<div class="callout interview"><span class="label">Key point</span>View when you only read (accepts literals without a temporary); <code>const string&amp;</code> when you need null termination.</div>
 </section>
 
 <section id="sso" data-title="Inside std::string: SSO and capacity">
@@ -77,7 +77,7 @@ for (int i = 0; i < 1000; ++i) s += 'a';
 
 std::string t = "a" + name + "b";    // each + may build a temporary: prefer append, a format call or an ostringstream
 </script>
-<div class="callout interview"><span class="label">Interview angle</span>"What is SSO?" Short strings are stored in the string object, so no heap allocation and no pointer chase. It is why short-string copies are cheap and why <code>string</code> moves are not always pointer steals. On a hot path <code>reserve</code> and avoid building strings at all (<a href="12-low-latency.html">Low-Latency C++</a>).</div>
+<div class="callout interview"><span class="label">Key point</span>"What is SSO?" Short strings are stored in the string object, so no heap allocation and no pointer chase. It is why short-string copies are cheap and why <code>string</code> moves are not always pointer steals. On a hot path <code>reserve</code> and avoid building strings at all (<a href="12-low-latency.html">Low-Latency C++</a>).</div>
 </section>
 
 <section id="numbers" data-title="Numbers and text: from_chars, to_chars, stoi">
@@ -245,7 +245,7 @@ std::string swapped = std::regex_replace(line, kv, "$2:$1");   // "21.5:tempC 40
 <li>Nested quantifiers like <code>(a+)+b</code> can backtrack exponentially: no untrusted input.</li>
 <li>Invalid pattern: <code>std::regex_error</code>.</li>
 </ul></div>
-<div class="callout interview"><span class="label">Interview angle</span><code>regex_match("hello world", regex("hello"))</code> is false: it must cover the <b>entire</b> string. <code>regex_search</code> is true.</div>
+<div class="callout interview"><span class="label">Key point</span><code>regex_match("hello world", regex("hello"))</code> is false: it must cover the <b>entire</b> string. <code>regex_search</code> is true.</div>
 </section>
 
 <section id="s4" data-title="Time with std::chrono">
@@ -283,8 +283,8 @@ auto m = std::chrono::duration_cast<std::chrono::minutes>(s);   // 1 (truncates)
 <div class="callout warn"><span class="label">steady_clock for intervals</span><code>system_clock</code> can jump, giving negative or wrong intervals: bad for timeouts.</div>
 </section>
 
-<section id="s5" data-title="Interview cheat sheet">
-<h2>Interview cheat sheet</h2>
+<section id="s5" data-title="Cheat sheet">
+<h2>Cheat sheet</h2>
 <p>Answer aloud, then open.</p>
 <details><summary>When is a <code>string_view</code> dangerous?</summary>When it outlives the string it views: views of temporaries, of locals returned from a function, or of a string that is later modified or reallocated.</details>
 <details><summary><code>regex_match</code> versus <code>regex_search</code>?</summary><code>regex_match</code> must match the whole input. <code>regex_search</code> finds a match anywhere inside it.</details>

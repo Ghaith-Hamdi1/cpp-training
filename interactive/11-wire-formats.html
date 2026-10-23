@@ -181,7 +181,7 @@ std::memcpy(&v, buf + 1, sizeof v);                 // native byte order: add a 
 
 std::bit_cast<std::uint32_t>(1.0f);                 // 0x3f800000: the bits of a float
 </script>
-<div class="callout tip"><span class="label">Interview angle</span>"Why is casting the receive buffer to a struct pointer wrong?" Aliasing (UB), alignment, padding that may not match the wire, and byte order. "What do you do instead?" <code>memcpy</code> or shifts per field, after checking the length.</div>
+<div class="callout tip"><span class="label">Key point</span>"Why is casting the receive buffer to a struct pointer wrong?" Aliasing (UB), alignment, padding that may not match the wire, and byte order. "What do you do instead?" <code>memcpy</code> or shifts per field, after checking the length.</div>
 </section>
 
 <section data-title="Zero-copy parsing">
@@ -270,8 +270,8 @@ SeqResult classify(std::uint32_t expected, std::uint32_t received) {
 <p><b>Wrap-around:</b> a 32-bit counter returns to 0 after 4294967295. Comparing with <code>&lt;</code> breaks at that point; the unsigned subtraction followed by a signed reinterpretation keeps working as long as the two values are within 2<sup>31</sup> of each other. Expecting 4294967295 and receiving 0 is a <b>gap of one</b>, not a duplicate.</p>
 </section>
 
-<section id="s9" data-title="Interview cheat sheet">
-<h2>Interview cheat sheet</h2>
+<section id="s9" data-title="Cheat sheet">
+<h2>Cheat sheet</h2>
 <p>Answer aloud, then open.</p>
 <details class="ex"><summary>Why not cast the receive buffer to a struct pointer?</summary><div><p>Four problems at once: it violates strict aliasing (undefined behavior), the buffer address may not be aligned for the struct, struct padding may not match the wire layout, and the byte order may differ. Check the length, then copy each field out with <code>memcpy</code> or assemble it with shifts.</p></div></details>
 <details class="ex"><summary>What is struct padding and how do you reduce it?</summary><div><p>The compiler inserts unused bytes so each member sits at a multiple of its alignment, and pads the end so arrays stay aligned. <code>sizeof</code> can exceed the sum of the members. Order members from largest to smallest alignment; use <code>static_assert(sizeof(...))</code> to guard the size.</p></div></details>

@@ -1,0 +1,208 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Vocabulary Types</title>
+<script>try{var t=JSON.parse(localStorage.getItem('cpptrain:theme'));if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body data-topic="vocab" data-kind="lesson">
+<main>
+<h1>Vocabulary Types</h1>
+<p class="lead">The small standard types that make a function's contract visible in its signature: <code>pair</code> and <code>tuple</code>, <code>optional</code>, <code>variant</code>, <code>expected</code> and <code>span</code>. Builds on <a href="16-types-and-casts.html">Types, Initialization &amp; Casts</a>.</p>
+
+<section id="why" data-title="Why vocabulary types">
+<h2>Why vocabulary types</h2>
+<p>A signature like <code>int find(const char* s)</code> hides its contract: does <code>-1</code> mean "not found"? Is <code>s</code> allowed to be null? Who owns the result? A <b>vocabulary type</b> puts the answer in the type, so every reader and the compiler see it.</p>
+<table>
+<tr><th>The question</th><th>The old answer</th><th>The type</th></tr>
+<tr><td>Two or three values back from one function?</td><td>out-parameters, a throwaway struct</td><td><code>std::pair</code>, <code>std::tuple</code>, or a named struct</td></tr>
+<tr><td>A value that may be absent?</td><td>a magic value (<code>-1</code>), a null pointer</td><td><code>std::optional&lt;T&gt;</code></td></tr>
+<tr><td>One of several different types?</td><td>a <code>union</code> plus a tag, a base class</td><td><code>std::variant&lt;A, B&gt;</code></td></tr>
+<tr><td>A value, or the reason there is none?</td><td>an error code plus an out-parameter, an exception</td><td><code>std::expected&lt;T, E&gt;</code> (C++23)</td></tr>
+<tr><td>A run of elements?</td><td>a pointer plus a count</td><td><code>std::span&lt;T&gt;</code>, <code>std::string_view</code></td></tr>
+</table>
+<p>All of them are ordinary value types: no heap allocation, no virtual functions, nothing to free.</p>
+</section>
+
+<section id="pairs" data-title="pair, tuple and structured bindings">
+<h2><code>pair</code>, <code>tuple</code> and structured bindings</h2>
+<p><code>std::pair&lt;A, B&gt;</code> holds two values, <code>std::tuple&lt;A, B, C...&gt;</code> any number. Structured bindings (C++17) unpack them into named variables.</p>
+<script type="text/x-cpp">
+std::pair<int, int> minmax(const std::vector<int>& v);      // returns {smallest, largest}
+auto [lo, hi] = minmax({3, 9, 1, 7});                       // lo = 1, hi = 9: two names instead of .first / .second
+
+auto t = std::make_tuple(1, 2.5, std::string("x"));
+std::get<1>(t);                    // 2.5   (index must be a compile-time constant)
+std::get<std::string>(t);          // "x"   (or by type, when the type appears once)
+
+std::map<std::string, int> m{{"a", 1}};
+auto [it, inserted] = m.insert({"a", 2});   // insert returns pair<iterator, bool>
+// inserted == false, it->second == 1: the key existed, nothing changed
+</script>
+<ul>
+<li>A pair or tuple has <b>no names</b>: <code>.first</code> and <code>std::get&lt;2&gt;</code> say nothing about meaning. For a result that leaves a function and is used in more than one place, a small named <code>struct</code> reads better.</li>
+<li>Comparison is built in and lexicographic: pairs and tuples compare element by element, so they work as <code>map</code> keys and in <code>std::sort</code>.</li>
+<li><code>std::tie(a, b) = f();</code> assigns into existing variables; <code>std::ignore</code> skips one.</li>
+<li>Structured bindings also unpack plain structs and arrays: <code>auto [x, y] = point;</code>. They are copies unless you write <code>auto&amp;</code> or <code>const auto&amp;</code>.</li>
+</ul>
+</section>
+
+<section id="optional" data-title="optional: a value or nothing">
+<h2><code>optional</code>: a value or nothing</h2>
+<p><code>std::optional&lt;T&gt;</code> holds either a <code>T</code> or nothing. The "nothing" is part of the type, so a caller cannot forget it exists.</p>
+<script type="text/x-cpp">
+std::optional<int> parseInt(std::string_view s) {
+    int v = 0;
+    auto r = std::from_chars(s.data(), s.data() + s.size(), v);
+    if (r.ec != std::errc{} || r.ptr != s.data() + s.size()) return std::nullopt;   // "no value"
+    return v;                                                                        // converts to optional<int>
+}
+
+if (auto n = parseInt("42")) use(*n);        // test, then dereference: n is true when a value is present
+parseInt("4x").value_or(-1);                 // -1: a default for the empty case
+parseInt("").has_value();                    // false
+std::optional<int> e;  e.value();            // throws std::bad_optional_access
+*e;                                          // undefined behaviour: no check, like dereferencing a null pointer
+</script>
+<table>
+<tr><th>Operation</th><th>On an empty optional</th></tr>
+<tr><td><code>if (o)</code> / <code>o.has_value()</code></td><td>false</td></tr>
+<tr><td><code>*o</code>, <code>o-&gt;member</code></td><td>undefined behaviour: check first</td></tr>
+<tr><td><code>o.value()</code></td><td>throws <code>bad_optional_access</code></td></tr>
+<tr><td><code>o.value_or(x)</code></td><td>returns <code>x</code></td></tr>
+<tr><td><code>o.reset()</code>, <code>o = std::nullopt</code></td><td>makes it empty</td></tr>
+</table>
+<ul>
+<li>The value lives <b>inside</b> the optional (compiled: <code>sizeof(int)</code> is 4, <code>sizeof(optional&lt;int&gt;)</code> is 8: the value plus a flag, padded). No heap allocation, unlike a pointer or <code>unique_ptr</code>.</li>
+<li>Use it for a result that is <i>legitimately</i> absent: a lookup that may miss, a parse of untrusted input, an optional configuration value. It does not say <i>why</i> the value is missing; for that, use <code>expected</code>.</li>
+<li>Not a replacement for a reference or pointer that means "refers to an object owned elsewhere": <code>optional&lt;T&amp;&gt;</code> does not exist. Use a pointer there.</li>
+<li>Marking a function <code>[[nodiscard]]</code> keeps callers from dropping the result.</li>
+</ul>
+</section>
+
+<section id="variant" data-title="variant and std::visit">
+<h2><code>variant</code> and <code>std::visit</code></h2>
+<p><code>std::variant&lt;A, B, C&gt;</code> is a type-safe union: it holds exactly one of its alternatives and knows which.</p>
+<figure class="fig"><svg viewBox="0 0 640 130" role="img" aria-label="A variant stores a small index and storage big enough for the largest alternative"><rect class="acc" x="40" y="24" width="260" height="62" rx="8"/><text class="t" x="170" y="20" text-anchor="middle">variant&lt;int, string&gt; holding 7</text><rect class="wn" x="52" y="38" width="62" height="34" rx="4"/><text x="83" y="60" text-anchor="middle">index 0</text><rect class="box" x="124" y="38" width="164" height="34" rx="4"/><text class="m" x="206" y="60" text-anchor="middle">storage: int 7 (string unused)</text><rect class="acc" x="340" y="24" width="260" height="62" rx="8"/><text class="t" x="470" y="20" text-anchor="middle">after v = "hi"</text><rect class="wn" x="352" y="38" width="62" height="34" rx="4"/><text x="383" y="60" text-anchor="middle">index 1</text><rect class="box" x="424" y="38" width="164" height="34" rx="4"/><text class="m" x="506" y="60" text-anchor="middle">storage: string "hi"</text><text class="m" x="40" y="116">Size: the largest alternative plus the index. No heap allocation for the variant itself.</text></svg><figcaption>One alternative at a time; the index says which.</figcaption></figure>
+<script type="text/x-cpp">
+std::variant<int, std::string> v = 7;
+v.index();                              // 0: the int is active
+std::holds_alternative<int>(v);         // true
+std::get<int>(v);                       // 7
+std::get<std::string>(v);               // throws std::bad_variant_access: the wrong alternative
+if (auto* s = std::get_if<std::string>(&v)) { }   // a pointer, or nullptr: no exception
+v = std::string("hi");                  // now index 1; the int is gone
+std::variant<int, std::string> d;       // default: holds a value-initialised FIRST alternative (index 0, int 0)
+</script>
+<h3>Visiting every alternative</h3>
+<p><code>std::visit</code> calls a function with whichever alternative is active. Give it a callable that handles <b>every</b> alternative, and a missing one is a <b>compile error</b>, not a silent bug.</p>
+<script type="text/x-cpp">
+template <class... Ts> struct overloaded : Ts... { using Ts::operator()...; };   // glue lambdas into one callable
+template <class... Ts> overloaded(Ts...) -> overloaded<Ts...>;                   // deduction guide (needed before C++20)
+
+struct Circle { double r; };
+struct Rect   { double w, h; };
+using Shape = std::variant<Circle, Rect>;           // no base class, no virtual functions
+
+double area(const Shape& s) {
+    return std::visit(overloaded{
+        [](const Circle& c) { return 3.0 * c.r * c.r; },
+        [](const Rect& r)   { return r.w * r.h; }
+    }, s);
+}
+std::vector<Shape> shapes{Circle{2}, Rect{3, 4}};   // a heterogeneous collection stored by value
+// total area: 12 + 12 = 24 (compiled)
+</script>
+<ul>
+<li><b>Variant or virtual functions?</b> A variant fits a <i>closed</i> set of types you control (messages, tokens, syntax-tree nodes), where you keep adding operations. Virtual functions fit an <i>open</i> set that others may extend. The trade-off is spelled out under Visitor in <a href="20-more-patterns.html">More Patterns</a>.</li>
+<li>If an alternative's constructor throws during assignment, the variant can end up <i>valueless by exception</i> (<code>valueless_by_exception()</code>). It is rare, and it is why you should keep alternatives cheap and non-throwing to move.</li>
+<li>A reference alternative is ill-formed (use <code>std::reference_wrapper</code>). The same type twice is legal, but then you can only reach it by index, not by type.</li>
+<li><code>std::monostate</code> is an empty alternative: put it first to make a variant default-constructible when no alternative should be the default.</li>
+</ul>
+</section>
+
+<section id="expected" data-title="expected: a value or an error">
+<h2><code>expected</code>: a value or an error</h2>
+<p><code>std::expected&lt;T, E&gt;</code> (C++23) holds either the result <code>T</code> or an error <code>E</code>. It is <code>optional</code> that explains <i>why</i> the value is missing, and an alternative to exceptions for failures that are normal.</p>
+<script type="text/x-cpp">
+enum class ParseError { Empty, NotANumber };
+
+std::expected<int, ParseError> parse(std::string_view s) {
+    if (s.empty()) return std::unexpected(ParseError::Empty);        // the error path
+    if (auto n = parseInt(s)) return *n;                             // the value path
+    return std::unexpected(ParseError::NotANumber);
+}
+
+auto r = parse("12");
+if (r) use(*r);                                 // true: it holds a value
+else   report(r.error());                       // otherwise: the error
+parse("zz").value_or(0);                        // 0: a default when it holds an error
+parse("").value();                              // throws std::bad_expected_access<ParseError>
+</script>
+<table>
+<tr><th>Failure style</th><th>Cost and visibility</th><th>Use for</th></tr>
+<tr><td>Exception</td><td>invisible in the signature; a throw is slow</td><td>rare failures the caller cannot handle here, constructors</td></tr>
+<tr><td>Error code plus out-parameter</td><td>easy to ignore, clumsy to write</td><td>C APIs</td></tr>
+<tr><td><code>optional&lt;T&gt;</code></td><td>visible, free, says nothing about why</td><td>"not found", where the reason is obvious</td></tr>
+<tr><td><code>expected&lt;T, E&gt;</code></td><td>visible, free, carries the reason</td><td>expected failures: parsing, I/O, validation</td></tr>
+</table>
+<p>It needs a C++23 standard library (GCC 12 or later, recent MSVC). With an older one, <code>std::variant&lt;T, E&gt;</code> or a small result struct does the same job, and the free <code>tl::expected</code> library has the same interface. Mark the function <code>[[nodiscard]]</code> so the result cannot be ignored.</p>
+</section>
+
+<section id="views" data-title="span and string_view: non-owning views">
+<h2><code>span</code> and <code>string_view</code>: non-owning views</h2>
+<p>A <b>view</b> is a pointer plus a length: it looks at elements that someone else owns. <code>std::span&lt;T&gt;</code> (C++20) views any contiguous run of <code>T</code>; <code>std::string_view</code> (C++17) is the same idea for characters.</p>
+<script type="text/x-cpp">
+long sum(std::span<const int> xs) { long t = 0; for (int x : xs) t += x; return t; }
+
+std::vector<int> vec{1, 2, 3, 4, 5};
+int arr[3] = {10, 20, 30};
+sum(vec);                              // 15: a vector converts to a span with no copy
+sum(arr);                              // 60: so does a C array, and its size is remembered
+sum(std::span(vec).subspan(1, 3));     // 9:  elements 2, 3, 4: a slice is just a new pointer and length
+sum(std::span(vec).first(2));          // 3
+</script>
+<ul>
+<li>A span is two words (compiled: 16 bytes on a 64-bit machine). Pass it <b>by value</b>.</li>
+<li><code>span&lt;const int&gt;</code> is read-only; <code>span&lt;int&gt;</code> lets the function modify the elements in place. It still cannot grow or shrink the container.</li>
+<li>It replaces the <code>(T* data, size_t n)</code> pair. Overflows are easier to spot, and a function written against <code>span</code> accepts a vector, an array, a <code>std::array</code> or a part of any of them.</li>
+<li><b>Dangling.</b> A view must not outlive what it looks at. A <code>span</code> of a vector that then reallocates (<code>push_back</code>), or a <code>string_view</code> of a temporary string, points at freed memory. Use views for parameters and short-lived local use, not for members that live longer than the data.</li>
+</ul>
+<div class="callout warn"><span class="label">Rule of thumb</span>Take a view to <i>read or modify</i> existing elements; take or return the owning type (<code>vector</code>, <code>string</code>) to <i>keep</i> them.</div>
+</section>
+
+<section id="choose" data-title="Which one when">
+<h2>Which one when</h2>
+<table>
+<tr><th>Situation</th><th>Use</th></tr>
+<tr><td>Return two related values that are used right away</td><td><code>pair</code> / structured bindings; a named <code>struct</code> if they travel further</td></tr>
+<tr><td>A lookup that may find nothing</td><td><code>optional&lt;T&gt;</code></td></tr>
+<tr><td>A parse or I/O call whose failure has a reason</td><td><code>expected&lt;T, E&gt;</code> (or an exception if it is rare)</td></tr>
+<tr><td>A value that is one of a few known types</td><td><code>variant</code> plus <code>visit</code></td></tr>
+<tr><td>A function that reads a run of elements</td><td><code>span&lt;const T&gt;</code>; <code>string_view</code> for text</td></tr>
+<tr><td>A value of any type, unknown at compile time</td><td><code>std::any</code> (rare: you lose compile-time checking; prefer a variant)</td></tr>
+</table>
+<p>The same idea runs through all of them: make illegal or missing states <b>explicit in the type</b> so the compiler, not a comment, enforces them.</p>
+</section>
+
+<section id="cheat" data-title="Cheat sheet">
+<h2>Cheat sheet</h2>
+<p>Answer aloud, then open.</p>
+<details class="ex"><summary>What is a vocabulary type?</summary><div><p>A small standard type that expresses a common idea in a signature: <code>optional</code> (maybe a value), <code>variant</code> (one of several types), <code>expected</code> (a value or an error), <code>span</code> and <code>string_view</code> (a non-owning view). They replace magic values, tagged unions and pointer-plus-count pairs, so the contract is visible and checked.</p></div></details>
+<details class="ex"><summary><code>optional</code> versus a pointer for "may be absent"?</summary><div><p><code>optional&lt;T&gt;</code> holds the value itself (no heap allocation, no ownership question) and is empty when absent. A pointer means "refers to something owned elsewhere" and can be null. Use <code>optional</code> for a possibly missing <i>value</i>, a pointer for a possibly missing <i>reference</i>.</p></div></details>
+<details class="ex"><summary>What happens on <code>*opt</code>, <code>opt.value()</code> and <code>opt.value_or(x)</code> when it is empty?</summary><div><p><code>*opt</code> is undefined behaviour, <code>value()</code> throws <code>std::bad_optional_access</code>, and <code>value_or(x)</code> returns <code>x</code>. Test with <code>if (opt)</code> first when you can.</p></div></details>
+<details class="ex"><summary>How does <code>std::variant</code> differ from a <code>union</code>?</summary><div><p>A variant remembers which alternative is active (<code>index()</code>), destroys the old one and constructs the new one on assignment, works with non-trivial types such as <code>std::string</code>, and throws <code>bad_variant_access</code> if you read the wrong one. A raw union does none of that, and reading the wrong member is undefined behaviour.</p></div></details>
+<details class="ex"><summary>Why is <code>std::visit</code> safer than a chain of <code>if</code> / <code>get_if</code>?</summary><div><p>The visitor must handle every alternative, so adding a type to the variant makes every incomplete visitor a compile error instead of a silent missing case. It also reads the active alternative without a manual check.</p></div></details>
+<details class="ex"><summary>Variant or virtual functions for a set of message or shape types?</summary><div><p>A variant when the set of types is closed and you keep adding operations: values are stored inline, there are no allocations or virtual calls, and the compiler checks completeness. Virtual functions when the set of types is open for others to extend and the operations are few.</p></div></details>
+<details class="ex"><summary><code>optional</code>, <code>expected</code>, exception or error code?</summary><div><p><code>optional</code> when "no value" needs no explanation. <code>expected&lt;T, E&gt;</code> (C++23) when the failure is normal and the reason matters. An exception for rare failures the local code cannot handle, and for constructors. An error code only at C boundaries.</p></div></details>
+<details class="ex"><summary>What does <code>std::span</code> replace, and what is its danger?</summary><div><p>It replaces a <code>(pointer, count)</code> pair: a non-owning view of contiguous elements that remembers its size and accepts a vector, an array or a part of either, without copying. Like <code>string_view</code> it dangles if the data is destroyed or reallocated while the view is alive.</p></div></details>
+<details class="ex"><summary>How do you return several values from a function?</summary><div><p>A <code>std::pair</code> or <code>std::tuple</code>, unpacked with structured bindings (<code>auto [a, b] = f();</code>), or a small named struct when the fields need names or the result travels. Not out-parameters, except where you want to reuse a buffer.</p></div></details>
+</section>
+</main>
+
+<script src="assets/data/lessons.js"></script>
+<script src="assets/app.js"></script>
+</body>
+</html>

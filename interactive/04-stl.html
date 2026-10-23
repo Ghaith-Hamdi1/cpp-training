@@ -10,7 +10,7 @@
 <body data-topic="stl" data-kind="lesson">
 <main>
 <h1>The C++ Standard Template Library</h1>
-<p class="lead">Containers hold data, algorithms work on it, iterators connect them. Container choice, operation costs and iterator invalidation are interview staples.</p>
+<p class="lead">Containers hold data, algorithms work on it, iterators connect them. Container choice, operation costs and iterator invalidation are the parts that matter most.</p>
 
 <section id="s1" data-title="The big picture">
 <h2>The big picture</h2>
@@ -302,14 +302,14 @@ px[{"CME", 7}] = 101.5;
 <li>A <code>rehash</code> (growth beyond <code>max_load_factor</code>) invalidates iterators; <code>reserve(n)</code> up front avoids it, and avoids the allocations on a hot path.</li>
 <li>Ordered or hashed? Ordered when you need sorted iteration or range queries (<code>lower_bound</code>); hashed for plain lookup. For a few dozen keys a sorted <code>vector</code> and binary search often beats both.</li>
 </ul>
-<div class="callout interview"><span class="label">Interview angle</span>"How do you use your own type as a key in <code>unordered_map</code>?" Provide <code>operator==</code> and a hash functor (or specialise <code>std::hash</code>), combining all members, and make sure equal objects hash equally.</div>
+<div class="callout interview"><span class="label">Key point</span>"How do you use your own type as a key in <code>unordered_map</code>?" Provide <code>operator==</code> and a hash functor (or specialise <code>std::hash</code>), combining all members, and make sure equal objects hash equally.</div>
 </section>
 
 <section id="s5" data-title="Which container should I use?">
 <h2>Which container should I use?</h2>
 <p>Pick what you mostly do:</p>
 <div id="w-choose"></div>
-<div class="callout interview"><span class="label">Interview angle</span>"vector vs list?" Answer with <i>memory</i>: contiguous means cache-friendly, so vector wins even for middle inserts at modest sizes. List wins for stable iterators and cheap splicing.</div>
+<div class="callout interview"><span class="label">Key point</span>"vector vs list?" Answer with <i>memory</i>: contiguous means cache-friendly, so vector wins even for middle inserts at modest sizes. List wins for stable iterators and cheap splicing.</div>
 <!-- read-more:start -->
 <div class="callout tip"><span class="label">Read more</span>
 <p><b>Programming: Principles and Practice (Stroustrup)</b></p>
@@ -366,7 +366,7 @@ for (int x : evenSquares) use(x);                             // computed on dem
 <li>A <b>range</b> is anything with <code>begin()</code> and <code>end()</code>. The <code>std::ranges::</code> algorithms take the whole range and support <b>projections</b>: <code>std::ranges::sort(people, {}, &amp;Person::age)</code>.</li>
 <li>A <b>view</b> is a lightweight, non-owning, lazy window (<code>filter</code>, <code>transform</code>, <code>take</code>, <code>drop</code>, <code>reverse</code>, <code>iota</code>). Pipe them with <code>|</code>.</li>
 <li>A view does not own its data: if the container dies or reallocates, the view dangles, like <code>string_view</code>.</li>
-<li>Good to know for interviews: ranges make pipelines readable; you are not expected to know every view.</li>
+<li>Ranges make pipelines readable; you do not need to know every view.</li>
 </ul>
 <!-- read-more:start -->
 <div class="callout tip"><span class="label">Read more</span>
@@ -419,8 +419,8 @@ std::normal_distribution<double> noise(0.0, 1.0);
 <p>Notes: <a href="https://github.com/Ghaith-Hamdi1/cpp-training/blob/main/docs/03-cpp-standard-library/README.md">Module 3</a>.</p>
 </section>
 
-<section id="s10" data-title="Interview cheat sheet">
-<h2>Interview cheat sheet</h2>
+<section id="s10" data-title="Cheat sheet">
+<h2>Cheat sheet</h2>
 <details class="ex"><summary>How do you use your own type as a key in <code>unordered_map</code>, and in <code>map</code>?</summary><div><p><code>unordered_map</code>: provide <code>operator==</code> and a hash functor (or specialise <code>std::hash</code>) that combines all members; equal objects must hash equally. <code>map</code>: provide a strict weak ordering (<code>operator&lt;</code> or a comparator type). Never <code>&lt;=</code>, and never modify a key while it is stored.</p></div></details>
 <details class="ex"><summary>Why use <code>try_emplace</code> instead of <code>emplace</code> or <code>insert</code>?</summary><div><p>If the key exists, <code>try_emplace</code> does nothing and does not touch its arguments, so a moved-in value is not lost. <code>emplace</code> and <code>insert</code> may already have built or moved from the value. It is the right call for "insert if absent" with expensive or move-only values.</p></div></details>
 <details class="ex"><summary>What does <code>std::back_inserter</code> do and when do you need it?</summary><div><p>It is an output iterator whose assignment calls <code>push_back</code>. Algorithms such as <code>copy</code> and <code>transform</code> write through iterators and do not grow the destination, so with an empty target you would write past the end; <code>back_inserter</code> makes them grow it instead.</p></div></details>

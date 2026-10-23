@@ -1,4 +1,4 @@
-// Lesson 5 (RAII and exceptions): a scope guard, the strong exception guarantee by copy-and-swap, why noexcept moves
+// Lesson 6 (RAII and exceptions): a scope guard, the strong exception guarantee by copy-and-swap, why noexcept moves
 // matter to std::vector, and returning errors without exceptions. Compile with -std=c++20.
 #include <charconv>
 #include <iostream>

@@ -1,6 +1,6 @@
-# Study checklist: C++ interview preparation
+# Study checklist
 
-A step-by-step plan, from the highest-value topics to the rest.
+A step-by-step plan through the lessons, in the order they build on each other. Each stage lists its lessons with their sections and quizzes.
 
 **Want ticks that save?** Use the interactive version: <https://ghaith-hamdi1.github.io/cpp-training/study-checklist.html> (also at [`interactive/study-checklist.html`](../interactive/study-checklist.html)). Its checkboxes are clickable, remember your progress on your device, show a progress bar, and work offline. The boxes below are for reading on GitHub or for editing the file yourself.
 
@@ -12,14 +12,206 @@ A step-by-step plan, from the highest-value topics to the rest.
 
 ---
 
-## Step 0: set up (2 minutes)
+## Stage 1: Foundations (about 2.5 hours)
 
-- [ ] Open the site and check that the lessons load.
-- [ ] Open **Lesson 15, Multithreading**.
+Types, memory, pointers, references, initialization, conversions, and the small types that make interfaces honest.
 
-## Step 1: multithreading (about 3 hours)
+**C++ Basics & Pointers:** [01-basics.html](../interactive/01-basics.html), quiz: [01-basics-quiz.html](../interactive/01-basics-quiz.html) (22 questions).
 
-The highest-value topic for real-time and systems roles. Three lessons: the basics, tasks and parallelism, and atomics with the memory model.
+- [ ] How a C++ program is built
+- [ ] Variables and types
+- [ ] Operators and control flow
+- [ ] Functions and passing arguments
+- [ ] Where variables live: stack, heap, static
+- [ ] Pointers from scratch
+- [ ] References
+- [ ] `const` and pointers
+- [ ] Dynamic memory: `new` and `delete`
+- [ ] Arrays, C-strings and `std::string`
+- [ ] The classic memory bugs
+- [ ] Tooling: warnings, sanitizers, static analysis
+- [ ] Cheat sheet (say each answer aloud)
+- [ ] Take the quiz, then retry the missed questions
+
+**Types, Initialization & Casts:** [16-types-and-casts.html](../interactive/16-types-and-casts.html), quiz: [16-types-and-casts-quiz.html](../interactive/16-types-and-casts-quiz.html) (16 questions).
+
+- [ ] Initialization and brace traps
+- [ ] `auto`, `decltype` and modern syntax
+- [ ] Implicit conversions and `enum class`
+- [ ] Casts and type conversion
+- [ ] `const`, `constexpr` and `static`
+- [ ] What C++14, 17 and 20 added
+- [ ] Cheat sheet (say each answer aloud)
+- [ ] Take the quiz, then retry the missed questions
+
+**Vocabulary Types:** [21-vocabulary-types.html](../interactive/21-vocabulary-types.html), quiz: [21-vocabulary-types-quiz.html](../interactive/21-vocabulary-types-quiz.html) (13 questions).
+
+- [ ] Why vocabulary types
+- [ ] `pair`, `tuple` and structured bindings
+- [ ] `optional`: a value or nothing
+- [ ] `variant` and `std::visit`
+- [ ] `expected`: a value or an error
+- [ ] `span` and `string_view`: non-owning views
+- [ ] Which one when
+- [ ] Cheat sheet (say each answer aloud)
+- [ ] Take the quiz, then retry the missed questions
+
+## Stage 2: Objects (about 1.5 hours)
+
+Classes, inheritance, virtual functions, and how objects are laid out in memory.
+
+**Object-Oriented Programming:** [02-oop.html](../interactive/02-oop.html), quiz: [02-oop-quiz.html](../interactive/02-oop-quiz.html) (26 questions).
+
+- [ ] Classes and encapsulation
+- [ ] Member functions: `this`, `const`, `static`, `friend`
+- [ ] Constructors and destructors
+- [ ] Copying and the Rule of 3, 5 and 0
+- [ ] `explicit`, conversion operators and copy-and-swap
+- [ ] Operator overloading
+- [ ] Inheritance
+- [ ] Polymorphism and virtual functions
+- [ ] Abstract classes and interfaces
+- [ ] Composition, relationships and design
+- [ ] Cheat sheet (say each answer aloud)
+- [ ] Take the quiz, then retry the missed questions
+
+**The Object Model in Depth:** [19-object-model.html](../interactive/19-object-model.html), quiz: [19-object-model-quiz.html](../interactive/19-object-model-quiz.html) (11 questions).
+
+- [ ] Multiple inheritance and object layout
+- [ ] The diamond problem and virtual inheritance
+- [ ] RTTI: `typeid` and `dynamic_cast`
+- [ ] Private inheritance versus composition
+- [ ] Cheat sheet (say each answer aloud)
+- [ ] Take the quiz, then retry the missed questions
+
+## Stage 3: Ownership and modern C++ (about 2.5 hours)
+
+RAII, exceptions, moving instead of copying, who owns an object, and callables.
+
+**Core Language: RAII & Exceptions:** [03-core-language.html](../interactive/03-core-language.html), quiz: [03-core-language-quiz.html](../interactive/03-core-language-quiz.html) (17 questions).
+
+- [ ] RAII: the central idea
+- [ ] Exceptions and stack unwinding
+- [ ] RAII everywhere: guards and standard wrappers
+- [ ] Exception-safety guarantees and noexcept
+- [ ] Exceptions, error codes and optional
+- [ ] Cheat sheet (say each answer aloud)
+- [ ] Take the quiz, then retry the missed questions
+
+**Move Semantics:** [13-move-semantics.html](../interactive/13-move-semantics.html), quiz: [13-move-semantics-quiz.html](../interactive/13-move-semantics-quiz.html) (15 questions).
+
+- [ ] Lvalues, rvalues and value categories
+- [ ] Copy versus move (step through it; what `std::move` really does)
+- [ ] Writing move operations
+- [ ] Returning objects: elision and `std::move`
+- [ ] Sink parameters and move traps (the `const` trap)
+- [ ] Cheat sheet (say each answer aloud)
+- [ ] Take the quiz, then retry the missed questions
+
+**Smart Pointers & Ownership:** [14-smart-pointers.html](../interactive/14-smart-pointers.html), quiz: [14-smart-pointers-quiz.html](../interactive/14-smart-pointers-quiz.html) (12 questions).
+
+- [ ] Who owns it? The three smart pointers
+- [ ] `unique_ptr` in detail (deleters, arrays, zero overhead)
+- [ ] `shared_ptr` and the control block (step through the count)
+- [ ] Reference cycles and `weak_ptr` (step through the leak)
+- [ ] Pitfalls and `enable_shared_from_this`
+- [ ] Cheat sheet (say each answer aloud)
+- [ ] Take the quiz, then retry the missed questions
+
+**Lambdas & Callables:** [15-lambdas.html](../interactive/15-lambdas.html), quiz: [15-lambdas-quiz.html](../interactive/15-lambdas-quiz.html) (13 questions).
+
+- [ ] What a lambda is
+- [ ] Captures: by value and by reference (step through; dangling captures)
+- [ ] `mutable`, init-capture, generic and recursive lambdas
+- [ ] Function pointer, functor, lambda, `std::function`
+- [ ] Cheat sheet (say each answer aloud)
+- [ ] Take the quiz, then retry the missed questions
+
+## Stage 4: The library and generic code (about 3.5 hours)
+
+Strings, containers, iterators, algorithms, templates, type traits and concepts, and compile-time computation.
+
+**Strings, Regex & Time:** [08-strings-regex-time.html](../interactive/08-strings-regex-time.html), quiz: [08-strings-regex-time-quiz.html](../interactive/08-strings-regex-time-quiz.html) (23 questions).
+
+- [ ] `std::string` and `std::string_view`
+- [ ] Inside `std::string`: SSO and capacity
+- [ ] Numbers and text: `from_chars`, `to_chars`, `stoi`
+- [ ] Formatting: `std::format` and streams
+- [ ] String streams and files
+- [ ] Regular expressions: the basics
+- [ ] Captures, replace and iterating matches
+- [ ] Time with `std::chrono`
+- [ ] Cheat sheet (say each answer aloud)
+- [ ] Take the quiz, then retry the missed questions
+
+**The STL:** [04-stl.html](../interactive/04-stl.html), quiz: [04-stl-quiz.html](../interactive/04-stl-quiz.html) (29 questions).
+
+- [ ] The big picture
+- [ ] `vector`: the workhorse
+- [ ] Iterators
+- [ ] Other sequence containers
+- [ ] Associative and unordered containers
+- [ ] Custom keys: comparators and hashes
+- [ ] Which container should I use?
+- [ ] Algorithms
+- [ ] Useful companions and pitfalls
+- [ ] Cheat sheet (say each answer aloud)
+- [ ] Take the quiz, then retry the missed questions
+
+**Templates:** [05-templates.html](../interactive/05-templates.html), quiz: [05-templates-quiz.html](../interactive/05-templates-quiz.html) (28 questions).
+
+- [ ] Why templates, and function templates
+- [ ] Template argument deduction
+- [ ] Class templates
+- [ ] Specialization
+- [ ] Variadic templates and fold expressions (step through the recursion)
+- [ ] Forwarding references and perfect forwarding (use the explorer, step through it)
+- [ ] Alias templates, variable templates and more
+- [ ] Type traits and `if constexpr`
+- [ ] Pitfalls and good practice
+- [ ] Cheat sheet (say each answer aloud)
+- [ ] Take the quiz, then retry the missed questions
+
+**Type Traits & Compile-time C++:** [09-compile-time.html](../interactive/09-compile-time.html), quiz: [09-compile-time-quiz.html](../interactive/09-compile-time-quiz.html) (15 questions).
+
+- [ ] Type traits
+- [ ] `enable_if` and SFINAE
+- [ ] `constexpr`, `consteval`, `constinit`
+- [ ] Template metaprogramming (TMP)
+- [ ] Cheat sheet (say each answer aloud)
+- [ ] Take the quiz, then retry the missed questions
+
+## Stage 5: Design (about 1.5 hours)
+
+Common patterns in modern C++, with real code.
+
+**Design Patterns:** [06-design-patterns.html](../interactive/06-design-patterns.html), quiz: [06-design-patterns-quiz.html](../interactive/06-design-patterns-quiz.html) (20 questions).
+
+- [ ] What patterns are and are not
+- [ ] Singleton
+- [ ] Factory
+- [ ] Strategy (try the widget)
+- [ ] Observer (subscribe and unsubscribe in the demo)
+- [ ] State (use the turnstile demo)
+- [ ] Other patterns worth recognising
+- [ ] SOLID principles
+- [ ] Cheat sheet (say each answer aloud)
+- [ ] Take the quiz, then retry the missed questions
+
+**More Patterns:** [20-more-patterns.html](../interactive/20-more-patterns.html), quiz: [20-more-patterns-quiz.html](../interactive/20-more-patterns-quiz.html) (11 questions).
+
+- [ ] Command (with undo)
+- [ ] Decorator
+- [ ] Adapter
+- [ ] Builder
+- [ ] Visitor and `std::variant`
+- [ ] Patterns in a feed handler
+- [ ] Cheat sheet (say each answer aloud)
+- [ ] Take the quiz, then retry the missed questions
+
+## Stage 6: Concurrency (about 2.5 hours)
+
+Threads, locks, futures, atomics and the memory model.
 
 **Multithreading:** [07-multithreading.html](../interactive/07-multithreading.html), quiz: [07-multithreading-quiz.html](../interactive/07-multithreading-quiz.html) (28 questions).
 
@@ -31,130 +223,71 @@ The highest-value topic for real-time and systems roles. Three lessons: the basi
 - [ ] Races hidden in interfaces (step through the stack example)
 - [ ] Deadlock (cause the deadlock yourself, then run the fixed version)
 - [ ] Condition variables (step through the hand-over)
-- [ ] Optional: debugging and common bugs
+- [ ] Debugging and common bugs
+- [ ] Cheat sheet (say each answer aloud)
 - [ ] Take the quiz, then retry the missed questions
 
-**Tasks and parallelism:** [17-tasks-parallelism.html](../interactive/17-tasks-parallelism.html), quiz: [17-tasks-parallelism-quiz.html](../interactive/17-tasks-parallelism-quiz.html) (15 questions).
+**Tasks & Parallelism:** [17-tasks-parallelism.html](../interactive/17-tasks-parallelism.html), quiz: [17-tasks-parallelism-quiz.html](../interactive/17-tasks-parallelism-quiz.html) (15 questions).
 
 - [ ] Futures and async
 - [ ] `promise`, `shared_future` and `packaged_task`
 - [ ] Thread pools and producer/consumer (step through the pool)
 - [ ] Work stealing and sizing a pool
-- [ ] `latch`, `barrier`, `semaphore` and `stop_token`
-- [ ] Parallel algorithms
+- [ ] `latch`, `barrier`, `semaphore` and `stop_token` (C++20)
+- [ ] Parallel algorithms (C++17)
+- [ ] Cheat sheet (say each answer aloud)
 - [ ] Take the quiz, then retry the missed questions
 
-**Atomics and the memory model:** [18-atomics-memory-model.html](../interactive/18-atomics-memory-model.html), quiz: [18-atomics-memory-model-quiz.html](../interactive/18-atomics-memory-model-quiz.html) (17 questions).
+**Atomics & the Memory Model:** [18-atomics-memory-model.html](../interactive/18-atomics-memory-model.html), quiz: [18-atomics-memory-model-quiz.html](../interactive/18-atomics-memory-model-quiz.html) (17 questions).
 
-- [ ] Atomic operations and `compare_exchange` (run the atomic simulator)
+- [ ] Atomic operations and `compare_exchange`
 - [ ] Memory orders and happens-before (use the memory-order simulator)
 - [ ] Ordering patterns that matter (publish, refcount, spinlock)
 - [ ] Thread-safe data structures (fine-grained locks, lock-free push)
+- [ ] Cheat sheet (say each answer aloud)
 - [ ] Take the quiz, then retry the missed questions
 
-## Step 2: core language and modern C++ (about 3 hours)
+## Stage 7: Performance (about 2 hours)
 
-Five lessons, each short: RAII and exceptions, move semantics, smart pointers, lambdas, types and casts.
+Binary formats and parsing, and predictable, fast code.
 
-**RAII and exceptions:** [03-core-language.html](../interactive/03-core-language.html), quiz: [03-core-language-quiz.html](../interactive/03-core-language-quiz.html) (17 questions).
+**Binary Data & Parsing:** [11-wire-formats.html](../interactive/11-wire-formats.html), quiz: [11-wire-formats-quiz.html](../interactive/11-wire-formats-quiz.html) (21 questions).
 
-- [ ] RAII: the central idea (step through the stack unwinding)
-- [ ] Exceptions and stack unwinding
-- [ ] RAII everywhere: scope guards and the standard wrappers
-- [ ] Exception-safety guarantees and `noexcept`
-- [ ] Exceptions, error codes and `optional`
-- [ ] Interview cheat sheet (say each answer aloud)
+- [ ] From bytes to values
+- [ ] Integers and bit manipulation
+- [ ] Struct layout, alignment and padding
+- [ ] Endianness
+- [ ] Reading bytes safely: aliasing and memcpy
+- [ ] Zero-copy parsing
+- [ ] Prices: fixed-point versus double
+- [ ] Sequence numbers and gaps
+- [ ] Cheat sheet (say each answer aloud)
 - [ ] Take the quiz, then retry the missed questions
 
-**Move semantics:** [13-move-semantics.html](../interactive/13-move-semantics.html), quiz: [13-move-semantics-quiz.html](../interactive/13-move-semantics-quiz.html) (15 questions).
+**Performance & Memory:** [12-low-latency.html](../interactive/12-low-latency.html), quiz: [12-low-latency-quiz.html](../interactive/12-low-latency-quiz.html) (23 questions).
 
-- [ ] Lvalues, rvalues and the three value categories
-- [ ] Copy versus move (step through it; what `std::move` really does)
-- [ ] Optional, book: *Effective Modern C++* Items 23, 25 and 29 on `std::move`, `std::forward` and when moves are not cheap (PDF pages 176 to 182, 186 to 195 and 221 to 225, about 22 pages). See the [move semantics path](effective-modern-cpp-reading-guide.md#special-focus-move-semantics-and-perfect-forwarding)
-- [ ] Writing move operations: `std::exchange`, `noexcept`, copy-and-swap
-- [ ] Returning objects: elision, and why not `return std::move(local)`
-- [ ] Sink parameters and the move traps (the `const` trap)
-- [ ] Interview cheat sheet (say each answer aloud)
+- [ ] Where latency comes from
+- [ ] Measuring: percentiles and tail latency
+- [ ] Memory on the hot path
+- [ ] Cache-friendly data
+- [ ] Order books: choosing a structure
+- [ ] Queues between threads
+- [ ] A predictable hot path
+- [ ] Threads, cores and busy-polling
+- [ ] Cheat sheet (say each answer aloud)
 - [ ] Take the quiz, then retry the missed questions
 
-**Smart pointers:** [14-smart-pointers.html](../interactive/14-smart-pointers.html), quiz: [14-smart-pointers-quiz.html](../interactive/14-smart-pointers-quiz.html) (12 questions).
-
-- [ ] Who owns it? The three smart pointers and how to pass them
-- [ ] `unique_ptr` in detail (deleters, arrays, zero overhead)
-- [ ] `shared_ptr` and the control block (step through the count)
-- [ ] Reference cycles and `weak_ptr` (step through the leak)
-- [ ] Pitfalls: one control block per object, `enable_shared_from_this`
-- [ ] Interview cheat sheet (say each answer aloud)
-- [ ] Take the quiz, then retry the missed questions
-
-**Lambdas:** [15-lambdas.html](../interactive/15-lambdas.html), quiz: [15-lambdas-quiz.html](../interactive/15-lambdas-quiz.html) (13 questions).
-
-- [ ] What a lambda is
-- [ ] Captures: by value and by reference (step through; dangling captures)
-- [ ] `mutable`, init-capture, generic and recursive lambdas
-- [ ] Function pointer, functor, lambda, `std::function`
-- [ ] Interview cheat sheet (say each answer aloud)
-- [ ] Take the quiz, then retry the missed questions
-
-**Types, initialization and casts:** [16-types-and-casts.html](../interactive/16-types-and-casts.html), quiz: [16-types-and-casts-quiz.html](../interactive/16-types-and-casts-quiz.html) (16 questions).
-
-- [ ] Initialization forms and the brace traps
-- [ ] `auto`, `decltype` and the modern syntax tour
-- [ ] Implicit conversions and `enum class`
-- [ ] Casts, `const`/`constexpr`/`static`, and what C++14/17/20 added
-- [ ] Interview cheat sheet (say each answer aloud)
-- [ ] Take the quiz, then retry the missed questions
-
-## Step 3: templates and design patterns (about 1.5 hours)
-
-Both come up in most C++ interviews.
-
-**Templates:** [05-templates.html](../interactive/05-templates.html), quiz: [05-templates-quiz.html](../interactive/05-templates-quiz.html) (28 questions).
-
-- [ ] Function templates and class templates
-- [ ] Template argument deduction (by value, by reference) and class template argument deduction
-- [ ] Variadic templates and fold expressions (step through the recursion)
-- [ ] Forwarding references and perfect forwarding (use the explorer, step through it)
-- [ ] Alias templates, variable templates, template template parameters and `std::index_sequence`
-- [ ] Type traits, `if constexpr` and concepts
-- [ ] Interview cheat sheet (say each answer aloud)
-- [ ] Take the quiz, then retry the missed questions
-
-**Design patterns:** [06-design-patterns.html](../interactive/06-design-patterns.html), quiz: [06-design-patterns-quiz.html](../interactive/06-design-patterns-quiz.html) (20 questions).
-
-- [ ] Singleton (thread-safe version and its drawbacks)
-- [ ] Factory
-- [ ] Strategy (try the widget)
-- [ ] Observer (subscribe and unsubscribe in the demo)
-- [ ] State (use the turnstile demo)
-- [ ] SOLID principles and the interview cheat sheet
-- [ ] Take the quiz, then retry the missed questions
-
-## Step 4: the rest (about 1 hour)
-
-Take each quiz **first**. Only read the lesson sections for questions you miss.
-
-- [ ] STL: [lesson](../interactive/04-stl.html), [quiz](../interactive/04-stl-quiz.html) (29 questions)
-- [ ] Basics and pointers: [lesson](../interactive/01-basics.html), [quiz](../interactive/01-basics-quiz.html) (22 questions)
-- [ ] OOP: [lesson](../interactive/02-oop.html), [quiz](../interactive/02-oop-quiz.html) (26 questions)
-
-## Step 5: the last day before an interview
+## Final review
 
 - [ ] Retake every quiz where you scored under 80%.
-- [ ] Open each lesson's "Interview cheat sheet" and say every answer aloud before opening it.
+- [ ] Take the level check and revisit your weakest topics.
+- [ ] Open each lesson's "Cheat sheet" and say every answer aloud before opening it.
+- [ ] Try ten C++ Puzzles.
 - [ ] From memory, write a thread-safe queue (mutex and condition variable).
 - [ ] From memory, write a deadlock, then fix it with `std::scoped_lock`.
-- [ ] Explain in your own words: data race versus race condition, `mutex` versus `atomic`, why `wait` needs a predicate.
-- [ ] **Stop studying about two hours before an interview.** Rest helps more than another cram session.
+- [ ] Explain in your own words: data race versus race condition, `mutex` versus `atomic`, and why `wait` needs a predicate.
 
-## Talking points to prepare (about 15 minutes)
-
-Interviews often ask about production bugs, unit tests and mentoring. Have one short example ready for each from your own experience, in the form situation, what you did, result.
-
-- [ ] A bug you investigated and debugged (what you looked at, the root cause, the fix)
-- [ ] How you write unit tests and keep code testable
-- [ ] A time you helped or guided a teammate
-- [ ] A question or two to ask the interviewers (for example how they test changes, and how their teams collaborate)
+<!-- generated:end (tools/build-checklist.mjs writes everything above; the static part follows) -->
 
 ## Move semantics deep dive (optional)
 
@@ -183,13 +316,3 @@ Do not read any of these books front to back. Use the reading guides to find the
 - Foundations (pointers, OOP, templates, STL): [programming-principles-and-practice-reading-guide.md](programming-principles-and-practice-reading-guide.md) (`books/Programming-Principles-and-Practice-Using-Cpp-3rd-Edition-Stroustrup.pdf`)
 - Modern C++ items: [effective-modern-cpp-reading-guide.md](effective-modern-cpp-reading-guide.md) (`books/Effective-Modern-Cpp-Meyers.pdf`; Tier 1 is about 85 pages)
 - Move semantics in depth: [move-semantics-complete-guide-reading-guide.md](move-semantics-complete-guide-reading-guide.md) (`books/Cpp-Move-Semantics-The-Complete-Guide-Josuttis.pdf`; Tier 1 is about 75 pages)
-
-## Optional extras, only if you finish early
-
-- [ ] [08-strings-regex-time.html](../interactive/08-strings-regex-time.html) and [quiz](../interactive/08-strings-regex-time-quiz.html) (23 questions)
-- [ ] [09-compile-time.html](../interactive/09-compile-time.html) and [quiz](../interactive/09-compile-time-quiz.html) (15 questions)
-- [ ] [10-coding-rules.html](../interactive/10-coding-rules.html) and [quiz](../interactive/10-coding-rules-quiz.html) (14 questions)
-- [ ] [11-wire-formats.html](../interactive/11-wire-formats.html) and [quiz](../interactive/11-wire-formats-quiz.html) (21 questions)
-- [ ] [12-low-latency.html](../interactive/12-low-latency.html) and [quiz](../interactive/12-low-latency-quiz.html) (23 questions)
-- [ ] [19-object-model.html](../interactive/19-object-model.html) and [quiz](../interactive/19-object-model-quiz.html) (11 questions): multiple and virtual inheritance, RTTI, private inheritance, copy-and-swap
-- [ ] [20-more-patterns.html](../interactive/20-more-patterns.html) and [quiz](../interactive/20-more-patterns-quiz.html) (11 questions): Command, Decorator, Adapter, Builder, Visitor, session state machine

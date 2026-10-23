@@ -23,7 +23,7 @@ Then add one entry to `CT.lessons` in `interactive/assets/data/lessons.js`:
 - The number shown on screen and the navigation order come from the **position in the array**, not from the file name. New lessons get the next free file number and go at the end, or wherever they belong in the order.
 - `assess`: how many questions the level check draws from this lesson. Use 2 for every lesson so the check is even (0 leaves the lesson out; it cannot exceed the quiz size).
 
-The search index, mock-interview bank, offline cache, home page, menus, pager and level check all pick the lesson up from the registry. Run the generators after editing (see section 8).
+The search index, mock-questions bank, offline cache, home page, menus, pager and level check all pick the lesson up from the registry. Run the generators after editing (see section 8).
 
 ## 2. Page skeleton
 
@@ -38,8 +38,8 @@ The search index, mock-interview bank, offline cache, home page, menus, pager an
 ...
 </section>
 ...
-<section data-title="Interview cheat sheet">
-<h2>Interview cheat sheet</h2>
+<section data-title="Cheat sheet">
+<h2>Cheat sheet</h2>
 <details class="ex"><summary>The question</summary><div><p>A short answer to say out loud.</p></div></details>
 </section>
 </main>
@@ -52,13 +52,13 @@ The search index, mock-interview bank, offline cache, home page, menus, pager an
 - Each `<section>` is one page on screen. Keep sections short: one idea, ideally under about 250 words of prose plus code.
 - Section ids are `s1`, `s2`... by position unless you give one explicitly (`<section id="interface-races">`). Anything that links to a section by id (quiz tags, checklist links, reading guides, other lessons) depends on it. **Moving or renumbering sections breaks those links**, so pin an explicit `id` on a section before inserting sections ahead of it.
 - "Read more" notes (the book chapters and PDF pages that deepen a section) are generated at the end of lesson sections from the reading guides by `node tools/build-read-more.mjs`. Do not edit them by hand; add rows to the guides, or to EXTRA or HINTS in the tool.
-- The last section must be titled exactly `Interview cheat sheet`; the mock interview is built from its `<details>` elements.
+- The last section must be titled exactly `Cheat sheet`; the mock questions is built from its `<details>` elements.
 
 ## 3. Writing style
 
 - Concise and visual. A diagram or step-through for every concept with moving parts; no walls of text.
 - Every claimed output is compiled and run before it goes in (g++ 16, `-std=c++20`).
-- Interview angle: say what the interviewer wants to hear, and when not to use something.
+- Key point: the one sentence to remember, and when not to use something.
 
 ## 4. Visuals
 
@@ -77,7 +77,7 @@ The search index, mock-interview bank, offline cache, home page, menus, pager an
 ## 6. Runnable examples and the study checklist
 
 - Add programs to `examples/lessons/<NN>-<name>/` (complete, compile with `-Wall -Wextra`, output checked) and list them in `examples/lessons/README.md`.
-- Add the lesson to `docs/study-checklist.md` and `interactive/study-checklist.html` (same items in both, with the quiz question count). `node tools/verify-checklist.mjs` enforces it.
+- Add the lesson to a stage in `tools/build-checklist.mjs` (and to the stage table on the home page) and run `node tools/build-checklist.mjs`: it writes `docs/study-checklist.md` and `interactive/study-checklist.html` from the lesson sections. `node tools/verify-checklist.mjs` checks the result.
 - If a reading guide maps a book section to this lesson, use the exact section title (`node tools/check-guides.mjs` enforces it).
 
 ## 7. Moving or renaming things safely
@@ -96,6 +96,7 @@ node tools/build-precache.mjs
 node tools/check-interactive.mjs
 node tools/check-links.mjs
 node tools/build-read-more.mjs
+node tools/build-checklist.mjs
 node tools/verify-checklist.mjs
 node tools/check-guides.mjs
 node tools/test-registry.mjs
@@ -111,4 +112,4 @@ The first three rewrite generated files (`search-index.js`, `mock-bank.js`, `sw.
 - [ ] Runnable examples compiled and checked
 - [ ] Checklist (both files) and any reading guide updated
 - [ ] All checks above pass; generated files rebuilt
-- [ ] Opened in the browser: pager, menu, search, quiz, level check, mock interview, offline reload
+- [ ] Opened in the browser: pager, menu, search, quiz, level check, mock questions, offline reload

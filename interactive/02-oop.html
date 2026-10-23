@@ -10,7 +10,7 @@
 <body data-topic="oop" data-kind="lesson">
 <main>
 <h1>Object-Oriented Programming in C++</h1>
-<p class="lead">Classes, object lifetime, copying, inheritance and polymorphism: what interviewers use to test whether you understand what a C++ object is. Assumes <a href="01-basics.html">C++ Basics</a>.</p>
+<p class="lead">Classes, object lifetime, copying, inheritance and polymorphism: the parts that show whether you understand what a C++ object is. Assumes <a href="01-basics.html">C++ Basics</a>.</p>
 
 <section id="s1" data-title="Classes and encapsulation">
 <h2>Classes and encapsulation</h2>
@@ -121,7 +121,7 @@ public:
 <h3>Order of construction and destruction</h3>
 <p>Construction: base, members, derived body. Destruction: the exact reverse.</p>
 <div id="st-order"></div>
-<div class="callout interview"><span class="label">Interview angle</span>Construct: base, members, derived body. Destruct: reverse.</div>
+<div class="callout interview"><span class="label">Key point</span>Construct: base, members, derived body. Destruct: reverse.</div>
 <!-- read-more:start -->
 <div class="callout tip"><span class="label">Read more</span>
 <p><b>Programming: Principles and Practice (Stroustrup)</b></p>
@@ -176,7 +176,7 @@ public:
 <li>A class can quietly lose its moves (a later logging destructor turns every move into a copy). Ask for defaults with <code>= default</code>; a polymorphic base needs them defaulted too.</li>
 <li><b>Never <code>= delete</code> a move</b>: it kills the copy fallback too. For a move-only type, delete the <i>copy</i> operations.</li>
 </ul>
-<div class="callout tip"><span class="label">Best interview answer</span>"Rule of Zero: <code>vector</code> and smart pointers make the generated members correct. Rule of Five only when wrapping a raw resource."</div>
+<div class="callout tip"><span class="label">In short</span>"Rule of Zero: <code>vector</code> and smart pointers make the generated members correct. Rule of Five only when wrapping a raw resource."</div>
 <!-- read-more:start -->
 <div class="callout tip"><span class="label">Read more</span>
 <p><b>Programming: Principles and Practice (Stroustrup)</b></p>
@@ -452,8 +452,8 @@ for (const auto& s : shapes) std::cout << s->area() << '\n';
 <p>Related notes in your repo: <a href="https://github.com/Ghaith-Hamdi1/cpp-training/blob/main/docs/02-cpp-oop/README.md">Module 2: C++ OOP</a>, <a href="https://github.com/Ghaith-Hamdi1/cpp-training/blob/main/docs/02-cpp-oop/13_objects_relationships.md">objects relationships</a>, and the learncpp.com recaps for chapters 14, 15, 21, 23, 24 and 25.</p>
 </section>
 
-<section id="s10" data-title="Interview cheat sheet">
-<h2>Interview cheat sheet</h2>
+<section id="s10" data-title="Cheat sheet">
+<h2>Cheat sheet</h2>
 <details class="ex"><summary>Why must a base class destructor be virtual?</summary><div><p>If you <code>delete</code> a derived object through a base pointer and the destructor is not virtual, only the base destructor runs: undefined behavior, and the derived part's resources leak. A virtual destructor makes <code>delete</code> dispatch to the most derived destructor first. Any class meant to be a polymorphic base needs one.</p></div></details>
 <details class="ex"><summary>What is the difference between overloading and overriding?</summary><div><p>Overloading: several functions with the same name and different parameters in the same scope, chosen at compile time. Overriding: a derived class provides its own implementation of a base <i>virtual</i> function with the same signature, chosen at runtime.</p></div></details>
 <details class="ex"><summary>What is a pure virtual function and an abstract class?</summary><div><p>A pure virtual function is declared <code>= 0</code> and has no required implementation. A class with at least one cannot be instantiated; it defines an interface that derived classes must implement.</p></div></details>

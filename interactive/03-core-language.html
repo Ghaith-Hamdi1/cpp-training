@@ -28,7 +28,7 @@ public:
 <p>Watch a throw in the middle:</p>
 <div id="st-raii"></div>
 <p><code>vector</code>, <code>unique_ptr</code>, <code>lock_guard</code>, <code>fstream</code> are all RAII. Never manage a resource with a bare <code>new</code>/<code>delete</code>, <code>lock()</code>/<code>unlock()</code> or <code>fopen</code>/<code>fclose</code>: wrap it.</p>
-<div class="callout interview"><span class="label">Interview angle</span>RAII binds resource lifetime to object lifetime: automatic, exception-safe cleanup. It replaces <code>try/finally</code> and removes the need for a garbage collector.</div>
+<div class="callout interview"><span class="label">Key point</span>RAII binds resource lifetime to object lifetime: automatic, exception-safe cleanup. It replaces <code>try/finally</code> and removes the need for a garbage collector.</div>
 <!-- read-more:start -->
 <div class="callout tip"><span class="label">Read more</span>
 <p><b>Programming: Principles and Practice (Stroustrup)</b></p>
@@ -112,7 +112,7 @@ void transfer() {
 <li><b>Destructors must not throw</b> (see <a href="#s7">Exceptions and stack unwinding</a> and <a href="#guarantees">Exception-safety guarantees</a>).</li>
 <li>Avoid a naked <code>new</code>: before C++17, <code>f(std::unique_ptr&lt;A&gt;(new A), g())</code> could leak if <code>g()</code> threw between the <code>new</code> and the <code>unique_ptr</code> constructor. C++17 closed that gap, but <code>std::make_unique</code> is still the idiom: no raw <code>new</code>, no repeated type.</li>
 </ul>
-<div class="callout interview"><span class="label">Interview angle</span>"What is RAII?" The resource's lifetime is tied to an object: acquire in the constructor, release in the destructor. Destructors run on every exit path, including exceptions, so nothing leaks and no <code>finally</code> is needed.</div>
+<div class="callout interview"><span class="label">Key point</span>"What is RAII?" The resource's lifetime is tied to an object: acquire in the constructor, release in the destructor. Destructors run on every exit path, including exceptions, so nothing leaks and no <code>finally</code> is needed.</div>
 </section>
 
 <section id="guarantees" data-title="Exception-safety guarantees and noexcept">
@@ -179,11 +179,11 @@ else report("not a number");
 <li>Constructors cannot return a code: either throw, or use a factory function returning <code>optional</code> or an <code>expected</code>.</li>
 <li>Be consistent inside a module, and document what a function can throw.</li>
 </ul>
-<div class="callout interview"><span class="label">Interview angle</span>"Exceptions or error codes?" Exceptions for rare failures that need unwinding, return values for expected failures and for hot paths. Mention RAII (so nothing leaks either way) and that a destructor must never throw.</div>
+<div class="callout interview"><span class="label">Key point</span>"Exceptions or error codes?" Exceptions for rare failures that need unwinding, return values for expected failures and for hot paths. Mention RAII (so nothing leaks either way) and that a destructor must never throw.</div>
 </section>
 
-<section id="s11" data-title="Interview cheat sheet">
-<h2>Interview cheat sheet</h2>
+<section id="s11" data-title="Cheat sheet">
+<h2>Cheat sheet</h2>
 <p>Answer aloud, then open.</p>
 <details class="ex"><summary>What is RAII and why is it important?</summary><div><p>It binds a resource's lifetime to an object: acquire in the constructor, release in the destructor. Cleanup is automatic and exception-safe because destructors run on every exit path. It replaces <code>try/finally</code> and is why C++ needs no garbage collector.</p></div></details>
 <details class="ex"><summary>What is stack unwinding?</summary><div><p>When an exception propagates, the runtime exits scopes up the call stack, calling the destructors of all fully constructed locals until a handler is found. It is what makes RAII exception-safe.</p></div></details>

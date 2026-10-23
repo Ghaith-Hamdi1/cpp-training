@@ -1,4 +1,4 @@
-// Exercise 1: build an ID by joining two C strings (a real interview question).
+// Exercise 1: build an ID by joining two C strings (a classic C-string exercise).
 //
 // Return a newly allocated C string containing senderCompId + "-" + sequenceNumber.
 //   buildExecutionId("XPAR", "12345") returns "XPAR-12345"

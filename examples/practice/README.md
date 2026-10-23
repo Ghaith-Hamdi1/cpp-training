@@ -1,6 +1,6 @@
 # Practice set: write it yourself
 
-Fourteen "implement this function or class" exercises, in the style of a live coding interview. Each folder has:
+Fourteen "implement this function or class" exercises, short and focused, to be written without looking things up. Each folder has:
 
 - `exercise.cpp`: the task in a comment at the top, a stub for you to fill in, and a set of tests in `main`.
 - `solution.cpp`: a worked solution that passes the same tests. Look only after you have tried.
@@ -15,7 +15,7 @@ The program prints which checks failed, and `all checks passed` when you are don
 ## How to practise (this is the part that matters)
 
 1. **Set a timer.** 15 minutes for the string exercises, 25 for the classes and threads.
-2. **Talk out loud while you write**, as you would in an interview: what you allocate, why that size, what each line does. Silence reads as "no idea", even when you are thinking.
+2. **Talk out loud while you write**, as if explaining to a colleague: what you allocate, why that size, what each line does. Silence reads as "no idea", even when you are thinking.
 3. **Plan before typing.** For string functions: how long is each input, how many bytes do I need (do not forget the `'\0'`), who frees the result.
 4. **A wrong but reasoned attempt scores better than a blank.** If you forget a library function, write the loop by hand.
 5. After passing, **compare with the solution** and note anything you did differently.
@@ -25,7 +25,7 @@ The program prints which checks failed, and `all checks passed` when you are don
 
 | # | Exercise | Skills | Level |
 |---|---|---|---|
-| 01 | `buildExecutionId`: join two C strings into a new one | `new[]`, `strlen`, `memcpy`/`strcpy`/`strcat`, the terminating `'\0'`, ownership | a classic interview question |
+| 01 | `buildExecutionId`: join two C strings into a new one | `new[]`, `strlen`, `memcpy`/`strcpy`/`strcat`, the terminating `'\0'`, ownership | a classic C-string exercise |
 | 02 | `copyString`: your own `strdup` | allocate `len + 1`, independent copy | easy |
 | 03 | `reversed`: reverse a C string into a new one | indexing, off-by-one | easy |
 | 04 | `joinAll`: join many strings with a separator | two passes (measure, then copy), no repeated `strcat` | medium |
@@ -42,9 +42,9 @@ The program prints which checks failed, and `all checks passed` when you are don
 
 Suggested order if you have limited time: 01, 02, 03, 05, 06, 07, then 10, 11, 14.
 
-## Questions from a real interview, with model answers
+## Questions with model answers
 
-Written after a real interview. Say these aloud until they come out fluently.
+Say these aloud until they come out fluently.
 
 **1. "Implement `buildExecutionId(sender, sequence)` returning `sender-sequence` as a new C string."** Exercise 01. The plan to say: "I need a new buffer big enough for both strings, the dash and the terminator: `strlen(a) + 1 + strlen(b) + 1`. I allocate it with `new char[...]` because the caller frees with `delete[]`. I copy the first string, write the dash, copy the second string including its `'\0'`, and return the pointer."
 

@@ -90,7 +90,7 @@ test('the real v2 migration splits the old core lesson progress and is idempoten
   assert.equal(s.get('lastinfo', 'gone'), null);
   assert.deepEqual(s.get('weak:moves'), { 'What does `std::move(x)` do?': 0 });
   assert.deepEqual(s.get('weak:core'), { 'a question that stayed in core': 1 });
-  assert.deepEqual(s.get('mock:missed'), ['wire-1']);
+  assert.deepEqual(s.get('mock:missed'), []);   // v7 clears the saved missed mock questions
   assert.deepEqual(s.get('quiz:core'), { best: 80, last: 70, total: 24 });
   const before = JSON.stringify(s.dump());
   s.set('schema', 1);                          // an older export is imported
@@ -112,7 +112,7 @@ test('the real v3 migration splits the multithreading progress and is idempotent
   assert.equal(s.get('lastinfo', 'gone'), null);
   assert.deepEqual(s.get('weak:latency'), { 'What is false sharing?': 0 });
   assert.deepEqual(s.get('weak:threads'), { 'a question that stayed': 1 });
-  assert.deepEqual(s.get('mock:missed'), ['wire-1']);
+  assert.deepEqual(s.get('mock:missed'), []);
   const before = JSON.stringify(s.dump());
   s.set('schema', 2);
   CT.migrate(s);
@@ -125,7 +125,7 @@ test('the real v4 migration drops the replaced STL strings tick and stale cheat-
   assert.equal(CT.migrate(s), CT.schemaVersion());
   assert.deepEqual(s.get('done:stl'), ['s1', 's9']);
   assert.equal(s.get('last:stl'), '');
-  assert.deepEqual(s.get('mock:missed'), ['wire-1']);
+  assert.deepEqual(s.get('mock:missed'), []);
 });
 
 test('the real v5 migration forgets the removed read-more section ticks', () => {
@@ -147,7 +147,19 @@ test('the real v6 migration moves the conversions tick and weak question from th
   assert.deepEqual(s.get('done:oop'), ['s1', 'conversions']);
   assert.deepEqual(s.get('weak:oop'), { [key]: 0 });
   assert.deepEqual(s.get('weak:objmodel'), { 'a question that stayed': 1 });
-  assert.deepEqual(s.get('mock:missed'), ['wire-1']);
+  assert.deepEqual(s.get('mock:missed'), []);
+});
+
+test('the real v7 migration forgets the removed Coding Rules lesson and keeps other progress', () => {
+  const CT = loadRegistry();
+  const s = makeStore({ 'schema': 6, 'done:rules': ['s1'], 'last:rules': 's2', 'quiz:rules': { best: 90, last: 80, total: 14 }, 'weak:rules': { q: 1 }, 'lastinfo': { id: 'rules', sec: 's2' }, 'done:stl': ['s2'], 'mock:missed': ['rules-1', 'stl-2'] });
+  assert.equal(CT.migrate(s), 7);
+  assert.deepEqual(s.get('done:rules'), []);
+  assert.equal(s.get('quiz:rules'), null);
+  assert.equal(s.get('lastinfo', 'gone'), null);
+  assert.deepEqual(s.get('done:stl'), ['s2']);
+  assert.deepEqual(s.get('mock:missed'), []);
+  assert.ok(!CT.lessons.some((l) => l.id === 'rules'));
 });
 
 console.log(passed + ' tests passed');

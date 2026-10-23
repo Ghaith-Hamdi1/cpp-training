@@ -65,7 +65,7 @@ static_assert(std::is_same_v<decltype((x + 1)),        int>);
 <li>Overload resolution only looks at the <i>kind</i> of expression: an lvalue picks the copy, an rvalue picks the move.</li>
 <li>A moved-from object is <b>valid but unspecified</b>: destroy it or assign a new value, do not read it. Compiled: a moved-from <code>std::string</code> had size 0, and assigning to it worked.</li>
 </ul>
-<div class="callout interview"><span class="label">Interview angle</span>"What does <code>std::move</code> do?" Nothing at runtime: an unconditional cast to an rvalue reference. The move constructor does the work.</div>
+<div class="callout interview"><span class="label">Key point</span>"What does <code>std::move</code> do?" Nothing at runtime: an unconditional cast to an rvalue reference. The move constructor does the work.</div>
 <!-- read-more:start -->
 <div class="callout tip"><span class="label">Read more</span>
 <p><b>Effective Modern C++ (Meyers)</b></p>
@@ -191,8 +191,8 @@ public:
 <!-- read-more:end -->
 </section>
 
-<section id="cheat" data-title="Interview cheat sheet">
-<h2>Interview cheat sheet</h2>
+<section id="cheat" data-title="Cheat sheet">
+<h2>Cheat sheet</h2>
 <p>Answer aloud, then open.</p>
 <details class="ex"><summary>What does <code>std::move</code> actually do?</summary><div><p>Nothing at runtime: it is an unconditional cast to an rvalue reference. It enables the move constructor or move assignment to be chosen. The moved-from object stays valid but unspecified. On a <code>const</code> object it silently copies, because a <code>const</code> rvalue cannot bind to a move constructor.</p></div></details>
 <details class="ex"><summary>What are lvalues, prvalues and xvalues?</summary><div><p>An lvalue is a named object with an address. A prvalue is an unnamed temporary (a literal, <code>a + b</code>, a call returning by value). An xvalue is an object marked as movable, such as <code>std::move(x)</code>. Rvalue means prvalue or xvalue. A named rvalue-reference parameter is still an lvalue inside the function.</p></div></details>
