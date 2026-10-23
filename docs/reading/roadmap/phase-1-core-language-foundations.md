@@ -42,8 +42,8 @@
 
 | Lesson | Time |
 |---|---|
-| [1. Basics and Pointers](https://ghaith-hamdi1.github.io/cpp-training/01-basics.html) and its [quiz](https://ghaith-hamdi1.github.io/cpp-training/01-basics-quiz.html) | 60 min |
-| [2. Types, Initialization and Casts](https://ghaith-hamdi1.github.io/cpp-training/16-types-and-casts.html) and its [quiz](https://ghaith-hamdi1.github.io/cpp-training/16-types-and-casts-quiz.html) | 40 min |
+| [1. C++ Basics & Pointers](https://ghaith-hamdi1.github.io/cpp-training/01-basics.html) and its [quiz](https://ghaith-hamdi1.github.io/cpp-training/01-basics-quiz.html) | 60 min |
+| [2. Types, Initialization & Casts](https://ghaith-hamdi1.github.io/cpp-training/16-types-and-casts.html) and its [quiz](https://ghaith-hamdi1.github.io/cpp-training/16-types-and-casts-quiz.html) | 40 min |
 
 Exercises: 01 to 09 (C strings, pointers, `trim`, `parseUnsigned`).
 

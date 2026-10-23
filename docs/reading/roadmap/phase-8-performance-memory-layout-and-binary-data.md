@@ -32,8 +32,8 @@
 
 | Lesson | Time |
 |---|---|
-| [19. Binary Data and Parsing](https://ghaith-hamdi1.github.io/cpp-training/11-wire-formats.html) and its [quiz](https://ghaith-hamdi1.github.io/cpp-training/11-wire-formats-quiz.html) | 60 min |
-| [20. Performance and Memory](https://ghaith-hamdi1.github.io/cpp-training/12-low-latency.html) and its [quiz](https://ghaith-hamdi1.github.io/cpp-training/12-low-latency-quiz.html) | 60 min |
+| [19. Binary Data & Parsing](https://ghaith-hamdi1.github.io/cpp-training/11-wire-formats.html) and its [quiz](https://ghaith-hamdi1.github.io/cpp-training/11-wire-formats-quiz.html) | 60 min |
+| [20. Performance & Memory](https://ghaith-hamdi1.github.io/cpp-training/12-low-latency.html) and its [quiz](https://ghaith-hamdi1.github.io/cpp-training/12-low-latency-quiz.html) | 60 min |
 
 Exercises: 17 (`BucketTable`).
 

@@ -50,8 +50,8 @@
 |---|---|
 | [10. Vocabulary Types](https://ghaith-hamdi1.github.io/cpp-training/21-vocabulary-types.html) and its [quiz](https://ghaith-hamdi1.github.io/cpp-training/21-vocabulary-types-quiz.html) | 35 min |
 | [11. Move Semantics](https://ghaith-hamdi1.github.io/cpp-training/13-move-semantics.html) and its [quiz](https://ghaith-hamdi1.github.io/cpp-training/13-move-semantics-quiz.html) | 45 min |
-| [12. Smart Pointers and Ownership](https://ghaith-hamdi1.github.io/cpp-training/14-smart-pointers.html) and its [quiz](https://ghaith-hamdi1.github.io/cpp-training/14-smart-pointers-quiz.html) | 40 min |
-| [13. Type Traits and Compile-time C++](https://ghaith-hamdi1.github.io/cpp-training/09-compile-time.html) and its [quiz](https://ghaith-hamdi1.github.io/cpp-training/09-compile-time-quiz.html) | 45 min |
+| [12. Smart Pointers & Ownership](https://ghaith-hamdi1.github.io/cpp-training/14-smart-pointers.html) and its [quiz](https://ghaith-hamdi1.github.io/cpp-training/14-smart-pointers-quiz.html) | 40 min |
+| [13. Type Traits & Compile-time C++](https://ghaith-hamdi1.github.io/cpp-training/09-compile-time.html) and its [quiz](https://ghaith-hamdi1.github.io/cpp-training/09-compile-time-quiz.html) | 45 min |
 
 Exercises: 15 (`optional`/`variant`) and 16 (concepts).
 

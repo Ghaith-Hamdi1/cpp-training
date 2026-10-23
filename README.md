@@ -65,13 +65,15 @@ node tools/check-interactive.mjs    # registry, quiz data and section tags
 node tools/check-links.mjs          # every internal link and anchor
 node tools/check-quiz-balance.mjs   # no quiz can be answered by option length
 node tools/build-read-more.mjs      # rebuilds the "Read more" notes in the lessons from the reading guides
-node tools/build-checklist.mjs     # rebuilds the study checklist from the lesson sections
+node tools/build-roadmap.mjs        # rebuilds the roadmap pages from tools/roadmap-data.mjs
+node tools/build-primer.mjs         # rebuilds the C++ Primer guide and plan from tools/primer-data.mjs
+node tools/build-checklist.mjs      # rebuilds the study checklist from the roadmap and the lesson sections
 node tools/verify-checklist.mjs     # study checklist against the lessons
 node tools/check-guides.mjs         # reading guides against the lessons
 node tools/test-registry.mjs        # progress migrations
 ```
 
-After you change a page range in a reading guide, plan or the roadmap, run `node tools/check-book-pages.mjs`. It opens the PDFs in `books/` (needs `pdftotext` from poppler, so it is not part of CI) and checks that each section really starts on the page given.
+The roadmap pages and the C++ Primer guide and plan are generated: edit `tools/roadmap-data.mjs` or `tools/primer-data.mjs` and rebuild, never the Markdown. After you change a page range, run `node tools/check-book-pages.mjs`. It opens the PDFs in `books/` (needs `pdftotext` from poppler, so it is not part of CI) and checks that each section really starts on the page given.
 
 ## Further reading
 

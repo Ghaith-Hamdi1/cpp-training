@@ -44,9 +44,9 @@
 
 | Lesson | Time |
 |---|---|
-| [5. Strings, Regex and Time](https://ghaith-hamdi1.github.io/cpp-training/08-strings-regex-time.html) and its [quiz](https://ghaith-hamdi1.github.io/cpp-training/08-strings-regex-time-quiz.html) | 40 min |
+| [5. Strings, Regex & Time](https://ghaith-hamdi1.github.io/cpp-training/08-strings-regex-time.html) and its [quiz](https://ghaith-hamdi1.github.io/cpp-training/08-strings-regex-time-quiz.html) | 40 min |
 | [6. The STL](https://ghaith-hamdi1.github.io/cpp-training/04-stl.html) and its [quiz](https://ghaith-hamdi1.github.io/cpp-training/04-stl-quiz.html) | 60 min |
-| [7. Lambdas and Callables](https://ghaith-hamdi1.github.io/cpp-training/15-lambdas.html) and its [quiz](https://ghaith-hamdi1.github.io/cpp-training/15-lambdas-quiz.html) | 35 min |
+| [7. Lambdas & Callables](https://ghaith-hamdi1.github.io/cpp-training/15-lambdas.html) and its [quiz](https://ghaith-hamdi1.github.io/cpp-training/15-lambdas-quiz.html) | 35 min |
 | [8. Templates](https://ghaith-hamdi1.github.io/cpp-training/05-templates.html) and its [quiz](https://ghaith-hamdi1.github.io/cpp-training/05-templates-quiz.html) | 60 min |
 
 Exercises: 12 (`Stack<T>`).

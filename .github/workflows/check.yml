@@ -21,6 +21,8 @@ jobs:
       - run: node tools/build-search-index.mjs --check
       - run: node tools/build-mock-bank.mjs --check
       - run: node tools/build-precache.mjs --check
+      - run: node tools/build-roadmap.mjs --check
+      - run: node tools/build-primer.mjs --check
       - run: node tools/build-checklist.mjs --check
       - run: node tools/verify-checklist.mjs
       - run: node tools/check-guides.mjs

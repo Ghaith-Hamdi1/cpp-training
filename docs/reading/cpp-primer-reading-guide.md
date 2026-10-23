@@ -1,8 +1,8 @@
 # Reading guide: *C++ Primer* (5th Edition)
 
-A reading plan for `books/Cpp-Primer-5th-Edition-Lippman.pdf` (Stanley Lippman, Josée Lajoie and Barbara Moo, 2012, about 970 pages, C++11). It is the most complete textbook of the five books: it teaches the whole language and the library in the order a beginner should meet them, with exercises after almost every section. That makes it the **systematic base** for lessons 1 to 8; it is a good partner to the lessons because it explains every rule in full, and they show what happens in memory.
+A reading plan for `books/Cpp-Primer-5th-Edition-Lippman.pdf` (Stanley Lippman, Josée Lajoie and Barbara Moo, 2012, about 970 pages, C++11). It is the most complete textbook of the five books: it teaches the whole language and the library in the order a beginner should meet them, with exercises after almost every section. That makes it the **systematic base** for lessons 1 to 9, 11 and 12; it is a good partner to the lessons because it explains every rule in full, and they show what happens in memory.
 
-**Page numbers.** The tables give *PDF viewer* page numbers, the number your PDF reader shows. The book's own printed page numbers are 29 lower (printed page 50 is PDF page 79); the plan and notes use PDF pages only.
+**Page numbers.** The tables give *PDF viewer* page numbers, the number your PDF reader shows. The plan and the notes use PDF pages only.
 
 The sections and their summaries come from the book's table of contents and chapter openings. I did not read every page in full.
 

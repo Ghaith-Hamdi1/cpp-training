@@ -35,7 +35,7 @@
 
 | Lesson | Time |
 |---|---|
-| [9. Core Language: RAII and Exceptions](https://ghaith-hamdi1.github.io/cpp-training/03-core-language.html) and its [quiz](https://ghaith-hamdi1.github.io/cpp-training/03-core-language-quiz.html) | 35 min |
+| [9. Core Language: RAII & Exceptions](https://ghaith-hamdi1.github.io/cpp-training/03-core-language.html) and its [quiz](https://ghaith-hamdi1.github.io/cpp-training/03-core-language-quiz.html) | 35 min |
 
 Exercises: none (use the lesson's step-throughs and quiz).
 
