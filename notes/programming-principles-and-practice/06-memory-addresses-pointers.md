@@ -1,7 +1,7 @@
 # Session 6: Memory, addresses and pointers
 
 *Programming: Principles and Practice Using C++ (3rd ed.)*, Part C: memory, pointers, templates and ownership.
-Plan: [reading plan](../../docs/programming-principles-and-practice-reading-plan.md). Previous: [session 5](05-inheritance-and-virtual-functions.md). Next: [session 7](07-arrays-this-alternatives-to-raw-pointers.md).
+Plan: [reading plan](../../docs/reading/programming-principles-and-practice-reading-plan.md). Previous: [session 5](05-inheritance-and-virtual-functions.md). Next: [session 7](07-arrays-this-alternatives-to-raw-pointers.md).
 
 - [ ] Read
 - [ ] Wrote the code from memory

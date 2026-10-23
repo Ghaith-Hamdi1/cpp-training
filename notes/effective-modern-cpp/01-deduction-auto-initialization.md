@@ -1,7 +1,7 @@
 # Session 1: Deduction, auto and initialization
 
 *Effective Modern C++*, Scott Meyers.
-Plan: [reading plan](../../docs/effective-modern-cpp-reading-plan.md). Previous: none. Next: [session 2](02-interfaces-that-say-what-they-mean.md).
+Plan: [reading plan](../../docs/reading/effective-modern-cpp-reading-plan.md). Previous: none. Next: [session 2](02-interfaces-that-say-what-they-mean.md).
 
 - [ ] Read
 - [ ] Ran the key example and changed it

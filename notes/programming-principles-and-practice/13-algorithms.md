@@ -1,7 +1,7 @@
 # Session 13: Algorithms
 
 *Programming: Principles and Practice Using C++ (3rd ed.)*, Part D: the standard library.
-Plan: [reading plan](../../docs/programming-principles-and-practice-reading-plan.md). Previous: [session 12](12-choosing-a-container.md). Next: [session 14](14-streams-and-finishing-touches.md).
+Plan: [reading plan](../../docs/reading/programming-principles-and-practice-reading-plan.md). Previous: [session 12](12-choosing-a-container.md). Next: [session 14](14-streams-and-finishing-touches.md).
 
 - [ ] Read
 - [ ] Wrote the code from memory

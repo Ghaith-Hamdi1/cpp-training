@@ -1,7 +1,7 @@
 # Session 7: Move-only types, algorithms and the library
 
 *C++ Move Semantics: The Complete Guide*, Nicolai Josuttis.
-Plan: [reading plan](../../docs/move-semantics-reading-plan.md). Previous: [session 6](06-perfect-forwarding.md). Next: none.
+Plan: [reading plan](../../docs/reading/move-semantics-reading-plan.md). Previous: [session 6](06-perfect-forwarding.md). Next: none.
 
 - [ ] Read
 - [ ] Ran the key example and changed it

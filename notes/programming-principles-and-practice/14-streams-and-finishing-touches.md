@@ -1,7 +1,7 @@
 # Session 14: Streams and finishing touches (optional)
 
 *Programming: Principles and Practice Using C++ (3rd ed.)*, Part E: optional extras.
-Plan: [reading plan](../../docs/programming-principles-and-practice-reading-plan.md). Previous: [session 13](13-algorithms.md). Next: none.
+Plan: [reading plan](../../docs/reading/programming-principles-and-practice-reading-plan.md). Previous: [session 13](13-algorithms.md). Next: none.
 
 - [ ] Read
 - [ ] Wrote the code from memory

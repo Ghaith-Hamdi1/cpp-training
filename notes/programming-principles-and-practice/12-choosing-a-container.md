@@ -1,7 +1,7 @@
 # Session 12: Choosing a container
 
 *Programming: Principles and Practice Using C++ (3rd ed.)*, Part D: the standard library.
-Plan: [reading plan](../../docs/programming-principles-and-practice-reading-plan.md). Previous: [session 11](11-containers-and-iterators.md). Next: [session 13](13-algorithms.md).
+Plan: [reading plan](../../docs/reading/programming-principles-and-practice-reading-plan.md). Previous: [session 11](11-containers-and-iterators.md). Next: [session 13](13-algorithms.md).
 
 - [ ] Read
 - [ ] Wrote the code from memory

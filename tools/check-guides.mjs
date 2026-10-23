@@ -1,4 +1,4 @@
-// Checks that the lesson sections named in docs/*-reading-guide.md still exist.
+// Checks that the lesson sections named in docs/reading/*-reading-guide.md still exist.
 // A reference is the last cell of a table row, such as "3. Smart pointers" or "Inheritance; Polymorphism and virtual functions".
 // A leading "N." is accepted when N is the lesson's number (most guides) or the section's position inside its lesson
 // (the concurrency guide, which only refers to the multithreading lesson). A title may be shortened to its first words.
@@ -41,8 +41,8 @@ const refOk = (cell) => {
 
 const problems = [];
 let checked = 0;
-for (const f of readdirSync(join(repo, 'docs')).filter((n) => n.endsWith('-reading-guide.md'))) {
-  const lines = readFileSync(join(repo, 'docs', f), 'utf8').replace(/\r\n/g, '\n').split('\n');
+for (const f of readdirSync(join(repo, 'docs', 'reading')).filter((n) => n.endsWith('-reading-guide.md'))) {
+  const lines = readFileSync(join(repo, 'docs', 'reading', f), 'utf8').replace(/\r\n/g, '\n').split('\n');
   let check = false;                                     // only tables whose last column is "Matching lesson ..."
   lines.forEach((line, i) => {
     if (!/^\|/.test(line)) { check = false; return; }

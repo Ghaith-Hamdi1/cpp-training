@@ -1,6 +1,6 @@
 # Notes on *C++ Concurrency in Action (2nd ed.)*
 
-One file per reading session of the [reading plan](../../docs/concurrency-in-action-reading-plan.md). Each file lists the pages to read and the checkpoint questions, and has empty sections for your notes, the code you wrote, and what is still unclear. Tick the boxes at the top of each file as you go.
+One file per reading session of the [reading plan](../../docs/reading/concurrency-in-action-reading-plan.md). Each file lists the pages to read and the checkpoint questions, and has empty sections for your notes, the code you wrote, and what is still unclear. Tick the boxes at the top of each file as you go.
 
 | # | Session | Notes file |
 |---|---|---|

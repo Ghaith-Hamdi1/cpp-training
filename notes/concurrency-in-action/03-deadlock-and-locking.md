@@ -1,7 +1,7 @@
 # Session 3: Deadlock and locking
 
 *C++ Concurrency in Action (2nd ed.)*, Anthony Williams.
-Plan: [reading plan](../../docs/concurrency-in-action-reading-plan.md). Previous: [session 2](02-sharing-data-and-mutexes.md). Next: [session 4](04-waiting-for-events-and-results.md).
+Plan: [reading plan](../../docs/reading/concurrency-in-action-reading-plan.md). Previous: [session 2](02-sharing-data-and-mutexes.md). Next: [session 4](04-waiting-for-events-and-results.md).
 
 - [ ] Read
 - [ ] Ran the key example and changed it

@@ -1,7 +1,7 @@
 # Session 1: The core idea
 
 *C++ Move Semantics: The Complete Guide*, Nicolai Josuttis.
-Plan: [reading plan](../../docs/move-semantics-reading-plan.md). Previous: none. Next: [session 2](02-special-member-functions.md).
+Plan: [reading plan](../../docs/reading/move-semantics-reading-plan.md). Previous: none. Next: [session 2](02-special-member-functions.md).
 
 - [ ] Read
 - [ ] Ran the key example and changed it

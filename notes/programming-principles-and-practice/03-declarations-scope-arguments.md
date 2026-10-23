@@ -1,7 +1,7 @@
 # Session 3: Declarations, scope and passing arguments
 
 *Programming: Principles and Practice Using C++ (3rd ed.)*, Part A: the language basics.
-Plan: [reading plan](../../docs/programming-principles-and-practice-reading-plan.md). Previous: [session 2](02-functions-vector-errors.md). Next: [session 4](04-classes-and-invariants.md).
+Plan: [reading plan](../../docs/reading/programming-principles-and-practice-reading-plan.md). Previous: [session 2](02-functions-vector-errors.md). Next: [session 4](04-classes-and-invariants.md).
 
 - [ ] Read
 - [ ] Wrote the code from memory

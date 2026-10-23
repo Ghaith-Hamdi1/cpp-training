@@ -1,7 +1,7 @@
 # Session 1: Types, initialization and auto
 
 *Programming: Principles and Practice Using C++ (3rd ed.)*, Part A: the language basics.
-Plan: [reading plan](../../docs/programming-principles-and-practice-reading-plan.md). Previous: none. Next: [session 2](02-functions-vector-errors.md).
+Plan: [reading plan](../../docs/reading/programming-principles-and-practice-reading-plan.md). Previous: none. Next: [session 2](02-functions-vector-errors.md).
 
 - [ ] Read
 - [ ] Wrote the code from memory

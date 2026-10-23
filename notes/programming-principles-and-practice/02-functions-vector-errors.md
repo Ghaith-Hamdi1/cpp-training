@@ -1,7 +1,7 @@
 # Session 2: Functions, vector and errors
 
 *Programming: Principles and Practice Using C++ (3rd ed.)*, Part A: the language basics.
-Plan: [reading plan](../../docs/programming-principles-and-practice-reading-plan.md). Previous: [session 1](01-types-initialization-auto.md). Next: [session 3](03-declarations-scope-arguments.md).
+Plan: [reading plan](../../docs/reading/programming-principles-and-practice-reading-plan.md). Previous: [session 1](01-types-initialization-auto.md). Next: [session 3](03-declarations-scope-arguments.md).
 
 - [ ] Read
 - [ ] Wrote the code from memory

@@ -1,7 +1,7 @@
 # Session 4: Waiting for events and results
 
 *C++ Concurrency in Action (2nd ed.)*, Anthony Williams.
-Plan: [reading plan](../../docs/concurrency-in-action-reading-plan.md). Previous: [session 3](03-deadlock-and-locking.md). Next: [session 5](05-thread-counts-and-pools.md).
+Plan: [reading plan](../../docs/reading/concurrency-in-action-reading-plan.md). Previous: [session 3](03-deadlock-and-locking.md). Next: [session 5](05-thread-counts-and-pools.md).
 
 - [ ] Read
 - [ ] Ran the key example and changed it

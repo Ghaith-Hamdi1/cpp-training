@@ -1,7 +1,7 @@
 # Session 7: Arrays, this and the alternatives to raw pointers
 
 *Programming: Principles and Practice Using C++ (3rd ed.)*, Part C: memory, pointers, templates and ownership.
-Plan: [reading plan](../../docs/programming-principles-and-practice-reading-plan.md). Previous: [session 6](06-memory-addresses-pointers.md). Next: [session 8](08-copying-moving-vector-growth.md).
+Plan: [reading plan](../../docs/reading/programming-principles-and-practice-reading-plan.md). Previous: [session 6](06-memory-addresses-pointers.md). Next: [session 8](08-copying-moving-vector-growth.md).
 
 - [ ] Read
 - [ ] Wrote the code from memory

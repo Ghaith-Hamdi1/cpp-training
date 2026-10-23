@@ -1,7 +1,7 @@
 # Session 9: Templates and concepts
 
 *Programming: Principles and Practice Using C++ (3rd ed.)*, Part C: memory, pointers, templates and ownership.
-Plan: [reading plan](../../docs/programming-principles-and-practice-reading-plan.md). Previous: [session 8](08-copying-moving-vector-growth.md). Next: [session 10](10-raii-exceptions-smart-pointers.md).
+Plan: [reading plan](../../docs/reading/programming-principles-and-practice-reading-plan.md). Previous: [session 8](08-copying-moving-vector-growth.md). Next: [session 10](10-raii-exceptions-smart-pointers.md).
 
 - [ ] Read
 - [ ] Wrote the code from memory

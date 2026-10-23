@@ -1,7 +1,7 @@
 # Session 4: std::move, std::forward and universal references
 
 *Effective Modern C++*, Scott Meyers.
-Plan: [reading plan](../../docs/effective-modern-cpp-reading-plan.md). Previous: [session 3](03-special-members-and-smart-pointers.md). Next: [session 5](05-overloading-and-moves-in-practice.md).
+Plan: [reading plan](../../docs/reading/effective-modern-cpp-reading-plan.md). Previous: [session 3](03-special-members-and-smart-pointers.md). Next: [session 5](05-overloading-and-moves-in-practice.md).
 
 - [ ] Read
 - [ ] Ran the key example and changed it

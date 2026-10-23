@@ -1,7 +1,7 @@
 # Session 7: Performance and bugs
 
 *C++ Concurrency in Action (2nd ed.)*, Anthony Williams.
-Plan: [reading plan](../../docs/concurrency-in-action-reading-plan.md). Previous: [session 6](06-memory-model-and-data-structures.md). Next: none.
+Plan: [reading plan](../../docs/reading/concurrency-in-action-reading-plan.md). Previous: [session 6](06-memory-model-and-data-structures.md). Next: none.
 
 - [ ] Read
 - [ ] Ran the key example and changed it

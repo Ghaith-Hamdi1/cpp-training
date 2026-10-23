@@ -1,7 +1,7 @@
 # Session 5: Inheritance and virtual functions
 
 *Programming: Principles and Practice Using C++ (3rd ed.)*, Part B: classes and object-oriented design.
-Plan: [reading plan](../../docs/programming-principles-and-practice-reading-plan.md). Previous: [session 4](04-classes-and-invariants.md). Next: [session 6](06-memory-addresses-pointers.md).
+Plan: [reading plan](../../docs/reading/programming-principles-and-practice-reading-plan.md). Previous: [session 4](04-classes-and-invariants.md). Next: [session 6](06-memory-addresses-pointers.md).
 
 - [ ] Read
 - [ ] Wrote the code from memory

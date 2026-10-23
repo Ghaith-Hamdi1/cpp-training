@@ -1,5 +1,5 @@
 // Adds a "Read more" note at the end of the lesson sections that a book explains in more depth.
-// Each row of a reading guide's tables (docs/*-reading-guide.md) that ends in a "Matching lesson section" column names a
+// Each row of a reading guide's tables (docs/reading/*-reading-guide.md) that ends in a "Matching lesson section" column names a
 // book section, its PDF pages and the lesson sections it deepens. This tool groups those rows by lesson section and writes
 // one note per section, between <!-- read-more:start --> and <!-- read-more:end --> markers. Rows the guides do not carry
 // are listed in EXTRA below. Sections no book covers get no note.
@@ -86,7 +86,7 @@ function parseGuides(lessonNo, id) {
   const rows = [];
   for (const [key, b] of Object.entries(BOOKS)) {
     if ((REPLACE[id] || []).includes(key)) continue;
-    const lines = readFileSync(join(repo, 'docs', b.guide), 'utf8').replace(/\r\n/g, '\n').split('\n');
+    const lines = readFileSync(join(repo, 'docs', 'reading', b.guide), 'utf8').replace(/\r\n/g, '\n').split('\n');
     let check = false;
     let defaults = [];                                                           // lessons named by the latest "Matching lesson(s): **N. ...**" line
     lines.forEach((line, i) => {

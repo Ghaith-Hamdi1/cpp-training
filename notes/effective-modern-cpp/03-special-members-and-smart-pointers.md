@@ -1,7 +1,7 @@
 # Session 3: Special members and smart pointers
 
 *Effective Modern C++*, Scott Meyers.
-Plan: [reading plan](../../docs/effective-modern-cpp-reading-plan.md). Previous: [session 2](02-interfaces-that-say-what-they-mean.md). Next: [session 4](04-move-forward-universal-references.md).
+Plan: [reading plan](../../docs/reading/effective-modern-cpp-reading-plan.md). Previous: [session 2](02-interfaces-that-say-what-they-mean.md). Next: [session 4](04-move-forward-universal-references.md).
 
 - [ ] Read
 - [ ] Ran the key example and changed it

@@ -1,7 +1,7 @@
 # Session 6: Perfect forwarding
 
 *C++ Move Semantics: The Complete Guide*, Nicolai Josuttis.
-Plan: [reading plan](../../docs/move-semantics-reading-plan.md). Previous: [session 5](05-value-categories.md). Next: [session 7](07-move-only-types-algorithms-library.md).
+Plan: [reading plan](../../docs/reading/move-semantics-reading-plan.md). Previous: [session 5](05-value-categories.md). Next: [session 7](07-move-only-types-algorithms-library.md).
 
 - [ ] Read
 - [ ] Ran the key example and changed it

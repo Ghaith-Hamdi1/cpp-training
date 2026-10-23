@@ -1,7 +1,7 @@
 # Session 1: Why threads, and launching them
 
 *C++ Concurrency in Action (2nd ed.)*, Anthony Williams.
-Plan: [reading plan](../../docs/concurrency-in-action-reading-plan.md). Previous: none. Next: [session 2](02-sharing-data-and-mutexes.md).
+Plan: [reading plan](../../docs/reading/concurrency-in-action-reading-plan.md). Previous: none. Next: [session 2](02-sharing-data-and-mutexes.md).
 
 - [ ] Read
 - [ ] Ran the key example and changed it

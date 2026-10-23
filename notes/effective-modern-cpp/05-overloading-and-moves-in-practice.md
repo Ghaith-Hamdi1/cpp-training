@@ -1,7 +1,7 @@
 # Session 5: Overloading and moves in practice
 
 *Effective Modern C++*, Scott Meyers.
-Plan: [reading plan](../../docs/effective-modern-cpp-reading-plan.md). Previous: [session 4](04-move-forward-universal-references.md). Next: [session 6](06-lambdas.md).
+Plan: [reading plan](../../docs/reading/effective-modern-cpp-reading-plan.md). Previous: [session 4](04-move-forward-universal-references.md). Next: [session 6](06-lambdas.md).
 
 - [ ] Read
 - [ ] Ran the key example and changed it

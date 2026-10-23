@@ -1,7 +1,7 @@
 # Session 4: Classes as a way to keep objects valid
 
 *Programming: Principles and Practice Using C++ (3rd ed.)*, Part B: classes and object-oriented design.
-Plan: [reading plan](../../docs/programming-principles-and-practice-reading-plan.md). Previous: [session 3](03-declarations-scope-arguments.md). Next: [session 5](05-inheritance-and-virtual-functions.md).
+Plan: [reading plan](../../docs/reading/programming-principles-and-practice-reading-plan.md). Previous: [session 3](03-declarations-scope-arguments.md). Next: [session 5](05-inheritance-and-virtual-functions.md).
 
 - [ ] Read
 - [ ] Wrote the code from memory

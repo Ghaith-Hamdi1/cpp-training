@@ -1,7 +1,7 @@
 # Session 2: Interfaces that say what they mean
 
 *Effective Modern C++*, Scott Meyers.
-Plan: [reading plan](../../docs/effective-modern-cpp-reading-plan.md). Previous: [session 1](01-deduction-auto-initialization.md). Next: [session 3](03-special-members-and-smart-pointers.md).
+Plan: [reading plan](../../docs/reading/effective-modern-cpp-reading-plan.md). Previous: [session 1](01-deduction-auto-initialization.md). Next: [session 3](03-special-members-and-smart-pointers.md).
 
 - [ ] Read
 - [ ] Ran the key example and changed it

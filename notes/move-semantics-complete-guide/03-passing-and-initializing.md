@@ -1,7 +1,7 @@
 # Session 3: Passing and initializing
 
 *C++ Move Semantics: The Complete Guide*, Nicolai Josuttis.
-Plan: [reading plan](../../docs/move-semantics-reading-plan.md). Previous: [session 2](02-special-member-functions.md). Next: [session 4](04-moved-from-states-and-noexcept.md).
+Plan: [reading plan](../../docs/reading/move-semantics-reading-plan.md). Previous: [session 2](02-special-member-functions.md). Next: [session 4](04-moved-from-states-and-noexcept.md).
 
 - [ ] Read
 - [ ] Ran the key example and changed it

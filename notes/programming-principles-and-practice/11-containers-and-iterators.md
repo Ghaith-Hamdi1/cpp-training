@@ -1,7 +1,7 @@
 # Session 11: Containers and iterators
 
 *Programming: Principles and Practice Using C++ (3rd ed.)*, Part D: the standard library.
-Plan: [reading plan](../../docs/programming-principles-and-practice-reading-plan.md). Previous: [session 10](10-raii-exceptions-smart-pointers.md). Next: [session 12](12-choosing-a-container.md).
+Plan: [reading plan](../../docs/reading/programming-principles-and-practice-reading-plan.md). Previous: [session 10](10-raii-exceptions-smart-pointers.md). Next: [session 12](12-choosing-a-container.md).
 
 - [ ] Read
 - [ ] Wrote the code from memory

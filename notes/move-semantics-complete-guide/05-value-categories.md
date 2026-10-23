@@ -1,7 +1,7 @@
 # Session 5: Value categories
 
 *C++ Move Semantics: The Complete Guide*, Nicolai Josuttis.
-Plan: [reading plan](../../docs/move-semantics-reading-plan.md). Previous: [session 4](04-moved-from-states-and-noexcept.md). Next: [session 6](06-perfect-forwarding.md).
+Plan: [reading plan](../../docs/reading/move-semantics-reading-plan.md). Previous: [session 4](04-moved-from-states-and-noexcept.md). Next: [session 6](06-perfect-forwarding.md).
 
 - [ ] Read
 - [ ] Ran the key example and changed it

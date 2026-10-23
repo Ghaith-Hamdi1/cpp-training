@@ -1,7 +1,7 @@
 # Session 8: Copying, moving and vector growth
 
 *Programming: Principles and Practice Using C++ (3rd ed.)*, Part C: memory, pointers, templates and ownership.
-Plan: [reading plan](../../docs/programming-principles-and-practice-reading-plan.md). Previous: [session 7](07-arrays-this-alternatives-to-raw-pointers.md). Next: [session 9](09-templates-and-concepts.md).
+Plan: [reading plan](../../docs/reading/programming-principles-and-practice-reading-plan.md). Previous: [session 7](07-arrays-this-alternatives-to-raw-pointers.md). Next: [session 9](09-templates-and-concepts.md).
 
 - [ ] Read
 - [ ] Wrote the code from memory

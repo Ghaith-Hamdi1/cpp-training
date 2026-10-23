@@ -1,6 +1,6 @@
 # Notes on *Programming: Principles and Practice Using C++*
 
-One file per reading session of the [reading plan](../../docs/programming-principles-and-practice-reading-plan.md). Each file lists the pages to read and the checkpoint questions, and has empty sections for your notes, the code you wrote from memory, and what is still unclear. Fill them in as you read; tick the boxes at the top of each file when you finish a step.
+One file per reading session of the [reading plan](../../docs/reading/programming-principles-and-practice-reading-plan.md). Each file lists the pages to read and the checkpoint questions, and has empty sections for your notes, the code you wrote from memory, and what is still unclear. Fill them in as you read; tick the boxes at the top of each file when you finish a step.
 
 | # | Session | Part | Notes file |
 |---|---|---|---|

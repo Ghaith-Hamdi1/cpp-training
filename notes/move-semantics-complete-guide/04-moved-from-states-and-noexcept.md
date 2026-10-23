@@ -1,7 +1,7 @@
 # Session 4: Moved-from states and noexcept
 
 *C++ Move Semantics: The Complete Guide*, Nicolai Josuttis.
-Plan: [reading plan](../../docs/move-semantics-reading-plan.md). Previous: [session 3](03-passing-and-initializing.md). Next: [session 5](05-value-categories.md).
+Plan: [reading plan](../../docs/reading/move-semantics-reading-plan.md). Previous: [session 3](03-passing-and-initializing.md). Next: [session 5](05-value-categories.md).
 
 - [ ] Read
 - [ ] Ran the key example and changed it

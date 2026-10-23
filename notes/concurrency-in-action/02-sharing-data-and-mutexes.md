@@ -1,7 +1,7 @@
 # Session 2: Sharing data and mutexes
 
 *C++ Concurrency in Action (2nd ed.)*, Anthony Williams.
-Plan: [reading plan](../../docs/concurrency-in-action-reading-plan.md). Previous: [session 1](01-why-threads-and-launching.md). Next: [session 3](03-deadlock-and-locking.md).
+Plan: [reading plan](../../docs/reading/concurrency-in-action-reading-plan.md). Previous: [session 1](01-why-threads-and-launching.md). Next: [session 3](03-deadlock-and-locking.md).
 
 - [ ] Read
 - [ ] Ran the key example and changed it

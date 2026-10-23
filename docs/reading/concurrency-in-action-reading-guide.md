@@ -1,6 +1,6 @@
 # Reading guide: *C++ Concurrency in Action* (2nd Edition)
 
-A short reading plan for `books/Cpp-Concurrency-in-Action-2nd-Edition-Williams.pdf` (Anthony Williams, 592 pages). The book is a reference that goes far beyond what a first pass needs, so do **not** read it cover to cover. Use the [interactive multithreading lesson](../interactive/07-multithreading.html) and its quiz first, then read the book sections below for the topics where you need more depth.
+A short reading plan for `books/Cpp-Concurrency-in-Action-2nd-Edition-Williams.pdf` (Anthony Williams, 592 pages). The book is a reference that goes far beyond what a first pass needs, so do **not** read it cover to cover. Use the [interactive multithreading lesson](../../interactive/07-multithreading.html) and its quiz first, then read the book sections below for the topics where you need more depth.
 
 **Page numbers.** The tables give *PDF viewer* page numbers, the number shown in your PDF reader.
 

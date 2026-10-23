@@ -1,7 +1,7 @@
 # Session 6: The memory model and data structures
 
 *C++ Concurrency in Action (2nd ed.)*, Anthony Williams.
-Plan: [reading plan](../../docs/concurrency-in-action-reading-plan.md). Previous: [session 5](05-thread-counts-and-pools.md). Next: [session 7](07-performance-and-bugs.md).
+Plan: [reading plan](../../docs/reading/concurrency-in-action-reading-plan.md). Previous: [session 5](05-thread-counts-and-pools.md). Next: [session 7](07-performance-and-bugs.md).
 
 - [ ] Read
 - [ ] Ran the key example and changed it

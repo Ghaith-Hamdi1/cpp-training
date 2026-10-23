@@ -1,7 +1,7 @@
 # Session 2: Special member functions
 
 *C++ Move Semantics: The Complete Guide*, Nicolai Josuttis.
-Plan: [reading plan](../../docs/move-semantics-reading-plan.md). Previous: [session 1](01-the-core-idea.md). Next: [session 3](03-passing-and-initializing.md).
+Plan: [reading plan](../../docs/reading/move-semantics-reading-plan.md). Previous: [session 1](01-the-core-idea.md). Next: [session 3](03-passing-and-initializing.md).
 
 - [ ] Read
 - [ ] Ran the key example and changed it

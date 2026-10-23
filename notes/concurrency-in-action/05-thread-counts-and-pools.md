@@ -1,7 +1,7 @@
 # Session 5: How many threads, and a thread pool
 
 *C++ Concurrency in Action (2nd ed.)*, Anthony Williams.
-Plan: [reading plan](../../docs/concurrency-in-action-reading-plan.md). Previous: [session 4](04-waiting-for-events-and-results.md). Next: [session 6](06-memory-model-and-data-structures.md).
+Plan: [reading plan](../../docs/reading/concurrency-in-action-reading-plan.md). Previous: [session 4](04-waiting-for-events-and-results.md). Next: [session 6](06-memory-model-and-data-structures.md).
 
 - [ ] Read
 - [ ] Ran the key example and changed it

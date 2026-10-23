@@ -99,4 +99,4 @@ After: Lesson 8 (Smart pointers), Lesson 11 (STL algorithms) and Lesson 17 (futu
 
 3.2 writing the copy and move members by hand (58 to 66); 4.3.1 to 4.3.4 and 4.4 (79 to 96); chapter 5 reference qualifiers (97 to 106); 6.3 broken invariants (115 to 124); 9.4 to 9.5, chapter 11 `auto&&` and chapter 12 `decltype(auto)` (167 to 170, 191 to 210). Chapter 10 only if you write generic library code. The book's relation to *Effective Modern C++* is tabulated at the end of the [reading guide](move-semantics-complete-guide-reading-guide.md).
 
-Notes templates, one file per session: [notes/move-semantics-complete-guide](../notes/move-semantics-complete-guide/README.md).
+Notes templates, one file per session: [notes/move-semantics-complete-guide](../../notes/move-semantics-complete-guide/README.md).

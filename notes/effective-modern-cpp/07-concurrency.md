@@ -1,7 +1,7 @@
 # Session 7: Concurrency
 
 *Effective Modern C++*, Scott Meyers.
-Plan: [reading plan](../../docs/effective-modern-cpp-reading-plan.md). Previous: [session 6](06-lambdas.md). Next: none.
+Plan: [reading plan](../../docs/reading/effective-modern-cpp-reading-plan.md). Previous: [session 6](06-lambdas.md). Next: none.
 
 - [ ] Read
 - [ ] Ran the key example and changed it
