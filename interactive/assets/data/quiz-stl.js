@@ -135,8 +135,24 @@ for (const auto& w : {"apple", "pear", "apple"})
       opts: ['It is fine', 'It writes past the end; use `std::back_inserter(out)` so each assignment becomes a `push_back`', 'It needs `std::move`', 'It needs `reserve` only'], a: 1,
       why: 'Algorithms assign through the output iterator and do not grow the destination. An inserter turns assignments into insertions.' },
 
-    { sec: 's7', q: 'What does `v | std::views::filter(f) | std::views::transform(g)` do when it is created?',
+    { sec: 'ranges', q: 'What does `v | std::views::filter(f) | std::views::transform(g)` do when it is created?',
       opts: ['It builds a new vector immediately', 'Nothing yet: it is a lazy view whose elements are computed when iterated', 'It sorts `v`', 'It copies `v`'], a: 1,
-      why: 'Views are lazy and non-owning. Work happens during iteration, with no temporary containers.' }
+      why: 'Views are lazy and non-owning. Work happens during iteration, with no temporary containers.' },
+
+    { sec: 'ranges', q: 'What is the practical difference between `std::sort(v.begin(), v.end())` and `std::ranges::sort(v)`?',
+      opts: ['The ranges version is always faster', 'The ranges version takes the whole container (and supports projections) instead of an iterator pair', 'The ranges version works only on arrays', 'There is no difference in what you can write'], a: 1,
+      why: 'The ranges algorithms accept a whole range, so you cannot mismatch begin and end of different containers, and they support projections such as `std::ranges::sort(people, {}, &Person::age)`. The sorting itself is the same.' },
+
+    { sec: 'ranges', q: 'When can a view such as `v | std::views::filter(f)` become a dangling problem?',
+      opts: ['Never: a view owns a copy of the data', 'When the container it looks at is destroyed or reallocated while the view is still used', 'Only when the filter returns false', 'Only with `transform`, never with `filter`'], a: 1,
+      why: 'A view is non-owning, like `string_view`. If the vector dies, or reallocates after a `push_back`, the view points at stale memory.' },
+
+    { sec: 'random', q: 'Two engines are created as `std::mt19937 a(42), b(42);` and used with the same distribution. What do they produce?',
+      opts: ['Different sequences, because each engine is random', 'The same sequence: the same seed gives the same numbers', 'An error: the seed must come from std::random_device', 'Only zeros'], a: 1,
+      why: 'An engine is deterministic: the same seed gives the same sequence (compiled: true). That is what you want in tests and simulations; use `std::random_device` to seed when you want different runs.' },
+
+    { sec: 'random', q: 'Why is `rand() % 6 + 1` a poor way to roll a die in modern C++?',
+      opts: ['It is too slow to matter', 'The low-quality generator and the modulo make it biased, and it uses hidden global state', 'It does not compile in C++', 'It can only produce 0'], a: 1,
+      why: 'Use an engine plus a distribution (`std::mt19937` with `std::uniform_int_distribution<int>(1, 6)`): better quality, no modulo bias, and no global state.' }
   ]
 };

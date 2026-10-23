@@ -144,7 +144,7 @@ Strings, containers, iterators, algorithms, templates, type traits and concepts,
 - [ ] Cheat sheet (say each answer aloud)
 - [ ] Take the quiz, then retry the missed questions
 
-**The STL:** [04-stl.html](../interactive/04-stl.html), quiz: [04-stl-quiz.html](../interactive/04-stl-quiz.html) (29 questions).
+**The STL:** [04-stl.html](../interactive/04-stl.html), quiz: [04-stl-quiz.html](../interactive/04-stl-quiz.html) (33 questions).
 
 - [ ] The big picture
 - [ ] `vector`: the workhorse
