@@ -190,12 +190,12 @@
     });
     $('#theme').addEventListener('click', () => {
       const root = document.documentElement;
-      const dark = root.dataset.theme ? root.dataset.theme === 'dark' : matchMedia('(prefers-color-scheme: dark)').matches;
+      const dark = root.dataset.theme !== 'light';
       root.dataset.theme = dark ? 'light' : 'dark';
       store.set('theme', root.dataset.theme);
       $('#theme').setAttribute('aria-pressed', String(root.dataset.theme === 'dark'));
     });
-    $('#theme').setAttribute('aria-pressed', String(document.documentElement.dataset.theme ? document.documentElement.dataset.theme === 'dark' : matchMedia('(prefers-color-scheme: dark)').matches));
+    $('#theme').setAttribute('aria-pressed', String(document.documentElement.dataset.theme !== 'light'));
     document.addEventListener('click', (e) => { const m = $('.menu', h); if (m && !m.contains(e.target)) m.open = false; });
   }
 
