@@ -117,6 +117,7 @@ function parseGuides(lessonNo, id) {
   return rows;
 }
 
+const KEEP_SEPARATE = /^15.5.2 /;                                              // rows that must keep their own section even though a bigger row of the same book covers their pages
 const bounds = (p) => { const n = (p.match(/\d+/g) || []).map(Number); return [Math.min(...n), Math.max(...n)]; };
 function rowsFor(lessonNo, id) {
   const merged = new Map();                                                       // the same book pages listed twice become one row
@@ -129,7 +130,7 @@ function rowsFor(lessonNo, id) {
   rows = rows.filter((a) => {                                                     // a row whose pages lie inside a bigger row of the same book is folded into it
     const [as, ae] = bounds(a.pages);
     const big = rows.find((b) => b !== a && b.book === a.book && bounds(b.pages)[0] <= as && bounds(b.pages)[1] >= ae && bounds(b.pages)[1] - bounds(b.pages)[0] > ae - as);
-    if (!big) return true;
+    if (!big || KEEP_SEPARATE.test(a.label)) return true;
     for (const d of a.deepens) if (!big.deepens.includes(d)) big.deepens.push(d);
     return false;
   });

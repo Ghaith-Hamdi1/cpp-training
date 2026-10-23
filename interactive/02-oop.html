@@ -335,17 +335,21 @@ public:
 
 <section id="s6" data-title="Polymorphism and virtual functions">
 <h2>Polymorphism and virtual functions</h2>
-<figure class="fig"><svg viewBox="0 0 640 160" role="img" aria-label="An object holds a vptr that points to its class vtable of function pointers"><defs><marker id="c1" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path class="ah" d="M0 0L10 5L0 10z"/></marker></defs><rect class="acc" x="10" y="30" width="150" height="90" rx="8"/><text class="t" x="85" y="52" text-anchor="middle">Dog object</text><rect class="wn" x="24" y="64" width="122" height="24" rx="4"/><text x="85" y="81" text-anchor="middle">vptr</text><rect class="box" x="24" y="92" width="122" height="22" rx="4"/><text class="m" x="85" y="108" text-anchor="middle">name_ ...</text><path class="ar" d="M146 76H258" marker-end="url(#c1)"/><rect class="box" x="260" y="30" width="190" height="90" rx="8"/><text class="t" x="355" y="50" text-anchor="middle">Dog vtable</text><rect class="gd" x="274" y="60" width="162" height="26" rx="4"/><text x="355" y="78" text-anchor="middle">speak() : Dog::speak</text><rect class="gd" x="274" y="90" width="162" height="26" rx="4"/><text x="355" y="108" text-anchor="middle">~Dog()</text><path class="ar" d="M436 73H518" marker-end="url(#c1)"/><rect class="box" x="520" y="52" width="110" height="42" rx="6"/><text x="575" y="78" text-anchor="middle">Dog::speak code</text><text class="m" x="10" y="146">A virtual call: follow vptr, index the table, jump. Cost: one pointer per object, one indirection per call.</text></svg><figcaption>One vtable per class, one vptr per object.</figcaption></figure>
-<p><code>p-&gt;speak()</code> through a base pointer reaches the <i>derived</i> behaviour only if <code>speak</code> is <code>virtual</code>. Without it the <b>static type</b> decides (compile time); with it the <b>dynamic type</b> (runtime). Try it:</p>
+<p><code>p-&gt;speak()</code> through a base pointer reaches the <i>derived</i> behaviour only if <code>speak</code> is <code>virtual</code>. Without it the <b>static type</b> (the type of the pointer, known at compile time) decides; with it the <b>dynamic type</b> (the type of the object, known at run time) decides. Try it:</p>
 <div id="w-virtual"></div>
 <h3>How it works: vtable and vptr</h3>
-<p>Each class with virtuals has a <b>vtable</b>; each object has a hidden <b>vptr</b> to it. Cost: a pointer per object, an indirection per call, usually no inlining.</p>
-<table>
-<tr><th>Term</th><th>Meaning</th></tr>
-<tr><td><b>Overloading</b></td><td>same name, different parameters, resolved at compile time</td></tr>
-<tr><td><b>Overriding</b></td><td>a derived class replaces a <i>virtual</i> base function with the same signature, resolved at runtime</td></tr>
-<tr><td><b>Hiding</b></td><td>a derived function with the same name (but not virtual / different signature) hides the base one</td></tr>
-</table>
+<p>The compiler builds one <b>vtable</b> per class that has virtual functions: an array of function pointers, one <b>slot</b> per virtual function. A slot holds the <i>most derived override</i> of that function. A derived class's vtable starts as a copy of its base's, and every function the derived class overrides replaces the matching slot. Every object of such a class carries one hidden pointer, the <b>vptr</b>, normally at the start of the object, set to its class's vtable by the constructor.</p>
+<figure class="fig"><svg viewBox="0 0 640 252" role="img" aria-label="A Dog object whose vptr points to the Dog vtable; the Animal vtable is shown above it; only the overridden slots differ"><defs><marker id="c1" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path class="ah" d="M0 0L10 5L0 10z"/></marker></defs><rect class="acc" x="10" y="50" width="160" height="124" rx="8"/><text class="t" x="90" y="72" text-anchor="middle">Dog object</text><rect class="wn" x="24" y="82" width="132" height="24" rx="4"/><text x="90" y="99" text-anchor="middle">vptr</text><rect class="box" x="24" y="110" width="132" height="22" rx="4"/><text class="m" x="90" y="126" text-anchor="middle">legs (from Animal)</text><rect class="box" x="24" y="136" width="132" height="22" rx="4"/><text class="m" x="90" y="152" text-anchor="middle">tricks (Dog)</text><path class="ar" d="M156 94C210 94 210 190 268 190" marker-end="url(#c1)"/><rect class="box" x="270" y="8" width="200" height="104" rx="8"/><text class="t" x="370" y="28" text-anchor="middle">Animal vtable</text><rect class="box" x="284" y="36" width="172" height="22" rx="4"/><text class="m" x="370" y="52" text-anchor="middle">speak: Animal::speak</text><rect class="box" x="284" y="60" width="172" height="22" rx="4"/><text class="m" x="370" y="76" text-anchor="middle">eat: Animal::eat</text><rect class="box" x="284" y="84" width="172" height="22" rx="4"/><text class="m" x="370" y="100" text-anchor="middle">~Animal: Animal::~Animal</text><rect class="box" x="270" y="136" width="200" height="104" rx="8"/><text class="t" x="370" y="156" text-anchor="middle">Dog vtable</text><rect class="gd" x="284" y="164" width="172" height="22" rx="4"/><text class="m" x="370" y="180" text-anchor="middle">speak: Dog::speak</text><rect class="box" x="284" y="188" width="172" height="22" rx="4"/><text class="m" x="370" y="204" text-anchor="middle">eat: Animal::eat</text><rect class="gd" x="284" y="212" width="172" height="22" rx="4"/><text class="m" x="370" y="228" text-anchor="middle">~Animal: Dog::~Dog</text><text class="m" x="490" y="176">green: overridden</text><text class="m" x="490" y="196">plain: inherited</text><text class="m" x="490" y="216">(same function as base)</text></svg><figcaption>One vtable per class, shared by all its objects; one vptr per object. Only the overridden slots differ.</figcaption></figure>
+<ul>
+<li><b>Cost.</b> A class with virtual functions has a vptr in every object: <code>struct Plain { int legs; }</code> is 4 bytes, the same struct with one virtual function is 16 on a typical 64-bit platform (8 for the vptr, 4 for <code>legs</code>, 4 of padding). The data members come after the vptr.</li>
+<li><b>The call.</b> <code>p-&gt;speak()</code> compiles to three steps: load the vptr from the object, index the vtable at the slot number that <code>speak</code> has in <code>Animal</code>, and jump to the address found there. The slot number is fixed at compile time because every derived vtable keeps the base's slot order. That is also why virtual calls usually cannot be inlined.</li>
+<li><b>Only virtual functions have a slot.</b> Non-virtual functions are called directly, chosen by the static type.</li>
+<li><b>A virtual destructor takes a slot too.</b> That is how <code>delete p</code> through an <code>Animal*</code> runs <code>Dog::~Dog</code>.</li>
+<li><b>A pure virtual function</b> (<code>= 0</code>) still has a slot, but it holds no useful code; that is why the class cannot be instantiated.</li>
+</ul>
+<p>Step through a virtual call. Notice that <code>eat</code> goes through the same mechanism but lands in the base's function, because <code>Dog</code> did not override it:</p>
+<div id="st-vptr"></div>
+<h3>Writing it: <code>override</code>, <code>final</code> and a virtual destructor</h3>
 <script type="text/x-cpp">
 struct Shape {
     virtual double area() const = 0;
@@ -356,18 +360,38 @@ struct Circle : Shape {
     explicit Circle(double r) : r(r) {}
     double area() const override { return 3.14159 * r * r; }   // `override`: the compiler checks you really override
 };
+struct Ball final : Circle {              // `final` on a class: nothing can derive from it
+    using Circle::Circle;
+};
+// `final` on a function stops further overriding:  double area() const final;
 </script>
 <div class="callout warn"><span class="label">Two famous traps</span>
 <p><b>1.</b> Always write <code>override</code>. If you mistype the signature (forget <code>const</code>), without it you silently create a <i>new</i> function instead of overriding.</p>
-<p><b>2.</b> Virtual calls inside a constructor or destructor do <b>not</b> reach the derived class. While <code>Base</code>'s constructor runs, the object's dynamic type is <code>Base</code>, so <code>Base::init()</code> is called even if <code>Derived</code> overrides it.</p></div>
-<p>Step through a virtual call:</p>
-<div id="st-vptr"></div>
+<p><b>2.</b> Virtual calls inside a constructor or destructor do <b>not</b> reach the derived class. The constructor of <code>Base</code> sets the vptr to <code>Base</code>'s vtable, and only <i>after</i> it finishes does the constructor of <code>Derived</code> set it to <code>Derived</code>'s vtable. So while <code>Base</code>'s constructor runs, the object's dynamic type is <code>Base</code>, and <code>Base::init()</code> is called even if <code>Derived</code> overrides it. A destructor does the same in reverse.</p></div>
+<h3>Overloading, overriding and hiding</h3>
+<table>
+<tr><th>Term</th><th>Meaning</th></tr>
+<tr><td><b>Overloading</b></td><td>same name, different parameters, resolved at compile time</td></tr>
+<tr><td><b>Overriding</b></td><td>a derived class replaces a <i>virtual</i> base function with the same signature, resolved at runtime</td></tr>
+<tr><td><b>Hiding</b></td><td>a derived function with the same name (but not virtual / different signature) hides <i>every</i> base function of that name</td></tr>
+</table>
+<script type="text/x-cpp">
+struct B { void f(int); void g(); };
+struct D : B { void f(double); };      // hides B::f(int), it does not overload it
+
+D d;
+d.f(1);       // calls D::f(double): the int overload of B is not even considered
+d.g();        // fine: D has no g, so B::g is found
+d.B::f(1);    // explicit qualification reaches the hidden one
+// or add `using B::f;` inside D to bring B's overloads back into D's scope
+</script>
+<p>Multiple base classes, <code>dynamic_cast</code> and the exact object layout are in <a href="19-object-model.html">The Object Model in Depth</a>.</p>
 <!-- read-more:start -->
 <div class="callout tip"><span class="label">Read more</span>
 <p><b>Programming: Principles and Practice (Stroustrup)</b></p>
 <ul>
 <li>12.3, 12.5 Base and derived classes; benefits of object-oriented programming (PDF pages 380 to 387 and 389 to 390)</li>
-<li>15.3 to 15.5 Memory, addresses and pointers; free store; destructors (PDF pages 452 to 463)</li>
+<li>15.5.2 Virtual destructors (PDF pages 462 to 463)</li>
 </ul>
 <p><b>Effective Modern C++ (Meyers)</b></p>
 <ul>
@@ -542,22 +566,25 @@ struct Buffer {
 CT.stepper('#st-vptr', {
   title: 'How a virtual call finds the right function',
   code: String.raw`
-struct Animal { virtual void speak(); };
+struct Animal { virtual void speak(); virtual void eat(); };
 struct Dog : Animal { void speak() override; };
 
 Dog rex;
 Animal* p = &rex;
 p->speak();
+p->eat();
 `,
   steps: [
-    { line: 5, mem: [{ n: 'Dog vtable @0x7000', t: 'static', v: 'speak() -> Dog::speak', k: 'static' }, { n: 'rex @0x1000', t: 'Dog', v: 'vptr = 0x7000' }],
-      note: 'Creating a <b>Dog</b>: the constructor stores a hidden <b>vptr</b> in the object. It points to the Dog <b>vtable</b>, a table of function pointers that exists once per class.' },
-    { line: 6, mem: [{ n: 'Dog vtable @0x7000', t: 'static', v: 'speak() -> Dog::speak', k: 'static' }, { n: 'rex @0x1000', t: 'Dog', v: 'vptr = 0x7000' }, { n: 'p @0x1008', t: 'Animal*', v: '0x1000', p: 'static type: Animal' }],
-      note: '<b>p</b> has the static type <code>Animal*</code> but points at a real Dog. The compiler only knows the static type.' },
-    { line: 7, mem: [{ n: 'Dog vtable @0x7000', t: 'static', v: 'speak() -> Dog::speak', k: 'static' }, { n: 'rex @0x1000', t: 'Dog', v: 'vptr = 0x7000' }, { n: 'p @0x1008', t: 'Animal*', v: '0x1000', p: 'follow p to the object' }],
-      note: '<b>Step 1 of the call:</b> follow p to the object and read its <b>vptr</b> (0x7000).' },
-    { line: 7, mem: [{ n: 'Dog vtable @0x7000', t: 'static', v: 'speak() -> Dog::speak', k: 'static' }, { n: 'rex @0x1000', t: 'Dog', v: 'vptr = 0x7000' }, { n: 'p @0x1008', t: 'Animal*', v: '0x1000', p: 'dynamic type: Dog' }], out: 'Woof\n',
-      note: '<b>Step 2:</b> index the vtable at the <code>speak</code> slot and jump to <b>Dog::speak</b>. The object\'s <i>dynamic</i> type decided, not the pointer\'s. Cost: one extra pointer per object and one indirection per call.' }
+    { line: 5, mem: [{ n: 'Animal vtable @0x6000', t: 'static', v: 'speak -> Animal::speak, eat -> Animal::eat', k: 'static' }, { n: 'Dog vtable @0x7000', t: 'static', v: 'speak -> Dog::speak, eat -> Animal::eat', k: 'static' }, { n: 'rex @0x1000', t: 'Dog', v: 'vptr = 0x7000' }],
+      note: 'The compiler built one <b>vtable</b> per class, once, before the program runs. <b>Dog</b> overrides <code>speak</code>, so its slot points to <code>Dog::speak</code>; <code>eat</code> is not overridden, so its slot still points to <code>Animal::eat</code>. Creating <b>rex</b> stores a hidden <b>vptr</b> in the object, pointing to the <i>Dog</i> vtable.' },
+    { line: 6, mem: [{ n: 'Animal vtable @0x6000', t: 'static', v: 'speak -> Animal::speak, eat -> Animal::eat', k: 'static' }, { n: 'Dog vtable @0x7000', t: 'static', v: 'speak -> Dog::speak, eat -> Animal::eat', k: 'static' }, { n: 'rex @0x1000', t: 'Dog', v: 'vptr = 0x7000' }, { n: 'p @0x1008', t: 'Animal*', v: '0x1000', p: 'static type: Animal' }],
+      note: '<b>p</b> has the static type <code>Animal*</code> but points at a real Dog. The compiler only knows the static type, so it only knows that <code>speak</code> is the first slot and <code>eat</code> the second.' },
+    { line: 7, mem: [{ n: 'Animal vtable @0x6000', t: 'static', v: 'speak -> Animal::speak, eat -> Animal::eat', k: 'static' }, { n: 'Dog vtable @0x7000', t: 'static', v: 'speak -> Dog::speak, eat -> Animal::eat', k: 'static' }, { n: 'rex @0x1000', t: 'Dog', v: 'vptr = 0x7000' }, { n: 'p @0x1008', t: 'Animal*', v: '0x1000', p: 'follow p to the object' }],
+      note: '<b>p->speak(), step 1:</b> follow p to the object and read its <b>vptr</b> (0x7000).' },
+    { line: 7, mem: [{ n: 'Animal vtable @0x6000', t: 'static', v: 'speak -> Animal::speak, eat -> Animal::eat', k: 'static' }, { n: 'Dog vtable @0x7000', t: 'static', v: 'speak -> Dog::speak, eat -> Animal::eat', k: 'static' }, { n: 'rex @0x1000', t: 'Dog', v: 'vptr = 0x7000' }, { n: 'p @0x1008', t: 'Animal*', v: '0x1000', p: 'dynamic type: Dog' }], out: 'Woof\n',
+      note: '<b>Step 2:</b> index that vtable at the <code>speak</code> slot and jump to <b>Dog::speak</b>. The object\'s <i>dynamic</i> type decided, not the pointer\'s.' },
+    { line: 8, mem: [{ n: 'Animal vtable @0x6000', t: 'static', v: 'speak -> Animal::speak, eat -> Animal::eat', k: 'static' }, { n: 'Dog vtable @0x7000', t: 'static', v: 'speak -> Dog::speak, eat -> Animal::eat', k: 'static' }, { n: 'rex @0x1000', t: 'Dog', v: 'vptr = 0x7000' }, { n: 'p @0x1008', t: 'Animal*', v: '0x1000', p: 'same two steps' }], out: 'Woof\nAnimal eats\n',
+      note: '<b>p->eat()</b> does the same two steps: read the vptr, index the <code>eat</code> slot. The Dog vtable\'s slot holds <code>Animal::eat</code>, so the base version runs. Every virtual call costs one extra load and an indirect jump; it never searches.' }
   ]
 });
 
