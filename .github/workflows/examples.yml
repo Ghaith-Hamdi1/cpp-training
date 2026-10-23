@@ -1,0 +1,26 @@
+name: Check example programs
+
+on:
+  push:
+    paths: ['examples/lessons/**', 'examples/practice/**', '.github/workflows/examples.yml']
+  pull_request:
+    paths: ['examples/lessons/**', 'examples/practice/**', '.github/workflows/examples.yml']
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install g++ 14 (the lessons use C++23)
+        run: sudo apt-get update && sudo apt-get install -y g++-14
+      - name: Build every lesson program
+        run: make -C examples/lessons -j"$(nproc)" CXX=g++-14
+      - name: Compile the practice exercises and run the solutions
+        run: |
+          set -e
+          for d in examples/practice/*/; do
+            echo "== $d"
+            g++-14 -std=c++20 -Wall -Wextra -pthread "${d}exercise.cpp" -o /tmp/exercise
+            g++-14 -std=c++20 -Wall -Wextra -pthread "${d}solution.cpp" -o /tmp/solution
+            timeout 60 /tmp/solution
+          done

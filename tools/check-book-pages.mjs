@@ -1,7 +1,7 @@
 // Checks the page numbers in the reading guides, plans and roadmap against the book PDFs.
 // For every table row that gives a section number and an "N to M" PDF page range, the start page must contain a heading line that
 // begins with that section number (or "Item N" for Effective Modern C++, "Chapter N" for a whole chapter). It needs `pdftotext`
-// (poppler) on the PATH and the PDFs in books/, so it is NOT part of CI; run it by hand after editing page ranges.
+// (poppler) on the PATH and the PDFs in books/, so it needs poppler-utils (CI installs it); you can also run it by hand after editing page ranges.
 // Usage: node tools/check-book-pages.mjs [--verbose]
 import { readFileSync, readdirSync, existsSync } from 'node:fs';
 import { execFileSync } from 'node:child_process';

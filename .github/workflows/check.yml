@@ -14,6 +14,8 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 20
+      - name: Install pdftotext (to check the book page numbers)
+        run: sudo apt-get update && sudo apt-get install -y poppler-utils
       - run: node tools/check-interactive.mjs
       - run: node tools/check-quiz-balance.mjs
       - run: node tools/check-links.mjs
@@ -27,3 +29,4 @@ jobs:
       - run: node tools/verify-checklist.mjs
       - run: node tools/check-guides.mjs
       - run: node tools/test-registry.mjs
+      - run: node tools/check-book-pages.mjs
