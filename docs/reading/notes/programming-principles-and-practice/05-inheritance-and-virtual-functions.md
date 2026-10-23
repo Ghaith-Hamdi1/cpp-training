@@ -63,4 +63,4 @@ What I got wrong when I compared it with the book:
 
 ## After this session
 
-Lesson 4 (polymorphism) and lesson 5 (The Object Model in Depth); practice exercise 11 (Shapes). Explain the vptr and vtable aloud before moving on.
+Lesson 3 (polymorphism) and lesson 4 (The Object Model in Depth); practice exercise 11 (Shapes). Explain the vptr and vtable aloud before moving on.

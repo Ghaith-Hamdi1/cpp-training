@@ -14,14 +14,14 @@ The items on move semantics, smart pointers and concurrency are the ones worth r
 
 | Item | PDF pages | What it teaches | Matching lesson section |
 |---|---|---|---|
-| **17** Understand special member function generation | 127 to 133 | Which of the default constructor, destructor, copy and move operations the compiler generates, and when it silently does not (for example, declaring a destructor or a copy operation suppresses the move operations). | 4. Copying and the Rule of 3, 5 and 0 |
-| **18** Use `std::unique_ptr` for exclusive-ownership resource management | 136 to 143 | `unique_ptr` is small, fast and move-only; custom deleters; converting to `shared_ptr` is easy. | 8. Smart pointers |
-| **19** Use `std::shared_ptr` for shared-ownership resource management | 143 to 152 | Twice the size of a raw pointer, a control block, atomic reference counts; custom deleters do not change the pointer's type. | 8. Smart pointers |
-| **20** Use `std::weak_ptr` for `shared_ptr`-like pointers that can dangle | 152 to 157 | Caches, observer lists and breaking `shared_ptr` cycles. | 8. Smart pointers; 14. Observer |
-| **23** Understand `std::move` and `std::forward` | 176 to 182 | `std::move` is an unconditional cast to an rvalue and moves nothing by itself; `std::forward` casts to an rvalue only if the argument was one. Neither does anything at run time. | 7. Move semantics; 12. Forwarding references and perfect forwarding |
-| **24** Distinguish universal references from rvalue references | 182 to 186 | `T&&` with a deduced `T` (or `auto&&`) is a universal reference; anything else written `type&&` is an rvalue reference. | 12. Forwarding references and perfect forwarding |
-| **25** Use `std::move` on rvalue references, `std::forward` on universal references | 186 to 195 | Apply each on the last use. Do not `std::move` a local you return (it defeats the return value optimization). | 7. Move semantics |
-| **28** Understand reference collapsing | 215 to 221 | The four contexts where a reference to a reference arises, and the rule: if either is an lvalue reference the result is one. | 12. Forwarding references and perfect forwarding |
+| **17** Understand special member function generation | 127 to 133 | Which of the default constructor, destructor, copy and move operations the compiler generates, and when it silently does not (for example, declaring a destructor or a copy operation suppresses the move operations). | 3. Copying and the Rule of 3, 5 and 0 |
+| **18** Use `std::unique_ptr` for exclusive-ownership resource management | 136 to 143 | `unique_ptr` is small, fast and move-only; custom deleters; converting to `shared_ptr` is easy. | 12. Smart pointers |
+| **19** Use `std::shared_ptr` for shared-ownership resource management | 143 to 152 | Twice the size of a raw pointer, a control block, atomic reference counts; custom deleters do not change the pointer's type. | 12. Smart pointers |
+| **20** Use `std::weak_ptr` for `shared_ptr`-like pointers that can dangle | 152 to 157 | Caches, observer lists and breaking `shared_ptr` cycles. | 12. Smart pointers; 14. Observer |
+| **23** Understand `std::move` and `std::forward` | 176 to 182 | `std::move` is an unconditional cast to an rvalue and moves nothing by itself; `std::forward` casts to an rvalue only if the argument was one. Neither does anything at run time. | 11. Move semantics; 8. Forwarding references and perfect forwarding |
+| **24** Distinguish universal references from rvalue references | 182 to 186 | `T&&` with a deduced `T` (or `auto&&`) is a universal reference; anything else written `type&&` is an rvalue reference. | 8. Forwarding references and perfect forwarding |
+| **25** Use `std::move` on rvalue references, `std::forward` on universal references | 186 to 195 | Apply each on the last use. Do not `std::move` a local you return (it defeats the return value optimization). | 11. Move semantics |
+| **28** Understand reference collapsing | 215 to 221 | The four contexts where a reference to a reference arises, and the rule: if either is an lvalue reference the result is one. | 8. Forwarding references and perfect forwarding |
 | **35** Prefer task-based programming to thread-based | 259 to 263 | `std::thread` gives no return value and terminates on an exception; `std::async` handles exhaustion, oversubscription and balancing for you. | 17. Futures and async |
 | **36** Specify `std::launch::async` if asynchronicity is essential | 263 to 268 | The default launch policy may run the task synchronously or never. | 17. Futures and async |
 | **37** Make `std::thread`s unjoinable on all paths | 268 to 276 | A joinable thread destroyed is a terminate; join-on-destruction and detach-on-destruction both have pitfalls; declare `std::thread` members last. | 16. Your first thread |
@@ -31,24 +31,24 @@ The items on move semantics, smart pointers and concurrency are the ones worth r
 
 | Item | PDF pages | What it teaches | Matching lesson section |
 |---|---|---|---|
-| **1** Understand template type deduction | 27 to 36 | The three cases (reference or pointer, universal reference, by value); references are ignored for deduction, `const` is dropped for by-value parameters; arrays and functions decay. | 12. Template argument deduction |
+| **1** Understand template type deduction | 27 to 36 | The three cases (reference or pointer, universal reference, by value); references are ignored for deduction, `const` is dropped for by-value parameters; arrays and functions decay. | 8. Template argument deduction |
 | **2** Understand `auto` type deduction | 36 to 41 | `auto` follows the template rules, except that a braced initializer deduces `std::initializer_list`. | 2. auto, decltype and modern syntax (the `auto` traps) |
 | **5** Prefer `auto` to explicit type declarations | 55 to 61 | `auto` must be initialized, avoids type mismatches and eases refactoring. | 2. auto, decltype and modern syntax |
 | **7** Distinguish `()` and `{}` when creating objects | 67 to 76 | Braces prevent narrowing and the most vexing parse, but prefer `initializer_list` constructors when one exists, even if another constructor looks like a better match. | 1. Variables and types |
-| **12** Declare overriding functions `override` | 97 to 104 | A mismatched signature silently creates a new function without it; reference qualifiers on member functions. | 4. Polymorphism and virtual functions |
-| **14** Declare functions `noexcept` if they won't emit exceptions | 108 to 115 | `noexcept` is part of the interface and enables optimization, and it matters most for move operations, `swap` and destructors. | 6. Exception-safety guarantees and noexcept; 7. Move semantics |
+| **12** Declare overriding functions `override` | 97 to 104 | A mismatched signature silently creates a new function without it; reference qualifiers on member functions. | 3. Polymorphism and virtual functions |
+| **14** Declare functions `noexcept` if they won't emit exceptions | 108 to 115 | `noexcept` is part of the interface and enables optimization, and it matters most for move operations, `swap` and destructors. | 9. Exception-safety guarantees and noexcept; 11. Move semantics |
 | **15** Use `constexpr` whenever possible | 115 to 121 | `constexpr` objects are `const` with compile-time values; `constexpr` functions can run at compile time. | 2. `const`, `constexpr` and `static` |
 | **16** Make `const` member functions thread safe | 121 to 127 | A `const` member that mutates a cached value is a data race unless protected. | 16. Mutexes (the `mutable` mutex) |
-| **21** Prefer `make_unique` and `make_shared` to `new` | 157 to 165 | Less duplication, better exception safety, and smaller, faster code for `make_shared`; when not to use them. | 8. Smart pointers |
+| **21** Prefer `make_unique` and `make_shared` to `new` | 157 to 165 | Less duplication, better exception safety, and smaller, faster code for `make_shared`; when not to use them. | 12. Smart pointers |
 | **22** Pimpl: define special member functions in the implementation file | 165 to 174 | A `unique_ptr` Pimpl needs the special members declared in the header but defined in the `.cpp`. | 14. Other patterns |
-| **26 to 27** Avoid overloading on universal references; alternatives | 195 to 215 | Universal-reference overloads and perfect-forwarding constructors are matched too eagerly. Alternatives: distinct names, pass by value, tag dispatch, `enable_if`. | 12. Type traits and if constexpr |
-| **29** Assume move operations are not present, not cheap, and not used | 221 to 225 | In generic code do not assume a move is cheap. | 7. Move semantics |
-| **31** Avoid default capture modes | 234 to 242 | `[&]` can dangle; `[=]` can capture `this` and suggests the lambda is self-contained. | 9. Lambdas |
-| **32** Use init capture to move objects into closures | 242 to 247 | C++14 `[p = std::move(x)]`. | 9. Lambdas |
+| **26 to 27** Avoid overloading on universal references; alternatives | 195 to 215 | Universal-reference overloads and perfect-forwarding constructors are matched too eagerly. Alternatives: distinct names, pass by value, tag dispatch, `enable_if`. | 8. Type traits and if constexpr |
+| **29** Assume move operations are not present, not cheap, and not used | 221 to 225 | In generic code do not assume a move is cheap. | 11. Move semantics |
+| **31** Avoid default capture modes | 234 to 242 | `[&]` can dangle; `[=]` can capture `this` and suggests the lambda is self-contained. | 7. Lambdas |
+| **32** Use init capture to move objects into closures | 242 to 247 | C++14 `[p = std::move(x)]`. | 7. Lambdas |
 | **38** Be aware of varying thread handle destructor behavior | 276 to 280 | The last future of a non-deferred `std::async` task blocks in its destructor. | 17. Futures and async |
 | **39** Consider void futures for one-shot event communication | 280 to 289 | Condition-variable, flag and promise/future designs for a single event. | 16. Condition variables |
-| **41** Consider pass by value for copyable, cheap-to-move parameters that are always copied | 299 to 310 | Pass by value can be nearly as fast as by reference and simpler, but beware slicing. | 7. Move semantics |
-| **42** Consider emplacement instead of insertion | 310 to 320 | When `emplace_back` really is faster than `push_back`. | 11. vector: the workhorse |
+| **41** Consider pass by value for copyable, cheap-to-move parameters that are always copied | 299 to 310 | Pass by value can be nearly as fast as by reference and simpler, but beware slicing. | 11. Move semantics |
+| **42** Consider emplacement instead of insertion | 310 to 320 | When `emplace_back` really is faster than `push_back`. | 6. vector: the workhorse |
 
 ## Quick reads you probably know (about 15 minutes in total)
 
@@ -62,18 +62,18 @@ Read the items in this order. Each builds on the one before.
 
 | Step | Item | PDF pages | What it teaches | Matching lesson section |
 |---|---|---|---|---|
-| 1 | **17** Understand special member function generation | 127 to 133 | Moves are generated only for a class that declares no copy operations, move operations or destructor. Adding a destructor later silently turns moves into copies, and the code still compiles and passes tests. `= default` for polymorphic bases. | 4. Copying and the Rule of 3, 5 and 0 |
-| 2 | **23** Understand `std::move` and `std::forward` | 176 to 182 | Both are casts that generate no code. A sample implementation of `std::move`. **The `const` trap:** `std::move` on a `const` object silently copies, because a `const` rvalue cannot bind to the move constructor. | 7. Move semantics |
-| 3 | **24** Distinguish universal references from rvalue references | 182 to 186 | `T&&` with a deduced `T` (or `auto&&`) is a universal reference. Any other form `type&&` is an rvalue reference. | 12. Forwarding references and perfect forwarding |
-| 4 | **28** Understand reference collapsing | 215 to 221 | The four contexts where a reference to a reference arises, and the rule: if either is an lvalue reference, so is the result. This is the mechanism behind forwarding. | 12. Forwarding references and perfect forwarding |
-| 5 | **25** Use `std::move` on rvalue references, `std::forward` on universal references | 186 to 195 | Apply each on its last use. **Returning by value:** the return value optimization (RVO) conditions, why `return std::move(local)` hinders it, and why the compiler must treat a returned local or by-value parameter as an rvalue if it does not elide the copy. | 7. Move semantics |
-| 6 | **29** Assume that move operations are not present, not cheap, and not used | 221 to 225 | Types without move support gain nothing. A `std::array` move is linear, not constant. A `std::string` with the small string optimization can move no faster than it copies. Be conservative in generic code and look up the facts for known types. | 7. Move semantics |
-| 7 | **14** Declare functions `noexcept` if they won't emit exceptions | 108 to 115 | Why `std::vector` growth moves its elements only when the move cannot throw (`std::move_if_noexcept`), to keep the strong exception guarantee. `noexcept` matters most for move operations, `swap` and destructors. | 6. Exception-safety guarantees and noexcept |
-| 8 | **26 to 27** and **30** Overloading on universal references; perfect forwarding failure cases | 195 to 215 and 225 to 232 | Universal-reference overloads and perfect-forwarding constructors are matched too eagerly. Alternatives: distinct names, pass by value, tag dispatch, `enable_if`. Arguments that defeat perfect forwarding: braced initializers, `0` or `NULL` as a null pointer, overloaded function names, bitfields. | 12. Type traits and if constexpr |
-| optional | **18** `std::unique_ptr` | 136 to 143 | A small, fast, move-only smart pointer. | 8. Smart pointers |
+| 1 | **17** Understand special member function generation | 127 to 133 | Moves are generated only for a class that declares no copy operations, move operations or destructor. Adding a destructor later silently turns moves into copies, and the code still compiles and passes tests. `= default` for polymorphic bases. | 3. Copying and the Rule of 3, 5 and 0 |
+| 2 | **23** Understand `std::move` and `std::forward` | 176 to 182 | Both are casts that generate no code. A sample implementation of `std::move`. **The `const` trap:** `std::move` on a `const` object silently copies, because a `const` rvalue cannot bind to the move constructor. | 11. Move semantics |
+| 3 | **24** Distinguish universal references from rvalue references | 182 to 186 | `T&&` with a deduced `T` (or `auto&&`) is a universal reference. Any other form `type&&` is an rvalue reference. | 8. Forwarding references and perfect forwarding |
+| 4 | **28** Understand reference collapsing | 215 to 221 | The four contexts where a reference to a reference arises, and the rule: if either is an lvalue reference, so is the result. This is the mechanism behind forwarding. | 8. Forwarding references and perfect forwarding |
+| 5 | **25** Use `std::move` on rvalue references, `std::forward` on universal references | 186 to 195 | Apply each on its last use. **Returning by value:** the return value optimization (RVO) conditions, why `return std::move(local)` hinders it, and why the compiler must treat a returned local or by-value parameter as an rvalue if it does not elide the copy. | 11. Move semantics |
+| 6 | **29** Assume that move operations are not present, not cheap, and not used | 221 to 225 | Types without move support gain nothing. A `std::array` move is linear, not constant. A `std::string` with the small string optimization can move no faster than it copies. Be conservative in generic code and look up the facts for known types. | 11. Move semantics |
+| 7 | **14** Declare functions `noexcept` if they won't emit exceptions | 108 to 115 | Why `std::vector` growth moves its elements only when the move cannot throw (`std::move_if_noexcept`), to keep the strong exception guarantee. `noexcept` matters most for move operations, `swap` and destructors. | 9. Exception-safety guarantees and noexcept |
+| 8 | **26 to 27** and **30** Overloading on universal references; perfect forwarding failure cases | 195 to 215 and 225 to 232 | Universal-reference overloads and perfect-forwarding constructors are matched too eagerly. Alternatives: distinct names, pass by value, tag dispatch, `enable_if`. Arguments that defeat perfect forwarding: braced initializers, `0` or `NULL` as a null pointer, overloaded function names, bitfields. | 8. Type traits and if constexpr |
+| optional | **18** `std::unique_ptr` | 136 to 143 | A small, fast, move-only smart pointer. | 12. Smart pointers |
 | optional | **22** Pimpl: define special member functions in the implementation file | 165 to 174 | A `unique_ptr` Pimpl needs the special members declared in the header but defined in the `.cpp`. | 14. Other patterns |
-| optional | **32** Use init capture to move objects into closures | 242 to 247 | C++14 `[p = std::move(x)]`. | 9. Lambdas |
-| optional | **41** Consider pass by value for copyable parameters that are cheap to move and always copied | 299 to 310 | Where a cheap move makes pass by value attractive, and the slicing caveat. | 7. Move semantics |
+| optional | **32** Use init capture to move objects into closures | 242 to 247 | C++14 `[p = std::move(x)]`. | 7. Lambdas |
+| optional | **41** Consider pass by value for copyable parameters that are cheap to move and always copied | 299 to 310 | Where a cheap move makes pass by value attractive, and the slicing caveat. | 11. Move semantics |
 
 **If you only have time for part of it:** read steps 2, 5 and 6 (Items 23, 25 and 29, about 22 pages). They cover the `const` trap, the RVO rules and the performance caveats, which are the points most often got wrong.
 
@@ -84,7 +84,7 @@ Read the items in this order. Each builds on the one before.
 - It predates C++17's guaranteed copy elision.
 - It gives little on writing your own move constructor and move assignment step by step.
 
-For those gaps, my Lesson 7 covers the moved-from rules and a worked move constructor, and the [reading guide for *C++ Move Semantics: The Complete Guide*](move-semantics-complete-guide-reading-guide.md) points to where that book treats value categories and the moved-from state in full.
+For those gaps, my Lesson 11 covers the moved-from rules and a worked move constructor, and the [reading guide for *C++ Move Semantics: The Complete Guide*](move-semantics-complete-guide-reading-guide.md) points to where that book treats value categories and the moved-from state in full.
 
 **Key ideas to take away**
 - `std::move` is only a cast to an rvalue, and `std::forward` is a cast that preserves the original value category. Neither does anything at run time.

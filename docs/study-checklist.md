@@ -12,9 +12,9 @@ A step-by-step plan through the lessons, in the order they build on each other. 
 
 ---
 
-## Stage 1: Foundations (about 2.5 hours)
+## Stage 1: Core language foundations (about 1.5 hours)
 
-Types, memory, pointers, references, initialization, conversions, and the small types that make interfaces honest.
+Types, memory, pointers, references, initialization and conversions.
 
 **C++ Basics & Pointers:** [01-basics.html](../interactive/01-basics.html), quiz: [01-basics-quiz.html](../interactive/01-basics-quiz.html) (22 questions).
 
@@ -44,21 +44,9 @@ Types, memory, pointers, references, initialization, conversions, and the small 
 - [ ] Cheat sheet (say each answer aloud)
 - [ ] Take the quiz, then retry the missed questions
 
-**Vocabulary Types:** [21-vocabulary-types.html](../interactive/21-vocabulary-types.html), quiz: [21-vocabulary-types-quiz.html](../interactive/21-vocabulary-types-quiz.html) (13 questions).
+## Stage 2: Classes and object-oriented design (about 1.5 hours)
 
-- [ ] Why vocabulary types
-- [ ] `pair`, `tuple` and structured bindings
-- [ ] `optional`: a value or nothing
-- [ ] `variant` and `std::visit`
-- [ ] `expected`: a value or an error
-- [ ] `span` and `string_view`: non-owning views
-- [ ] Which one when
-- [ ] Cheat sheet (say each answer aloud)
-- [ ] Take the quiz, then retry the missed questions
-
-## Stage 2: Objects (about 1.5 hours)
-
-Classes, inheritance, virtual functions, and how objects are laid out in memory.
+Classes, copy control, inheritance, virtual functions, and how objects are laid out in memory.
 
 **Object-Oriented Programming:** [02-oop.html](../interactive/02-oop.html), quiz: [02-oop-quiz.html](../interactive/02-oop-quiz.html) (26 questions).
 
@@ -84,53 +72,9 @@ Classes, inheritance, virtual functions, and how objects are laid out in memory.
 - [ ] Cheat sheet (say each answer aloud)
 - [ ] Take the quiz, then retry the missed questions
 
-## Stage 3: Ownership and modern C++ (about 2.5 hours)
+## Stage 3: The library and generic programming (about 3.5 hours)
 
-RAII, exceptions, moving instead of copying, who owns an object, and callables.
-
-**Core Language: RAII & Exceptions:** [03-core-language.html](../interactive/03-core-language.html), quiz: [03-core-language-quiz.html](../interactive/03-core-language-quiz.html) (17 questions).
-
-- [ ] RAII: the central idea
-- [ ] Exceptions and stack unwinding
-- [ ] RAII everywhere: guards and standard wrappers
-- [ ] Exception-safety guarantees and noexcept
-- [ ] Exceptions, error codes and optional
-- [ ] Cheat sheet (say each answer aloud)
-- [ ] Take the quiz, then retry the missed questions
-
-**Move Semantics:** [13-move-semantics.html](../interactive/13-move-semantics.html), quiz: [13-move-semantics-quiz.html](../interactive/13-move-semantics-quiz.html) (15 questions).
-
-- [ ] Lvalues, rvalues and value categories
-- [ ] Copy versus move (step through it; what `std::move` really does)
-- [ ] Writing move operations
-- [ ] Returning objects: elision and `std::move`
-- [ ] Sink parameters and move traps (the `const` trap)
-- [ ] Cheat sheet (say each answer aloud)
-- [ ] Take the quiz, then retry the missed questions
-
-**Smart Pointers & Ownership:** [14-smart-pointers.html](../interactive/14-smart-pointers.html), quiz: [14-smart-pointers-quiz.html](../interactive/14-smart-pointers-quiz.html) (12 questions).
-
-- [ ] Who owns it? The three smart pointers
-- [ ] `unique_ptr` in detail (deleters, arrays, zero overhead)
-- [ ] `shared_ptr` and the control block (step through the count)
-- [ ] Reference cycles and `weak_ptr` (step through the leak)
-- [ ] Pitfalls and `enable_shared_from_this`
-- [ ] Cheat sheet (say each answer aloud)
-- [ ] Take the quiz, then retry the missed questions
-
-**Lambdas & Callables:** [15-lambdas.html](../interactive/15-lambdas.html), quiz: [15-lambdas-quiz.html](../interactive/15-lambdas-quiz.html) (15 questions).
-
-- [ ] Before lambdas: function pointers and functors
-- [ ] What a lambda is
-- [ ] Captures: by value and by reference (step through; dangling captures)
-- [ ] `mutable`, init-capture, generic and recursive lambdas
-- [ ] Function pointer, functor, lambda, `std::function`
-- [ ] Cheat sheet (say each answer aloud)
-- [ ] Take the quiz, then retry the missed questions
-
-## Stage 4: The library and generic code (about 3.5 hours)
-
-Strings, containers, iterators, algorithms, templates, type traits and concepts, and compile-time computation.
+Strings, containers, iterators, algorithms, lambdas and templates.
 
 **Strings, Regex & Time:** [08-strings-regex-time.html](../interactive/08-strings-regex-time.html), quiz: [08-strings-regex-time-quiz.html](../interactive/08-strings-regex-time-quiz.html) (23 questions).
 
@@ -160,6 +104,16 @@ Strings, containers, iterators, algorithms, templates, type traits and concepts,
 - [ ] Cheat sheet (say each answer aloud)
 - [ ] Take the quiz, then retry the missed questions
 
+**Lambdas & Callables:** [15-lambdas.html](../interactive/15-lambdas.html), quiz: [15-lambdas-quiz.html](../interactive/15-lambdas-quiz.html) (15 questions).
+
+- [ ] Before lambdas: function pointers and functors
+- [ ] What a lambda is
+- [ ] Captures: by value and by reference (step through; dangling captures)
+- [ ] `mutable`, init-capture, generic and recursive lambdas
+- [ ] Function pointer, functor, lambda, `std::function`
+- [ ] Cheat sheet (say each answer aloud)
+- [ ] Take the quiz, then retry the missed questions
+
 **Templates:** [05-templates.html](../interactive/05-templates.html), quiz: [05-templates-quiz.html](../interactive/05-templates-quiz.html) (28 questions).
 
 - [ ] Why templates, and function templates
@@ -174,6 +128,56 @@ Strings, containers, iterators, algorithms, templates, type traits and concepts,
 - [ ] Cheat sheet (say each answer aloud)
 - [ ] Take the quiz, then retry the missed questions
 
+## Stage 4: RAII and exceptions (about 0.5 hours)
+
+Tying resources to objects, exceptions, and the exception-safety guarantees.
+
+**Core Language: RAII & Exceptions:** [03-core-language.html](../interactive/03-core-language.html), quiz: [03-core-language-quiz.html](../interactive/03-core-language-quiz.html) (17 questions).
+
+- [ ] RAII: the central idea
+- [ ] Exceptions and stack unwinding
+- [ ] RAII everywhere: guards and standard wrappers
+- [ ] Exception-safety guarantees and noexcept
+- [ ] Exceptions, error codes and optional
+- [ ] Cheat sheet (say each answer aloud)
+- [ ] Take the quiz, then retry the missed questions
+
+## Stage 5: Modern C++ (about 3 hours)
+
+Vocabulary types, moving instead of copying, who owns an object, and compile-time programming.
+
+**Vocabulary Types:** [21-vocabulary-types.html](../interactive/21-vocabulary-types.html), quiz: [21-vocabulary-types-quiz.html](../interactive/21-vocabulary-types-quiz.html) (13 questions).
+
+- [ ] Why vocabulary types
+- [ ] `pair`, `tuple` and structured bindings
+- [ ] `optional`: a value or nothing
+- [ ] `variant` and `std::visit`
+- [ ] `expected`: a value or an error
+- [ ] `span` and `string_view`: non-owning views
+- [ ] Which one when
+- [ ] Cheat sheet (say each answer aloud)
+- [ ] Take the quiz, then retry the missed questions
+
+**Move Semantics:** [13-move-semantics.html](../interactive/13-move-semantics.html), quiz: [13-move-semantics-quiz.html](../interactive/13-move-semantics-quiz.html) (15 questions).
+
+- [ ] Lvalues, rvalues and value categories
+- [ ] Copy versus move (step through it; what `std::move` really does)
+- [ ] Writing move operations
+- [ ] Returning objects: elision and `std::move`
+- [ ] Sink parameters and move traps (the `const` trap)
+- [ ] Cheat sheet (say each answer aloud)
+- [ ] Take the quiz, then retry the missed questions
+
+**Smart Pointers & Ownership:** [14-smart-pointers.html](../interactive/14-smart-pointers.html), quiz: [14-smart-pointers-quiz.html](../interactive/14-smart-pointers-quiz.html) (12 questions).
+
+- [ ] Who owns it? The three smart pointers
+- [ ] `unique_ptr` in detail (deleters, arrays, zero overhead)
+- [ ] `shared_ptr` and the control block (step through the count)
+- [ ] Reference cycles and `weak_ptr` (step through the leak)
+- [ ] Pitfalls and `enable_shared_from_this`
+- [ ] Cheat sheet (say each answer aloud)
+- [ ] Take the quiz, then retry the missed questions
+
 **Type Traits & Compile-time C++:** [09-compile-time.html](../interactive/09-compile-time.html), quiz: [09-compile-time-quiz.html](../interactive/09-compile-time-quiz.html) (18 questions).
 
 - [ ] Type traits
@@ -184,7 +188,7 @@ Strings, containers, iterators, algorithms, templates, type traits and concepts,
 - [ ] Cheat sheet (say each answer aloud)
 - [ ] Take the quiz, then retry the missed questions
 
-## Stage 5: Design (about 1.5 hours)
+## Stage 6: Design patterns (about 1.5 hours)
 
 Common patterns in modern C++, with real code.
 
@@ -212,7 +216,7 @@ Common patterns in modern C++, with real code.
 - [ ] Cheat sheet (say each answer aloud)
 - [ ] Take the quiz, then retry the missed questions
 
-## Stage 6: Concurrency (about 2.5 hours)
+## Stage 7: Concurrency (about 2.5 hours)
 
 Threads, locks, futures, atomics and the memory model.
 
@@ -250,7 +254,7 @@ Threads, locks, futures, atomics and the memory model.
 - [ ] Cheat sheet (say each answer aloud)
 - [ ] Take the quiz, then retry the missed questions
 
-## Stage 7: Performance (about 2 hours)
+## Stage 8: Performance (about 2 hours)
 
 Binary formats and parsing, and predictable, fast code.
 
@@ -311,10 +315,11 @@ Not needed for a first pass. When you want to master move semantics, follow the 
 
 ---
 
-## Books: only to fill gaps
+## Books: going deeper
 
-Do not read any of these books front to back. Use the reading guides to find the few sections you need:
+For a full read, follow the [C++ roadmap](reading/roadmap/README.md): eight phases that match lessons 1 to 20 in order, each with the book chapters to read. For a single book, use its reading guide (which sections matter) or reading plan (an ordered path):
 
+- Core language and library: [cpp-primer-reading-guide.md](reading/cpp-primer-reading-guide.md) (`books/Cpp-Primer-5th-Edition-Lippman.pdf`)
 - Threading: [concurrency-in-action-reading-guide.md](reading/concurrency-in-action-reading-guide.md) (`books/Cpp-Concurrency-in-Action-2nd-Edition-Williams.pdf`; Tier 1 is about 47 pages)
 - Foundations (pointers, OOP, templates, STL): [programming-principles-and-practice-reading-guide.md](reading/programming-principles-and-practice-reading-guide.md) (`books/Programming-Principles-and-Practice-Using-Cpp-3rd-Edition-Stroustrup.pdf`)
 - Modern C++ items: [effective-modern-cpp-reading-guide.md](reading/effective-modern-cpp-reading-guide.md) (`books/Effective-Modern-Cpp-Meyers.pdf`; Tier 1 is about 85 pages)

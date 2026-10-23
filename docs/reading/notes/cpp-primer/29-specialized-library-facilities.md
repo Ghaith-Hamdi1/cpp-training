@@ -64,4 +64,4 @@ What I got wrong when I compared it with the book:
 
 ## After this session
 
-Lesson 3, section 2; lesson 10, section 6; lesson 11, section 11; practice 15 (`parse-value`)
+Lesson 10, section 2; lesson 5, section 6; lesson 6, section 11; practice 15 (`parse-value`)

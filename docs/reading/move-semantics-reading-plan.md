@@ -2,7 +2,7 @@
 
 An ordered plan for reading the book in seven sessions. It is a whole book on one topic, so the plan reads the parts that explain how moving works and leaves the library reference chapters for when you need them. The reasons behind each pick are in the [reading guide](move-semantics-complete-guide-reading-guide.md).
 
-The book is `books/Cpp-Move-Semantics-The-Complete-Guide-Josuttis.pdf` (first edition, C++11 to C++20). **All page numbers are PDF viewer pages.** Do the Move Semantics lesson (Lesson 7) and its quiz first.
+The book is `books/Cpp-Move-Semantics-The-Complete-Guide-Josuttis.pdf` (first edition, C++11 to C++20). **All page numbers are PDF viewer pages.** Do the Move Semantics lesson (Lesson 11) and its quiz first.
 
 ## The plan at a glance
 
@@ -35,7 +35,7 @@ Read 1.2 to 1.4 Implementing move semantics, copying as a fallback and `const` o
 2. What does `std::move` do at run time?
 3. What may you do with a moved-from object?
 
-After: Lesson 7, "Lvalues, rvalues and value categories" and "Copy versus move".
+After: Lesson 11, "Lvalues, rvalues and value categories" and "Copy versus move".
 
 ## Session 2: special member functions
 
@@ -45,7 +45,7 @@ Read 3.1 Move semantics in ordinary classes (53 to 58) and 3.3 to 3.4 The rules 
 2. Why must you never `= delete` a move operation?
 3. What does the Rule of Zero say?
 
-After: Lesson 4, "Copying and the Rule of 3, 5 and 0"; practice exercise 10 (`MyString`).
+After: Lesson 3, "Copying and the Rule of 3, 5 and 0"; practice exercise 10 (`MyString`).
 
 ## Session 3: passing and initializing
 
@@ -54,7 +54,7 @@ Read 4.1 to 4.2 Avoid objects with names and avoid unnecessary `std::move` (77 t
 1. When is "take by value, then `std::move` into the member" the right constructor, and when is it not?
 2. Why is `return std::move(local)` a mistake?
 
-After: Lesson 7, "Returning objects" and "Sink parameters and move traps".
+After: Lesson 11, "Returning objects" and "Sink parameters and move traps".
 
 ## Session 4: moved-from states and `noexcept`
 
@@ -64,7 +64,7 @@ Read 6.1 to 6.2 Moved-from states (107 to 115), 7.1 Move constructors with and w
 2. Why does `std::vector` copy instead of move when the move constructor can throw?
 3. Which functions should you always declare `noexcept`?
 
-After: Lesson 6 (Core, `noexcept`) and Lesson 7.
+After: Lesson 9 (Core, `noexcept`) and Lesson 11.
 
 ## Session 5: value categories
 
@@ -74,7 +74,7 @@ Read 8.1.2 to 8.1.3 Value categories since C++11 and C++17 (145 to 148) and 8.4 
 2. Why is a named rvalue reference parameter an lvalue inside the function?
 3. What changed for temporaries in C++17?
 
-After: Lesson 7, "Lvalues, rvalues and value categories".
+After: Lesson 11, "Lvalues, rvalues and value categories".
 
 ## Session 6: perfect forwarding
 
@@ -83,7 +83,7 @@ Read 9.1 to 9.3 Perfect forwarding and universal versus rvalue references (159 t
 1. Why does a wrapper need `std::forward`?
 2. When is `T&&` an rvalue reference and when a universal reference?
 
-After: Lesson 12 (Templates), "Forwarding references and perfect forwarding".
+After: Lesson 8 (Templates), "Forwarding references and perfect forwarding".
 
 ## Session 7: move-only types, algorithms and the library
 
@@ -93,7 +93,7 @@ Read chapter 13 Move-only types (213 to 218), chapter 14 Moving algorithms and i
 2. Why does `std::remove` leave moved-from elements at the end?
 3. Is a moved-from `std::string` guaranteed to be empty?
 
-After: Lesson 8 (Smart pointers), Lesson 11 (STL algorithms) and Lesson 17 (futures and threads are move-only).
+After: Lesson 12 (Smart pointers), Lesson 6 (STL algorithms) and Lesson 17 (futures and threads are move-only).
 
 ## Optional additions
 

@@ -1,4 +1,4 @@
-// Lesson 4: shallow vs deep copy, Rule of Five, and how declaring a destructor silently turns moves into copies.
+// Lesson 3: shallow vs deep copy, Rule of Five, and how declaring a destructor silently turns moves into copies.
 #include <iostream>
 #include <utility>
 

@@ -66,4 +66,4 @@ What I got wrong when I compared it with the book:
 
 ## After this session
 
-Lesson 12 (Templates), sections 1 and 3; practice 12 (`Stack<T>`)
+Lesson 8 (Templates), sections 1 and 3; practice 12 (`Stack<T>`)

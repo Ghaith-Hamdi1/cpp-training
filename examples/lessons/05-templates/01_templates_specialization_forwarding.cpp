@@ -1,4 +1,4 @@
-// Lesson 12: function/class templates, specialization, forwarding references and perfect forwarding, variadics, fold expressions.
+// Lesson 8: function/class templates, specialization, forwarding references and perfect forwarding, variadics, fold expressions.
 #include <iostream>
 #include <memory>
 #include <string>

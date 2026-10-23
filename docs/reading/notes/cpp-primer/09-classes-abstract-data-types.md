@@ -68,4 +68,4 @@ What I got wrong when I compared it with the book:
 
 ## After this session
 
-Lesson 4 (OOP), sections 1 and 2; practice 10 up to its constructor
+Lesson 3 (OOP), sections 1 and 2; practice 10 up to its constructor

@@ -1,4 +1,4 @@
-// Lessons 12 and 13: type traits, if constexpr, SFINAE/enable_if, concepts, constexpr / consteval, template metaprogramming.
+// Lessons 8 and 13: type traits, if constexpr, SFINAE/enable_if, concepts, constexpr / consteval, template metaprogramming.
 #include <array>
 #include <concepts>
 #include <iostream>

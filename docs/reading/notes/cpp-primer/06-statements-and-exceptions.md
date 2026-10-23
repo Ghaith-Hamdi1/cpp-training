@@ -67,4 +67,4 @@ What I got wrong when I compared it with the book:
 
 ## After this session
 
-Lesson 6 (Core Language: RAII and Exceptions), sections 1 and 2
+Lesson 9 (Core Language: RAII and Exceptions), sections 1 and 2

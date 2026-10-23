@@ -1,6 +1,6 @@
-# Phase 7: Performance, memory layout and binary data
+# Phase 8: Performance, memory layout and binary data
 
-[Roadmap](README.md) | Previous: [Phase 6: Concurrency and the memory model](phase-6-concurrency-and-the-memory-model.md)
+[Roadmap](README.md) | Previous: [Phase 7: Concurrency and the memory model](phase-7-concurrency-and-the-memory-model.md)
 
 *Cache, allocation, struct layout, endianness, parsing, queues.*
 
@@ -26,7 +26,7 @@
 
 | Book | Chapters and sections | PDF pages | Pages | What it gives you |
 |---|---|---|---|---|
-| Concurrency in Action | 8.2 Factors affecting the performance of concurrent code (also in phase 6) | 283 to 289 | 7 | Cache ping-pong and false sharing |
+| Concurrency in Action | 8.2 Factors affecting the performance of concurrent code (also in phase 7) | 283 to 289 | 7 | Cache ping-pong and false sharing |
 
 ## Lessons and exercises
 
@@ -43,4 +43,4 @@ Exercises: 17 (`BucketTable`).
 
 ---
 
-[Roadmap](README.md) | Previous: [Phase 6: Concurrency and the memory model](phase-6-concurrency-and-the-memory-model.md)
+[Roadmap](README.md) | Previous: [Phase 7: Concurrency and the memory model](phase-7-concurrency-and-the-memory-model.md)

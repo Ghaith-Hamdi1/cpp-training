@@ -69,4 +69,4 @@ What I got wrong when I compared it with the book:
 
 ## After this session
 
-Lesson 11 (The STL), section 2 (vector); practice 06 (`count-words`) and 08 (`trim`)
+Lesson 6 (The STL), section 2 (vector); practice 06 (`count-words`) and 08 (`trim`)

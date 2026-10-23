@@ -63,4 +63,4 @@ What I got wrong when I compared it with the book:
 
 ## After this session
 
-Lesson 4 (OOP), sections 1 to 4; practice exercise 10 up to its constructor (`MyString`)
+Lesson 3 (OOP), sections 1 to 4; practice exercise 10 up to its constructor (`MyString`)

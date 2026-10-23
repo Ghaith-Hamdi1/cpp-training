@@ -67,4 +67,4 @@ What I got wrong when I compared it with the book:
 
 ## After this session
 
-Lesson 9 (Lambdas), sections 2 to 4; lesson 11, section 8 (Algorithms)
+Lesson 7 (Lambdas), sections 2 to 4; lesson 6, section 8 (Algorithms)

@@ -1,4 +1,4 @@
-// Lesson 9: function pointers, functors, lambdas and std::function side by side; captures, init-capture, mutable,
+// Lesson 7: function pointers, functors, lambdas and std::function side by side; captures, init-capture, mutable,
 // generic and recursive lambdas, std::invoke, and when std::function allocates (libstdc++ behaviour; the exact limit is
 // implementation-defined). Compile with -std=c++23.
 #include <array>

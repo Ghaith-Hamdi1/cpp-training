@@ -54,4 +54,4 @@ What surprised me when I ran it:
 
 ## After this session
 
-Lesson 7, "Returning objects" and "Sink parameters and move traps"
+Lesson 11, "Returning objects" and "Sink parameters and move traps"

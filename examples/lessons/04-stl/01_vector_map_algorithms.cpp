@@ -1,4 +1,4 @@
-// Lesson 11: vector growth and invalidation, map::operator[], erase-remove, algorithms, priority_queue.
+// Lesson 6: vector growth and invalidation, map::operator[], erase-remove, algorithms, priority_queue.
 #include <algorithm>
 #include <iostream>
 #include <map>

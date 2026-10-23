@@ -68,4 +68,4 @@ What I got wrong when I compared it with the book:
 
 ## After this session
 
-Lesson 11, sections 5 and 6; practice 06 and 17 (`BucketTable`)
+Lesson 6, sections 5 and 6; practice 06 and 17 (`BucketTable`)

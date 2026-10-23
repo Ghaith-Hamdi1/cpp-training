@@ -67,4 +67,4 @@ What I got wrong when I compared it with the book:
 
 ## After this session
 
-Lesson 4 quiz; lesson 5, section 1
+Lesson 3 quiz; lesson 4, section 1

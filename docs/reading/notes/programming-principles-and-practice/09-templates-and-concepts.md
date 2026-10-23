@@ -57,4 +57,4 @@ What I got wrong when I compared it with the book:
 
 ## After this session
 
-Lesson 12 (Templates), sections 1 to 3 (function templates, deduction, class templates); practice exercise 12 (`Stack<T>`). The book stops at introductory templates; use lessons 12 and 13 for variadics, forwarding references and type traits.
+Lesson 8 (Templates), sections 1 to 3 (function templates, deduction, class templates); practice exercise 12 (`Stack<T>`). The book stops at introductory templates; use lessons 8 and 13 for variadics, forwarding references and type traits.

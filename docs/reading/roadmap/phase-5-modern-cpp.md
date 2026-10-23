@@ -1,10 +1,10 @@
 # Phase 5: Modern C++ (C++11 to C++20)
 
-[Roadmap](README.md) | Previous: [Phase 4: Advanced language tools and design](phase-4-advanced-language-tools-and-design.md) | Next: [Phase 6: Concurrency and the memory model](phase-6-concurrency-and-the-memory-model.md)
+[Roadmap](README.md) | Previous: [Phase 4: RAII, exceptions and advanced language tools](phase-4-raii-exceptions-and-advanced-language-tools.md) | Next: [Phase 6: Design patterns and SOLID](phase-6-design-patterns-and-solid.md)
 
-*Move semantics, smart pointers, lambdas, forwarding, `constexpr`, vocabulary types, concepts.*
+*Move semantics, smart pointers, forwarding, `constexpr`, vocabulary types, concepts.*
 
-**Time:** about **27.1 hours** (22.9 h reading, 3.3 h lessons and quizzes, 0.8 h exercises), plus 11.8 h if you also read the deepen list.
+**Time:** about **24.3 hours** (20.7 h reading, 2.8 h lessons and quizzes, 0.8 h exercises), plus 11.8 h if you also read the deepen list.
 
 ## Big topics
 
@@ -12,26 +12,24 @@
 |---|---|
 | **Move semantics** | Value categories, rvalue references, what `std::move` does, writing move operations, copy elision, the move traps, `noexcept` moves. |
 | **Smart pointers and ownership** | `unique_ptr`, `shared_ptr`, `weak_ptr`, control blocks, cycles, custom deleters, passing ownership. |
-| **Lambdas and callables** | Captures and their lifetime traps, `mutable`, init-capture, generic lambdas, `std::function` versus templates. |
 | **Type deduction and `auto`** | Template deduction rules, `auto` and `decltype`, structured bindings. |
 | **Forwarding and variadic templates** | Forwarding references, reference collapsing, `std::forward`, parameter packs, fold expressions. |
 | **Compile-time programming** | `constexpr`, `consteval`, type traits, `if constexpr`, SFINAE, concepts and `requires`. |
 | **Vocabulary types** | `optional`, `variant` and `visit`, `expected`, `span`, `string_view`, `tuple`. |
-| **Ranges and C++20** | Views and pipelines, `std::format`, `<=>`, `jthread` (see phase 6). |
+| **Ranges and C++20** | Views and pipelines, `std::format`, `<=>`, `jthread` (see phase 7). |
 
-## Core reading (229 pages)
+## Core reading (207 pages)
 
 | Book | Chapters and sections | PDF pages | Pages | What it gives you |
 |---|---|---|---|---|
 | Primer | 12.1 smart pointers (shared_ptr, unique_ptr, weak_ptr) | 479 to 486; 493 to 504 | 20 | The C++11 smart pointers |
-| Primer | 13.6 Moving objects; 14.8 Function-call operator and `function` | 560 to 579; 600 to 607 | 28 | Rvalue references, move constructors; lambdas as function objects |
+| Primer | 13.6 Moving objects | 560 to 579 | 20 | Rvalue references, move constructors, move assignment, `noexcept` |
 | Primer | 16.2.5 to 16.2.7 deduction, `std::move`, forwarding; 16.4 variadic templates | 716 to 722; 728 to 734 | 14 | Reference collapsing, perfect forwarding, parameter packs |
 | EMC | Items 1, 2, 5, 7: deduction, `auto`, `()` versus `{}` | 27 to 41; 55 to 61; 67 to 76 | 32 | The deduction rules everything else uses |
 | EMC | Item 15 `constexpr` | 115 to 121 | 7 | `constexpr` objects and functions |
 | EMC | Items 18 to 22: `unique_ptr`, `shared_ptr`, `weak_ptr`, `make_*`, Pimpl | 136 to 174 | 39 | Smart pointers in depth |
 | EMC | Items 23, 24, 25, 28: `move`, `forward`, universal references, reference collapsing | 176 to 195; 215 to 221 | 27 | The core of move semantics and forwarding |
 | EMC | Items 26 to 27, 29, 41, 42: overloading, cheap moves, pass by value, emplacement | 195 to 215; 221 to 225; 299 to 320 | 48 | Moves in practice |
-| EMC | Items 31, 32: lambdas | 234 to 247 | 14 | Default captures and init-capture |
 
 ## Deepen (optional, 118 pages)
 
@@ -50,18 +48,17 @@
 
 | Lesson | Time |
 |---|---|
-| [3. Vocabulary Types](https://ghaith-hamdi1.github.io/cpp-training/21-vocabulary-types.html) and its [quiz](https://ghaith-hamdi1.github.io/cpp-training/21-vocabulary-types-quiz.html) | 35 min |
-| [7. Move Semantics](https://ghaith-hamdi1.github.io/cpp-training/13-move-semantics.html) and its [quiz](https://ghaith-hamdi1.github.io/cpp-training/13-move-semantics-quiz.html) | 45 min |
-| [8. Smart Pointers and Ownership](https://ghaith-hamdi1.github.io/cpp-training/14-smart-pointers.html) and its [quiz](https://ghaith-hamdi1.github.io/cpp-training/14-smart-pointers-quiz.html) | 40 min |
-| [9. Lambdas and Callables](https://ghaith-hamdi1.github.io/cpp-training/15-lambdas.html) and its [quiz](https://ghaith-hamdi1.github.io/cpp-training/15-lambdas-quiz.html) | 35 min |
+| [10. Vocabulary Types](https://ghaith-hamdi1.github.io/cpp-training/21-vocabulary-types.html) and its [quiz](https://ghaith-hamdi1.github.io/cpp-training/21-vocabulary-types-quiz.html) | 35 min |
+| [11. Move Semantics](https://ghaith-hamdi1.github.io/cpp-training/13-move-semantics.html) and its [quiz](https://ghaith-hamdi1.github.io/cpp-training/13-move-semantics-quiz.html) | 45 min |
+| [12. Smart Pointers and Ownership](https://ghaith-hamdi1.github.io/cpp-training/14-smart-pointers.html) and its [quiz](https://ghaith-hamdi1.github.io/cpp-training/14-smart-pointers-quiz.html) | 40 min |
 | [13. Type Traits and Compile-time C++](https://ghaith-hamdi1.github.io/cpp-training/09-compile-time.html) and its [quiz](https://ghaith-hamdi1.github.io/cpp-training/09-compile-time-quiz.html) | 45 min |
 
 Exercises: 15 (`optional`/`variant`) and 16 (concepts).
 
 > C++ Primer (2013) stops at C++11, so for C++14, C++17 and C++20 features (vocabulary types, `if constexpr`, concepts, ranges, structured bindings) the lessons and Effective Modern C++ are the sources. Josuttis is a deep dive: read it after Effective Modern C++ if move semantics is the part you want to master.
 
-**Recap check.** Explain: what `std::move` does at run time (nothing), why `return std::move(local)` hurts, the three value categories, what a forwarding reference is, why `make_shared` needs one allocation, how a lambda is compiled, and what a concept replaces.
+**Recap check.** Explain: what `std::move` does at run time (nothing), why `return std::move(local)` hurts, the three value categories, what a forwarding reference is, why `make_shared` needs one allocation, and what a concept replaces.
 
 ---
 
-[Roadmap](README.md) | Previous: [Phase 4: Advanced language tools and design](phase-4-advanced-language-tools-and-design.md) | Next: [Phase 6: Concurrency and the memory model](phase-6-concurrency-and-the-memory-model.md)
+[Roadmap](README.md) | Previous: [Phase 4: RAII, exceptions and advanced language tools](phase-4-raii-exceptions-and-advanced-language-tools.md) | Next: [Phase 6: Design patterns and SOLID](phase-6-design-patterns-and-solid.md)

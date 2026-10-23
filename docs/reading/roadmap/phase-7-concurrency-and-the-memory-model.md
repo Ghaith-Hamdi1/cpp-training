@@ -1,6 +1,6 @@
-# Phase 6: Concurrency and the memory model
+# Phase 7: Concurrency and the memory model
 
-[Roadmap](README.md) | Previous: [Phase 5: Modern C++ (C++11 to C++20)](phase-5-modern-cpp.md) | Next: [Phase 7: Performance, memory layout and binary data](phase-7-performance-memory-layout-and-binary-data.md)
+[Roadmap](README.md) | Previous: [Phase 6: Design patterns and SOLID](phase-6-design-patterns-and-solid.md) | Next: [Phase 8: Performance, memory layout and binary data](phase-8-performance-memory-layout-and-binary-data.md)
 
 *Threads, mutexes, condition variables, futures and pools, atomics.*
 
@@ -50,4 +50,4 @@ Exercises: 13 (`SafeCounter`) and 14 (`BoundedQueue<T>`).
 
 ---
 
-[Roadmap](README.md) | Previous: [Phase 5: Modern C++ (C++11 to C++20)](phase-5-modern-cpp.md) | Next: [Phase 7: Performance, memory layout and binary data](phase-7-performance-memory-layout-and-binary-data.md)
+[Roadmap](README.md) | Previous: [Phase 6: Design patterns and SOLID](phase-6-design-patterns-and-solid.md) | Next: [Phase 8: Performance, memory layout and binary data](phase-8-performance-memory-layout-and-binary-data.md)

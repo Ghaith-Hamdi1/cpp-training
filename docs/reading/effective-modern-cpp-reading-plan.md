@@ -40,7 +40,7 @@ About 220 pages and 22 hours, at roughly 10 pages an hour plus the checkpoint wo
 2. How does `auto` differ from template deduction for a braced initializer?
 3. Why can `{}` pick an `initializer_list` constructor you did not expect?
 
-After: Lesson 12 (Templates, argument deduction), Lesson 2 (Types, `auto` and braces) and their quizzes.
+After: Lesson 8 (Templates, argument deduction), Lesson 2 (Types, `auto` and braces) and their quizzes.
 
 ## Session 2: interfaces that say what they mean
 
@@ -55,7 +55,7 @@ After: Lesson 12 (Templates, argument deduction), Lesson 2 (Types, `auto` and br
 2. Why does `std::vector` move its elements on growth only if the move is `noexcept`?
 3. When is a `const` member function a data race, and what does `mutable` have to do with it?
 
-After: Lesson 4 (OOP, polymorphism), Lesson 6 (Core, `noexcept`), Lesson 13 (`constexpr`) and Lesson 16 (Multithreading, mutexes).
+After: Lesson 3 (OOP, polymorphism), Lesson 9 (Core, `noexcept`), Lesson 13 (`constexpr`) and Lesson 16 (Multithreading, mutexes).
 
 ## Session 3: special members and smart pointers
 
@@ -70,7 +70,7 @@ After: Lesson 4 (OOP, polymorphism), Lesson 6 (Core, `noexcept`), Lesson 13 (`co
 2. What is in a `shared_ptr`'s control block, and why is a custom deleter not part of its type?
 3. When should you not use `make_shared`?
 
-After: Lesson 4 (Rule of 3, 5, 0), Lesson 8 (Smart pointers) and Lesson 14 (Pimpl under other patterns).
+After: Lesson 3 (Rule of 3, 5, 0), Lesson 12 (Smart pointers) and Lesson 14 (Pimpl under other patterns).
 
 ## Session 4: `std::move`, `std::forward` and universal references
 
@@ -85,7 +85,7 @@ After: Lesson 4 (Rule of 3, 5, 0), Lesson 8 (Smart pointers) and Lesson 14 (Pimp
 2. How do you tell a universal reference from an rvalue reference?
 3. Why does `return std::move(local)` hurt?
 
-After: Lesson 7 (Move semantics) and Lesson 12 (forwarding references).
+After: Lesson 11 (Move semantics) and Lesson 8 (forwarding references).
 
 ## Session 5: overloading and moves in practice
 
@@ -100,7 +100,7 @@ After: Lesson 7 (Move semantics) and Lesson 12 (forwarding references).
 2. Name two ways to avoid overloading on universal references.
 3. When is `emplace_back` really faster than `push_back`?
 
-After: Lesson 7, Lesson 13 (tag dispatch, `enable_if`, concepts) and Lesson 11 (vector).
+After: Lesson 11, Lesson 13 (tag dispatch, `enable_if`, concepts) and Lesson 6 (vector).
 
 ## Session 6: lambdas
 
@@ -112,7 +112,7 @@ After: Lesson 7, Lesson 13 (tag dispatch, `enable_if`, concepts) and Lesson 11 (
 1. Why is `[=]` inside a member function not self-contained?
 2. How do you move a `unique_ptr` into a lambda?
 
-After: Lesson 9 (Lambdas) and its quiz.
+After: Lesson 7 (Lambdas) and its quiz.
 
 ## Session 7: concurrency
 

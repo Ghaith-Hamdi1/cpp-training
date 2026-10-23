@@ -14,25 +14,29 @@ The folder names follow the lesson file names (`13-move-semantics` holds the les
 |---|---|---|
 | 1 Basics | `01_init_and_traps.cpp` | initialization forms, the signed/unsigned trap, prefix vs postfix, by value vs by reference |
 |  | `02_pointers_references_const.cpp` | pointers, array decay, reference re-binding, `const` placement, `new`/`delete` |
-| 4 OOP | `01_ctor_order_encapsulation.cpp` | invariant protected by `private`, construction and destruction order |
+| 2 Types | `01_init_and_conversions.cpp` | initialization forms and brace traps, `auto` and `decltype`, conversions and promotions, casts, `enum class`, `constexpr` |
+| 2 Types | `16-types-and-casts/02_small_items.cpp` | `std::bind`, user-defined literals, `<random>`, `extern "C"` and placement new |
+| 3 OOP | `01_ctor_order_encapsulation.cpp` | invariant protected by `private`, construction and destruction order |
 |  | `02_rule_of_five.cpp` | deep copy, move, and a destructor that silently turns a move into a copy |
 |  | `03_virtual_slicing_interfaces.cpp` | virtual vs non-virtual, slicing, abstract interface, virtual call in a constructor |
-| 6 Core language | `01_raii_move_smart_pointers.cpp` | RAII and stack unwinding, `std::move` on a const, `unique_ptr`, `shared_ptr`, `weak_ptr` and cycles |
-|  | `02_lambdas_exceptions_casts.cpp` | capture by value vs reference, exception handler order, casts, `constexpr`, `optional`, `variant` |
-|  | `03_raii_guards_exception_safety.cpp` | a scope guard with commit and rollback, the strong guarantee by copy and swap, `noexcept` moves in `vector` growth, `optional` instead of exceptions |
-| 7 Move semantics | `01_value_categories_moves.cpp` | value categories checked with `decltype`, copy and move counts, elision and `return std::move`, sink parameters, `std::exchange`, copy-and-swap |
-| 8 Smart pointers | `01_ownership_deleters.cpp` | `unique_ptr` ownership and custom deleters, `shared_ptr` counts, a cycle that leaks and the `weak_ptr` fix, `enable_shared_from_this` |
-| 9 Lambdas | `01_callables.cpp` | function pointer, functor, lambda and `std::function`, captures, `mutable`, init-capture, generic and recursive lambdas, `std::function` allocation |
-| 2 Types | `01_init_and_conversions.cpp` | initialization forms and brace traps, `auto` and `decltype`, conversions and promotions, casts, `enum class`, `constexpr` |
-| 11 STL | `01_vector_map_algorithms.cpp` | vector growth, `map::operator[]` inserting, erase-remove, algorithms, heaps |
+| 4 Object model | `01_multiple_inheritance_rtti_conversions.cpp` | two interfaces and pointer adjustment, the plain and virtual diamond, RTTI and cross-casts, private inheritance, `explicit`, copy-and-swap |
+| 5 Strings | `01_sso_numbers_format_streams.cpp` | small string optimisation and capacity, `from_chars`, `to_chars`, `stoi`, `std::format`, string and file streams |
+| 6 STL | `01_vector_map_algorithms.cpp` | vector growth, `map::operator[]` inserting, erase-remove, algorithms, heaps |
 |  | `02_strings_regex_chrono.cpp` | `string_view`, `regex_match` vs `regex_search`, captures, `chrono` |
 |  | `03_keys_adaptors_ranges.cpp` | a case-insensitive comparator, a custom hash, transparent lookup, `try_emplace`, `multimap`, inserters, `erase_if`, ranges and views |
-| 12 Templates | `01_templates_specialization_forwarding.cpp` | templates, specialization, perfect forwarding, variadics, fold expressions |
+| 7 Lambdas | `01_callables.cpp` | function pointer, functor, lambda and `std::function`, captures, `mutable`, init-capture, generic and recursive lambdas, `std::function` allocation |
+| 8 Templates | `01_templates_specialization_forwarding.cpp` | templates, specialization, perfect forwarding, variadics, fold expressions |
 |  | `03_deduction_and_tools.cpp` | deduction by value, by reference and forwarding reference, class template argument deduction, alias and variable templates, template template parameters, `index_sequence` |
-| 10 Strings | `01_sso_numbers_format_streams.cpp` | small string optimisation and capacity, `from_chars`, `to_chars`, `stoi`, `std::format`, string and file streams |
-| 12 Templates | `02_traits_constexpr_concepts.cpp` | type traits, `if constexpr`, `enable_if`, concepts, `constexpr`, `consteval`, TMP |
+| 8 Templates | `02_traits_constexpr_concepts.cpp` | type traits, `if constexpr`, `enable_if`, concepts, `constexpr`, `consteval`, TMP |
+| 9 Core language | `01_raii_move_smart_pointers.cpp` | RAII and stack unwinding, `std::move` on a const, `unique_ptr`, `shared_ptr`, `weak_ptr` and cycles |
+|  | `02_lambdas_exceptions_casts.cpp` | capture by value vs reference, exception handler order, casts, `constexpr`, `optional`, `variant` |
+|  | `03_raii_guards_exception_safety.cpp` | a scope guard with commit and rollback, the strong guarantee by copy and swap, `noexcept` moves in `vector` growth, `optional` instead of exceptions |
+| 10 Vocabulary types | `01_optional_variant_expected_span.cpp` | `pair`/`tuple`, `optional`, `variant` with `visit`, `expected` (C++23), `span` |
+| 11 Move semantics | `01_value_categories_moves.cpp` | value categories checked with `decltype`, copy and move counts, elision and `return std::move`, sink parameters, `std::exchange`, copy-and-swap |
+| 12 Smart pointers | `01_ownership_deleters.cpp` | `unique_ptr` ownership and custom deleters, `shared_ptr` counts, a cycle that leaks and the `weak_ptr` fix, `enable_shared_from_this` |
 | 14 Patterns | `01_singleton_factory_strategy.cpp` | Meyers Singleton, factory and registry, three kinds of Strategy |
 |  | `02_observer_state_crtp.cpp` | Observer that survives detaching, State with `variant`, CRTP |
+| 15 More patterns | `01_command_decorator_adapter_builder_visitor.cpp` | Command with undo, Decorator, Adapter, Builder, Visitor with `variant`, a session state machine |
 | 16 Multithreading | `01_threads_basics_and_guard.cpp` | `std::thread`, `std::ref`, join guard, `jthread` |
 |  | `02_race_mutex_atomic.cpp` | a real lost-update race, fixed with a mutex and with an atomic |
 |  | `03_interface_race_and_deadlock.cpp` | `try_pop`, `scoped_lock` with opposite orders |
@@ -49,9 +53,5 @@ The folder names follow the lesson file names (`13-move-semantics` holds the les
 |  | `03_dense_keys_array.cpp` | counts in an array indexed by key, checked against `std::map` |
 |  | `04_aos_vs_soa.cpp` | array of structs versus struct of arrays, and cache-line padding |
 |  | `05_spsc_ring_padded.cpp` | an SPSC ring with a power-of-two mask, padded indices and a drop-newest policy |
-| 5 Object model | `01_multiple_inheritance_rtti_conversions.cpp` | two interfaces and pointer adjustment, the plain and virtual diamond, RTTI and cross-casts, private inheritance, `explicit`, copy-and-swap |
-| 15 More patterns | `01_command_decorator_adapter_builder_visitor.cpp` | Command with undo, Decorator, Adapter, Builder, Visitor with `variant`, a session state machine |
-| 2 Types | `16-types-and-casts/02_small_items.cpp` | `std::bind`, user-defined literals, `<random>`, `extern "C"` and placement new |
-| 3 Vocabulary types | `01_optional_variant_expected_span.cpp` | `pair`/`tuple`, `optional`, `variant` with `visit`, `expected` (C++23), `span` |
 
 Some outputs vary between runs on purpose: the unsafe counter in `02_race_mutex_atomic.cpp` is a data race (undefined behavior) kept only to show lost updates.

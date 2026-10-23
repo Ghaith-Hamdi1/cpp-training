@@ -60,4 +60,4 @@ What surprised me when I ran it:
 
 ## After this session
 
-Lesson 4 (Rule of 3, 5, 0), Lesson 8 (Smart pointers) and Lesson 14 (Pimpl under other patterns)
+Lesson 3 (Rule of 3, 5, 0), Lesson 12 (Smart pointers) and Lesson 14 (Pimpl under other patterns)

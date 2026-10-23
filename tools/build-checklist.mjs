@@ -17,13 +17,14 @@ const hints = JSON.parse(rd('tools/checklist-hints.json'));
 const esc = (s) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 const mdText = (s) => s.replace(/<code>([^<]*)<\/code>/g, '`$1`').replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>');
 
-// the same stages as the "Suggested order" table on the home page
+// the same eight phases as docs/reading/roadmap, so lessons 1 to 20 read top to bottom
 const STAGES = [
-  ['Foundations', ['basics', 'types', 'vocab'], 'Types, memory, pointers, references, initialization, conversions, and the small types that make interfaces honest.'],
-  ['Objects', ['oop', 'objmodel'], 'Classes, inheritance, virtual functions, and how objects are laid out in memory.'],
-  ['Ownership and modern C++', ['core', 'moves', 'smartptr', 'lambdas'], 'RAII, exceptions, moving instead of copying, who owns an object, and callables.'],
-  ['The library and generic code', ['strings', 'stl', 'templates', 'compiletime'], 'Strings, containers, iterators, algorithms, templates, type traits and concepts, and compile-time computation.'],
-  ['Design', ['patterns', 'patterns2'], 'Common patterns in modern C++, with real code.'],
+  ['Core language foundations', ['basics', 'types'], 'Types, memory, pointers, references, initialization and conversions.'],
+  ['Classes and object-oriented design', ['oop', 'objmodel'], 'Classes, copy control, inheritance, virtual functions, and how objects are laid out in memory.'],
+  ['The library and generic programming', ['strings', 'stl', 'lambdas', 'templates'], 'Strings, containers, iterators, algorithms, lambdas and templates.'],
+  ['RAII and exceptions', ['core'], 'Tying resources to objects, exceptions, and the exception-safety guarantees.'],
+  ['Modern C++', ['vocab', 'moves', 'smartptr', 'compiletime'], 'Vocabulary types, moving instead of copying, who owns an object, and compile-time programming.'],
+  ['Design patterns', ['patterns', 'patterns2'], 'Common patterns in modern C++, with real code.'],
   ['Concurrency', ['threads', 'tasks', 'atomics'], 'Threads, locks, futures, atomics and the memory model.'],
   ['Performance', ['wire', 'latency'], 'Binary formats and parsing, and predictable, fast code.']
 ];

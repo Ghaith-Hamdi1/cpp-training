@@ -66,4 +66,4 @@ What I got wrong when I compared it with the book:
 
 ## After this session
 
-Lesson 7 (Move Semantics) and its quiz; read Effective Modern C++ items 23 to 25 next
+Lesson 11 (Move Semantics) and its quiz; read Effective Modern C++ items 23 to 25 next

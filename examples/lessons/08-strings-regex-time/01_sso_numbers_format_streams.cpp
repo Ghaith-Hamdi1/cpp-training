@@ -1,4 +1,4 @@
-// Lesson 10: small string optimisation and capacity growth, converting numbers with from_chars/to_chars/stoi,
+// Lesson 5: small string optimisation and capacity growth, converting numbers with from_chars/to_chars/stoi,
 // std::format, string streams and file streams. Compile with -std=c++23.
 #include <charconv>
 #include <cstdio>

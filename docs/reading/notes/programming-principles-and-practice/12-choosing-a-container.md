@@ -59,4 +59,4 @@ What I got wrong when I compared it with the book:
 
 ## After this session
 
-Lesson 11, "Which container should I use?"; time `find` in a `vector` against a `map` with `<chrono>`
+Lesson 6, "Which container should I use?"; time `find` in a `vector` against a `map` with `<chrono>`

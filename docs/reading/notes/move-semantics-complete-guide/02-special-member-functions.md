@@ -58,4 +58,4 @@ What surprised me when I ran it:
 
 ## After this session
 
-Lesson 4, "Copying and the Rule of 3, 5 and 0"; practice exercise 10 (`MyString`)
+Lesson 3, "Copying and the Rule of 3, 5 and 0"; practice exercise 10 (`MyString`)

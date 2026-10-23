@@ -67,4 +67,4 @@ What I got wrong when I compared it with the book:
 
 ## After this session
 
-Lesson 4, section 6 (Operator overloading); lesson 9, section 5
+Lesson 3, section 6 (Operator overloading); lesson 7, section 5

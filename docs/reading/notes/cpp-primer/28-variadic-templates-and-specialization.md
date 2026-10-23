@@ -67,4 +67,4 @@ What I got wrong when I compared it with the book:
 
 ## After this session
 
-Lesson 12, sections 4 and 5; lesson 13 (compile-time C++)
+Lesson 8, sections 4 and 5; lesson 13 (compile-time C++)

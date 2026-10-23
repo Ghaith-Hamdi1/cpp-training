@@ -67,4 +67,4 @@ What I got wrong when I compared it with the book:
 
 ## After this session
 
-Lesson 12, sections 2 and 6; read Effective Modern C++ item 1 and 28 next
+Lesson 8, sections 2 and 6; read Effective Modern C++ item 1 and 28 next

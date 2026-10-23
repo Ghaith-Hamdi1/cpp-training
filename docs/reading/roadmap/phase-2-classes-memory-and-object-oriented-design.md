@@ -42,8 +42,8 @@
 
 | Lesson | Time |
 |---|---|
-| [4. Object-Oriented Programming](https://ghaith-hamdi1.github.io/cpp-training/02-oop.html) and its [quiz](https://ghaith-hamdi1.github.io/cpp-training/02-oop-quiz.html) | 60 min |
-| [5. The Object Model in Depth](https://ghaith-hamdi1.github.io/cpp-training/19-object-model.html) and its [quiz](https://ghaith-hamdi1.github.io/cpp-training/19-object-model-quiz.html) | 40 min |
+| [3. Object-Oriented Programming](https://ghaith-hamdi1.github.io/cpp-training/02-oop.html) and its [quiz](https://ghaith-hamdi1.github.io/cpp-training/02-oop-quiz.html) | 60 min |
+| [4. The Object Model in Depth](https://ghaith-hamdi1.github.io/cpp-training/19-object-model.html) and its [quiz](https://ghaith-hamdi1.github.io/cpp-training/19-object-model-quiz.html) | 40 min |
 
 Exercises: 10 (`MyString`) and 11 (Shapes).
 

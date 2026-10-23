@@ -69,4 +69,4 @@ What I got wrong when I compared it with the book:
 
 ## After this session
 
-Lesson 4, sections 7 to 9; practice 11 (polymorphism)
+Lesson 3, sections 7 to 9; practice 11 (polymorphism)

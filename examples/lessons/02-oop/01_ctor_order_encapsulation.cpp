@@ -1,4 +1,4 @@
-// Lesson 4: encapsulation with an invariant, member initializer list, construction/destruction order.
+// Lesson 3: encapsulation with an invariant, member initializer list, construction/destruction order.
 #include <iostream>
 #include <string>
 

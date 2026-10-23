@@ -54,4 +54,4 @@ What surprised me when I ran it:
 
 ## After this session
 
-Lesson 9 (Lambdas) and its quiz
+Lesson 7 (Lambdas) and its quiz

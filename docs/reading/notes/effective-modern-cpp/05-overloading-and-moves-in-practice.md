@@ -60,4 +60,4 @@ What surprised me when I ran it:
 
 ## After this session
 
-Lesson 7, Lesson 13 (tag dispatch, `enable_if`, concepts) and Lesson 11 (vector)
+Lesson 11, Lesson 13 (tag dispatch, `enable_if`, concepts) and Lesson 6 (vector)

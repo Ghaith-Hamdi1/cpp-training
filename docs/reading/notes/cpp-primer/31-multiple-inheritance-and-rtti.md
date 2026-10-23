@@ -63,4 +63,4 @@ What I got wrong when I compared it with the book:
 
 ## After this session
 
-Lesson 5 (The Object Model in Depth) and its quiz
+Lesson 4 (The Object Model in Depth) and its quiz

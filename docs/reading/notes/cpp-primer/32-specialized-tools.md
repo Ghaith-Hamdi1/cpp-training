@@ -65,4 +65,4 @@ What I got wrong when I compared it with the book:
 
 ## After this session
 
-Lesson 3, section 4; lesson 20, section 3
+Lesson 10, section 4; lesson 20, section 3

@@ -39,7 +39,7 @@ The program prints which checks failed, and `all checks passed` when you are don
 | 12 | `Stack<T>`: a class template | templates, `std::move`, move-only types | medium |
 | 13 | `SafeCounter` | `std::mutex`, `lock_guard`, `mutable` | easy |
 | 14 | `BoundedQueue<T>` | condition variables, predicates, back-pressure | hard |
-| 15 | `parsePort`, `parseValue`, `describe` | `optional`, `variant`, `std::visit`, `from_chars` (lesson 3, Vocabulary Types) | medium |
+| 15 | `parsePort`, `parseValue`, `describe` | `optional`, `variant`, `std::visit`, `from_chars` (lesson 10, Vocabulary Types) | medium |
 | 16 | `Summable` concept, `sumAll`, `kind` | `requires`, constrained templates, overloading by concept (lesson 13) | medium |
 | 17 | `BucketTable`: an array indexed by key | O(1) updates, tracking the highest bucket, checking against `std::map` (lesson 20) | medium |
 
