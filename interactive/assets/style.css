@@ -31,6 +31,7 @@
 
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
+    color-scheme: dark;                 /* dark scrollbars and form controls */
     --bg: #14110f;
     --fg: #ece7e1;
     --muted: #a39b93;
@@ -59,6 +60,7 @@
 }
 
 :root[data-theme="dark"] {
+  color-scheme: dark;
   --bg: #14110f;
   --fg: #ece7e1;
   --muted: #a39b93;
@@ -532,3 +534,15 @@ details.aq.dk > summary .mark { color: var(--warn); }
 .puz-ex blockquote { margin: 10px 0; padding: 4px 14px; border-left: 3px solid var(--border); color: var(--muted); }
 .puz-ex blockquote p { margin: 6px 0; }
 .puz-credit { margin-top: 20px; font-size: 0.85rem; color: var(--muted); }
+
+/* text inputs in the widgets: the same soft look as the selects, not a bright white box */
+.pz-form input, .pickrow input[type="text"] {
+  font: inherit;
+  font-size: 0.9rem;
+  padding: 5px 10px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: var(--code-bg);
+  color: var(--fg);
+}
+.pz-form input:focus, .pickrow input[type="text"]:focus { outline: 2px solid var(--accent); outline-offset: 1px; border-color: transparent; }
