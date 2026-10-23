@@ -53,6 +53,8 @@ Exercises: 12 (`Stack<T>`).
 
 **Recap check.** Explain: how a lambda is compiled (a closure class with `operator()`), when `vector` invalidates iterators, why `map::operator[]` can insert, what a strict weak ordering is, how a template is instantiated, and why `std::sort` does not work on `std::list`.
 
+**Notes templates.** [Reading notes for phase 3](../notes/phase-3-the-standard-library-and-generic-programming/README.md).
+
 ---
 
 [Roadmap](README.md) | Previous: [Phase 2: Classes, memory and object-oriented design](phase-2-classes-memory-and-object-oriented-design.md) | Next: [Phase 4: RAII, exceptions and advanced language tools](phase-4-raii-exceptions-and-advanced-language-tools.md)

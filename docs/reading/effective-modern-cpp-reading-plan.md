@@ -135,4 +135,4 @@ After: Lessons 16 to 18 (Multithreading, Tasks, Atomics) and their quizzes.
 
 Skip Items 3, 4, 6, 13, 30, 33 and 34, and the index. The book covers C++11 and C++14: C++17 guarantees copy elision for temporaries, C++20 concepts replace the `enable_if` tricks in Items 26 and 27, and `std::jthread` removes most of the problem in Item 37.
 
-Notes templates, one file per session: [docs/reading/notes/effective-modern-cpp](notes/effective-modern-cpp/README.md).
+Notes templates, one file per session: [notes templates for this book, sorted by phase](notes/README.md#effective-modern-c).

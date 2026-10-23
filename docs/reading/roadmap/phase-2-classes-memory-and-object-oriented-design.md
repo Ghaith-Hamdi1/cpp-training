@@ -49,6 +49,8 @@ Exercises: 10 (`MyString`) and 11 (Shapes).
 
 **Recap check.** Explain aloud how `virtual` works in memory (vptr, vtable, slot), why a base destructor must be virtual, what the Rule of Zero says, and why `Animal a = dog;` slices.
 
+**Notes templates.** [Reading notes for phase 2](../notes/phase-2-classes-memory-and-object-oriented-design/README.md).
+
 ---
 
 [Roadmap](README.md) | Previous: [Phase 1: Core language foundations](phase-1-core-language-foundations.md) | Next: [Phase 3: The standard library and generic programming](phase-3-the-standard-library-and-generic-programming.md)

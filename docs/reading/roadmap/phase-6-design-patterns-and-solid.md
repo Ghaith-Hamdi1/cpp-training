@@ -39,6 +39,8 @@ Exercises: none (use the lessons' step-throughs and quizzes).
 
 **Recap check.** Explain: when Strategy is just a lambda, why Singleton is a global with a nicer name, how Observer avoids dangling subscribers, and how `variant` plus `visit` replaces a Visitor class hierarchy.
 
+**Notes templates.** [Reading notes for phase 6](../notes/phase-6-design-patterns-and-solid/README.md).
+
 ---
 
 [Roadmap](README.md) | Previous: [Phase 5: Modern C++ (C++11 to C++20)](phase-5-modern-cpp.md) | Next: [Phase 7: Concurrency and the memory model](phase-7-concurrency-and-the-memory-model.md)

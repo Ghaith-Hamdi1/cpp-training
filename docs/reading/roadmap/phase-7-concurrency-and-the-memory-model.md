@@ -48,6 +48,8 @@ Exercises: 13 (`SafeCounter`) and 14 (`BoundedQueue<T>`).
 
 **Recap check.** Explain: what a data race is and why it is undefined behavior, why a mutex per method is not enough, the four conditions for deadlock, why `wait` needs a predicate, what release and acquire guarantee, and what the ABA problem is.
 
+**Notes templates.** [Reading notes for phase 7](../notes/phase-7-concurrency-and-the-memory-model/README.md).
+
 ---
 
 [Roadmap](README.md) | Previous: [Phase 6: Design patterns and SOLID](phase-6-design-patterns-and-solid.md) | Next: [Phase 8: Performance, memory layout and binary data](phase-8-performance-memory-layout-and-binary-data.md)

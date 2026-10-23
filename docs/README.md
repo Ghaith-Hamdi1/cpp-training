@@ -15,10 +15,10 @@ Everything that supports the interactive lessons, grouped by what it is for.
 
 | Book | Reading guide | Reading plan | Notes templates |
 |---|---|---|---|
-| *C++ Primer* | [guide](reading/cpp-primer-reading-guide.md) | [plan](reading/cpp-primer-reading-plan.md) | [notes](reading/notes/cpp-primer/README.md) |
-| *Programming: Principles and Practice Using C++* | [guide](reading/programming-principles-and-practice-reading-guide.md) | [plan](reading/programming-principles-and-practice-reading-plan.md) | [notes](reading/notes/programming-principles-and-practice/README.md) |
-| *Effective Modern C++* | [guide](reading/effective-modern-cpp-reading-guide.md) | [plan](reading/effective-modern-cpp-reading-plan.md) | [notes](reading/notes/effective-modern-cpp/README.md) |
-| *C++ Concurrency in Action* | [guide](reading/concurrency-in-action-reading-guide.md) | [plan](reading/concurrency-in-action-reading-plan.md) | [notes](reading/notes/concurrency-in-action/README.md) |
-| *C++ Move Semantics: The Complete Guide* | [guide](reading/move-semantics-complete-guide-reading-guide.md) | [plan](reading/move-semantics-reading-plan.md) | [notes](reading/notes/move-semantics-complete-guide/README.md) |
+| *C++ Primer* | [guide](reading/cpp-primer-reading-guide.md) | [plan](reading/cpp-primer-reading-plan.md) | [notes](reading/notes/README.md#c-primer-5th-ed) |
+| *Programming: Principles and Practice Using C++* | [guide](reading/programming-principles-and-practice-reading-guide.md) | [plan](reading/programming-principles-and-practice-reading-plan.md) | [notes](reading/notes/README.md#programming-principles-and-practice-3rd-ed) |
+| *Effective Modern C++* | [guide](reading/effective-modern-cpp-reading-guide.md) | [plan](reading/effective-modern-cpp-reading-plan.md) | [notes](reading/notes/README.md#effective-modern-c) |
+| *C++ Concurrency in Action* | [guide](reading/concurrency-in-action-reading-guide.md) | [plan](reading/concurrency-in-action-reading-plan.md) | [notes](reading/notes/README.md#c-concurrency-in-action-2nd-ed) |
+| *C++ Move Semantics: The Complete Guide* | [guide](reading/move-semantics-complete-guide-reading-guide.md) | [plan](reading/move-semantics-reading-plan.md) | [notes](reading/notes/README.md#c-move-semantics-the-complete-guide) |
 
 The guides are checked against the lessons by `node tools/check-guides.mjs`, and the "Read more" notes in the lessons are generated from them by `node tools/build-read-more.mjs`.

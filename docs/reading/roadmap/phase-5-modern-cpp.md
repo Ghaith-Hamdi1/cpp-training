@@ -59,6 +59,8 @@ Exercises: 15 (`optional`/`variant`) and 16 (concepts).
 
 **Recap check.** Explain: what `std::move` does at run time (nothing), why `return std::move(local)` hurts, the three value categories, what a forwarding reference is, why `make_shared` needs one allocation, and what a concept replaces.
 
+**Notes templates.** [Reading notes for phase 5](../notes/phase-5-modern-cpp/README.md).
+
 ---
 
 [Roadmap](README.md) | Previous: [Phase 4: RAII, exceptions and advanced language tools](phase-4-raii-exceptions-and-advanced-language-tools.md) | Next: [Phase 6: Design patterns and SOLID](phase-6-design-patterns-and-solid.md)

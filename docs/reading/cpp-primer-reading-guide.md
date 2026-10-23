@@ -127,7 +127,7 @@ The sections that teach what the lessons rely on: types and `const`, strings and
 1. Do the lesson and quiz for a topic first (for example, lesson 1 for pointers).
 2. If a quiz question surprises you, read the matching Tier 1 section here for the longer explanation.
 3. Do the exercises at the end of each section you read: the book has hundreds, so pick two or three per section.
-4. For an ordered path through the whole book, session by session, follow the [reading plan](cpp-primer-reading-plan.md); to keep your own notes, copy the [session templates](notes/cpp-primer/README.md).
+4. For an ordered path through the whole book, session by session, follow the [reading plan](cpp-primer-reading-plan.md); to keep your own notes, copy the [session templates](notes/README.md#c-primer-5th-ed).
 
 ## Notes on the edition
 

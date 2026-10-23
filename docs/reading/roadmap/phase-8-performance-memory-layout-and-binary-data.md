@@ -41,6 +41,8 @@ Exercises: 17 (`BucketTable`).
 
 **Recap check.** Explain: why the average hides the tail, how an object pool works, why a struct is bigger than the sum of its members, what endianness is and the portable way to read a big-endian value, and what false sharing is.
 
+**Notes templates.** [Reading notes for phase 8](../notes/phase-8-performance-memory-layout-and-binary-data/README.md).
+
 ---
 
 [Roadmap](README.md) | Previous: [Phase 7: Concurrency and the memory model](phase-7-concurrency-and-the-memory-model.md)

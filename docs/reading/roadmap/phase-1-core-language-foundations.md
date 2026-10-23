@@ -49,6 +49,8 @@ Exercises: 01 to 09 (C strings, pointers, `trim`, `parseUnsigned`).
 
 **Recap check.** Explain from memory: what `int* const p` means, why `int{3.7}` is an error, what `v[i]` does that `v.at(i)` does not, why an array parameter is really a pointer, and what the linker error "undefined reference" means.
 
+**Notes templates.** [Reading notes for phase 1](../notes/phase-1-core-language-foundations/README.md).
+
 ---
 
 [Roadmap](README.md) | Next: [Phase 2: Classes, memory and object-oriented design](phase-2-classes-memory-and-object-oriented-design.md)

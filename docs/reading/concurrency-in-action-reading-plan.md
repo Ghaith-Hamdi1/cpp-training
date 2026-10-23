@@ -99,4 +99,4 @@ After: Lesson 20 (Performance and Memory), "Threads, cores and busy-polling"; Le
 
 Chapter 7 (lock-free data structures), the rest of chapter 5 (fences, release sequences), reader-writer locks in 3.3.2 to 3.3.3 (the lesson covers `shared_mutex`), 4.2.5 and 4.3 to 4.4, 6.3, most of chapters 8 to 10, and the appendices. This is the 2nd edition (2019): interruptible threads, latches and barriers are now standard C++20 as `std::jthread` with `std::stop_token`, `std::latch` and `std::barrier`.
 
-Notes templates, one file per session: [docs/reading/notes/concurrency-in-action](notes/concurrency-in-action/README.md).
+Notes templates, one file per session: [notes templates for this book, sorted by phase](notes/README.md#c-concurrency-in-action-2nd-ed).

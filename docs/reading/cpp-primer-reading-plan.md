@@ -144,4 +144,4 @@ Optional.
 
 The code is C++11. Where the book writes `for (auto it = v.begin(); ...)` or a `bind` call, the lessons use range-for and lambdas; both are valid, and you should be able to read each. To compile the examples, use `g++ -std=c++20 -Wall -Wextra`.
 
-For the notes on each session, see the [notes templates](notes/cpp-primer/README.md).
+For the notes on each session, see the [notes templates](notes/README.md#c-primer-5th-ed).

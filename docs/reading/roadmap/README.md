@@ -85,4 +85,4 @@ A one-page reminder: every big topic, the lesson that teaches it and the book ch
 - **Programming: Principles and Practice** teaches C++20 style from the start (it uses `span`, concepts and `std::format`), but stays introductory on templates and has no threading chapter.
 - **Skip on a first pass:** Primer chapters 1, 4 (except 4.8 and 4.11), 5 and the Text-Query case studies in 12.3, 15.9 and 15.8; the Primer appendix; PPP chapters on graphics and the calculator (10 to 14, 6 to 7); Concurrency in Action chapter 7 (lock-free data structures) until phase 6 is solid.
 - Each phase's book sections come from the reading guides and plans next to this file, which were checked against the PDFs. The C++ Primer sections use printed page numbers shifted by 29 to PDF pages, checked at chapter openings.
-- **Notes templates** for the Primer-style sessions live in [`notes/`](../notes/).
+- **Notes templates** live in [`notes/`](../notes/README.md), sorted by phase and then by book.

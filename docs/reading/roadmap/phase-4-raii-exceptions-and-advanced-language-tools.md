@@ -41,6 +41,8 @@ Exercises: none (use the lesson's step-throughs and quiz).
 
 **Recap check.** Explain: what stack unwinding does, why a destructor must not throw, the difference between basic and strong guarantee and how copy-and-swap gives the strong one.
 
+**Notes templates.** [Reading notes for phase 4](../notes/phase-4-raii-exceptions-and-advanced-language-tools/README.md).
+
 ---
 
 [Roadmap](README.md) | Previous: [Phase 3: The standard library and generic programming](phase-3-the-standard-library-and-generic-programming.md) | Next: [Phase 5: Modern C++ (C++11 to C++20)](phase-5-modern-cpp.md)
