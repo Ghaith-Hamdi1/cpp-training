@@ -119,7 +119,7 @@ md += '<!-- generated:end (tools/build-checklist.mjs writes everything above; th
 const ROADMAP_URL = 'https://github.com/Ghaith-Hamdi1/cpp-training/blob/main/docs/reading/roadmap/';
 let hh = '<div class="ck-tabs" role="tablist" aria-label="Phases">\n' +
   PHASES.map((p) => `<button type="button" role="tab" class="ck-tab" data-tab="phase-${p.n}" title="${esc(p.name)}">Phase ${p.n} <span class="ck-tab-count"></span></button>`).join('\n') +
-  '\n<button type="button" role="tab" class="ck-tab" data-tab="final">Final <span class="ck-tab-count"></span></button>\n<button type="button" role="tab" class="ck-tab" data-tab="moves-deep" title="Move semantics deep dive (optional)">Move deep dive <span class="ck-tab-count"></span></button>\n</div>\n\n';
+  '\n<button type="button" role="tab" class="ck-tab" data-tab="final">Final <span class="ck-tab-count"></span></button>\n<button type="button" role="tab" class="ck-tab" data-tab="moves-deep" title="Move semantics deep dive (optional)">Deep dive <span class="ck-tab-count"></span></button>\n</div>\n\n';
 PHASES.forEach((p) => {
   const x = extraItems(p);
   const list = (items) => '<ul class="ck-list">\n' + items.map((it) => `<li><label><input type="checkbox" data-ck="${it.key}"><span class="t">${it.html}</span></label></li>`).join('\n') + '\n</ul>\n';
