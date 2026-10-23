@@ -20,6 +20,8 @@
     get(k, d) { try { const v = localStorage.getItem('cpptrain:' + k); return v == null ? d : JSON.parse(v); } catch (e) { return d; } },
     set(k, v) { try { localStorage.setItem('cpptrain:' + k, JSON.stringify(v)); } catch (e) { /* storage unavailable */ } }
   };
+  /* the study checklist remembers boxes the user unticked on purpose; finishing the lesson section or the quiz again overrides that */
+  const unoff = (k) => { const o = store.get('checklist-off', []); const i = o.indexOf(k); if (i >= 0) { o.splice(i, 1); store.set('checklist-off', o); } };
 
   function dedent(t) {
     const ls = t.split('\n');
@@ -281,6 +283,7 @@
         if (e.target.checked) done.add(s.id); else done.delete(s.id);
         lab.classList.toggle('on', e.target.checked);
         store.set('done:' + id, Array.from(done));
+        if (e.target.checked) unoff(id + '-' + s.id);
         paint();
       });
       s.appendChild(lab);
@@ -995,6 +998,7 @@
       const pct = Math.round((right / order.length) * 100);
       const prev = store.get(key, null);
       const full = order.length === cfg.questions.length;
+      if (!cfg.mixed) unoff(cfg.id + '-quiz');
       if (!cfg.mixed) store.set(key, { best: full ? Math.max(pct, prev ? prev.best : 0) : (prev ? prev.best : 0), last: full ? pct : (prev ? prev.last : pct), total: cfg.questions.length });
       const verdict = pct >= 90 ? 'Excellent. You know this topic well.' : pct >= 70 ? 'Solid. Review the explanations below and retry the ones you missed.' :
         pct >= 50 ? 'Getting there. Re-read the lesson sections for the questions you missed.' : 'Go back through the lesson, then try again. This is a normal first score for new material.';
@@ -1073,7 +1077,7 @@
   /* ---------------- export / import of progress ---------------- */
   /* Progress lives in this browser's localStorage only. The code below turns the ticks and best
      scores into a short text code that can be pasted into another browser or machine. */
-  const PROGRESS_KEY = /^(checklist|mock:missed|(done|total|quiz):[a-z][a-z0-9]*)$/;
+  const PROGRESS_KEY = /^(checklist|checklist-off|mock:missed|(done|total|quiz):[a-z][a-z0-9]*)$/;
   const hash32 = (s) => {
     let h = 0x811c9dc5;
     for (let i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 0x01000193) >>> 0; }
@@ -1109,7 +1113,7 @@
     Object.keys(obj.d).forEach((k) => {
       const v = obj.d[k];
       if (!PROGRESS_KEY.test(k)) return;
-      if (k === 'checklist' || k === 'mock:missed' || k.indexOf('done:') === 0) {
+      if (k === 'checklist' || k === 'checklist-off' || k === 'mock:missed' || k.indexOf('done:') === 0) {
         if (Array.isArray(v) && v.length <= 300 && v.every((x) => typeof x === 'string' && /^[\w-]{1,40}$/.test(x))) { data[k] = v; count += v.length; }
       } else if (k.indexOf('total:') === 0) {
         if (Number.isInteger(v) && v >= 0 && v <= 1000) data[k] = v;
@@ -1182,7 +1186,19 @@
     const KEY = 'checklist';
     const boxes = $$('input[type="checkbox"][data-ck]', main);
     const done = new Set(store.get(KEY, []));
+    const off = new Set(store.get('checklist-off', []));       // lesson or quiz boxes the user unticked on purpose
     const sections = $$('section[data-ck-section]', main);
+    /* A section or quiz box of a lesson follows the lesson itself: a section ticked "I understand this" in the lesson, or a quiz
+       that has been taken, shows ticked here, and ticking or unticking a section box here updates the lesson. */
+    const lessonKey = (b) => {
+      const m = /^([a-z0-9]+)-(.+)$/.exec(b.dataset.ck);
+      return m && CT.lessons.some((l) => l.id === m[1]) ? { id: m[1], sec: m[2] } : null;
+    };
+    const derived = (b) => {
+      const lk = lessonKey(b);
+      if (!lk) return false;
+      return lk.sec === 'quiz' ? !!store.get('quiz:' + lk.id, null) : store.get('done:' + lk.id, []).indexOf(lk.sec) >= 0;
+    };
     const sum = $('#ck-summary', main);
 
     const tabs = $$('.ck-tab', main);
@@ -1228,10 +1244,18 @@
     }
 
     boxes.forEach((b) => {
-      b.checked = done.has(b.dataset.ck);
+      const k = b.dataset.ck;
+      b.checked = done.has(k) || (derived(b) && !off.has(k));
       b.addEventListener('change', () => {
-        if (b.checked) done.add(b.dataset.ck); else done.delete(b.dataset.ck);
+        const lk = lessonKey(b);
+        if (b.checked) { done.add(k); off.delete(k); } else { done.delete(k); if (derived(b)) off.add(k); }
+        if (lk && lk.sec !== 'quiz') {                                    // keep the lesson's own "I understand" ticks in step
+          const d = store.get('done:' + lk.id, []).filter((x) => x !== lk.sec);
+          if (b.checked) d.push(lk.sec);
+          store.set('done:' + lk.id, d);
+        }
         store.set(KEY, Array.from(done));
+        store.set('checklist-off', Array.from(off));
         paint();
       });
     });
@@ -1253,7 +1277,8 @@
         if (!confirm('Untick every item on this checklist? Lesson progress and quiz scores are not affected.')) return;
         done.clear();
         store.set(KEY, []);
-        boxes.forEach((b) => { b.checked = false; });
+        boxes.forEach((b) => { if (derived(b)) off.add(b.dataset.ck); b.checked = false; });
+        store.set('checklist-off', Array.from(off));
         paint();
       });
     }
