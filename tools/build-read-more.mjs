@@ -11,10 +11,11 @@ import { loadRegistry, root as interactive } from './lib/registry.mjs';
 
 const repo = resolve(fileURLToPath(new URL('..', import.meta.url)));
 const BOOKS = {
-  ppp: { order: 0, title: 'Programming: Principles and Practice (Stroustrup)', guide: 'programming-principles-and-practice-reading-guide.md' },
-  emc: { order: 1, title: 'Effective Modern C++ (Meyers)', guide: 'effective-modern-cpp-reading-guide.md' },
-  mv: { order: 2, title: 'C++ Move Semantics (Josuttis)', guide: 'move-semantics-complete-guide-reading-guide.md' },
-  cia: { order: 3, title: 'C++ Concurrency in Action (Williams)', guide: 'concurrency-in-action-reading-guide.md' }
+  primer: { order: 0, title: 'C++ Primer (Lippman, Lajoie, Moo)', guide: 'cpp-primer-reading-guide.md' },
+  ppp: { order: 1, title: 'Programming: Principles and Practice (Stroustrup)', guide: 'programming-principles-and-practice-reading-guide.md' },
+  emc: { order: 2, title: 'Effective Modern C++ (Meyers)', guide: 'effective-modern-cpp-reading-guide.md' },
+  mv: { order: 3, title: 'C++ Move Semantics (Josuttis)', guide: 'move-semantics-complete-guide-reading-guide.md' },
+  cia: { order: 4, title: 'C++ Concurrency in Action (Williams)', guide: 'concurrency-in-action-reading-guide.md' }
 };
 const clean = (s) => s.replace(/\*\*/g, '').replace(/`/g, '').trim();
 const esc = (s) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');

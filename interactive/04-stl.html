@@ -68,6 +68,12 @@ std::vector<int> b{3, 7};   // braces: the initializer_list constructor wins  ->
 With braces, a constructor taking <code>std::initializer_list</code> is preferred whenever it can match.</div>
 <!-- read-more:start -->
 <div class="callout tip"><span class="label">Read more</span>
+<p><b>C++ Primer (Lippman, Lajoie, Moo)</b></p>
+<ul>
+<li>3.3 Library vector type (PDF pages 125 to 134)</li>
+<li>9.3 Sequential container operations (PDF pages 370 to 383)</li>
+<li>9.4 How a vector grows (PDF pages 384 to 388)</li>
+</ul>
 <p><b>Programming: Principles and Practice (Stroustrup)</b></p>
 <ul>
 <li>3.5 to 3.6 Functions; vector introduced (PDF pages 81 to 89)</li>
@@ -152,6 +158,12 @@ std::erase_if(v, [](int x) { return x % 2 == 0; });
 <div id="st-erase"></div>
 <!-- read-more:start -->
 <div class="callout tip"><span class="label">Read more</span>
+<p><b>C++ Primer (Lippman, Lajoie, Moo)</b></p>
+<ul>
+<li>3.4 Introducing iterators (PDF pages 135 to 141)</li>
+<li>10.4 Revisiting iterators (PDF pages 430 to 438)</li>
+<li>10.5 Structure of generic algorithms (PDF pages 439 to 443)</li>
+</ul>
 <p><b>Programming: Principles and Practice (Stroustrup)</b></p>
 <ul>
 <li>19.1 to 19.3, 19.6 Containers, sequences and iterators, linked lists, vector/list/string (PDF pages 559 to 572 and 585 to 586)</li>
@@ -181,6 +193,12 @@ std::erase_if(v, [](int x) { return x % 2 == 0; });
 </table>
 <!-- read-more:start -->
 <div class="callout tip"><span class="label">Read more</span>
+<p><b>C++ Primer (Lippman, Lajoie, Moo)</b></p>
+<ul>
+<li>9.1 to 9.2 Overview and the container library (PDF pages 355 to 369)</li>
+<li>9.6 Container adaptors (PDF pages 397 to 402)</li>
+<li>10.6 Container-specific algorithms (PDF pages 444 to 447)</li>
+</ul>
 <p><b>Programming: Principles and Practice (Stroustrup)</b></p>
 <ul>
 <li>20.6 Container overview (PDF pages 604 to 610)</li>
@@ -258,6 +276,11 @@ std::priority_queue<int, std::vector<int>, std::greater<int>> minHeap;   // smal
 <div id="st-map"></div>
 <!-- read-more:start -->
 <div class="callout tip"><span class="label">Read more</span>
+<p><b>C++ Primer (Lippman, Lajoie, Moo)</b></p>
+<ul>
+<li>11.1 to 11.2 Using an associative container, overview (PDF pages 449 to 456)</li>
+<li>11.3 Operations on associative containers (PDF pages 457 to 471)</li>
+</ul>
 <p><b>Programming: Principles and Practice (Stroustrup)</b></p>
 <ul>
 <li>20.1 to 20.6 map, unordered_map, set, container overview (PDF pages 591 to 609)</li>
@@ -303,6 +326,15 @@ price[{"north", 7}] = 101.5;
 <li>Ordered or hashed? Ordered when you need sorted iteration or range queries (<code>lower_bound</code>); hashed for plain lookup. For a few dozen keys a sorted <code>vector</code> and binary search often beats both.</li>
 </ul>
 <div class="callout interview"><span class="label">Key point</span>"How do you use your own type as a key in <code>unordered_map</code>?" Provide <code>operator==</code> and a hash functor (or specialise <code>std::hash</code>), combining all members, and make sure equal objects hash equally.</div>
+<!-- read-more:start -->
+<div class="callout tip"><span class="label">Read more</span>
+<p><b>C++ Primer (Lippman, Lajoie, Moo)</b></p>
+<ul>
+<li>11.3 Operations on associative containers (PDF pages 457 to 471)</li>
+<li>11.4 The unordered containers (PDF pages 472 to 477)</li>
+</ul>
+</div>
+<!-- read-more:end -->
 </section>
 
 <section id="s5" data-title="Which container should I use?">
@@ -353,6 +385,10 @@ std::erase(v, 3);                                       // C++20: one call
 <div class="callout warn"><span class="label">Strict weak ordering</span>Use <code>&lt;</code>, never <code>&lt;=</code>: a comparator true for equal elements can crash <code>sort</code> or corrupt a <code>set</code>. <code>sort</code> is not stable; use <code>stable_sort</code>.</div>
 <!-- read-more:start -->
 <div class="callout tip"><span class="label">Read more</span>
+<p><b>C++ Primer (Lippman, Lajoie, Moo)</b></p>
+<ul>
+<li>10.1 to 10.2 Overview and a first look (PDF pages 405 to 413)</li>
+</ul>
 <p><b>Programming: Principles and Practice (Stroustrup)</b></p>
 <ul>
 <li>21.1 to 21.2, 21.5 Standard algorithms, function objects, sorting and searching (PDF pages 617 to 626 and 633 to 635)</li>
@@ -398,6 +434,14 @@ for (int x : evenSquares) use(x);                             // computed on dem
 <tr><td><code>auto x = v[0]</code> copies the element</td><td><code>const auto&amp; x = v[0]</code></td></tr>
 <tr><td><code>std::find</code> on a <code>map</code> is O(n)</td><td>use the member <code>m.find(key)</code>, O(log n)</td></tr>
 </table>
+<!-- read-more:start -->
+<div class="callout tip"><span class="label">Read more</span>
+<p><b>C++ Primer (Lippman, Lajoie, Moo)</b></p>
+<ul>
+<li>9.3 Sequential container operations (PDF pages 370 to 383)</li>
+</ul>
+</div>
+<!-- read-more:end -->
 </section>
 
 <section id="random" data-title="Random numbers">
@@ -417,6 +461,14 @@ std::normal_distribution<double> noise(0.0, 1.0);
 <li>Keep one engine per thread; engines are not thread-safe.</li>
 </ul>
 <p>Notes: <a href="https://github.com/Ghaith-Hamdi1/cpp-training/blob/main/docs/training-notes/03-cpp-standard-library/README.md">Module 3</a>.</p>
+<!-- read-more:start -->
+<div class="callout tip"><span class="label">Read more</span>
+<p><b>C++ Primer (Lippman, Lajoie, Moo)</b></p>
+<ul>
+<li>17.4 Random numbers (PDF pages 774 to 780)</li>
+</ul>
+</div>
+<!-- read-more:end -->
 </section>
 
 <section id="s10" data-title="Cheat sheet">

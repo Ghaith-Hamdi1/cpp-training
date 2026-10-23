@@ -48,6 +48,14 @@ A view must not outlive its string and is <b>not null-terminated</b>: do not pas
 <li>Building big strings in a loop: <code>append</code> or <code>reserve</code>, not chained <code>+</code> temporaries.</li>
 </ul>
 <div class="callout interview"><span class="label">Key point</span>View when you only read (accepts literals without a temporary); <code>const string&amp;</code> when you need null termination.</div>
+<!-- read-more:start -->
+<div class="callout tip"><span class="label">Read more</span>
+<p><b>C++ Primer (Lippman, Lajoie, Moo)</b></p>
+<ul>
+<li>9.5 Additional string operations (PDF pages 389 to 396)</li>
+</ul>
+</div>
+<!-- read-more:end -->
 </section>
 
 <section id="sso" data-title="Inside std::string: SSO and capacity">
@@ -177,6 +185,10 @@ for (std::string field; std::getline(csv, field, ',');) { /* "apple", "5000.25",
 </ul>
 <!-- read-more:start -->
 <div class="callout tip"><span class="label">Read more</span>
+<p><b>C++ Primer (Lippman, Lajoie, Moo)</b></p>
+<ul>
+<li>8.1 to 8.3 IO classes, file IO and string streams (PDF pages 339 to 353)</li>
+</ul>
 <p><b>Programming: Principles and Practice (Stroustrup)</b></p>
 <ul>
 <li>9.11 String streams (PDF pages 296 to 297)</li>
@@ -242,6 +254,14 @@ std::string swapped = std::regex_replace(line, kv, "$2:$1");   // "21.5:tempC 40
 <li>Invalid pattern: <code>std::regex_error</code>.</li>
 </ul></div>
 <div class="callout interview"><span class="label">Key point</span><code>regex_match("hello world", regex("hello"))</code> is false: it must cover the <b>entire</b> string. <code>regex_search</code> is true.</div>
+<!-- read-more:start -->
+<div class="callout tip"><span class="label">Read more</span>
+<p><b>C++ Primer (Lippman, Lajoie, Moo)</b></p>
+<ul>
+<li>17.3 Regular expressions (PDF pages 757 to 773)</li>
+</ul>
+</div>
+<!-- read-more:end -->
 </section>
 
 <section id="s4" data-title="Time with std::chrono">

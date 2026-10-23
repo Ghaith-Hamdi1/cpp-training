@@ -8,7 +8,7 @@ All page numbers are **PDF viewer pages** (the number your PDF reader shows). Th
 
 | Book | Covers | Best used for |
 |---|---|---|
-| *C++ Primer*, 5th ed. (Lippman, Lajoie, Moo), [PDF](../../books/Cpp-Primer-5th-Edition-Lippman.pdf) | C++11, the whole language and library, 970 pages | The **systematic base**: phases 1 to 4 and the C++11 parts of phase 5. It is a textbook in the order a language should be learned, with exercises |
+| *C++ Primer*, 5th ed. (Lippman, Lajoie, Moo), [PDF](../../books/Cpp-Primer-5th-Edition-Lippman.pdf), [reading guide](cpp-primer-reading-guide.md), [reading plan](cpp-primer-reading-plan.md) | C++11, the whole language and library, 970 pages | The **systematic base**: phases 1 to 4 and the C++11 parts of phase 5. It is a textbook in the order a language should be learned, with exercises |
 | *Programming: Principles and Practice Using C++*, 3rd ed. (Stroustrup), [reading guide](programming-principles-and-practice-reading-guide.md) | C++20 | A **second explanation** from the language's creator, strongest on class design, memory and the STL. [Reading plan](programming-principles-and-practice-reading-plan.md) |
 | *Effective Modern C++* (Meyers), [reading guide](effective-modern-cpp-reading-guide.md) | C++11/14 | **Modern C++** in short, self-contained items: deduction, smart pointers, move and forwarding, lambdas. [Reading plan](effective-modern-cpp-reading-plan.md) |
 | *C++ Move Semantics: The Complete Guide* (Josuttis), [reading guide](move-semantics-complete-guide-reading-guide.md) | C++11 to C++20 | A **deep dive** on one topic: moved-from states, value categories, special member rules. [Reading plan](move-semantics-reading-plan.md) |

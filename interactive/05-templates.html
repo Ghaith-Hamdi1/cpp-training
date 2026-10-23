@@ -32,6 +32,10 @@ maxOf<double>(3, 2.5);// explicit: T = double, the int is converted
 <div class="callout interview"><span class="label">Key point</span>Templates: <b>compile-time</b> (static) polymorphism, fastest, inlinable, more code, types known at compile time. Virtual: <b>runtime</b>, one code path, mixed objects, a vtable indirection.</div>
 <!-- read-more:start -->
 <div class="callout tip"><span class="label">Read more</span>
+<p><b>C++ Primer (Lippman, Lajoie, Moo)</b></p>
+<ul>
+<li>16.1 Defining a template (PDF pages 681 to 706)</li>
+</ul>
 <p><b>Programming: Principles and Practice (Stroustrup)</b></p>
 <ul>
 <li>18.1 to 18.3 Templates, generalizing Vector, range checking and exceptions (PDF pages 527 to 541)</li>
@@ -72,6 +76,11 @@ Box b{std::string("x")};                // Box<std::string>
 <div class="callout tip"><span class="label">When deduction fails</span>The error says "couldn't deduce template parameter". Look for conflicting arguments, a braced list, or a parameter that does not mention <code>T</code> at all (e.g. only the return type does).</div>
 <!-- read-more:start -->
 <div class="callout tip"><span class="label">Read more</span>
+<p><b>C++ Primer (Lippman, Lajoie, Moo)</b></p>
+<ul>
+<li>16.2 Template argument deduction (PDF pages 707 to 722)</li>
+<li>16.3 Overloading and templates (PDF pages 723 to 727)</li>
+</ul>
 <p><b>Effective Modern C++ (Meyers)</b></p>
 <ul>
 <li>Item 1, Understand template type deduction (PDF pages 27 to 36)</li>
@@ -111,6 +120,10 @@ std::vector v{1, 2, 3};     // std::vector<int>
 <div class="callout warn"><span class="label">Why templates live in headers</span>The compiler needs the body at instantiation. In a <code>.cpp</code>, others see only a declaration: linker errors. Use headers, or explicit instantiation (<code>template class Stack&lt;int&gt;;</code>).</div>
 <!-- read-more:start -->
 <div class="callout tip"><span class="label">Read more</span>
+<p><b>C++ Primer (Lippman, Lajoie, Moo)</b></p>
+<ul>
+<li>16.1 Defining a template (PDF pages 681 to 706)</li>
+</ul>
 <p><b>Programming: Principles and Practice (Stroustrup)</b></p>
 <ul>
 <li>18.1 to 18.3 Templates, generalizing Vector, range checking and exceptions (PDF pages 527 to 541)</li>
@@ -144,6 +157,14 @@ struct Printer<T*> {                       // PARTIAL specialization: any pointe
 <tr><td><b>Partial</b> specialization</td><td>a pattern: <code>Printer&lt;T*&gt;</code></td><td><b>class templates only</b></td></tr>
 </table>
 <div class="callout tip"><span class="label">Functions: prefer overloads</span>No partial specialization for function templates. Overload instead; an exact non-template match wins. Function specializations do not take part in overload resolution.</div>
+<!-- read-more:start -->
+<div class="callout tip"><span class="label">Read more</span>
+<p><b>C++ Primer (Lippman, Lajoie, Moo)</b></p>
+<ul>
+<li>16.5 Template specializations (PDF pages 735 to 743)</li>
+</ul>
+</div>
+<!-- read-more:end -->
 </section>
 
 <section id="s5" data-title="Variadic templates and fold expressions">
@@ -171,6 +192,14 @@ void print(Args&&... args) { ((std::cout << args << ' '), ...); }   // comma fol
 sizeof...(Args);                                          // number of elements in the pack
 </script>
 <p>Behind <code>make_unique</code>, <code>make_shared</code>, <code>emplace_back</code>, <code>tuple</code>, <code>thread</code>, <code>function</code>.</p>
+<!-- read-more:start -->
+<div class="callout tip"><span class="label">Read more</span>
+<p><b>C++ Primer (Lippman, Lajoie, Moo)</b></p>
+<ul>
+<li>16.4 Variadic templates (PDF pages 728 to 734)</li>
+</ul>
+</div>
+<!-- read-more:end -->
 </section>
 
 <section id="s4" data-title="Forwarding references and perfect forwarding">
@@ -213,6 +242,10 @@ auto b = makeUnique<Widget>(std::string("x"));// temporary rvalue -> Widget MOVE
 <div id="st-forward"></div>
 <!-- read-more:start -->
 <div class="callout tip"><span class="label">Read more</span>
+<p><b>C++ Primer (Lippman, Lajoie, Moo)</b></p>
+<ul>
+<li>16.2 Template argument deduction (PDF pages 707 to 722)</li>
+</ul>
 <p><b>Effective Modern C++ (Meyers)</b></p>
 <ul>
 <li>Item 23, Understand std::move and std::forward (PDF pages 176 to 182)</li>

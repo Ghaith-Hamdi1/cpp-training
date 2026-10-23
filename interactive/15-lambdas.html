@@ -49,6 +49,10 @@ std::count_if(v.begin(), v.end(), GreaterThan{1});   // 3: how many elements are
 <div class="callout tip"><span class="label">So what is a lambda?</span>A lambda is a functor the compiler writes for you, in place: <code>[limit](int x) { return x &gt; limit; }</code> is the <code>GreaterThan</code> above, with <code>limit</code> as its member. The next sections show how it works and where it goes wrong.</div>
 <!-- read-more:start -->
 <div class="callout tip"><span class="label">Read more</span>
+<p><b>C++ Primer (Lippman, Lajoie, Moo)</b></p>
+<ul>
+<li>6.7 Pointers to functions (PDF pages 276 to 281)</li>
+</ul>
 <p><b>Programming: Principles and Practice (Stroustrup)</b></p>
 <ul>
 <li>21.1 to 21.2, 21.5 Standard algorithms, function objects, sorting and searching (PDF pages 617 to 626 and 633 to 635)</li>
@@ -79,6 +83,14 @@ std::sort(v.begin(), v.end(), [](int a, int b) { return a > b; });   // descendi
 <li>A lambda with <b>no captures</b> converts to a plain function pointer. Compiled: <code>sizeof</code> of such a lambda is 1, of one capturing an <code>int</code> is 4, of a function pointer 8.</li>
 <li><code>operator()</code> is <code>const</code> by default; <code>mutable</code> lifts that (next sections).</li>
 </ul>
+<!-- read-more:start -->
+<div class="callout tip"><span class="label">Read more</span>
+<p><b>C++ Primer (Lippman, Lajoie, Moo)</b></p>
+<ul>
+<li>10.3 Customizing operations (PDF pages 414 to 429)</li>
+</ul>
+</div>
+<!-- read-more:end -->
 </section>
 
 <section id="captures" data-title="Captures: by value and by reference">
@@ -106,6 +118,14 @@ std::cout << byVal() << byRef();
 <div id="st-lambda"></div>
 <div class="callout warn"><span class="label">Dangling captures</span>A lambda that captures a local by reference and then outlives it (returned from the function, or run later on another thread) reads destroyed memory. When a lambda escapes its scope, capture by value.</div>
 <div class="callout warn"><span class="label"><code>[=]</code> and <code>this</code></span>Inside a member function <code>[=]</code> also captures <code>this</code> (the pointer), so the lambda uses the object through that pointer and dangles if the object dies. This implicit capture is deprecated in C++20: write <code>[=, this]</code> to say so, or <code>[*this]</code> to copy the object.</div>
+<!-- read-more:start -->
+<div class="callout tip"><span class="label">Read more</span>
+<p><b>C++ Primer (Lippman, Lajoie, Moo)</b></p>
+<ul>
+<li>10.3 Customizing operations (PDF pages 414 to 429)</li>
+</ul>
+</div>
+<!-- read-more:end -->
 </section>
 
 <section id="advanced" data-title="mutable, init-capture, generic and recursive lambdas">
@@ -167,6 +187,14 @@ auto h = [](int b, int c) { return add3(1, b, c); };   // the same as f, and eas
 </script>
 <p>Compiled: <code>f(2, 3)</code> gave 123, <code>g(4, 5)</code> gave 549 and the lambda gave 123. <code>std::bind</code> predates lambdas (C++11); it copies its arguments, hides overloads and produces unreadable errors. You will see it in older code, so be able to read it; in new code write a lambda, which also inlines better.</p>
 <div class="callout interview"><span class="label">Key point</span>"Lambda vs <code>std::function</code>?" A lambda has its own type and is inlined; <code>std::function</code> erases the type, costs an indirect call and maybe an allocation. Use it only when you must store different callables in one place.</div>
+<!-- read-more:start -->
+<div class="callout tip"><span class="label">Read more</span>
+<p><b>C++ Primer (Lippman, Lajoie, Moo)</b></p>
+<ul>
+<li>14.8 The function-call operator (PDF pages 600 to 607)</li>
+</ul>
+</div>
+<!-- read-more:end -->
 </section>
 
 <section id="cheat" data-title="Cheat sheet">

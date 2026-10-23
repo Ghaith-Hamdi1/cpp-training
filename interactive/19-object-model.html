@@ -41,6 +41,10 @@ struct File : Reader, Writer {                 // implements both interfaces
 </ul>
 <!-- read-more:start -->
 <div class="callout tip"><span class="label">Read more</span>
+<p><b>C++ Primer (Lippman, Lajoie, Moo)</b></p>
+<ul>
+<li>18.3 Multiple and virtual inheritance (PDF pages 831 to 847)</li>
+</ul>
 <p><b>Programming: Principles and Practice (Stroustrup)</b></p>
 <ul>
 <li>12.3 Base and derived classes (object layout, the vptr and vtbl, overriding) (PDF pages 380 to 387)</li>
@@ -87,6 +91,10 @@ struct Diamond : Left, Right {};         // one Base inside; d.id is not ambiguo
 <div class="callout interview"><span class="label">Key point</span>"What is the diamond problem and how do you solve it?" Two paths to one base duplicate its members and make access ambiguous. <code>virtual</code> inheritance shares one copy; the most derived class constructs it first. It costs memory and indirection, so prefer interfaces and composition.</div>
 <!-- read-more:start -->
 <div class="callout tip"><span class="label">Read more</span>
+<p><b>C++ Primer (Lippman, Lajoie, Moo)</b></p>
+<ul>
+<li>18.3 Multiple and virtual inheritance (PDF pages 831 to 847)</li>
+</ul>
 <p><b>Programming: Principles and Practice (Stroustrup)</b></p>
 <ul>
 <li>15.5 Destructors, including 15.5.2 Virtual destructors (PDF pages 460 to 463)</li>
@@ -118,6 +126,14 @@ Writer* w = dynamic_cast<Writer*>(readerPtr);  // a CROSS-cast: sideways between
 <tr><td><code>-fno-rtti</code></td><td>compilers can turn RTTI off to save space; <code>typeid</code> and <code>dynamic_cast</code> then disappear (some embedded and low-latency code does this)</td></tr>
 </table>
 <div class="callout warn"><span class="label">A smell</span>Chains of <code>if (dynamic_cast&lt;A*&gt;...) else if (dynamic_cast&lt;B*&gt;...)</code> usually mean a missing virtual function or a Visitor (<a href="20-more-patterns.html">More Patterns</a>).</div>
+<!-- read-more:start -->
+<div class="callout tip"><span class="label">Read more</span>
+<p><b>C++ Primer (Lippman, Lajoie, Moo)</b></p>
+<ul>
+<li>19.2 Run-time type identification (PDF pages 854 to 860)</li>
+</ul>
+</div>
+<!-- read-more:end -->
 </section>
 
 <section id="private" data-title="Private inheritance versus composition">

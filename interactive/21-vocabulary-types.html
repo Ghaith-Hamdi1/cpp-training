@@ -47,6 +47,14 @@ auto [it, inserted] = m.insert({"a", 2});   // insert returns pair<iterator, boo
 <li><code>std::tie(a, b) = f();</code> assigns into existing variables; <code>std::ignore</code> skips one.</li>
 <li>Structured bindings also unpack plain structs and arrays: <code>auto [x, y] = point;</code>. They are copies unless you write <code>auto&amp;</code> or <code>const auto&amp;</code>.</li>
 </ul>
+<!-- read-more:start -->
+<div class="callout tip"><span class="label">Read more</span>
+<p><b>C++ Primer (Lippman, Lajoie, Moo)</b></p>
+<ul>
+<li>17.1 The tuple type (PDF pages 747 to 751)</li>
+</ul>
+</div>
+<!-- read-more:end -->
 </section>
 
 <section id="optional" data-title="optional: a value or nothing">
@@ -121,6 +129,14 @@ std::vector<Shape> shapes{Circle{2}, Rect{3, 4}};   // a heterogeneous collectio
 <li>A reference alternative is ill-formed (use <code>std::reference_wrapper</code>). The same type twice is legal, but then you can only reach it by index, not by type.</li>
 <li><code>std::monostate</code> is an empty alternative: put it first to make a variant default-constructible when no alternative should be the default.</li>
 </ul>
+<!-- read-more:start -->
+<div class="callout tip"><span class="label">Read more</span>
+<p><b>C++ Primer (Lippman, Lajoie, Moo)</b></p>
+<ul>
+<li>19.5 to 19.6 Nested classes and unions (PDF pages 872 to 880)</li>
+</ul>
+</div>
+<!-- read-more:end -->
 </section>
 
 <section id="expected" data-title="expected: a value or an error">

@@ -46,6 +46,12 @@ acc.withdraw(30);          // fine
 <div class="callout tip"><span class="label">struct vs class</span>Only the default access differs: <code>struct</code> public, <code>class</code> private. Use <code>struct</code> for plain data.</div>
 <!-- read-more:start -->
 <div class="callout tip"><span class="label">Read more</span>
+<p><b>C++ Primer (Lippman, Lajoie, Moo)</b></p>
+<ul>
+<li>7.1 Defining abstract data types (PDF pages 283 to 296)</li>
+<li>7.2 Access control and encapsulation (PDF pages 297 to 299)</li>
+<li>7.4 Class scope (PDF pages 311 to 316)</li>
+</ul>
 <p><b>Programming: Principles and Practice (Stroustrup)</b></p>
 <ul>
 <li>8.1 to 8.3 User-defined types, classes and members, interface and implementation (PDF pages 235 to 237)</li>
@@ -85,6 +91,12 @@ c.add(1).add(2);                           // chaining works because add returns
 </ul>
 <!-- read-more:start -->
 <div class="callout tip"><span class="label">Read more</span>
+<p><b>C++ Primer (Lippman, Lajoie, Moo)</b></p>
+<ul>
+<li>7.1 Defining abstract data types (PDF pages 283 to 296)</li>
+<li>7.3 Additional class features (PDF pages 300 to 310)</li>
+<li>7.6 static class members (PDF pages 329 to 334)</li>
+</ul>
 <p><b>Programming: Principles and Practice (Stroustrup)</b></p>
 <ul>
 <li>8.7 Class interfaces (PDF pages 250 to 258)</li>
@@ -124,6 +136,11 @@ public:
 <div class="callout interview"><span class="label">Key point</span>Construct: base, members, derived body. Destruct: reverse.</div>
 <!-- read-more:start -->
 <div class="callout tip"><span class="label">Read more</span>
+<p><b>C++ Primer (Lippman, Lajoie, Moo)</b></p>
+<ul>
+<li>7.5 Constructors revisited (PDF pages 317 to 328)</li>
+<li>15.7 Constructors and copy control (PDF pages 651 to 658)</li>
+</ul>
 <p><b>Programming: Principles and Practice (Stroustrup)</b></p>
 <ul>
 <li>8.7 Class interfaces (PDF pages 250 to 258)</li>
@@ -179,6 +196,13 @@ public:
 <div class="callout tip"><span class="label">In short</span>"Rule of Zero: <code>vector</code> and smart pointers make the generated members correct. Rule of Five only when wrapping a raw resource."</div>
 <!-- read-more:start -->
 <div class="callout tip"><span class="label">Read more</span>
+<p><b>C++ Primer (Lippman, Lajoie, Moo)</b></p>
+<ul>
+<li>13.1 Copy, assign and destroy (PDF pages 525 to 538)</li>
+<li>13.2 Copy control and resource management (PDF pages 539 to 544)</li>
+<li>13.5 Classes that manage dynamic memory (PDF pages 553 to 559)</li>
+<li>15.7 Constructors and copy control (PDF pages 651 to 658)</li>
+</ul>
 <p><b>Programming: Principles and Practice (Stroustrup)</b></p>
 <ul>
 <li>17.4 to 17.5 Copying and moving; essential operations (PDF pages 501 to 512)</li>
@@ -236,6 +260,16 @@ public:
 <li><b>Self-assignment safe</b> without an <code>if (this != &amp;o)</code> check (compiled: <code>b1 = b1</code> worked).</li>
 <li>One operator serves copy <i>and</i> move assignment (<a href="13-move-semantics.html">Move Semantics</a>). Cost: a move-assignment written by hand can be a little faster.</li>
 </ul>
+<!-- read-more:start -->
+<div class="callout tip"><span class="label">Read more</span>
+<p><b>C++ Primer (Lippman, Lajoie, Moo)</b></p>
+<ul>
+<li>7.5 Constructors revisited (PDF pages 317 to 328)</li>
+<li>13.3 Swap (PDF pages 545 to 547)</li>
+<li>14.9 Overloading, conversions and operators (PDF pages 608 to 619)</li>
+</ul>
+</div>
+<!-- read-more:end -->
 </section>
 
 <section id="s8" data-title="Operator overloading">
@@ -280,6 +314,10 @@ auto name = "abc"s;      // std::string; also 5ms, 2s (chrono) and "view"sv
 <p>A literal suffix is an <b>operator</b> you define: <code>operator""_name</code>. User suffixes must start with an underscore (the others are reserved for the standard library). Use them for units (kilometres, percent, bytes) so the meaning is in the code, not in a comment.</p>
 <!-- read-more:start -->
 <div class="callout tip"><span class="label">Read more</span>
+<p><b>C++ Primer (Lippman, Lajoie, Moo)</b></p>
+<ul>
+<li>14.1 to 14.7 Basic concepts through member access (PDF pages 581 to 599)</li>
+</ul>
 <p><b>Programming: Principles and Practice (Stroustrup)</b></p>
 <ul>
 <li>8.4 to 8.6 Evolving a class (Date), enumerations, operator overloading (PDF pages 238 to 249)</li>
@@ -312,6 +350,11 @@ public:
 <div id="st-slice"></div>
 <!-- read-more:start -->
 <div class="callout tip"><span class="label">Read more</span>
+<p><b>C++ Primer (Lippman, Lajoie, Moo)</b></p>
+<ul>
+<li>15.1 to 15.2 OOP overview, defining base and derived classes (PDF pages 621 to 631)</li>
+<li>15.5 Access control and inheritance (PDF pages 640 to 645)</li>
+</ul>
 <p><b>Programming: Principles and Practice (Stroustrup)</b></p>
 <ul>
 <li>12.3, 12.5 Base and derived classes; benefits of object-oriented programming (PDF pages 380 to 387 and 389 to 390)</li>
@@ -379,6 +422,12 @@ d.B::f(1);    // explicit qualification reaches the hidden one
 <p>Multiple base classes, <code>dynamic_cast</code> and the exact object layout are in <a href="19-object-model.html">The Object Model in Depth</a>.</p>
 <!-- read-more:start -->
 <div class="callout tip"><span class="label">Read more</span>
+<p><b>C++ Primer (Lippman, Lajoie, Moo)</b></p>
+<ul>
+<li>15.3 Virtual functions (PDF pages 632 to 636)</li>
+<li>15.6 Class scope under inheritance (PDF pages 646 to 650)</li>
+<li>15.8 Containers and inheritance (PDF pages 659 to 662)</li>
+</ul>
 <p><b>Programming: Principles and Practice (Stroustrup)</b></p>
 <ul>
 <li>12.3, 12.5 Base and derived classes; benefits of object-oriented programming (PDF pages 380 to 387 and 389 to 390)</li>
@@ -418,6 +467,10 @@ for (const auto& s : shapes) std::cout << s->area() << '\n';
 </script>
 <!-- read-more:start -->
 <div class="callout tip"><span class="label">Read more</span>
+<p><b>C++ Primer (Lippman, Lajoie, Moo)</b></p>
+<ul>
+<li>15.4 Abstract base classes (PDF pages 637 to 639)</li>
+</ul>
 <p><b>Programming: Principles and Practice (Stroustrup)</b></p>
 <ul>
 <li>12.1 to 12.2 Design principles; Shape: an abstract class and access control (PDF pages 369 to 379)</li>

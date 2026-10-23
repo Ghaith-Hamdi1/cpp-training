@@ -40,6 +40,14 @@ If a class has an <code>initializer_list</code> constructor, <code>{...}</code> 
 <li>Braces catch accidental narrowing at compile time: a free safety check.</li>
 <li>A <code>static_cast</code> in braces (<code>int{x}</code>) is a conversion that must not narrow.</li>
 </ul>
+<!-- read-more:start -->
+<div class="callout tip"><span class="label">Read more</span>
+<p><b>C++ Primer (Lippman, Lajoie, Moo)</b></p>
+<ul>
+<li>2.2 Variables (PDF pages 70 to 78)</li>
+</ul>
+</div>
+<!-- read-more:end -->
 </section>
 
 <section id="deduction" data-title="auto, decltype and modern syntax">
@@ -69,6 +77,10 @@ auto t = {1, 2, 3};       // std::initializer_list<int>, NOT a vector
 </table>
 <!-- read-more:start -->
 <div class="callout tip"><span class="label">Read more</span>
+<p><b>C++ Primer (Lippman, Lajoie, Moo)</b></p>
+<ul>
+<li>2.5 Dealing with types (PDF pages 96 to 100)</li>
+</ul>
 <p><b>Programming: Principles and Practice (Stroustrup)</b></p>
 <ul>
 <li>2.8 to 2.10 Type safety, conversions, type deduction with auto (PDF pages 56 to 60)</li>
@@ -109,6 +121,12 @@ int m = static_cast<int>(Level::Error);  // an explicit cast is required (compil
 <p>Prefer <code>enum class</code>, with an explicit underlying type when the size matters: <code>enum class Side : std::uint8_t { Buy, Sell };</code></p>
 <!-- read-more:start -->
 <div class="callout tip"><span class="label">Read more</span>
+<p><b>C++ Primer (Lippman, Lajoie, Moo)</b></p>
+<ul>
+<li>2.1 Primitive built-in types (PDF pages 61 to 69)</li>
+<li>4.11 Type conversions (PDF pages 188 to 194)</li>
+<li>19.3 Enumerations (PDF pages 861 to 863)</li>
+</ul>
 <p><b>Programming: Principles and Practice (Stroustrup)</b></p>
 <ul>
 <li>8.4 to 8.6 Evolving a class (Date), enumerations, operator overloading (PDF pages 238 to 249)</li>
@@ -136,6 +154,14 @@ if (auto* d = dynamic_cast<Dog*>(a)) {                 // safe downcast: null if
 }
 </script>
 <div class="callout tip"><span class="label">Rule</span>Many casts mean a design problem. Prefer virtual functions to <code>dynamic_cast</code> chains; no C casts.</div>
+<!-- read-more:start -->
+<div class="callout tip"><span class="label">Read more</span>
+<p><b>C++ Primer (Lippman, Lajoie, Moo)</b></p>
+<ul>
+<li>4.11 Type conversions (PDF pages 188 to 194)</li>
+</ul>
+</div>
+<!-- read-more:end -->
 </section>
 
 <section id="const" data-title="const, constexpr and static">
@@ -178,6 +204,10 @@ extern "C" {                                                    // a whole heade
 </ul>
 <!-- read-more:start -->
 <div class="callout tip"><span class="label">Read more</span>
+<p><b>C++ Primer (Lippman, Lajoie, Moo)</b></p>
+<ul>
+<li>6.5 Features for specialized uses (PDF pages 265 to 270)</li>
+</ul>
 <p><b>Effective Modern C++ (Meyers)</b></p>
 <ul>
 <li>Item 15, Use constexpr whenever possible (PDF pages 115 to 121)</li>

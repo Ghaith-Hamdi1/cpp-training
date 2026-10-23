@@ -125,6 +125,14 @@ o->~Task();                                           // you must call the destr
 <li>The address of <code>o</code> equals the address of <code>storage</code> (compiled). The memory must be aligned and big enough.</li>
 <li>This is how <code>std::vector</code>, <code>std::optional</code> and every pool build objects in storage they already own. C++20 <code>std::construct_at</code> does the same without the <code>new</code> syntax.</li>
 </ul>
+<!-- read-more:start -->
+<div class="callout tip"><span class="label">Read more</span>
+<p><b>C++ Primer (Lippman, Lajoie, Moo)</b></p>
+<ul>
+<li>19.1 Controlling memory allocation (PDF pages 849 to 853)</li>
+</ul>
+</div>
+<!-- read-more:end -->
 </section>
 
 <section data-title="Cache-friendly data">

@@ -35,6 +35,16 @@ g++ -std=c++17 -Wall -Wextra main.cpp -o main
 </script>
 <div class="callout tip"><span class="label">Habit to build now</span>Always compile with <code>-Wall -Wextra</code>. The compiler warns about many of the bugs this lesson describes (uninitialized variables, unused values, signed/unsigned comparisons).</div>
 <div class="callout interview"><span class="label">Key point</span>"Compile error vs linker error?" A compile error is a syntax or type problem inside one file. A linker error ("undefined reference") means a function was declared and called but never defined anywhere you linked.</div>
+<!-- read-more:start -->
+<div class="callout tip"><span class="label">Read more</span>
+<p><b>C++ Primer (Lippman, Lajoie, Moo)</b></p>
+<ul>
+<li>2.6 Defining our own data structures (PDF pages 101 to 109)</li>
+<li>3.1 Namespace using declarations (PDF pages 111 to 112)</li>
+<li>18.2 Namespaces (PDF pages 814 to 830)</li>
+</ul>
+</div>
+<!-- read-more:end -->
 </section>
 
 <section data-title="Variables and types">
@@ -112,6 +122,15 @@ std::cout << a << ' ' << b << ' ' << x;
 <p><code>x++</code> yields the old value and then increments, so <code>a</code> is 5 and <code>x</code> becomes 6. <code>++x</code> increments first (x becomes 7) and yields the new value, so <code>b</code> is 7.</p>
 </div></details>
 <div class="callout warn"><span class="label">Classic bug</span><code>if (x = 5)</code> <i>assigns</i> 5 to x and is always true. You meant <code>==</code>. The compiler warns with <code>-Wall</code>.</div>
+<!-- read-more:start -->
+<div class="callout tip"><span class="label">Read more</span>
+<p><b>C++ Primer (Lippman, Lajoie, Moo)</b></p>
+<ul>
+<li>4.4 to 4.5 Assignment, increment and decrement (PDF pages 173 to 178)</li>
+<li>5.3 to 5.4 Conditional and iterative statements (PDF pages 203 to 218)</li>
+</ul>
+</div>
+<!-- read-more:end -->
 </section>
 
 <section data-title="Functions and passing arguments">
@@ -151,6 +170,14 @@ std::cout << a;
 <div id="st-pass"></div>
 <!-- read-more:start -->
 <div class="callout tip"><span class="label">Read more</span>
+<p><b>C++ Primer (Lippman, Lajoie, Moo)</b></p>
+<ul>
+<li>6.1 Function basics (PDF pages 231 to 236)</li>
+<li>6.2 Argument passing (PDF pages 237 to 250)</li>
+<li>6.3 Return types and the return statement (PDF pages 251 to 258)</li>
+<li>6.4 Overloaded functions (PDF pages 259 to 264)</li>
+<li>6.6 Function matching (PDF pages 271 to 275)</li>
+</ul>
 <p><b>Programming: Principles and Practice (Stroustrup)</b></p>
 <ul>
 <li>3.5 to 3.6 Functions; vector introduced (PDF pages 81 to 89)</li>
@@ -219,6 +246,10 @@ std::cout << p[2];     // 30   p[i] is exactly *(p + i)
 <div class="callout interview"><span class="label">Key point</span>"What is the difference between <code>NULL</code> and <code>nullptr</code>?" <code>NULL</code> is a macro for a null pointer constant, usually plain <code>0</code> (an integer), so <code>f(NULL)</code> can call <code>f(int)</code> instead of <code>f(char*)</code>. <code>nullptr</code> has its own type and only converts to pointers.</div>
 <!-- read-more:start -->
 <div class="callout tip"><span class="label">Read more</span>
+<p><b>C++ Primer (Lippman, Lajoie, Moo)</b></p>
+<ul>
+<li>2.3 Compound types (PDF pages 79 to 87)</li>
+</ul>
 <p><b>Programming: Principles and Practice (Stroustrup)</b></p>
 <ul>
 <li>15.3 to 15.5 Memory, addresses and pointers; free store; destructors (PDF pages 452 to 463)</li>
@@ -259,6 +290,10 @@ std::cout << a << b;
 <div id="st-ref"></div>
 <!-- read-more:start -->
 <div class="callout tip"><span class="label">Read more</span>
+<p><b>C++ Primer (Lippman, Lajoie, Moo)</b></p>
+<ul>
+<li>2.3 Compound types (PDF pages 79 to 87)</li>
+</ul>
 <p><b>Programming: Principles and Practice (Stroustrup)</b></p>
 <ul>
 <li>16.1 to 16.2 Arrays, pointers and references (PDF pages 477 to 483)</li>
@@ -285,6 +320,14 @@ int* const p2 = &x;         // "p2 is a const pointer to int"
 const int* const p3 = &x;   // neither can change
 </script>
 <p>Make everything <code>const</code> that can be.</p>
+<!-- read-more:start -->
+<div class="callout tip"><span class="label">Read more</span>
+<p><b>C++ Primer (Lippman, Lajoie, Moo)</b></p>
+<ul>
+<li>2.4 const qualifier (PDF pages 88 to 95)</li>
+</ul>
+</div>
+<!-- read-more:end -->
 </section>
 
 <section data-title="Dynamic memory: new and delete">
@@ -306,6 +349,10 @@ int*  arr = new int[100];    delete[] arr;      // array: new[] / delete[]  (mus
 <div class="callout interview"><span class="label">Key point</span>"What does <code>new</code> do beyond <code>malloc</code>?" It calls the constructor, throws <code>std::bad_alloc</code> on failure (instead of returning null), and returns a correctly typed pointer. <code>delete</code> calls the destructor and then frees the memory.</div>
 <!-- read-more:start -->
 <div class="callout tip"><span class="label">Read more</span>
+<p><b>C++ Primer (Lippman, Lajoie, Moo)</b></p>
+<ul>
+<li>12.2 Dynamic arrays (PDF pages 505 to 512)</li>
+</ul>
 <p><b>Programming: Principles and Practice (Stroustrup)</b></p>
 <ul>
 <li>15.3 to 15.5 Memory, addresses and pointers; free store; destructors (PDF pages 452 to 463)</li>
@@ -343,6 +390,12 @@ v.push_back(4);                      // size is now 4
 </script>
 <!-- read-more:start -->
 <div class="callout tip"><span class="label">Read more</span>
+<p><b>C++ Primer (Lippman, Lajoie, Moo)</b></p>
+<ul>
+<li>3.2 Library string type (PDF pages 113 to 124)</li>
+<li>3.5 Arrays (PDF pages 142 to 153)</li>
+<li>3.6 Multidimensional arrays (PDF pages 154 to 161)</li>
+</ul>
 <p><b>Programming: Principles and Practice (Stroustrup)</b></p>
 <ul>
 <li>16.3 to 16.4 C-style strings; alternatives to pointer use (PDF pages 484 to 487)</li>

@@ -41,6 +41,10 @@ take(std::move(w));                                       // w is now null
 </script>
 <!-- read-more:start -->
 <div class="callout tip"><span class="label">Read more</span>
+<p><b>C++ Primer (Lippman, Lajoie, Moo)</b></p>
+<ul>
+<li>12.1 Dynamic memory and smart pointers (PDF pages 479 to 504)</li>
+</ul>
 <p><b>Programming: Principles and Practice (Stroustrup)</b></p>
 <ul>
 <li>18.4 to 18.5 Resources and exceptions; resource-management pointers (RAII, unique_ptr) (PDF pages 542 to 553)</li>
@@ -71,6 +75,10 @@ auto q = std::move(p);                       // OK: ownership moves, p is now nu
 <div class="callout interview"><span class="label">Key point</span>Why <code>make_unique</code>? No naked <code>new</code>, the type is written once, and before C++17 <code>f(unique_ptr&lt;A&gt;(new A), g())</code> could leak when <code>g()</code> threw between the two steps.</div>
 <!-- read-more:start -->
 <div class="callout tip"><span class="label">Read more</span>
+<p><b>C++ Primer (Lippman, Lajoie, Moo)</b></p>
+<ul>
+<li>12.1 Dynamic memory and smart pointers (PDF pages 479 to 504)</li>
+</ul>
 <p><b>Effective Modern C++ (Meyers)</b></p>
 <ul>
 <li>Item 18, Use std::unique_ptr for exclusive-ownership resource management (PDF pages 136 to 143)</li>
@@ -97,6 +105,10 @@ auto s2 = s1;                                // two owners, use_count() == 2
 </ul>
 <!-- read-more:start -->
 <div class="callout tip"><span class="label">Read more</span>
+<p><b>C++ Primer (Lippman, Lajoie, Moo)</b></p>
+<ul>
+<li>12.1 Dynamic memory and smart pointers (PDF pages 479 to 504)</li>
+</ul>
 <p><b>Effective Modern C++ (Meyers)</b></p>
 <ul>
 <li>Item 19, Use std::shared_ptr for shared-ownership resource management (PDF pages 143 to 152)</li>
@@ -124,6 +136,10 @@ w.expired();                                           // true once every owner 
 </ul>
 <!-- read-more:start -->
 <div class="callout tip"><span class="label">Read more</span>
+<p><b>C++ Primer (Lippman, Lajoie, Moo)</b></p>
+<ul>
+<li>12.1 Dynamic memory and smart pointers (PDF pages 479 to 504)</li>
+</ul>
 <p><b>Effective Modern C++ (Meyers)</b></p>
 <ul>
 <li>Item 20, Use std::weak_ptr for shared_ptr-like pointers that can dangle (PDF pages 152 to 157)</li>
