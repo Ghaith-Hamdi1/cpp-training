@@ -161,6 +161,7 @@
   function buildHeader(kind) {
     const cur = document.body.dataset.topic;
     const links = '<a href="study-checklist.html"' + (kind === 'checklist' ? ' class="cur"' : '') + '>Study checklist</a>' +
+      '<a href="review.html"' + (kind === 'review' ? ' class="cur"' : '') + '>Review my mistakes</a>' +
       '<a href="assess.html"' + (kind === 'assess' ? ' class="cur"' : '') + '>Level check</a>' +
       '<a href="mock-interview.html"' + (kind === 'mock' ? ' class="cur"' : '') + '>Mock questions</a>' +
       '<a href="puzzles.html"' + (kind === 'puzzles' ? ' class="cur"' : '') + '>C++ Puzzles</a>' + TOPICS.map((t) =>
@@ -914,20 +915,20 @@
     const root = typeof sel === 'string' ? $(sel) : sel;
     root.classList.add('quiz');
     const key = 'quiz:' + cfg.id;
-    let order, pos, missed, right;
+    let order, pos, missed, right, onKey = null;
     /* Leitner-style weak list: question text -> box (0 = just missed). Answering right twice in later runs clears it. */
-    const wkey = 'weak:' + cfg.id;
-    const weak = () => store.get(wkey, {});
+    const wkey = (q) => 'weak:' + ((q && q.topic) || cfg.id);
+    const weak = () => store.get(wkey(), {});
     const qid = (q) => q.q + (q.code ? '\n' + q.code.trim() : '');
     const weakList = () => { const w = weak(); return cfg.questions.filter((q) => qid(q) in w); };
     function record(q, ok) {
-      const w = weak();
+      const w = store.get(wkey(q), {});
       const k = qid(q);
       if (!ok) w[k] = 0;
       else if (k in w) { w[k]++; if (w[k] >= 2) delete w[k]; }
-      store.set(wkey, w);
+      store.set(wkey(q), w);
     }
-    const lessonHref = () => { const t = topicOf(document.body.dataset.topic); return t ? t.file : 'index.html'; };
+    const lessonHref = (q) => { const t = topicOf((q && q.topic) || document.body.dataset.topic); return t ? t.file : 'index.html'; };
 
     const codeHtml = (c) => '<figure class="code"><pre><code>' + highlight(clean(c)) + '</code></pre></figure>';
 
@@ -949,11 +950,18 @@
     function ask() {
       const q = order[pos];
       const opts = shuffle(q.opts.map((t, i) => ({ t, ok: i === q.a })));
-      root.innerHTML = '<div class="q-top"><span>Question ' + (pos + 1) + ' of ' + order.length + '</span><span>' + right + ' correct</span></div>' +
+      root.innerHTML = '<div class="q-top"><span>Question ' + (pos + 1) + ' of ' + order.length + '</span><span>' + (cfg.mixed ? esc((topicOf(q.topic) || {}).title || '') + ' &middot; ' : '') + right + ' correct</span></div>' +
         '<div class="q-bar"><span style="width:' + (pos / order.length) * 100 + '%"></span></div>' +
         '<p class="q-text">' + fmt(q.q) + '</p>' + (q.code ? codeHtml(q.code) : '') +
-        '<div class="opts" role="group" aria-label="Answer choices">' + opts.map((o, i) => '<button class="opt" type="button" data-i="' + i + '"><span class="k">' + 'ABCDEFG'[i] + '</span><span>' + fmt(o.t) + '</span></button>').join('') + '</div><div class="fb" role="status" aria-live="polite"></div>';
+        '<div class="opts" role="group" aria-label="Answer choices">' + opts.map((o, i) => '<button class="opt" type="button" data-i="' + i + '"><span class="k">' + (i + 1) + '</span><span>' + fmt(o.t) + '</span></button>').join('') + '</div><div class="fb" role="status" aria-live="polite"></div>';
       let locked = false;
+      if (onKey) document.removeEventListener('keydown', onKey);
+      onKey = (e) => {
+        if (e.ctrlKey || e.metaKey || e.altKey || /^(INPUT|TEXTAREA|SELECT)$/.test((e.target.tagName || ''))) return;
+        if (/^[1-9]$/.test(e.key) && !locked) { const b = $$('.opt', root)[+e.key - 1]; if (b) { e.preventDefault(); b.click(); } }
+        else if (locked && (e.key === 'n' || e.key === 'N' || e.key === 'ArrowRight')) { const nb = $('#qnext', root); if (nb) { e.preventDefault(); nb.click(); } }
+      };
+      document.addEventListener('keydown', onKey);
       $$('.opt', root).forEach((b) => b.addEventListener('click', () => {
         if (locked) return;
         locked = true;
@@ -970,23 +978,50 @@
       }));
     }
     function finish() {
+      if (onKey) { document.removeEventListener('keydown', onKey); onKey = null; }
       const pct = Math.round((right / order.length) * 100);
       const prev = store.get(key, null);
       const full = order.length === cfg.questions.length;
-      store.set(key, { best: full ? Math.max(pct, prev ? prev.best : 0) : (prev ? prev.best : 0), last: full ? pct : (prev ? prev.last : pct), total: cfg.questions.length });
+      if (!cfg.mixed) store.set(key, { best: full ? Math.max(pct, prev ? prev.best : 0) : (prev ? prev.best : 0), last: full ? pct : (prev ? prev.last : pct), total: cfg.questions.length });
       const verdict = pct >= 90 ? 'Excellent. You know this topic well.' : pct >= 70 ? 'Solid. Review the explanations below and retry the ones you missed.' :
         pct >= 50 ? 'Getting there. Re-read the lesson sections for the questions you missed.' : 'Go back through the lesson, then try again. This is a normal first score for new material.';
       root.innerHTML = '<div class="result ' + (pct >= 70 ? 'good' : 'bad') + '"><div class="score">' + right + ' / ' + order.length + ' (' + pct + '%)</div><p>' + verdict + '</p></div>' +
         (missed.length ? '<h3>Questions to review</h3>' + missed.map((q) => '<div class="miss"><div class="qq">' + fmt(q.q) + '</div>' + (q.code ? codeHtml(q.code) : '') +
           '<div><b class="ok" style="color:var(--good)">Answer:</b> ' + fmt(q.opts[q.a]) + '</div><div style="color:var(--muted)">' + fmt(q.why) + '</div>' +
-          '<div><a href="' + lessonHref() + (q.sec ? '#' + q.sec : '') + '">Re-read this in the lesson &rarr;</a></div></div>').join('') : '') +
+          '<div><a href="' + lessonHref(q) + (q.sec ? '#' + q.sec : '') + '">Re-read this in the lesson &rarr;</a></div></div>').join('') : '') +
         '<div class="pickrow">' + (missed.length ? '<button class="btn" id="qretry" type="button">Retry the ' + missed.length + ' missed</button>' : '') +
-        '<button class="btn ghost" id="qagain" type="button">Restart the full quiz</button></div>';
+        '<button class="btn ghost" id="qagain" type="button">' + (cfg.mixed ? 'Check what is left' : 'Restart the full quiz') + '</button></div>';
       const r = $('#qretry', root);
       if (r) r.addEventListener('click', () => begin(missed.slice()));
-      $('#qagain', root).addEventListener('click', () => begin(cfg.questions));
+      $('#qagain', root).addEventListener('click', () => { if (cfg.mixed) location.reload(); else begin(cfg.questions); });
     }
-    intro();
+    if (cfg.mixed && cfg.questions.length) begin(cfg.questions); else intro();
+  }
+
+  /* ---------------- review: the weak questions of every lesson in one quiz ---------------- */
+  function weakQuestions() {
+    const out = [];
+    TOPICS.forEach((t) => {
+      const d = CT.quizData[t.id], w = store.get('weak:' + t.id, {});
+      if (!d) return;
+      d.questions.forEach((q) => { if ((q.q + (q.code ? '\n' + q.code.trim() : '')) in w) out.push(Object.assign({ topic: t.id }, q)); });
+    });
+    return out;
+  }
+  function review(sel) {
+    const root = typeof sel === 'string' ? $(sel) : sel;
+    const list = weakQuestions();
+    if (!list.length) {
+      root.innerHTML = '<div class="result"><p><b>Nothing to review.</b> A question lands here when you get it wrong in a lesson quiz or the level check, and leaves after you answer it right twice in later runs.</p>' +
+        '<div class="pickrow"><a class="btn" href="assess.html">Take the level check</a><a class="btn ghost" href="index.html">Pick a lesson quiz</a></div></div>';
+      return;
+    }
+    const by = {};
+    list.forEach((q) => { by[q.topic] = (by[q.topic] || 0) + 1; });
+    const intro = $('#review-intro');
+    if (intro) intro.innerHTML = '<b>' + list.length + ' question' + (list.length > 1 ? 's' : '') + '</b> from ' + Object.keys(by).length + ' lesson' + (Object.keys(by).length > 1 ? 's' : '') + ': ' +
+      TOPICS.filter((t) => by[t.id]).map((t) => esc(t.n + '. ' + t.title) + ' (' + by[t.id] + ')').join(', ') + '.';
+    quiz(root, { id: 'review', mixed: true, questions: list });
   }
 
   /* ---------------- home page ---------------- */
@@ -1006,6 +1041,8 @@
         '<div class="bar-track"><span style="width:' + pct + '%"></span></div>' +
         '<div class="row"><a class="btn sm" href="' + t.file + '">Lesson</a><a class="btn sm ghost" href="' + t.quiz + '">Quiz</a></div></div>';
     }).join('');
+    const rc = $('#review-count');
+    if (rc) { const n = TOPICS.reduce((c, t) => c + Object.keys(store.get('weak:' + t.id, {})).length, 0); rc.textContent = n ? n + ' question' + (n > 1 ? 's' : '') + ' waiting.' : 'Nothing waiting yet.'; }
     const rs = $('#resume');
     const li = store.get('lastinfo', null);
     const lt = li && topicOf(li.id);
@@ -1263,7 +1300,7 @@
       root.innerHTML = '<div class="q-top"><span>Question ' + (pos + 1) + ' of ' + order.length + '</span><span>' + esc(topicOf(item.topic).title) + ' &middot; ' + answered + ' answered</span></div>' +
         '<div class="q-bar"><span style="width:' + (answered / order.length) * 100 + '%"></span></div>' +
         '<p class="q-text">' + fmt(q.q) + '</p>' + (q.code ? codeHtml(q.code) : '') +
-        '<div class="opts" role="group" aria-label="Answer choices">' + item.opts.map((o, i) => '<button class="opt' + (item.pick === i ? ' picked' : '') + '" type="button" data-i="' + i + '" aria-pressed="' + (item.pick === i) + '"><span class="k">' + 'ABCDEFG'[i] + '</span><span>' + fmt(o.t) + '</span></button>').join('') + '</div>' +
+        '<div class="opts" role="group" aria-label="Answer choices">' + item.opts.map((o, i) => '<button class="opt' + (item.pick === i ? ' picked' : '') + '" type="button" data-i="' + i + '" aria-pressed="' + (item.pick === i) + '"><span class="k">' + (i + 1) + '</span><span>' + fmt(o.t) + '</span></button>').join('') + '</div>' +
         '<div class="pickrow"><button class="btn ghost dk' + (item.dk ? ' picked' : '') + '" id="adk" type="button" aria-pressed="' + item.dk + '">I don&rsquo;t know (counts as not known, not as a guess)</button></div>' +
         '<div class="pickrow anav"><button class="btn ghost" id="aprev" type="button"' + (pos === 0 ? ' disabled' : '') + '>&larr; Back</button>' +
         (pos < order.length - 1 ? '<button class="btn" id="anext" type="button">Next &rarr;</button>' : '<button class="btn" id="afinish" type="button">Finish and see results</button>') + '</div>' +
@@ -1408,6 +1445,7 @@
     else if (kind === 'mock' && main) { main.classList.add('solo'); }
     else if (kind === 'puzzles' && main) { main.classList.add('solo'); }
     else if (kind === 'assess' && main) { main.classList.add('solo'); }
+    else if (kind === 'review' && main) { main.classList.add('solo'); }
     const pt = $('#progress-tools');
     if (pt) progressTools(pt);
   }
@@ -1421,6 +1459,6 @@
     if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(() => { /* optional */ });
   }
 
-  window.CT = Object.assign(window.CT || {}, { quizData: {}, TOPICS, stepper, threadsim, memsim, puzzles, quiz, assess, mock, highlight, fmt, esc });
+  window.CT = Object.assign(window.CT || {}, { quizData: {}, TOPICS, stepper, threadsim, memsim, puzzles, quiz, review, assess, mock, highlight, fmt, esc });
   boot();
 })();

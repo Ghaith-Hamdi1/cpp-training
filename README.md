@@ -23,7 +23,7 @@ The lessons work offline after one visit. From a clone you can also open [`inter
 | [`examples/lessons/`](examples/lessons/README.md) | **Runnable programs** for the main lesson snippets: complete, compiled and checked with g++ (`make` builds them all). |
 | [`examples/course/`](examples/course) | The **course code**: the programs that go with the four training-notes modules. |
 | [`examples/practice/`](examples/practice/README.md) | **Practice set**: 17 write-it-yourself coding exercises (C strings, pointers, a String class, templates, threads, vocabulary types, concepts) with tests and verified solutions, plus model answers to the questions they raise. |
-| [`tools/`](tools) | Scripts that check the interactive site: links, quiz data, the search index and the offline cache list. |
+| [`tools/`](tools) | Scripts that build and check the interactive site (links, quiz data, the search index, the offline cache list) and that check the book page numbers against the PDFs. |
 | [`books/`](books) | Five reference books as PDFs, named by title: *C++ Primer*, 5th ed. (Lippman, Lajoie and Moo), *C++ Concurrency in Action* (Williams), *Programming: Principles and Practice Using C++* (Stroustrup), *Effective Modern C++* (Meyers) and *C++ Move Semantics: The Complete Guide* (Josuttis). Each has a reading guide and a reading plan in `docs/reading/`. |
 
 ## The lessons
@@ -70,6 +70,8 @@ node tools/verify-checklist.mjs     # study checklist against the lessons
 node tools/check-guides.mjs         # reading guides against the lessons
 node tools/test-registry.mjs        # progress migrations
 ```
+
+After you change a page range in a reading guide, plan or the roadmap, run `node tools/check-book-pages.mjs`. It opens the PDFs in `books/` (needs `pdftotext` from poppler, so it is not part of CI) and checks that each section really starts on the page given.
 
 ## Further reading
 
