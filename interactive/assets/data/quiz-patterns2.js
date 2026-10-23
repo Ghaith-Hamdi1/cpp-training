@@ -27,7 +27,7 @@ CT.quizData.patterns2 = {
       why: 'Named steps read clearly and `build()` can reject an incomplete object.' },
 
     { sec: 'builder', q: 'Why does each builder setter return `*this` (a reference to the builder)?',
-      opts: ['To make it thread-safe', 'So calls can be chained: `b.symbol("X").qty(10).price(1.5)`', 'To avoid copies of the product', 'It is required by the compiler'], a: 1,
+      opts: ['To make it thread-safe', 'So calls can be chained: `b.url("x").timeout(5).retries(3)`', 'To avoid copies of the product', 'It is required by the compiler'], a: 1,
       why: 'That is the fluent interface style.' },
 
     { sec: 'visitor', q: 'What is the advantage of `std::variant` with `std::visit` over virtual functions for a closed set of message types?',
@@ -38,12 +38,12 @@ CT.quizData.patterns2 = {
       opts: ['It silently ignores it', 'It fails to compile', 'It throws at run time', 'It calls the first overload'], a: 1,
       why: '`std::visit` requires the visitor to be callable with every alternative, so the compiler lists the ones you forgot.' },
 
-    { sec: 'feed', q: 'In the session state machine, why does `LoggedOn` hold `nextSeq` instead of a global variable?',
+    { sec: 'state-machine', q: 'In the session state machine, why does `LoggedOn` hold `nextSeq` instead of a global variable?',
       opts: ['It is faster', 'The data lives in the state that needs it, so it cannot be misused when disconnected or stopped', 'Globals are not allowed', 'It saves memory'], a: 1,
       why: 'Each state carries only its own data, so invalid combinations are unrepresentable.' },
 
-    { sec: 'feed', q: 'Which pattern avoids a heap allocation for every incoming message?',
-      opts: ['Singleton', 'Object pool: preallocated slots and a free list', 'Decorator', 'Adapter'], a: 1,
-      why: 'A pool reuses slots from a free list, so the hot path never calls `new` (see the Low-Latency lesson).' }
+    { sec: 'state-machine', q: 'What does a `variant` of state structs plus `std::visit` give a state machine over an enum plus shared fields?',
+      opts: ['It is always faster', 'Each state holds only its own data, and the compiler checks that every state is handled', 'It allows unlimited states at run time', 'It removes the need for events'], a: 1,
+      why: 'With an enum and shared fields, a field such as the sequence number exists (and can be misused) in every state. With a variant, each state struct carries only what it needs, and a visitor that misses a state does not compile.' }
   ]
 };

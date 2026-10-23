@@ -162,4 +162,12 @@ test('the real v7 migration forgets the removed Coding Rules lesson and keeps ot
   assert.ok(!CT.lessons.some((l) => l.id === 'rules'));
 });
 
+test('the real v7 migration renames the patterns2 section feed to state-machine', () => {
+  const CT = loadRegistry();
+  const s = makeStore({ 'schema': 6, 'done:patterns2': ['command', 'feed'], 'last:patterns2': 'feed' });
+  assert.equal(CT.migrate(s), 7);
+  assert.deepEqual(s.get('done:patterns2'), ['command', 'state-machine']);
+  assert.equal(s.get('last:patterns2'), 'state-machine');
+});
+
 console.log(passed + ' tests passed');

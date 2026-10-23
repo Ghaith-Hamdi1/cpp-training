@@ -1,5 +1,5 @@
 // Lesson 15: Command with undo, Decorator, Adapter, Builder, Visitor with std::variant, and a session state machine.
-// Compile with -std=c++20.
+// Compile with -std=c++23.
 #include <iostream>
 #include <memory>
 #include <string>
@@ -43,23 +43,23 @@ struct Bracket : Sink {
 };
 
 // ---- Adapter -----------------------------------------------------------------------------------------------------------
-struct LegacyFeed { int priceInCents() const { return 10025; } };       // an interface we cannot change
-struct PriceSource { virtual ~PriceSource() = default; virtual double price() const = 0; };   // the one our code expects
-struct LegacyAdapter : PriceSource {
-    LegacyFeed feed;
-    double price() const override { return feed.priceInCents() / 100.0; }
+struct LegacySensor { int tempInTenths() const { return 215; } };       // an interface we cannot change
+struct TempSource { virtual ~TempSource() = default; virtual double celsius() const = 0; };   // the one our code expects
+struct LegacyAdapter : TempSource {
+    LegacySensor sensor;
+    double celsius() const override { return sensor.tempInTenths() / 10.0; }
 };
 
 // ---- Builder -----------------------------------------------------------------------------------------------------------
-struct Order { std::string sym; int qty; double px; bool ioc; };
-class OrderBuilder {
-    Order o_{"", 0, 0.0, false};
+struct Request { std::string url; int timeout; int retries; bool secure; };
+class RequestBuilder {
+    Request r_{"", 0, 0, false};
 public:
-    OrderBuilder& symbol(std::string s) { o_.sym = std::move(s); return *this; }
-    OrderBuilder& qty(int q) { o_.qty = q; return *this; }
-    OrderBuilder& price(double p) { o_.px = p; return *this; }
-    OrderBuilder& immediateOrCancel() { o_.ioc = true; return *this; }
-    Order build() const { return o_; }
+    RequestBuilder& url(std::string u) { r_.url = std::move(u); return *this; }
+    RequestBuilder& timeout(int s) { r_.timeout = s; return *this; }
+    RequestBuilder& retries(int n) { r_.retries = n; return *this; }
+    RequestBuilder& https() { r_.secure = true; return *this; }
+    Request build() const { return r_; }
 };
 
 // ---- Visitor with std::variant -----------------------------------------------------------------------------------------
@@ -98,11 +98,11 @@ int main()
     std::cout << "decorators stacked: " << s->write("feed") << '\n';
 
     LegacyAdapter adapter;
-    const PriceSource& src = adapter;
-    std::cout << "adapter converts cents to dollars: " << src.price() << '\n';
+    const TempSource& src = adapter;
+    std::cout << "adapter converts tenths to degrees: " << src.celsius() << '\n';
 
-    Order o = OrderBuilder().symbol("ESZ5").qty(10).price(5000.25).immediateOrCancel().build();
-    std::cout << "builder: " << o.sym << ' ' << o.qty << " @ " << o.px << (o.ioc ? " IOC" : "") << '\n';
+    Request o = RequestBuilder().url("example.org/api").timeout(5).retries(3).https().build();
+    std::cout << "builder: " << o.url << " timeout " << o.timeout << " retries " << o.retries << (o.secure ? " https" : "") << '\n';
 
     std::vector<Shape> shapes{Circle{2}, Rect{3, 4}};
     double total = 0;

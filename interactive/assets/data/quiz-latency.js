@@ -2,8 +2,8 @@
 CT.quizData.latency = {
   id: 'latency',
   questions: [
-    { sec: 's1', q: 'Why does tail latency matter more than the average for a market-data feed handler?',
-      opts: ['The average cannot be computed for latency', 'Rare slow operations cause stale books or missed trades, and the average hides them', 'The tail is always the same as the average', 'Only throughput is measured in practice'], a: 1,
+    { sec: 's1', q: 'Why does tail latency matter more than the average for a message pipeline?',
+      opts: ['The average cannot be computed for latency', 'Rare slow operations cause stale results or missed deadlines, and the average hides them', 'The tail is always the same as the average', 'Only throughput is measured in practice'], a: 1,
       why: 'A mean of a few hundred nanoseconds can coexist with an occasional stall of tens of microseconds. That one-in-a-thousand stall is what you feel at the end of the pipeline, so you report and minimise percentiles.' },
 
     { sec: 's1', q: 'Which pair best describes the cost of a hit in the L1 cache versus a miss to main memory?',
@@ -55,17 +55,17 @@ for (int i = 0; i < 100; ++i) v.push_back(i);
       opts: ['Two threads write different variables on the same cache line, making the line bounce between cores; give each its own line with `alignas(64)`', 'Two threads share one lock; use two locks', 'A pointer shared by two objects; use `shared_ptr`', 'A variable declared in two translation units'], a: 0,
       why: 'Cores own memory in cache-line units. Independent writers on one line invalidate each other constantly. Padding or aligning hot per-thread data to 64 bytes puts them on separate lines.' },
 
-    { sec: 's4', q: 'Why is a sorted `std::vector` often faster than a `std::map` for a small set of price levels?',
+    { sec: 's4', q: 'Why is a sorted `std::vector` often faster than a `std::map` for a small set of keys?',
       opts: ['It has better asymptotic complexity', 'It is contiguous and cache-friendly, while a map allocates a node per element and chases pointers', 'A map cannot store integers', 'A vector never allocates'], a: 1,
       why: 'Big-O hides constants. For small and medium sizes the vector shift is cheap and its memory is prefetchable; each map lookup follows pointers to nodes scattered over the heap.' },
 
-    { sec: 's5', q: 'In an order-book side stored as an array indexed by price tick, what is the cost of adding quantity at a price inside the window?',
+    { sec: 's5', q: 'In a table stored as an array indexed by `key - base`, what is the cost of adding a count to a key inside the range?',
       opts: ['O(n)', 'O(log n)', 'O(1)', 'O(n log n)'], a: 2,
-      why: 'The price minus the base gives the index directly: one array write, plus updating the tracked best index if needed. The cost is memory proportional to the price window, and a fallback for prices outside it.' },
+      why: 'The key minus the base gives the index directly: one array write, plus updating the tracked highest index if needed. The cost is memory proportional to the key range, and a fallback for keys outside it.' },
 
-    { sec: 's5', q: 'A feed sends "cancel order 7788". Which structure finds that order quickly?',
-      opts: ['The price-level array', 'A hash map from order id to its price and quantity', 'A sorted vector of prices', 'A linked list of orders by time'], a: 1,
-      why: 'A cancel carries the order id, not the price. A hash map from id to (price, qty) is O(1) on average and tells you which level to reduce. An open-addressing table avoids a heap node per order.' },
+    { sec: 's5', q: 'A message says "remove item 7788". Which structure finds that item quickly?',
+      opts: ['The bucket array', 'A hash map from item id to its key and count', 'A sorted vector of keys', 'A linked list of items by time'], a: 1,
+      why: 'The message carries the id, not the key. A hash map from id to (key, count) is O(1) on average and tells you which bucket to reduce. An open-addressing table avoids a heap node per item.' },
 
     { sec: 's6', q: 'Why is an SPSC ring buffer capacity usually a power of two?',
       opts: ['Hardware requires it', 'The index wrap becomes `counter & (N - 1)` instead of a modulo, with counters that simply keep counting up', 'It makes the queue thread-safe', 'It avoids false sharing'], a: 1,
@@ -75,8 +75,8 @@ for (int i = 0; i < 100; ++i) v.push_back(i);
       opts: ['So the consumer and producer, which write different indices, do not fight over one cache line (false sharing)', 'The standard requires it for atomics', 'To make the queue bigger', 'To make the indices volatile'], a: 0,
       why: 'The consumer writes head and the producer writes tail. If both sit on one cache line, every update by one thread invalidates the other core\'s copy. Separate lines remove that traffic.' },
 
-    { sec: 's6', q: 'A feed handler\'s outgoing queue is full. Which is NOT an acceptable policy?',
-      opts: ['Drop the newest message and count it', 'Overwrite the oldest entry', 'Conflate to the latest update per instrument', 'Let the queue grow without limit'], a: 3,
+    { sec: 's6', q: 'A pipeline\'s outgoing queue is full. Which is NOT an acceptable policy?',
+      opts: ['Drop the newest message and count it', 'Overwrite the oldest entry', 'Conflate to the latest update per key', 'Let the queue grow without limit'], a: 3,
       why: 'An unbounded queue turns a slow consumer into rising memory use and rising delay, so the data you deliver gets older and older. Bound the queue and choose an explicit policy.' },
 
     { sec: 's7', q: 'Why avoid exceptions on the hot path?',

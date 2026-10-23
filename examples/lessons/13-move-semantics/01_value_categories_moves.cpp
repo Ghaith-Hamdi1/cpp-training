@@ -1,5 +1,5 @@
 // Lesson 7: value categories, what std::move really does, counting copies and moves, copy elision, moved-from objects,
-// std::exchange and the sink-parameter idiom. Compile with -std=c++20.
+// std::exchange and the sink-parameter idiom. Compile with -std=c++23.
 #pragma GCC diagnostic ignored "-Wpessimizing-move"   // deliberate: makeWithMove shows the mistake
 #include <iostream>
 #include <string>

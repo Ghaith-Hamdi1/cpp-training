@@ -19,10 +19,10 @@ int countBits(std::uint32_t x)                                 // Kernighan: eac
     return n;
 }
 
-// a flags byte: bit 0 = buy, bit 1 = ioc, bits 2..4 = venue code (3 bits)
-constexpr std::uint8_t kBuy = 1u << 0;
-constexpr std::uint8_t kIoc = 1u << 1;
-constexpr unsigned venueOf(std::uint8_t flags) { return (flags >> 2) & 0x7u; }   // shift down, then mask
+// a flags byte: bit 0 = ack, bit 1 = urgent, bits 2..4 = channel code (3 bits)
+constexpr std::uint8_t kAck = 1u << 0;
+constexpr std::uint8_t kUrgent = 1u << 1;
+constexpr unsigned channelOf(std::uint8_t flags) { return (flags >> 2) & 0x7u; }   // shift down, then mask
 
 // ---- struct layout --------------------------------------------------------------------------------------------------
 struct Careless { char a; int b; char c; };                    // padding after a, and after c
@@ -55,9 +55,9 @@ int main()
     std::cout << "isPowerOfTwo: 64 " << isPowerOfTwo(64) << ", 96 " << isPowerOfTwo(96) << ", 0 " << isPowerOfTwo(0) << '\n';
     std::cout << "countBits(0xF0F0)=" << countBits(0xF0F0) << " std::popcount=" << std::popcount(0xF0F0u) << '\n';
 
-    std::uint8_t flags = kBuy | kIoc | (5u << 2);               // buy, immediate-or-cancel, venue 5
-    std::cout << "flags=0x" << std::hex << int(flags) << std::dec << " buy=" << bool(flags & kBuy)
-              << " ioc=" << bool(flags & kIoc) << " venue=" << venueOf(flags) << '\n';
+    std::uint8_t flags = kAck | kUrgent | (5u << 2);               // ack, urgent, channel 5
+    std::cout << "flags=0x" << std::hex << int(flags) << std::dec << " ack=" << bool(flags & kAck)
+              << " urgent=" << bool(flags & kUrgent) << " channel=" << channelOf(flags) << '\n';
 
     std::cout << "sizeof Careless=" << sizeof(Careless) << " Ordered=" << sizeof(Ordered) << " Packed=" << sizeof(Packed)
               << " alignof(int)=" << alignof(int) << '\n';

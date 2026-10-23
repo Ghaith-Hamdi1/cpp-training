@@ -10,17 +10,17 @@
 <body data-topic="latency" data-kind="lesson">
 <main>
 <h1>Low-Latency C++</h1>
-<p class="lead">How a feed handler keeps its hot path fast and <i>predictable</i>: measuring tail latency, avoiding allocation, cache-friendly data, order-book structures, queues between threads, and pinning threads to cores. Compiled examples are in <code>examples/lessons/12-low-latency</code>. Assumes <a href="07-multithreading.html">Multithreading</a> and <a href="11-wire-formats.html">Wire Formats and Parsing</a>.</p>
+<p class="lead">How a message-processing program keeps its hot path fast and <i>predictable</i>: measuring tail latency, avoiding allocation, cache-friendly data, dense-key tables, queues between threads, and pinning threads to cores. Compiled examples are in <code>examples/lessons/12-low-latency</code>. Assumes <a href="07-multithreading.html">Multithreading</a> and <a href="11-wire-formats.html">Binary Data and Parsing</a>.</p>
 
 <section data-title="Where latency comes from">
 <h2>Where latency comes from</h2>
-<figure class="fig"><svg viewBox="0 0 640 190" role="img" aria-label="A feed handler pipeline from network card to strategy with the main latency risk at each stage">
+<figure class="fig"><svg viewBox="0 0 640 190" role="img" aria-label="A message pipeline from network card to consumer with the main latency risk at each stage">
 <defs><marker id="l1" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path class="ah" d="M0 0L10 5L0 10z"/></marker></defs>
 <rect class="acc" x="6" y="30" width="108" height="52" rx="8"/><text class="t" x="60" y="52" text-anchor="middle">Socket</text><text class="m" x="60" y="70" text-anchor="middle">bytes arrive</text>
 <rect class="acc" x="138" y="30" width="118" height="52" rx="8"/><text class="t" x="197" y="52" text-anchor="middle">Reader thread</text><text class="m" x="197" y="70" text-anchor="middle">parse the bytes</text>
 <rect class="box" x="280" y="38" width="70" height="36" rx="6" stroke-dasharray="5 4"/><text class="m" x="315" y="60" text-anchor="middle">SPSC queue</text>
-<rect class="acc" x="374" y="30" width="118" height="52" rx="8"/><text class="t" x="433" y="52" text-anchor="middle">Book builder</text><text class="m" x="433" y="70" text-anchor="middle">update the book</text>
-<rect class="gd" x="516" y="30" width="118" height="52" rx="8"/><text class="t" x="575" y="52" text-anchor="middle">Strategy</text><text class="m" x="575" y="70" text-anchor="middle">consume updates</text>
+<rect class="acc" x="374" y="30" width="118" height="52" rx="8"/><text class="t" x="433" y="52" text-anchor="middle">Processor</text><text class="m" x="433" y="70" text-anchor="middle">update the state</text>
+<rect class="gd" x="516" y="30" width="118" height="52" rx="8"/><text class="t" x="575" y="52" text-anchor="middle">Consumer</text><text class="m" x="575" y="70" text-anchor="middle">consume results</text>
 <path class="ar" d="M114 56H136M256 56H278M350 56H372M492 56H514" marker-end="url(#l1)"/>
 <text class="m" x="60" y="108" text-anchor="middle">system calls,</text><text class="m" x="60" y="122" text-anchor="middle">copies</text>
 <text class="m" x="197" y="108" text-anchor="middle">allocation,</text><text class="m" x="197" y="122" text-anchor="middle">exceptions</text>
@@ -32,7 +32,7 @@
 </svg><figcaption>A hot path is a chain; the slowest rare event in any link is what you feel.</figcaption></figure>
 <ul>
 <li><b>Latency</b> is the time for one message to get through; <b>throughput</b> is how many per second. A system can have great throughput and terrible latency.</li>
-<li>For a feed handler the <b>tail</b> matters: the rare slow case (once in a thousand) is what causes a stale book or a missed trade. Average time hides it.</li>
+<li>In a message pipeline the <b>tail</b> matters: the rare slow case (once in a thousand) is what causes a stale result or a missed deadline. Average time hides it.</li>
 <li>So the goal is not only "fast" but <b>predictable</b>: remove anything whose cost can suddenly jump.</li>
 </ul>
 <table>
@@ -116,10 +116,10 @@ public:
 </script>
 <p><b>Placement new</b> constructs an object in memory that already exists, so no allocation happens. The program in <code>12-low-latency</code> replaces <code>operator new</code> with a counter and shows <b>0 heap allocations</b> on the pool path, 0 for a <code>pmr::vector</code> in an arena, and 1 for a <code>vector</code> with <code>reserve(100)</code>.</p>
 <script type="text/x-cpp">
-alignas(Order) unsigned char storage[sizeof(Order)];   // raw, correctly aligned memory: no object yet
-Order* o = new (storage) Order(7);                     // placement new: construct INTO this memory, nothing is allocated
+alignas(Task) unsigned char storage[sizeof(Task)];   // raw, correctly aligned memory: no object yet
+Task* o = new (storage) Task(7);                     // placement new: construct INTO this memory, nothing is allocated
 // ... use *o ...
-o->~Order();                                           // you must call the destructor yourself: never delete it
+o->~Task();                                           // you must call the destructor yourself: never delete it
 </script>
 <ul>
 <li>The address of <code>o</code> equals the address of <code>storage</code> (compiled). The memory must be aligned and big enough.</li>
@@ -130,36 +130,36 @@ o->~Order();                                           // you must call the dest
 <section data-title="Cache-friendly data">
 <h2>Cache-friendly data</h2>
 <figure class="fig"><svg viewBox="0 0 640 190" role="img" aria-label="Array of structs wastes cache line space when only one field is read; struct of arrays packs the field together">
-<text class="t" x="10" y="18">Array of structs: 40-byte records, a loop reads only the bid</text>
-<rect class="wn" x="10" y="28" width="60" height="30"/><text x="40" y="48" text-anchor="middle">bid</text><rect class="box" x="70" y="28" width="140" height="30"/><text class="m" x="140" y="48" text-anchor="middle">ask qty time name</text>
-<rect class="wn" x="220" y="28" width="60" height="30"/><text x="250" y="48" text-anchor="middle">bid</text><rect class="box" x="280" y="28" width="140" height="30"/><text class="m" x="350" y="48" text-anchor="middle">ask qty time name</text>
-<rect class="wn" x="430" y="28" width="60" height="30"/><text x="460" y="48" text-anchor="middle">bid</text><rect class="box" x="490" y="28" width="140" height="30"/><text class="m" x="560" y="48" text-anchor="middle">ask qty time name</text>
+<text class="t" x="10" y="18">Array of structs: 40-byte records, a loop reads only the low</text>
+<rect class="wn" x="10" y="28" width="60" height="30"/><text x="40" y="48" text-anchor="middle">low</text><rect class="box" x="70" y="28" width="140" height="30"/><text class="m" x="140" y="48" text-anchor="middle">high qty time name</text>
+<rect class="wn" x="220" y="28" width="60" height="30"/><text x="250" y="48" text-anchor="middle">low</text><rect class="box" x="280" y="28" width="140" height="30"/><text class="m" x="350" y="48" text-anchor="middle">high qty time name</text>
+<rect class="wn" x="430" y="28" width="60" height="30"/><text x="460" y="48" text-anchor="middle">low</text><rect class="box" x="490" y="28" width="140" height="30"/><text class="m" x="560" y="48" text-anchor="middle">high qty time name</text>
 <text class="m" x="10" y="78">1 record per 64-byte cache line: 8 useful bytes out of every 40 loaded.</text>
-<text class="t" x="10" y="112">Struct of arrays: the bids sit together</text>
-<rect class="wn" x="10" y="122" width="60" height="30"/><text x="40" y="142" text-anchor="middle">bid</text>
-<rect class="wn" x="70" y="122" width="60" height="30"/><text x="100" y="142" text-anchor="middle">bid</text>
-<rect class="wn" x="130" y="122" width="60" height="30"/><text x="160" y="142" text-anchor="middle">bid</text>
-<rect class="wn" x="190" y="122" width="60" height="30"/><text x="220" y="142" text-anchor="middle">bid</text>
-<rect class="wn" x="250" y="122" width="60" height="30"/><text x="280" y="142" text-anchor="middle">bid</text>
-<rect class="wn" x="310" y="122" width="60" height="30"/><text x="340" y="142" text-anchor="middle">bid</text>
-<rect class="wn" x="370" y="122" width="60" height="30"/><text x="400" y="142" text-anchor="middle">bid</text>
-<rect class="wn" x="430" y="122" width="60" height="30"/><text x="460" y="142" text-anchor="middle">bid</text>
-<text class="m" x="10" y="172">8 bids per cache line: every loaded byte is used.</text>
+<text class="t" x="10" y="112">Struct of arrays: the lows sit together</text>
+<rect class="wn" x="10" y="122" width="60" height="30"/><text x="40" y="142" text-anchor="middle">low</text>
+<rect class="wn" x="70" y="122" width="60" height="30"/><text x="100" y="142" text-anchor="middle">low</text>
+<rect class="wn" x="130" y="122" width="60" height="30"/><text x="160" y="142" text-anchor="middle">low</text>
+<rect class="wn" x="190" y="122" width="60" height="30"/><text x="220" y="142" text-anchor="middle">low</text>
+<rect class="wn" x="250" y="122" width="60" height="30"/><text x="280" y="142" text-anchor="middle">low</text>
+<rect class="wn" x="310" y="122" width="60" height="30"/><text x="340" y="142" text-anchor="middle">low</text>
+<rect class="wn" x="370" y="122" width="60" height="30"/><text x="400" y="142" text-anchor="middle">low</text>
+<rect class="wn" x="430" y="122" width="60" height="30"/><text x="460" y="142" text-anchor="middle">low</text>
+<text class="m" x="10" y="172">8 lows per cache line: every loaded byte is used.</text>
 </svg><figcaption>The CPU loads whole 64-byte cache lines, not single fields.</figcaption></figure>
 <ul>
 <li>A <b>cache line</b> is 64 bytes. A cache miss to main memory costs about a hundred times a hit, so <b>locality</b> dominates: data used together should sit together.</li>
 <li><b>Contiguous beats linked.</b> <code>std::vector</code> and <code>std::array</code> stream through memory; <code>std::list</code> and <code>std::map</code> chase pointers to nodes scattered across the heap (each node is also a separate allocation).</li>
-<li><b>AoS versus SoA.</b> Array of structs keeps one record together (good when you use most fields); struct of arrays keeps each field together (good when a loop uses one or two fields). The program shows 40,000 bytes streamed to read all bids with AoS and 8,000 with SoA, with identical results.</li>
-<li><b>Hot/cold split:</b> keep fields used on every message together and small; move rarely used fields elsewhere (struct size and padding: <a href="11-wire-formats.html">Wire Formats</a>).</li>
+<li><b>AoS versus SoA.</b> Array of structs keeps one record together (good when you use most fields); struct of arrays keeps each field together (good when a loop uses one or two fields). The program shows 40,000 bytes streamed to read all lows with AoS and 8,000 with SoA, with identical results.</li>
+<li><b>Hot/cold split:</b> keep fields used on every message together and small; move rarely used fields elsewhere (struct size and padding: <a href="11-wire-formats.html">Binary Data and Parsing</a>).</li>
 </ul>
 <div class="callout warn"><span class="label">False sharing</span>Two threads writing <i>different</i> variables on the <i>same</i> cache line make the line bounce between cores. Give each its own line: <code>alignas(64) std::atomic&lt;size_t&gt; head_; alignas(64) std::atomic&lt;size_t&gt; tail_;</code> (<code>sizeof</code> grows from 16 to 128 bytes, which is the point). Introduced in <a href="07-multithreading.html">Multithreading</a>.</div>
 </section>
 
-<section data-title="Order books: choosing a structure">
-<h2>Order books: choosing a structure</h2>
-<figure class="fig"><svg viewBox="0 0 640 170" role="img" aria-label="A bid side stored as an array indexed by price tick offset, with the best bid marked">
+<section data-title="Dense keys: an array instead of a map">
+<h2>Dense keys: an array instead of a map</h2>
+<figure class="fig"><svg viewBox="0 0 640 170" role="img" aria-label="Counts per bucket stored as an array indexed by key minus base, with the highest non-empty bucket marked">
 <defs><marker id="l5" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path class="ah" d="M0 0L10 5L0 10z"/></marker></defs>
-<text class="t" x="10" y="18">bid side: quantity at each price, index = price - base</text>
+<text class="t" x="10" y="18">count per bucket, index = key - base</text>
 <rect class="box" x="10" y="30" width="70" height="38"/><text x="45" y="54" text-anchor="middle">120</text>
 <rect class="box" x="80" y="30" width="70" height="38"/><text x="115" y="54" text-anchor="middle">0</text>
 <rect class="box" x="150" y="30" width="70" height="38"/><text x="185" y="54" text-anchor="middle">340</text>
@@ -168,38 +168,38 @@ o->~Order();                                           // you must call the dest
 <rect class="box" x="360" y="30" width="70" height="38" stroke-dasharray="4 3"/><text class="m" x="395" y="54" text-anchor="middle">0</text>
 <rect class="box" x="430" y="30" width="70" height="38" stroke-dasharray="4 3"/><text class="m" x="465" y="54" text-anchor="middle">0</text>
 <text class="m" x="45" y="84" text-anchor="middle">index 0</text><text class="m" x="115" y="84" text-anchor="middle">1</text><text class="m" x="185" y="84" text-anchor="middle">2</text><text class="m" x="255" y="84" text-anchor="middle">3</text><text class="m" x="325" y="84" text-anchor="middle">4</text>
-<path class="ar" d="M325 112V72" marker-end="url(#l5)"/><text class="t" x="325" y="130" text-anchor="middle">best bid (highest non-empty index)</text>
-<text class="m" x="10" y="156">Update = one array write. When the best level empties, scan down to the next one.</text>
-</svg><figcaption>A bounded price window turns the book into a flat array.</figcaption></figure>
-<p>An order book keeps the resting quantity at each price on the bid side and the ask side, and updates it on every add, modify or cancel. The questions are always the same: <b>update a level, find the best price, cancel by order id</b>.</p>
+<path class="ar" d="M325 112V72" marker-end="url(#l5)"/><text class="t" x="325" y="130" text-anchor="middle">highest non-empty bucket</text>
+<text class="m" x="10" y="156">Update = one array write. When the highest bucket empties, scan down to the next one.</text>
+</svg><figcaption>A bounded key range turns a map into a flat array.</figcaption></figure>
+<p>When the keys are <b>integers in a small, known range</b> (histogram buckets, status codes, price levels, sensor ids), a plain array indexed by <code>key - base</code> beats a <code>std::map</code> or a hash map. The operations are always the same: <b>update a bucket, find the highest non-empty one, look up an item by id</b>.</p>
 <table>
-<tr><th>Structure</th><th>Update</th><th>Best price</th><th>Trade-offs</th></tr>
-<tr><td><code>std::map&lt;price, qty&gt;</code></td><td>O(log n)</td><td>O(1) (<code>begin()</code>)</td><td>simple and sorted, but a heap node per level (allocation, pointer chasing)</td></tr>
-<tr><td>sorted <code>std::vector</code></td><td>O(n) shift</td><td>O(1)</td><td>contiguous; fine when few levels matter (most activity is near the top of the book)</td></tr>
-<tr><td><b>array indexed by tick</b></td><td><b>O(1)</b></td><td>O(1) tracked, rescan on empty</td><td>no allocation, cache-friendly; needs a bounded price window and memory proportional to it</td></tr>
-<tr><td>hash map <code>orderId -> (price, qty)</code></td><td>O(1) average</td><td>n/a</td><td>for <b>cancel by id</b>; an open-addressing table avoids per-node allocation</td></tr>
+<tr><th>Structure</th><th>Update</th><th>Highest key</th><th>Trade-offs</th></tr>
+<tr><td><code>std::map&lt;key, count&gt;</code></td><td>O(log n)</td><td>O(1) (<code>begin()</code> or <code>rbegin()</code>)</td><td>simple and sorted, but a heap node per key (allocation, pointer chasing)</td></tr>
+<tr><td>sorted <code>std::vector</code></td><td>O(n) shift</td><td>O(1)</td><td>contiguous; fine when there are few keys</td></tr>
+<tr><td><b>array indexed by key</b></td><td><b>O(1)</b></td><td>O(1) tracked, rescan on empty</td><td>no allocation, cache-friendly; needs a bounded key range and memory proportional to it</td></tr>
+<tr><td>hash map <code>id -> (key, count)</code></td><td>O(1) average</td><td>n/a</td><td>for <b>lookup by id</b>; an open-addressing table avoids per-node allocation</td></tr>
 </table>
 <script type="text/x-cpp">
-class BookSide {
-    static constexpr std::int64_t kLevels = 4096;
-    std::int64_t base_;                                  // price (ticks) of index 0
-    std::array<std::uint64_t, kLevels> qty_{};
-    std::int64_t bestIdx_ = -1;                          // -1 when empty
+class BucketTable {
+    static constexpr std::int64_t kBuckets = 4096;
+    std::int64_t base_;                                  // key of index 0
+    std::array<std::uint64_t, kBuckets> count_{};
+    std::int64_t highest_ = -1;                          // -1 when empty
 public:
-    void add(std::int64_t price, std::uint64_t q) {
-        auto i = price - base_;
-        qty_[i] += q;
-        if (i > bestIdx_) bestIdx_ = i;                  // O(1)
+    void add(std::int64_t key, std::uint64_t n) {
+        auto i = key - base_;
+        count_[i] += n;
+        if (i > highest_) highest_ = i;                  // O(1)
     }
-    void remove(std::int64_t price, std::uint64_t q) {
-        auto i = price - base_;
-        qty_[i] = q >= qty_[i] ? 0 : qty_[i] - q;
-        if (qty_[i] == 0 && i == bestIdx_)               // the best level vanished: scan down
-            while (bestIdx_ >= 0 && qty_[bestIdx_] == 0) --bestIdx_;
+    void remove(std::int64_t key, std::uint64_t n) {
+        auto i = key - base_;
+        count_[i] = n >= count_[i] ? 0 : count_[i] - n;
+        if (count_[i] == 0 && i == highest_)             // the highest bucket vanished: scan down
+            while (highest_ >= 0 && count_[highest_] == 0) --highest_;
     }
 };
 </script>
-<p>The program runs 200,000 random adds and removes against both this array book and a <code>std::map</code>, and checks the best bid after every operation: 0 mismatches. Prices are the integer ticks from <a href="11-wire-formats.html">Wire Formats</a>; a price outside the window needs a fallback (a re-centred window or an overflow structure).</p>
+<p>The program runs 200,000 random adds and removes against both this array and a <code>std::map</code>, and checks the highest key after every operation: 0 mismatches. A key outside the range needs a fallback (a re-centred range or an overflow structure).</p>
 </section>
 
 <section data-title="Queues between threads">
@@ -237,10 +237,10 @@ public:
 </ul>
 <table>
 <tr><th>Policy</th><th>Behavior</th><th>Use when</th></tr>
-<tr><td>block (back-pressure)</td><td>the producer waits</td><td>nothing may be lost, and the producer can afford to wait (not for a market-data reader)</td></tr>
-<tr><td>drop newest</td><td><code>tryPush</code> returns false, count it</td><td>simple; the book will need a recovery</td></tr>
+<tr><td>block (back-pressure)</td><td>the producer waits</td><td>nothing may be lost, and the producer can afford to wait (not for a network reader that must keep up)</td></tr>
+<tr><td>drop newest</td><td><code>tryPush</code> returns false, count it</td><td>simple; the consumer will need a recovery</td></tr>
 <tr><td>drop oldest</td><td>overwrite the oldest entry</td><td>only the latest data matters</td></tr>
-<tr><td>conflate</td><td>keep only the latest update per instrument</td><td>slow consumers of quotes</td></tr>
+<tr><td>conflate</td><td>keep only the latest update per key</td><td>slow consumers of status updates</td></tr>
 </table>
 <p>The program runs two real threads over a 1024-slot ring with a drop-newest policy: <code>received + dropped = 200000</code> and the consumer's sum equals the producer's, in 20 of 20 runs.</p>
 </section>
@@ -260,8 +260,8 @@ public:
 <script type="text/x-cpp">
 enum class ParseError { None, Truncated, BadType, BadLength };
 
-ParseError parseTrade(const unsigned char* buf, std::size_t len, Trade& out) noexcept {
-    if (len < kTradeSize)  return ParseError::Truncated;     // no exception: a value the caller checks
+ParseError parseSample(const unsigned char* buf, std::size_t len, Sample& out) noexcept {
+    if (len < kSampleSize) return ParseError::Truncated;     // no exception: a value the caller checks
     if (buf[0] != 'T')     return ParseError::BadType;
     // ... fill `out` ...
     return ParseError::None;
@@ -302,7 +302,7 @@ CPU_ZERO(&set);
 CPU_SET(3, &set);
 pthread_setaffinity_np(pthread_self(), sizeof(set), &set);
 </script>
-<div class="callout tip"><span class="label">Key point</span>"How would you design a market-data feed handler?" Reader thread pinned to a core, reading the socket and parsing with zero copy into preallocated structures; an SPSC queue to a book-builder thread, which updates array-based books and publishes; no allocation, locks, exceptions or logging on the path; bounded queues with a stated drop or recovery policy; sequence-number gap detection; and p99.9 latency measured under realistic load.</div>
+<div class="callout tip"><span class="label">Key point</span>"How would you design a program that processes a fast stream of messages?" Reader thread pinned to a core, reading the socket and parsing with zero copy into preallocated structures; an SPSC queue to a processing thread, which updates array-based tables and publishes; no allocation, locks, exceptions or logging on the path; bounded queues with a stated drop or recovery policy; sequence-number gap detection; and p99.9 latency measured under realistic load.</div>
 <!-- read-more:start -->
 <div class="callout tip"><span class="label">Read more</span>
 <p><b>C++ Concurrency in Action (Williams)</b></p>
@@ -317,15 +317,15 @@ pthread_setaffinity_np(pthread_self(), sizeof(set), &set);
 <section id="s9" data-title="Cheat sheet">
 <h2>Cheat sheet</h2>
 <p>Answer aloud, then open.</p>
-<details class="ex"><summary>Why does tail latency matter more than the average in a feed handler?</summary><div><p>The rare slow case (p99.9) is what produces a stale book or a missed trade, and the average hides it: a mean of 281 ns can coexist with a p99.9 of 80 microseconds. Measure and report percentiles, and remove sources of unpredictable delay.</p></div></details>
+<details class="ex"><summary>Why does tail latency matter more than the average in a message pipeline?</summary><div><p>The rare slow case (p99.9) is what produces a stale result or a missed deadline, and the average hides it: a mean of 281 ns can coexist with a p99.9 of 80 microseconds. Measure and report percentiles, and remove sources of unpredictable delay.</p></div></details>
 <details class="ex"><summary>Why avoid <code>new</code> on the hot path, and what do you do instead?</summary><div><p>The allocator can take a lock, walk free lists, fragment and call the kernel, so its cost is unpredictable. Allocate at startup: <code>reserve</code> containers, use an object pool or an arena (<code>std::pmr::monotonic_buffer_resource</code>), and use fixed buffers instead of strings and vectors for small data.</p></div></details>
 <details class="ex"><summary>How does an object pool work?</summary><div><p>A fixed array of slots, plus a free list threaded through the free slots. Allocation pops the head of the list and constructs the object there with placement new; deallocation destroys it and pushes the slot back. Both are a few instructions with no heap, and when the pool is empty the caller decides what to do.</p></div></details>
 <details class="ex"><summary>Array of structs versus struct of arrays?</summary><div><p>AoS keeps one record's fields together, good when you use most fields. SoA keeps each field in its own array, good when a loop uses one or two fields: it streams only the bytes it needs, so each cache line is fully useful. Same results, less memory traffic.</p></div></details>
 <details class="ex"><summary>What is false sharing and how do you fix it?</summary><div><p>Two threads writing different variables on the same 64-byte cache line force the line to bounce between cores. Give each variable its own line with <code>alignas(64)</code> or padding, as for the head and tail indices of an SPSC queue.</p></div></details>
 <details class="ex"><summary>Why is a vector or array usually faster than <code>std::map</code> or <code>std::list</code>?</summary><div><p>Contiguous memory is cache-friendly and prefetchable; node-based containers chase pointers across the heap and allocate per node. Big-O hides these constants, especially for small and medium sizes.</p></div></details>
-<details class="ex"><summary>How would you structure an order book?</summary><div><p>For a bounded price window, an array of quantities indexed by price tick: O(1) updates, no allocation, with the best price tracked and rescanned when its level empties. A hash map from order id to its price and quantity handles cancels. A <code>std::map</code> is simpler but allocates a node per level.</p></div></details>
+<details class="ex"><summary>When would you use an array indexed by key instead of a map?</summary><div><p>When the keys are integers in a bounded range: updates are O(1) with no allocation and the data is contiguous, so it is cache-friendly. Track the highest or lowest non-empty bucket and rescan when it empties. A hash map from id to its bucket handles lookups by id. A <code>std::map</code> is simpler but allocates a node per key.</p></div></details>
 <details class="ex"><summary>Why is an SPSC ring capacity a power of two?</summary><div><p>The wrap-around becomes <code>counter &amp; (N - 1)</code> instead of a modulo, one cheap instruction, and the head and tail counters can simply keep counting up while <code>tail - head</code> is the size.</p></div></details>
-<details class="ex"><summary>What do you do when a queue between threads is full?</summary><div><p>Never let it grow without bound. Choose a policy: block (back-pressure), drop the newest, drop the oldest, or conflate to the latest per instrument, count what was dropped, and recover from the gap if needed. A market-data reader normally cannot block.</p></div></details>
+<details class="ex"><summary>What do you do when a queue between threads is full?</summary><div><p>Never let it grow without bound. Choose a policy: block (back-pressure), drop the newest, drop the oldest, or conflate to the latest per key, count what was dropped, and recover from the gap if needed. A network reader normally cannot block.</p></div></details>
 <details class="ex"><summary>Why avoid exceptions, virtual calls, locks and logging on the hot path?</summary><div><p>Each adds cost that is large or unpredictable: a throw costs microseconds, a virtual call blocks inlining and is an indirect branch, a mutex can wait and context-switch, and logging means system calls and formatting. Use error codes, templates or CRTP, single-writer data, and an asynchronous logger fed by a queue.</p></div></details>
 <details class="ex"><summary>Busy-polling versus blocking, and why pin threads?</summary><div><p>Blocking saves CPU but a wake-up costs microseconds; busy-polling reacts almost immediately but burns a whole core, so only latency-critical threads spin. Pinning a thread to a core stops migration, which keeps its caches warm and its timing stable.</p></div></details>
 </section>
@@ -337,22 +337,22 @@ pthread_setaffinity_np(pthread_self(), sizeof(set), &set);
 CT.stepper('#st-pool', {
   title: 'An object pool with a free list (4 slots)',
   code: String.raw`
-Pool<Order, 4> pool;
-Order* a = pool.allocate(1, px, 300);
-Order* b = pool.allocate(2, px, 100);
+Pool<Task, 4> pool;
+Task* a = pool.allocate(1, cost, 300);
+Task* b = pool.allocate(2, cost, 100);
 pool.deallocate(a);
-Order* c = pool.allocate(3, px, 50);
+Task* c = pool.allocate(3, cost, 50);
 `,
   steps: [
     { line: 1, mem: [{ n: 'freeHead', t: 'size_t', v: '0', to: 'slot0', fam: 'head' }, { n: 'slot0', t: 'free', v: 'next = 1', k: 'static', fam: 'pool' }, { n: 'slot1', t: 'free', v: 'next = 2', k: 'static', fam: 'pool' }, { n: 'slot2', t: 'free', v: 'next = 3', k: 'static', fam: 'pool' }, { n: 'slot3', t: 'free', v: 'next = 4 (end)', k: 'static', fam: 'pool' }],
       note: 'At startup every slot is <b>free</b> and the slots are linked into a <b>free list</b>: slot0 to slot1 to slot2 to slot3. <b>freeHead</b> points at slot0. All the memory exists already; nothing will be allocated later.' },
-    { line: 2, mem: [{ n: 'freeHead', t: 'size_t', v: '1', to: 'slot1', fam: 'head' }, { n: 'a', t: 'Order*', v: 'slot0', to: 'slot0' }, { n: 'slot0', t: 'in use', v: 'Order #1', k: 'static', fam: 'a' }, { n: 'slot1', t: 'free', v: 'next = 2', k: 'static', fam: 'pool' }, { n: 'slot2', t: 'free', v: 'next = 3', k: 'static', fam: 'pool' }, { n: 'slot3', t: 'free', v: 'next = 4 (end)', k: 'static', fam: 'pool' }],
-      note: '<code>allocate</code> <b>pops the list</b>: it takes slot0, moves <b>freeHead</b> to slot1, and constructs the Order inside slot0 with <b>placement new</b>. A handful of instructions, no <code>new</code>.' },
-    { line: 3, mem: [{ n: 'freeHead', t: 'size_t', v: '2', to: 'slot2', fam: 'head' }, { n: 'a', t: 'Order*', v: 'slot0', to: 'slot0' }, { n: 'b', t: 'Order*', v: 'slot1', to: 'slot1' }, { n: 'slot0', t: 'in use', v: 'Order #1', k: 'static', fam: 'a' }, { n: 'slot1', t: 'in use', v: 'Order #2', k: 'static', fam: 'b' }, { n: 'slot2', t: 'free', v: 'next = 3', k: 'static', fam: 'pool' }, { n: 'slot3', t: 'free', v: 'next = 4 (end)', k: 'static', fam: 'pool' }],
+    { line: 2, mem: [{ n: 'freeHead', t: 'size_t', v: '1', to: 'slot1', fam: 'head' }, { n: 'a', t: 'Task*', v: 'slot0', to: 'slot0' }, { n: 'slot0', t: 'in use', v: 'Task #1', k: 'static', fam: 'a' }, { n: 'slot1', t: 'free', v: 'next = 2', k: 'static', fam: 'pool' }, { n: 'slot2', t: 'free', v: 'next = 3', k: 'static', fam: 'pool' }, { n: 'slot3', t: 'free', v: 'next = 4 (end)', k: 'static', fam: 'pool' }],
+      note: '<code>allocate</code> <b>pops the list</b>: it takes slot0, moves <b>freeHead</b> to slot1, and constructs the Task inside slot0 with <b>placement new</b>. A handful of instructions, no <code>new</code>.' },
+    { line: 3, mem: [{ n: 'freeHead', t: 'size_t', v: '2', to: 'slot2', fam: 'head' }, { n: 'a', t: 'Task*', v: 'slot0', to: 'slot0' }, { n: 'b', t: 'Task*', v: 'slot1', to: 'slot1' }, { n: 'slot0', t: 'in use', v: 'Task #1', k: 'static', fam: 'a' }, { n: 'slot1', t: 'in use', v: 'Task #2', k: 'static', fam: 'b' }, { n: 'slot2', t: 'free', v: 'next = 3', k: 'static', fam: 'pool' }, { n: 'slot3', t: 'free', v: 'next = 4 (end)', k: 'static', fam: 'pool' }],
       note: 'The second allocation takes slot1. Two slots in use, <b>freeHead</b> now at slot2.' },
-    { line: 4, mem: [{ n: 'freeHead', t: 'size_t', v: '0', to: 'slot0', fam: 'head' }, { n: 'a', t: 'Order*', v: 'dangling', dead: true }, { n: 'b', t: 'Order*', v: 'slot1', to: 'slot1' }, { n: 'slot0', t: 'free', v: 'next = 2', k: 'static', fam: 'pool' }, { n: 'slot1', t: 'in use', v: 'Order #2', k: 'static', fam: 'b' }, { n: 'slot2', t: 'free', v: 'next = 3', k: 'static', fam: 'pool' }, { n: 'slot3', t: 'free', v: 'next = 4 (end)', k: 'static', fam: 'pool' }],
+    { line: 4, mem: [{ n: 'freeHead', t: 'size_t', v: '0', to: 'slot0', fam: 'head' }, { n: 'a', t: 'Task*', v: 'dangling', dead: true }, { n: 'b', t: 'Task*', v: 'slot1', to: 'slot1' }, { n: 'slot0', t: 'free', v: 'next = 2', k: 'static', fam: 'pool' }, { n: 'slot1', t: 'in use', v: 'Task #2', k: 'static', fam: 'b' }, { n: 'slot2', t: 'free', v: 'next = 3', k: 'static', fam: 'pool' }, { n: 'slot3', t: 'free', v: 'next = 4 (end)', k: 'static', fam: 'pool' }],
       note: '<code>deallocate(a)</code> runs the destructor and <b>pushes slot0 on the front of the free list</b>: slot0 links to slot2 and <b>freeHead</b> points at slot0. The pointer <b>a</b> is dangling now, as after any free.' },
-    { line: 5, mem: [{ n: 'freeHead', t: 'size_t', v: '2', to: 'slot2', fam: 'head' }, { n: 'b', t: 'Order*', v: 'slot1', to: 'slot1' }, { n: 'c', t: 'Order*', v: 'slot0', to: 'slot0' }, { n: 'slot0', t: 'in use', v: 'Order #3', k: 'static', fam: 'c' }, { n: 'slot1', t: 'in use', v: 'Order #2', k: 'static', fam: 'b' }, { n: 'slot2', t: 'free', v: 'next = 3', k: 'static', fam: 'pool' }, { n: 'slot3', t: 'free', v: 'next = 4 (end)', k: 'static', fam: 'pool' }],
+    { line: 5, mem: [{ n: 'freeHead', t: 'size_t', v: '2', to: 'slot2', fam: 'head' }, { n: 'b', t: 'Task*', v: 'slot1', to: 'slot1' }, { n: 'c', t: 'Task*', v: 'slot0', to: 'slot0' }, { n: 'slot0', t: 'in use', v: 'Task #3', k: 'static', fam: 'c' }, { n: 'slot1', t: 'in use', v: 'Task #2', k: 'static', fam: 'b' }, { n: 'slot2', t: 'free', v: 'next = 3', k: 'static', fam: 'pool' }, { n: 'slot3', t: 'free', v: 'next = 4 (end)', k: 'static', fam: 'pool' }],
       note: 'The next allocation reuses slot0, the slot just freed: warm in the cache and at the same address as <code>a</code> had. When all four slots are in use, <code>allocate</code> returns <code>nullptr</code> and the caller chooses (drop, count, wait). Constant time, no heap, no fragmentation.' }
   ]
 });
@@ -376,7 +376,7 @@ push(60);
     { line: 4, mem: [{ n: 'head', t: 'consumer index', v: '1  (slot 1)', to: 'slot1', fam: 'head' }, { n: 'tail', t: 'producer index', v: '5  (5 & 3 = slot 1)', to: 'slot1', fam: 'tail' }, { n: 'slot0', t: 'slot', v: '50', k: 'queue', fam: 'slots' }, { n: 'slot1', t: 'slot', v: '20', k: 'queue', fam: 'slots' }, { n: 'slot2', t: 'slot', v: '30', k: 'queue', fam: 'slots' }, { n: 'slot3', t: 'slot', v: '40', k: 'queue', fam: 'slots' }],
       note: '40 goes to slot 3 (tail 3), then <b>tail = 4 and 4 &amp; 3 = 0</b>: the index <b>wraps</b> to slot 0, where 50 lands on the freed slot. The counter went to 5 but the index is 1. The ring now holds 4 items: <code>tail - head = 4</code>.' },
     { line: 5, mem: [{ n: 'head', t: 'consumer index', v: '1  (slot 1)', to: 'slot1', fam: 'head' }, { n: 'tail', t: 'producer index', v: '5  (5 & 3 = slot 1)', to: 'slot1', fam: 'tail' }, { n: 'slot0', t: 'slot', v: '50', k: 'queue', fam: 'slots' }, { n: 'slot1', t: 'slot', v: '20', k: 'queue', fam: 'slots' }, { n: 'slot2', t: 'slot', v: '30', k: 'queue', fam: 'slots' }, { n: 'slot3', t: 'slot', v: '40', k: 'queue', fam: 'slots' }], out: 'push 60 -> refused (full)\n',
-      note: '<code>tail - head == 4 == N</code>: the ring is <b>full</b> and <code>tryPush</code> returns false. It never grows and never overwrites unread data. What happens to 60 is a <b>policy</b>: drop it, drop the oldest, conflate, or (not in a market-data reader) wait.' }
+      note: '<code>tail - head == 4 == N</code>: the ring is <b>full</b> and <code>tryPush</code> returns false. It never grows and never overwrites unread data. What happens to 60 is a <b>policy</b>: drop it, drop the oldest, conflate, or (not in a network reader) wait.' }
   ]
 });
 </script>

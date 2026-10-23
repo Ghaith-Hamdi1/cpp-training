@@ -2,7 +2,7 @@
 CT.quizData.wire = {
   id: 'wire',
   questions: [
-    { sec: 's1', q: 'Why is `auto* t = reinterpret_cast<const Trade*>(buf);` a poor way to parse a received message?',
+    { sec: 's1', q: 'Why is `auto* t = reinterpret_cast<const Sample*>(buf);` a poor way to parse a received message?',
       opts: ['It is slower than copying', 'Several problems at once: aliasing (undefined behavior), possible misalignment, struct padding that may not match the wire, and byte order', 'reinterpret_cast does not compile on arrays', 'It always crashes'], a: 1,
       why: 'Each of the four is a separate way to go wrong, and the compiler may not warn about any of them. Check the length, then copy each field out with memcpy or assemble it with shifts.' },
 
@@ -51,7 +51,7 @@ struct S { char a; int b; char c; };
 
     { sec: 's4', q: 'What is network byte order?',
       opts: ['Little-endian', 'Big-endian: the most significant byte first', 'Whatever the sender\'s CPU uses', 'Alphabetical byte order'], a: 1,
-      why: 'Internet protocols use big-endian so every host agrees. Individual exchange feeds may differ, so read the protocol specification, and convert explicitly when bytes enter the program.' },
+      why: 'Internet protocols use big-endian so every host agrees. Individual protocols may differ, so read the protocol specification, and convert explicitly when bytes enter the program.' },
 
     { sec: 's4', q: 'What is the portable way to read a big-endian `uint32_t` from `const unsigned char* p`?',
       opts: ['`*reinterpret_cast<const uint32_t*>(p)`', 'Assemble it with shifts: `(uint32_t{p[0]} << 24) | (uint32_t{p[1]} << 16) | (uint32_t{p[2]} << 8) | uint32_t{p[3]}`', '`(uint32_t)p`', '`std::stoi(p)`'], a: 1,
@@ -72,7 +72,7 @@ std::cout << std::hex << std::bit_cast<std::uint32_t>(1.0f);
       opts: ['It is guaranteed to work', 'It is undefined behavior (some compilers, such as GCC, allow it as an extension)', 'It is only an error for floating-point members', 'It is implementation-defined but safe'], a: 1,
       why: 'C permits it; C++ does not. Use std::memcpy or std::bit_cast instead, which are portable and compile to the same code.' },
 
-    { sec: 's6', q: 'Why prefer `std::from_chars` over `std::stoi` when parsing feed messages?',
+    { sec: 's6', q: 'Why prefer `std::from_chars` over `std::stoi` when parsing protocol messages?',
       opts: ['It handles more number formats', 'It does not allocate, throw or use the locale, and reports errors through a return value', 'It is shorter to type', 'stoi does not exist for 64-bit integers'], a: 1,
       why: 'stoi needs a std::string and throws on bad input; from_chars works on a character range, returns an error code and the position where it stopped, and is locale-independent. All three matter on a hot path.' },
 
@@ -85,15 +85,15 @@ std::cout << std::hex << std::bit_cast<std::uint32_t>(1.0f);
 std::cout << std::boolalpha << (0.1 + 0.2 == 0.3);
 `,
       opts: ['true', 'false', 'It does not compile', 'Undefined behavior'], a: 1,
-      why: '0.1 and 0.2 have no exact binary representation, so their sum is 0.30000000000000004, which is not the double nearest 0.3. Prices stored as integer ticks do not have this problem.' },
+      why: '0.1 and 0.2 have no exact binary representation, so their sum is 0.30000000000000004, which is not the double nearest 0.3. Money amounts stored as integer units do not have this problem.' },
 
-    { sec: 's7', q: 'Which representation is best for exchange prices on a hot path?',
-      opts: ['`double`', '`float`', 'An integer count of ticks (a scaled `int64_t`)', 'A `std::string`'], a: 2,
-      why: 'Integer ticks are exact and deterministic, compare with ==, and parse straight from text. Watch overflow when multiplying by quantity, and fix the rounding rule in one place.' },
+    { sec: 's7', q: 'Which representation is best for money amounts on a hot path?',
+      opts: ['`double`', '`float`', 'An integer count of units (a scaled `int64_t`)', 'A `std::string`'], a: 2,
+      why: 'Integer units are exact and deterministic, compare with ==, and parse straight from text. Watch overflow when multiplying by quantity, and fix the rounding rule in one place.' },
 
     { sec: 's8', q: 'You expect sequence number 102 and receive 105. What does that mean?',
       opts: ['A duplicate: ignore it', 'A gap: 102, 103 and 104 are missing, so buffer 105 and request a retransmission or snapshot', 'In order: process it', 'The counter wrapped around'], a: 1,
-      why: 'A higher number than expected means messages were lost. Processing 105 immediately would give an inconsistent book, so hold it and recover the missing range.' },
+      why: 'A higher number than expected means messages were lost. Processing 105 immediately would give an inconsistent state, so hold it and recover the missing range.' },
 
     { sec: 's8', q: 'How do you compare 32-bit sequence numbers safely across wrap-around?',
       opts: ['`received < expected`', '`static_cast<std::int32_t>(received - expected)` and look at its sign', 'Convert both to `double`', 'Compare their decimal strings'], a: 1,

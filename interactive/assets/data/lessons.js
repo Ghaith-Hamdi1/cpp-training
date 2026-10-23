@@ -196,6 +196,11 @@ CT.progressMigrations = [
     var li = store.get('lastinfo', null);
     if (li && li.id === 'rules') store.set('lastinfo', null);
     store.set('mock:missed', []);
+    // the patterns2 section 'feed' became 'state-machine'
+    var p2 = store.get('done:patterns2', []);
+    if (p2.indexOf('feed') >= 0) store.set('done:patterns2', p2.filter(function (id) { return id !== 'feed'; }).concat(p2.indexOf('state-machine') < 0 ? ['state-machine'] : []));
+    if (store.get('last:patterns2', '') === 'feed') store.set('last:patterns2', 'state-machine');
+    if (li && li.id === 'patterns2' && li.sec === 'feed') li.sec = 'state-machine', store.set('lastinfo', li);
   } }
 ];
 

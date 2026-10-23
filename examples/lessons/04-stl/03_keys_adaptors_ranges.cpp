@@ -1,5 +1,5 @@
 // Lesson 11: custom comparators and hashes for map keys, heterogeneous lookup, try_emplace, multimap, iterator
-// adaptors, std::erase_if and a first look at ranges. Compile with -std=c++20.
+// adaptors, std::erase_if and a first look at ranges. Compile with -std=c++23.
 #include <algorithm>
 #include <cctype>
 #include <deque>

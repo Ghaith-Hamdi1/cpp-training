@@ -205,7 +205,7 @@ Common patterns in modern C++, with real code.
 - [ ] Adapter
 - [ ] Builder
 - [ ] Visitor and `std::variant`
-- [ ] Patterns in a feed handler
+- [ ] A protocol state machine with `variant`
 - [ ] Cheat sheet (say each answer aloud)
 - [ ] Take the quiz, then retry the missed questions
 
@@ -259,7 +259,7 @@ Binary formats and parsing, and predictable, fast code.
 - [ ] Endianness
 - [ ] Reading bytes safely: aliasing and memcpy
 - [ ] Zero-copy parsing
-- [ ] Prices: fixed-point versus double
+- [ ] Money amounts: fixed-point versus double
 - [ ] Sequence numbers and gaps
 - [ ] Cheat sheet (say each answer aloud)
 - [ ] Take the quiz, then retry the missed questions
@@ -270,7 +270,7 @@ Binary formats and parsing, and predictable, fast code.
 - [ ] Measuring: percentiles and tail latency
 - [ ] Memory on the hot path
 - [ ] Cache-friendly data
-- [ ] Order books: choosing a structure
+- [ ] Dense keys: an array instead of a map
 - [ ] Queues between threads
 - [ ] A predictable hot path
 - [ ] Threads, cores and busy-polling

@@ -3,14 +3,14 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>More Patterns and Feed-Handler Designs</title>
+<title>More Patterns</title>
 <script>try{var t=JSON.parse(localStorage.getItem('cpptrain:theme'));if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
 <link rel="stylesheet" href="assets/style.css">
 </head>
 <body data-topic="patterns2" data-kind="lesson">
 <main>
-<h1>More Patterns and Feed-Handler Designs</h1>
-<p class="lead">Command with undo, Decorator, Adapter, Builder and Visitor with <code>std::variant</code>, with real code, plus the patterns that matter in a feed handler. Builds on <a href="06-design-patterns.html">Design Patterns</a>.</p>
+<h1>More Patterns</h1>
+<p class="lead">Command with undo, Decorator, Adapter, Builder and Visitor with <code>std::variant</code>, with real code, plus a protocol state machine built on <code>variant</code>. Builds on <a href="06-design-patterns.html">Design Patterns</a>.</p>
 
 <section id="command" data-title="Command (with undo)">
 <h2>Command (with undo)</h2>
@@ -78,12 +78,12 @@ s->write("feed");                                                  // "[FEED]" (
 <h2>Adapter</h2>
 <p>Make an interface you <b>cannot change</b> fit the one your code <b>expects</b>. The adapter implements the expected interface and translates each call.</p>
 <script type="text/x-cpp">
-struct LegacyFeed { int priceInCents() const; };                   // a third-party class: cannot edit it
-struct PriceSource { virtual ~PriceSource() = default; virtual double price() const = 0; };   // what our code uses
+struct LegacySensor { int tempInTenths() const; };                   // a third-party class: cannot edit it
+struct TempSource { virtual ~TempSource() = default; virtual double celsius() const = 0; };   // what our code uses
 
-struct LegacyAdapter : PriceSource {
-    LegacyFeed feed;
-    double price() const override { return feed.priceInCents() / 100.0; }   // 10025 cents -> 100.25 (compiled)
+struct LegacyAdapter : TempSource {
+    LegacySensor sensor;
+    double celsius() const override { return sensor.tempInTenths() / 10.0; }   // 215 tenths -> 21.5 (compiled)
 };
 </script>
 <ul>
@@ -97,20 +97,20 @@ struct LegacyAdapter : PriceSource {
 <h2>Builder</h2>
 <p>Construct a complex object <b>step by step</b> with named steps, and validate at the end. Useful when a constructor would need many parameters.</p>
 <script type="text/x-cpp">
-class OrderBuilder {
-    Order o_;
+class RequestBuilder {
+    Request r_;
 public:
-    OrderBuilder& symbol(std::string s)  { o_.sym = std::move(s); return *this; }
-    OrderBuilder& qty(int q)             { o_.qty = q; return *this; }
-    OrderBuilder& price(double p)        { o_.px = p; return *this; }
-    OrderBuilder& immediateOrCancel()    { o_.ioc = true; return *this; }
-    Order build() const { /* check qty > 0, price > 0, ... then */ return o_; }
+    RequestBuilder& url(std::string u)   { r_.url = std::move(u); return *this; }
+    RequestBuilder& timeout(int secs)    { r_.timeout = secs; return *this; }
+    RequestBuilder& retries(int n)       { r_.retries = n; return *this; }
+    RequestBuilder& https()              { r_.secure = true; return *this; }
+    Request build() const { /* check url is set, timeout > 0, ... then */ return r_; }
 };
-Order o = OrderBuilder().symbol("ESZ5").qty(10).price(5000.25).immediateOrCancel().build();
+Request r = RequestBuilder().url("example.org/api").timeout(5).retries(3).https().build();
 </script>
 <ul>
-<li>Each setter returns <code>*this</code> so calls chain (a <b>fluent interface</b>). Validate in <code>build()</code>: an order without a symbol never gets out.</li>
-<li><b>Alternatives in modern C++:</b> an aggregate with <b>designated initializers</b> (<code>Order{.sym = "ESZ5", .qty = 10}</code>, C++20) is shorter when no validation is needed; named parameters via a small options struct.</li>
+<li>Each setter returns <code>*this</code> so calls chain (a <b>fluent interface</b>). Validate in <code>build()</code>: a request without a URL never gets out.</li>
+<li><b>Alternatives in modern C++:</b> an aggregate with <b>designated initializers</b> (<code>Request{.url = "example.org", .timeout = 5}</code>, C++20) is shorter when no validation is needed; named parameters via a small options struct.</li>
 <li>The classic use is building trees or immutable objects; a builder avoids half-built objects.</li>
 </ul>
 </section>
@@ -141,22 +141,13 @@ for (const auto& s : shapes) total += std::visit(Area{}, s);       // 12 + 12 = 
 <ul>
 <li>Use <b>virtual functions</b> when the set of types is open and operations are few; use <b>variant + visit</b> when the set of types is closed (message types, AST nodes, events) and you keep adding operations.</li>
 <li>A forgotten alternative is a <b>compile error</b>, not a silent bug.</li>
-<li>Variants are a natural fit for <b>feed messages</b>: <code>std::variant&lt;Add, Modify, Delete, Trade&gt;</code> and a visitor that updates the book.</li>
+<li>Variants are a natural fit for <b>protocol messages</b>: <code>std::variant&lt;Connect, Data, Disconnect&gt;</code> and a visitor that handles each kind.</li>
 </ul>
 </section>
 
-<section id="feed" data-title="Patterns in a feed handler">
-<h2>Patterns in a feed handler</h2>
-<table>
-<tr><th>Need</th><th>Pattern</th><th>Where it is covered</th></tr>
-<tr><td>Subscribers receive updates for the symbols they asked for</td><td><b>Observer</b> / publish-subscribe: a map from symbol to a list of subscribers</td><td><a href="06-design-patterns.html">Design Patterns</a></td></tr>
-<tr><td>Pick a parser or normaliser per venue at run time</td><td><b>Strategy</b> and <b>Factory</b></td><td><a href="06-design-patterns.html">Design Patterns</a></td></tr>
-<tr><td>Avoid allocation per message</td><td><b>Object pool</b>: preallocated slots and a free list</td><td><a href="12-low-latency.html">Low-Latency C++</a></td></tr>
-<tr><td>Handle message types without a class hierarchy</td><td><b>Visitor</b> over a <code>variant</code> (above)</td><td>this lesson</td></tr>
-<tr><td>Session behaviour: logon, sequence numbers, gaps, logout</td><td><b>State machine</b> (below)</td><td>this lesson</td></tr>
-<tr><td>Hand work between threads</td><td><b>Producer/consumer</b> and an SPSC queue</td><td><a href="12-low-latency.html">Low-Latency C++</a></td></tr>
-</table>
-<h3>A session state machine with <code>variant</code></h3>
+<section id="state-machine" data-title="A protocol state machine with variant">
+<h2>A protocol state machine with <code>variant</code></h2>
+<p>A connection or session moves through states (disconnected, logged on, stopped) and reacts to events. Each state carries only the data it needs.</p>
 <figure class="fig"><svg viewBox="0 0 640 110" role="img" aria-label="Disconnected goes to LoggedOn on logon; LoggedOn stays on msg and goes to Stopped on logout"><defs><marker id="mp2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path class="ah" d="M0 0L10 5L0 10z"/></marker></defs>
 <rect class="box" x="10" y="30" width="130" height="40" rx="8"/><text x="75" y="55" text-anchor="middle">Disconnected</text>
 <path class="ar" d="M140 50H240" marker-end="url(#mp2)"/><text class="m" x="168" y="42">logon</text>
@@ -194,7 +185,7 @@ Session onEvent(const Session& s, const std::string& ev) {
 <details class="ex"><summary>Adapter versus Decorator versus Facade?</summary><div><p>An adapter changes an interface to the one a client expects. A decorator keeps the interface and adds behaviour. A facade offers a simpler interface to a whole subsystem. <code>std::stack</code> and <code>std::queue</code> are adapters.</p></div></details>
 <details class="ex"><summary>When would you use a Builder?</summary><div><p>When an object has many optional or related parts, so a constructor would take a long argument list, or when it must be validated before use. Chain named setters and validate in <code>build()</code>. For simple aggregates, designated initializers (C++20) may be enough.</p></div></details>
 <details class="ex"><summary>Visitor with virtual functions or with <code>std::variant</code>?</summary><div><p>Virtual functions make adding a type easy and adding an operation hard. A <code>variant</code> with <code>std::visit</code> makes adding an operation easy (one new visitor), keeps values inline without allocation or virtual calls, and the compiler flags every visitor that misses a new alternative. Use it when the set of types is closed, such as message types.</p></div></details>
-<details class="ex"><summary>How would you model a FIX or exchange session?</summary><div><p>As a state machine: states such as Disconnected, LoggedOn and Stopped, each holding only its own data (for example the next expected sequence number), and an <code>onEvent</code> function that returns the next state. A <code>variant</code> of state structs with <code>std::visit</code> makes invalid combinations unrepresentable and avoids virtual calls.</p></div></details>
+<details class="ex"><summary>How would you model a network session with several states?</summary><div><p>As a state machine: states such as Disconnected, LoggedOn and Stopped, each holding only its own data (for example the next expected sequence number), and an <code>onEvent</code> function that returns the next state. A <code>variant</code> of state structs with <code>std::visit</code> makes invalid combinations unrepresentable and avoids virtual calls.</p></div></details>
 </section>
 </main>
 

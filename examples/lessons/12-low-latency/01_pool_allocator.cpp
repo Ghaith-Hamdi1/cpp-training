@@ -1,5 +1,5 @@
 // Lesson 20: a fixed-size object pool with a free list, and a pmr arena. A counting operator new proves that the
-// hot path allocates nothing. Compile with -std=c++20.
+// hot path allocates nothing. Compile with -std=c++23.
 #include <array>
 #include <cstddef>
 #include <cstdint>
@@ -51,28 +51,28 @@ public:
     std::size_t indexOf(const T* p) const { return static_cast<std::size_t>(reinterpret_cast<const Slot*>(p) - slots_.data()); }
 };
 
-struct Order {
+struct Task {
     std::uint64_t id;
-    std::int64_t  priceTicks;
+    std::int64_t  cost;
     std::uint32_t qty;
-    Order(std::uint64_t i, std::int64_t p, std::uint32_t q) : id(i), priceTicks(p), qty(q) {}
+    Task(std::uint64_t i, std::int64_t p, std::uint32_t q) : id(i), cost(p), qty(q) {}
 };
 
 int main()
 {
-    static Pool<Order, 4> pool;                                 // static: built once, never on the hot path
+    static Pool<Task, 4> pool;                                 // static: built once, never on the hot path
 
     const std::size_t before = g_allocations;
-    Order* a = pool.allocate(1, 1012500, 300);
-    Order* b = pool.allocate(2, 1012600, 100);
+    Task* a = pool.allocate(1, 1012500, 300);
+    Task* b = pool.allocate(2, 1012600, 100);
     std::cout << "a in slot " << pool.indexOf(a) << ", b in slot " << pool.indexOf(b) << ", in use " << pool.inUse() << '\n';
     pool.deallocate(a);
-    Order* c = pool.allocate(3, 1012700, 50);
+    Task* c = pool.allocate(3, 1012700, 50);
     std::cout << "after freeing a, c reuses slot " << pool.indexOf(c) << " (same address as a: " << std::boolalpha << (c == a) << ")\n";
 
-    Order* d = pool.allocate(4, 1, 1);
-    Order* e = pool.allocate(5, 1, 1);
-    Order* f = pool.allocate(6, 1, 1);                          // the pool has 4 slots: b, c, d, e are in use
+    Task* d = pool.allocate(4, 1, 1);
+    Task* e = pool.allocate(5, 1, 1);
+    Task* f = pool.allocate(6, 1, 1);                          // the pool has 4 slots: b, c, d, e are in use
     std::cout << "5th allocation: " << (f == nullptr ? "refused (pool exhausted)" : "granted") << '\n';
     pool.deallocate(b); pool.deallocate(c); pool.deallocate(d); pool.deallocate(e);
     std::cout << "heap allocations on this path: " << (g_allocations - before) << '\n';

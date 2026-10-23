@@ -1,6 +1,6 @@
 // Lesson 12: how template arguments are deduced (by value, by reference, forwarding reference, arrays), class template
 // argument deduction, alias templates, variable templates, template template parameters and std::index_sequence.
-// Compile with -std=c++20.
+// Compile with -std=c++23.
 #include <array>
 #include <iostream>
 #include <map>
