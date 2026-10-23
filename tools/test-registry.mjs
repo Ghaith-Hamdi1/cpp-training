@@ -153,7 +153,7 @@ test('the real v6 migration moves the conversions tick and weak question from th
 test('the real v7 migration forgets the removed Coding Rules lesson and keeps other progress', () => {
   const CT = loadRegistry();
   const s = makeStore({ 'schema': 6, 'done:rules': ['s1'], 'last:rules': 's2', 'quiz:rules': { best: 90, last: 80, total: 14 }, 'weak:rules': { q: 1 }, 'lastinfo': { id: 'rules', sec: 's2' }, 'done:stl': ['s2'], 'mock:missed': ['rules-1', 'stl-2'] });
-  assert.equal(CT.migrate(s), 7);
+  assert.equal(CT.migrate(s), CT.schemaVersion());
   assert.deepEqual(s.get('done:rules'), []);
   assert.equal(s.get('quiz:rules'), null);
   assert.equal(s.get('lastinfo', 'gone'), null);
@@ -165,9 +165,18 @@ test('the real v7 migration forgets the removed Coding Rules lesson and keeps ot
 test('the real v7 migration renames the patterns2 section feed to state-machine', () => {
   const CT = loadRegistry();
   const s = makeStore({ 'schema': 6, 'done:patterns2': ['command', 'feed'], 'last:patterns2': 'feed' });
-  assert.equal(CT.migrate(s), 7);
+  assert.equal(CT.migrate(s), CT.schemaVersion());
   assert.deepEqual(s.get('done:patterns2'), ['command', 'state-machine']);
   assert.equal(s.get('last:patterns2'), 'state-machine');
+});
+
+test('the real v8 migration merges the strings regex sections', () => {
+  const CT = loadRegistry();
+  const s = makeStore({ 'schema': 7, 'done:strings': ['s1', 's3'], 'last:strings': 's3' });
+  assert.equal(CT.migrate(s), CT.schemaVersion());
+  assert.deepEqual(s.get('done:strings'), ['s1', 's2']);
+  assert.equal(s.get('last:strings'), 's2');
+  assert.equal(CT.resolveMoved('08-strings-regex-time.html', 's3'), '08-strings-regex-time.html#s2');
 });
 
 console.log(passed + ' tests passed');

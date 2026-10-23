@@ -138,8 +138,7 @@ Strings, containers, iterators, algorithms, templates, type traits and concepts,
 - [ ] Numbers and text: `from_chars`, `to_chars`, `stoi`
 - [ ] Formatting: `std::format` and streams
 - [ ] String streams and files
-- [ ] Regular expressions: the basics
-- [ ] Captures, replace and iterating matches
+- [ ] Regular expressions
 - [ ] Time with `std::chrono`
 - [ ] Cheat sheet (say each answer aloud)
 - [ ] Take the quiz, then retry the missed questions

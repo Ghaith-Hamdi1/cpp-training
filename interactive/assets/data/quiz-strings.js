@@ -33,7 +33,7 @@ std::cout << name;`,
       opts: ['`std::regex_match`', '`std::regex_search`', '`std::regex_replace`', '`std::regex_find`'], a: 1,
       why: '`regex_search` looks for the first match anywhere and stores the whole match and each group in the `smatch`. There is no `regex_find`.' },
 
-    { sec: 's3', q: 'After a successful `regex_search(line, m, std::regex(R"((\\w+)=(\\d+))"))` on "x=42", what is `m[2]`?',
+    { sec: 's2', q: 'After a successful `regex_search(line, m, std::regex(R"((\\w+)=(\\d+))"))` on "x=42", what is `m[2]`?',
       opts: ['"x=42"', '"x"', '"42"', '"="'], a: 2,
       why: '`m[0]` is the whole match, `m[1]` is the first group (`x`) and `m[2]` is the second group (`42`).' },
 
@@ -41,11 +41,11 @@ std::cout << name;`,
       opts: ['Call `regex_search` once; it returns all matches', 'Use `std::sregex_iterator`', 'Use `regex_match` in a loop', 'Use `std::regex_all`'], a: 1,
       why: 'A `std::sregex_iterator` constructed over the range walks all matches; compare it with a default-constructed iterator to detect the end.' },
 
-    { sec: 's3', q: 'Why should you not construct a `std::regex` inside a hot loop?',
+    { sec: 's2', q: 'Why should you not construct a `std::regex` inside a hot loop?',
       opts: ['It is not thread safe', 'Constructing compiles the pattern, which is expensive; build it once and reuse it', 'It leaks memory', 'The compiler forbids it'], a: 1,
       why: 'Pattern compilation happens at construction. Create it once (for example as a `static const`) and reuse it.' },
 
-    { sec: 's3', q: 'What does an invalid pattern such as `std::regex("(")` do?',
+    { sec: 's2', q: 'What does an invalid pattern such as `std::regex("(")` do?',
       opts: ['Silently matches nothing', 'Throws `std::regex_error` at construction', 'Causes a compile error', 'Matches everything'], a: 1,
       why: 'Patterns are parsed at run time, so an invalid one throws `std::regex_error` when the regex object is built.' },
 

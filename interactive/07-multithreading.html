@@ -418,33 +418,7 @@ leaked->modify();                                 // later: modifies the data wi
 </script>
 Never pass out a pointer or reference to protected data.</li>
 <li><b>Fixed lock order.</b> Hand-over-hand locking on list nodes deadlocks when two threads walk in opposite directions. Fix the traversal direction.</li>
-<li><b>Lock hierarchy.</b> Each mutex has a level; a thread may only lock a <i>lower</i> level than it holds. Violations throw the first time, even if the unlucky timing never occurs.
-<script type="text/x-cpp">
-class HierarchicalMutex {
-    std::mutex m_;
-    const unsigned level_;
-    unsigned previous_ = 0;
-    static thread_local unsigned current_;        // lowest level this thread currently holds
-public:
-    explicit HierarchicalMutex(unsigned level) : level_(level) {}
-    void lock() {
-        if (current_ <= level_) throw std::logic_error("lock order violated");   // must go strictly downward
-        m_.lock();
-        previous_ = current_;
-        current_ = level_;
-    }
-    void unlock() {
-        if (current_ != level_) throw std::logic_error("unlock out of order");
-        current_ = previous_;
-        m_.unlock();
-    }
-};
-thread_local unsigned HierarchicalMutex::current_ = UINT_MAX;   // a new thread holds nothing yet
-
-HierarchicalMutex high(10000), low(5000);
-{ std::lock_guard<HierarchicalMutex> a(high); std::lock_guard<HierarchicalMutex> b(low); }   // OK: 10000 then 5000
-{ std::lock_guard<HierarchicalMutex> a(low);  std::lock_guard<HierarchicalMutex> b(high); }   // throws at once
-</script></li>
+<li><b>Lock hierarchy.</b> Each mutex has a level; a thread may only lock a <i>lower</i> level than it holds. Violations throw the first time, even if the unlucky timing never occurs. It is a small wrapper around <code>std::mutex</code> that records the current level in a <code>thread_local</code> variable and throws if you lock upward. The idea is worth knowing; in practice, <code>std::scoped_lock</code> and a documented lock order cover most programs.</li>
 </ol>
 <div class="callout warn"><span class="label">No mutex needed</span>Two threads that <code>join()</code> each other deadlock, as does any cycle of futures or condition-variable waits.
 <script type="text/x-cpp">

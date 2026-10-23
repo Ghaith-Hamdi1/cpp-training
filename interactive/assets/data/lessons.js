@@ -66,6 +66,7 @@ CT.moved = {
   '03-core-language.html#s8': '16-types-and-casts.html#casts',
   '03-core-language.html#s9': '16-types-and-casts.html#const',
   '03-core-language.html#s10': '16-types-and-casts.html#standards',
+  '08-strings-regex-time.html#s3': '08-strings-regex-time.html#s2',   // the two regex sections were merged
   '07-multithreading.html#s6': '18-atomics-memory-model.html#ops',        // the multithreading lesson was split in three
   '07-multithreading.html#s8': '17-tasks-parallelism.html#futures',
   '07-multithreading.html#s9': '17-tasks-parallelism.html#pool',
@@ -201,6 +202,14 @@ CT.progressMigrations = [
     if (p2.indexOf('feed') >= 0) store.set('done:patterns2', p2.filter(function (id) { return id !== 'feed'; }).concat(p2.indexOf('state-machine') < 0 ? ['state-machine'] : []));
     if (store.get('last:patterns2', '') === 'feed') store.set('last:patterns2', 'state-machine');
     if (li && li.id === 'patterns2' && li.sec === 'feed') li.sec = 'state-machine', store.set('lastinfo', li);
+  } },
+  /* v8: the two regex sections of the Strings lesson were merged (s3 into s2). */
+  { to: 8, run: function (store) {
+    var d = store.get('done:strings', []);
+    if (d.indexOf('s3') >= 0) store.set('done:strings', d.filter(function (id) { return id !== 's3'; }).concat(d.indexOf('s2') < 0 ? ['s2'] : []));
+    if (store.get('last:strings', '') === 's3') store.set('last:strings', 's2');
+    var li = store.get('lastinfo', null);
+    if (li && li.id === 'strings' && li.sec === 's3') { li.sec = 's2'; store.set('lastinfo', li); }
   } }
 ];
 

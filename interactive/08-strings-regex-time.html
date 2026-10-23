@@ -185,8 +185,8 @@ for (std::string field; std::getline(csv, field, ',');) { /* "apple", "5000.25",
 <!-- read-more:end -->
 </section>
 
-<section id="s2" data-title="Regular expressions: the basics">
-<h2>Regular expressions: the basics</h2>
+<section id="s2" data-title="Regular expressions">
+<h2>Regular expressions</h2>
 <p>A regex describes a <i>set of strings</i>. Match vs search is a favourite question:</p>
 <table>
 <tr><th>Function</th><th>Question it answers</th></tr>
@@ -215,10 +215,7 @@ std::regex_search("xabbbcx", re);    // true  : found inside
 <p>Try patterns (<code>std::regex</code> uses ECMAScript grammar, like this tester):</p>
 <div id="w-regex"></div>
 <div class="callout tip"><span class="label">Backslashes</span>Write <code>"\\d+"</code> or a raw string <code>R"(\d+)"</code>. POSIX classes like <code>[[:alnum:]]</code> work in <code>std::regex</code> but not in the tester.</div>
-</section>
-
-<section id="s3" data-title="Captures, replace and iterating matches">
-<h2>Captures, replace and iterating matches</h2>
+<h3>Captures, replace and iterating matches</h3>
 <p>Parentheses make <b>capture groups</b>; <code>std::smatch</code> holds the whole match at 0, groups after.</p>
 <script type="text/x-cpp">
 std::string line = "temp=21.5C humidity=40%";
