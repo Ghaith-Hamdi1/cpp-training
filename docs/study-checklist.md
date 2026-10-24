@@ -50,7 +50,7 @@ Types, expressions, control flow, functions, pointers, references, strings and v
 
 - [ ] C++ Primer: ch. 2 Variables and Basic Types (2.1 to 2.6) (PDF pages 61 to 109)
 - [ ] C++ Primer: ch. 3 Strings, Vectors and Arrays (3.2 to 3.6) (PDF pages 113 to 161)
-- [ ] C++ Primer: 4.2 to 4.5 Operators (short-circuit `&&`/` (PDF pages )
+- [ ] C++ Primer: 4.2 to 4.5 Operators (short-circuit `&&`/`||`, prefix versus postfix `++`); 4.8 Bitwise operators; 4.11 Type conversions (PDF pages 168 to 178; 181 to 184; 188 to 194)
 - [ ] C++ Primer: 5.3 to 5.5 Statements: `switch` fall-through, the dangling `else`, loops and jumps (PDF pages 203 to 221)
 - [ ] C++ Primer: ch. 6 Functions (6.1 to 6.7) (PDF pages 231 to 281)
 

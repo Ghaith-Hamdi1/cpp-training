@@ -30,7 +30,7 @@ const PHASES = readdirSync(resolve(repo, ROAD)).filter((n) => /^phase-\d+-.*\.md
   const sub = (lines.find((l) => /^\*[^*].*\*$/.test(l)) || '').replace(/^\*|\*$/g, '');
   const time = /\*\*Time:\*\* about \*\*([\d.]+) hours?\*\*/.exec(lines.join('\n'))[1];
   const at = (re) => lines.findIndex((l) => re.test(l));
-  const rows = (start) => { const out = []; for (let i = start; i < lines.length && !/^## /.test(lines[i]); i++) if (/^\| /.test(lines[i]) && !/^\| (Book|---)/.test(lines[i]) && !/^\|---/.test(lines[i])) out.push(lines[i].split('|').slice(1, -1).map((c) => c.trim())); return out; };
+  const rows = (start) => { const out = []; for (let i = start; i < lines.length && !/^## /.test(lines[i]); i++) if (/^\| /.test(lines[i]) && !/^\| (Book|---)/.test(lines[i]) && !/^\|---/.test(lines[i])) out.push(lines[i].split(/\|(?=(?:[^`]*`[^`]*`)*[^`]*$)/).slice(1, -1).map((c) => c.trim())); return out; };
   const core = at(/^## Core reading/) >= 0 ? rows(at(/^## Core reading/) + 1).map(([book, sec, pages]) => ({ book, sec, pages })) : [];
   const lessonFiles = [...lines.slice(at(/^## Lessons and exercises/)).join('\n').matchAll(/cpp-training\/([\w-]+\.html)\)/g)].map((m) => m[1]).filter((x) => !/-quiz\.html$/.test(x));
   const ex = (lines.find((l) => /^Exercises: /.test(l)) || '').replace(/^Exercises: /, '').replace(/\.$/, '');
