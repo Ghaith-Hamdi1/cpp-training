@@ -1,7 +1,7 @@
 // Prints every lesson page in interactive/ to its own PDF in docs/lessons-pdf/ with headless Edge or Chrome (light theme, every recap
 // answer opened, and print CSS that keeps figures, code blocks, callouts, tables and widgets whole: one that does not fit at the bottom of
 // a page moves to the next page; only a block taller than a page is split). Code lines wrap instead of being clipped.
-// Left out of the PDFs: the "Predict" exercises, the "Cheat sheet" section and every interactive widget (step-through walk-throughs,
+// Left out of the PDFs: the "Predict" exercises, the "Cheat sheet" section, terminal-command blocks (g++ ..., ./main) and every interactive widget (step-through walk-throughs,
 // simulators, testers, advisors), together with the sentence that introduces each. Three simulators and the container advisor are replaced by
 // a short static table. The "Read more" book notes of a lesson are collected into one "Further reading" box at the end of the lesson, and
 // a few sections are moved within their lesson where that reads better on paper (see ORDER in pdfPrep).
@@ -46,6 +46,13 @@ function pdfPrep(file) {
 
   // The cheat sheet at the end of every lesson
   $$('main > section').forEach((s) => { const h = s.querySelector('h2'); if (h && /^cheat sheet/i.test(h.textContent.trim())) s.remove(); });
+
+  // Terminal commands: code blocks whose first line is a shell command (compile and run lines)
+  const SHELL = /^(\$ |g\+\+|clang\+\+|gcc |cmake|make\b|ninja|\.\/|valgrind|gdb|lldb|perf |taskset)/;
+  $$('figure.code').forEach((f) => {
+    const first = ((f.querySelector('pre') || f).textContent.split('\n').find((l) => l.trim()) || '').trim();
+    if (SHELL.test(first)) f.remove();
+  });
 
   // Static stand-ins for the widgets whose idea matters on paper, keyed by widget id
   const STATIC = {
