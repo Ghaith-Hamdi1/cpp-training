@@ -21,6 +21,10 @@ const exe = process.env.BROWSER || ['C:/Program Files (x86)/Microsoft/Edge/Appli
 if (!exe) throw new Error('No Edge or Chrome found; set BROWSER to its path');
 
 const PAGE_PX = 1005;   // printable page height in CSS px (A4 11.69in less 0.4in and 0.45in margins), with a little slack
+// Blocks are kept whole on one page, except a code block taller than SPLIT_CODE_PX or a list taller than SPLIT_LIST_PX, which may continue on the
+// next page (at a line or an item) so that a long block does not leave half a page empty. 0 keeps everything whole.
+const SPLIT_CODE_PX = +(process.env.SPLIT_CODE_PX ?? 400);
+const SPLIT_LIST_PX = +(process.env.SPLIT_LIST_PX ?? 150);
 const PRINT_CSS = `
   h1, h2, h3, h4, summary { break-after: avoid; }
   figure, figure.code, .fig, .callout, .widget, .card, details, table, table tr, pre, svg, blockquote, .sim, .stepper, .ex { break-inside: avoid; }
@@ -32,6 +36,9 @@ const PRINT_CSS = `
   ul, ol { break-inside: avoid-page; }
   p, li { orphans: 3; widows: 3; }
   section > p:has(+ figure), section > p:has(+ .widget), section > p:has(+ table), section > p:has(+ details) { break-after: avoid; }
+  figure.code.may-split, figure.code.may-split pre { break-inside: auto; }
+  figure.code.may-split pre { orphans: 4; widows: 4; }
+  ul.may-split, ol.may-split { break-inside: auto; }
   .further-page { break-before: page; }
   .further-page table { display: table; width: 100%; break-inside: auto; font-size: 0.82rem; }
   .further-page thead { display: table-header-group; }
@@ -41,7 +48,7 @@ const PRINT_CSS = `
 `;
 
 // Runs inside the lesson page (serialized with toString) before it is printed. Only touches the DOM, so it must not use anything from this file.
-function pdfPrep(file) {
+function pdfPrep(file, splitCodePx, splitListPx) {
   const $$ = (sel, scope = document) => [...scope.querySelectorAll(sel)];
   const esc = (t) => String(t).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
   const norm = (t) => t.replace(/\s+/g, ' ').trim();
@@ -188,6 +195,9 @@ function pdfPrep(file) {
       '<table><thead><tr><th style="width:22%">Section</th><th style="width:26%">Book</th><th style="width:40%">Part of the book</th><th style="width:12%">PDF pages</th></tr></thead><tbody>' + rows.join('') + '</tbody></table>';
     $$('main > section').pop().after(page);
   }
+  // Long code blocks and lists may continue on the next page; everything else stays whole
+  if (splitCodePx) $$('figure.code').forEach((f) => { if (f.offsetHeight > splitCodePx) f.classList.add('may-split'); });
+  if (splitListPx) $$('main ul, main ol').forEach((l) => { if (l.offsetHeight > splitListPx) l.classList.add('may-split'); });
   return $$('.widget, .threadsim, select').length;   // anything left over is reported by the caller
 }
 
@@ -215,7 +225,7 @@ try {
     events.length = 0;
     await send('Page.navigate', { url: pathToFileURL(join(root, l.file)).href });
     for (let i = 0; i < 100 && !events.includes('Page.loadEventFired'); i++) await sleep(100);
-    const ev = await send('Runtime.evaluate', { returnByValue: true, expression: `document.documentElement.dataset.theme='light'; document.head.appendChild(Object.assign(document.createElement('style'), { textContent: ${JSON.stringify(PRINT_CSS)} })); document.querySelectorAll('details').forEach(d => d.open = true); document.fonts.ready.then(() => (${pdfPrep.toString()})(${JSON.stringify(l.file)}))`, awaitPromise: true });
+    const ev = await send('Runtime.evaluate', { returnByValue: true, expression: `document.documentElement.dataset.theme='light'; document.head.appendChild(Object.assign(document.createElement('style'), { textContent: ${JSON.stringify(PRINT_CSS)} })); document.querySelectorAll('details').forEach(d => d.open = true); document.fonts.ready.then(() => (${pdfPrep.toString()})(${JSON.stringify(l.file)}, ${SPLIT_CODE_PX}, ${SPLIT_LIST_PX}))`, awaitPromise: true });
     if (ev.exceptionDetails) console.log('JS error', l.file, JSON.stringify(ev.exceptionDetails.exception && ev.exceptionDetails.exception.description || ev.exceptionDetails.text).slice(0, 300));
     else if (ev.result.value) console.log('widgets left in', l.file, ev.result.value);
     await sleep(400);
