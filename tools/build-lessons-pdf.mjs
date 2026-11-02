@@ -213,6 +213,74 @@ function pdfPrep(file, splitCodePx, splitListPx) {
       '<table><thead><tr><th style="width:22%">Section</th><th style="width:26%">Book</th><th style="width:40%">Part of the book</th><th style="width:12%">PDF pages</th></tr></thead><tbody>' + rows.join('') + '</tbody></table>';
     $$('main > section').pop().after(page);
   }
+  // A trailing comment that would wrap onto the next line (and start at the left margin, looking like code) goes on a line of its own above
+  // the code line it belongs to, wrapped to the line width and indented like the code
+  $$('pre').forEach((pre) => {
+    const box = pre.querySelector(':scope > code') || pre;
+    const style = getComputedStyle(pre);
+    const probe = document.createElement('span');
+    probe.style.cssText = 'visibility:hidden;white-space:pre';
+    probe.textContent = 'x'.repeat(100);
+    box.appendChild(probe);
+    const charWidth = probe.getBoundingClientRect().width / 100;
+    probe.remove();
+    const limit = Math.floor((pre.clientWidth - parseFloat(style.paddingLeft) - parseFloat(style.paddingRight)) / charWidth) - 1;   // characters per printed line
+    if (!(limit > 20)) return;
+    const wrapComment = (text, indent) => {
+      const pad = ' '.repeat(indent);
+      const lines = [];
+      let cur = '';
+      for (const w of text.replace(/^\/\/\s?/, '').split(/\s+/).filter(Boolean)) {
+        if (cur && pad.length + 3 + cur.length + 1 + w.length > limit) { lines.push(cur); cur = w; } else cur = cur ? cur + ' ' + w : w;
+      }
+      if (cur) lines.push(cur);
+      return lines.map((l) => pad + '// ' + l).join('\n');
+    };
+    let col = 0, indent = 0, hasCode = false, inIndent = true, line = 0;
+    let last = null;   // the trailing comment of the previous line: { line, span, text, indent } when it was moved above its code, else { line }
+    let lineStart = { node: box.firstChild, offset: 0 };
+    const step = (ch) => {
+      if (inIndent && (ch === ' ' || ch === '\t')) indent++; else { inIndent = false; if (ch !== ' ' && ch !== '\t') hasCode = true; }
+      col++;
+    };
+    for (const node of [...box.childNodes]) {
+      if (node.nodeType === 3) {
+        const t = node.nodeValue;
+        for (let i = 0; i < t.length; i++) {
+          if (t[i] === '\n') { col = 0; indent = 0; hasCode = false; inIndent = true; line++; lineStart = { node, offset: i + 1 }; } else step(t[i]);
+        }
+      } else if (node.nodeType === 1) {
+        const t = node.textContent;
+        const lineComment = node.classList.contains('tk-cm') && /^\/\//.test(t) && !t.includes('\n');
+        if (lineComment && col + t.length > limit) {
+          if (hasCode) {
+            const prev = node.previousSibling;
+            if (prev && prev.nodeType === 3) prev.nodeValue = prev.nodeValue.replace(/[ \t]+$/, '');
+            const moved = document.createElement('span');
+            moved.className = 'tk-cm';
+            moved.textContent = wrapComment(t, indent) + '\n';
+            if (lineStart.node.nodeType === 3) lineStart.node.splitText(lineStart.offset).before(moved); else lineStart.node.before(moved);
+            node.remove();
+            last = { line, span: moved, text: t, indent };
+          } else if (indent >= 20 && last && last.line === line - 1) {
+            // a comment that continues the previous line's comment, aligned to the comment column
+            if (last.span) {
+              last.text += ' ' + t.replace(/^\/\/\s?/, '');
+              last.span.textContent = wrapComment(last.text, last.indent) + '\n';
+              const prev = node.previousSibling;
+              if (prev && prev.nodeType === 3) prev.nodeValue = prev.nodeValue.replace(/\n[ \t]*$/, '');
+              node.remove();
+              last.line = line;
+            }
+          } else node.textContent = wrapComment(t, indent);
+        } else {
+          if (lineComment && hasCode) last = { line };
+          for (const ch of t) step(ch);
+        }
+      }
+    }
+  });
+
   // Long code blocks and lists may continue on the next page; everything else stays whole
   if (splitCodePx) $$('figure.code').forEach((f) => { if (f.offsetHeight > splitCodePx) f.classList.add('may-split'); });
   if (splitListPx) $$('main ul, main ol').forEach((l) => { if (l.offsetHeight > splitListPx) l.classList.add('may-split'); });
