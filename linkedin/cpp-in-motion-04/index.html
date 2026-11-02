@@ -1,0 +1,141 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>C++ in Motion #4</title>
+<style>
+  :root { --bg: #f6f8fa; --panel: #ffffff; --line: #d0d7de; --text: #1f2328; --muted: #656d76;
+          --stack: #0d9488; --stack-bg: #d9f5f1; --heap: #ea580c; --heap-bg: #ffedd5; --warn: #dc2626; --accent: #2563eb; }
+  @page { size: 1080px 1350px; margin: 0; }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; background: var(--bg); color: var(--text); font-family: "Segoe UI", system-ui, sans-serif; }
+  .page { width: 1080px; height: 1350px; padding: 56px 70px 0; background: var(--bg); overflow: hidden; break-after: page; display: flex; flex-direction: column; }
+  .page:last-child { break-after: auto; }
+  .top { display: flex; justify-content: space-between; font-size: 28px; letter-spacing: 3px; color: var(--muted); height: 52px; }
+  h1 { font-size: 84px; line-height: 1.08; font-weight: 800; margin: 40px 0 0; }
+  h2 { font-size: 62px; line-height: 1.12; font-weight: 800; margin: 36px 0 0; }
+  p { font-size: 42px; line-height: 1.38; margin: 28px 0 0; }
+  p.sm { font-size: 34px; color: var(--muted); }
+  code, .mono { font-family: Consolas, "Cascadia Code", "Courier New", monospace; }
+  p code, td code, li code { font-size: 0.88em; background: #eaeef2; border-radius: 8px; padding: 0 8px; }
+  pre { background: var(--panel); border: 3px solid var(--line); border-radius: 24px; padding: 30px 40px; font: 36px/1.55 Consolas, "Cascadia Code", "Courier New", monospace; margin: 34px 0 0; white-space: pre; }
+  .kw { color: #0550ae; } .ty { color: #116329; } .cm { color: var(--muted); font-style: italic; } .str { color: #0a3069; }
+  .warn { color: var(--warn); } .acc { color: var(--accent); } .muted { color: var(--muted); }
+  table { width: 100%; border-collapse: collapse; margin-top: 34px; background: var(--panel); border: 3px solid var(--line); border-radius: 24px; overflow: hidden; font-size: 36px; }
+  th { text-align: left; font-size: 26px; letter-spacing: 2px; text-transform: uppercase; color: var(--muted); background: #eaeef2; padding: 18px 24px; }
+  td { padding: 22px 24px; vertical-align: top; line-height: 1.3; border-top: 2px solid var(--line); }
+  td.k { width: 54%; font-weight: 700; }
+  td.k code { font-size: 30px; white-space: nowrap; }
+  td code { white-space: nowrap; }
+  .w3 th:nth-child(1), .w3 td:nth-child(1) { width: 36%; }
+  .w5 th:nth-child(1), .w5 td:nth-child(1) { width: 12%; }
+  .w5 th:nth-child(2), .w5 td:nth-child(2) { width: 50%; }
+  .t8 { font-size: 33px; }
+  .t8 td { padding: 18px 24px; }
+  ul { margin: 28px 0 0; padding-left: 44px; font-size: 40px; line-height: 1.4; }
+  li { margin: 10px 0; }
+  svg.diag { display: block; margin-top: 34px; width: 940px; }
+  svg text { fill: var(--text); font-family: "Segoe UI", system-ui, sans-serif; }
+  svg text.m { font-family: Consolas, "Cascadia Code", monospace; }
+  .big { font-size: 64px; font-weight: 800; line-height: 1.15; margin-top: 40px; }
+  .swipe { margin-top: auto; padding-bottom: 46px; font-size: 36px; text-align: right; color: var(--accent); }
+</style>
+</head>
+<body>
+<!-- 1 · hook -->
+<section class="page">
+  <div class="top"><span>C++ IN MOTION · #4</span><span>1 / 6</span></div>
+  <h1>Sometimes <code>T&amp;&amp;</code> is not an rvalue reference.</h1>
+  <h1 class="acc" style="margin-top: 10px">It binds to anything.</h1>
+<pre style="font-size: 33px"><span class="ty">void</span> f(std::string&amp;&amp; s);
+
+<span class="kw">template</span> &lt;<span class="kw">class</span> T&gt;
+<span class="ty">void</span> g(T&amp;&amp; x);</pre>
+  <p><code>f</code> takes only temporaries. <code>g</code> takes <b>anything</b>.</p>
+  <div class="swipe">swipe →</div>
+</section>
+
+<!-- 2 · the rule -->
+<section class="page">
+  <div class="top"><span>C++ IN MOTION · #4</span><span>2 / 6</span></div>
+  <h2>When is it a forwarding reference?</h2>
+  <p style="font-size: 44px; margin-top: 24px">When <code>T</code> is <b>deduced</b> and the type is exactly <code>T&amp;&amp;</code>.</p>
+  <table style="margin-top: 30px; font-size: 29px; table-layout: fixed">
+    <tr><th style="width: 74%">Declaration</th><th>Kind</th></tr>
+    <tr><td><code>void f(std::string&amp;&amp;)</code></td><td>rvalue ref</td></tr>
+    <tr><td><code>template &lt;class T&gt; void g(T&amp;&amp;)</code></td><td class="acc"><b>forwarding</b></td></tr>
+    <tr><td><code>auto&amp;&amp; x = e;</code></td><td class="acc"><b>forwarding</b></td></tr>
+    <tr><td><code>template &lt;class T&gt; void h(std::vector&lt;T&gt;&amp;&amp;)</code></td><td>rvalue ref</td></tr>
+  </table>
+  <p class="sm">The last one is not plain <code>T&amp;&amp;</code>, so nothing is forwarded.</p>
+</section>
+
+<!-- 3 · deduction -->
+<section class="page">
+  <div class="top"><span>C++ IN MOTION · #4</span><span>3 / 6</span></div>
+  <h2>What <code>T</code> becomes</h2>
+<pre style="font-size: 36px; margin-top: 30px"><span class="kw">template</span> &lt;<span class="kw">class</span> T&gt;
+<span class="ty">void</span> g(T&amp;&amp; x);
+
+<span class="ty">int</span> n = 1;
+g(n);
+g(5);</pre>
+  <table style="margin-top: 30px; font-size: 34px">
+    <tr><th style="width: 30%">Call</th><th style="width: 35%">T</th><th>x is</th></tr>
+    <tr><td><code>g(n)</code></td><td><code>int&amp;</code></td><td><code>int&amp;</code></td></tr>
+    <tr><td><code>g(5)</code></td><td><code>int</code></td><td><code>int&amp;&amp;</code></td></tr>
+  </table>
+  <p class="sm">An lvalue makes <code>T</code> a reference, and <code>&amp;&amp;</code> collapses to <code>&amp;</code>. An rvalue leaves it a plain type.</p>
+</section>
+
+<!-- 4 · the problem -->
+<section class="page">
+  <div class="top"><span>C++ IN MOTION · #4</span><span>4 / 6</span></div>
+  <h2>The catch: <code>x</code> has a name</h2>
+<pre style="font-size: 33px; margin-top: 30px"><span class="ty">void</span> f(std::string&amp;);    <span class="cm">// A</span>
+<span class="ty">void</span> f(std::string&amp;&amp;);   <span class="cm">// B</span>
+
+<span class="kw">template</span> &lt;<span class="kw">class</span> T&gt;
+<span class="ty">void</span> wrap(T&amp;&amp; x) {
+    f(x);
+}
+
+wrap(std::string(<span class="str">"hi"</span>));</pre>
+  <p style="font-size: 44px; margin-top: 34px">It calls <b>A</b>, not <b>B</b>.</p>
+  <p class="sm" style="margin-top: 10px">Inside <code>wrap</code>, <code>x</code> is a named object, so it is an lvalue. The fact that it came from a temporary is lost.</p>
+</section>
+
+<!-- 5 · forward -->
+<section class="page">
+  <div class="top"><span>C++ IN MOTION · #4</span><span>5 / 6</span></div>
+  <h2>The fix: <code>std::forward</code></h2>
+<pre style="font-size: 36px; margin-top: 30px"><span class="kw">template</span> &lt;<span class="kw">class</span> T&gt;
+<span class="ty">void</span> wrap(T&amp;&amp; x) {
+    f(std::forward&lt;T&gt;(x));
+}</pre>
+  <table style="margin-top: 30px; font-size: 34px">
+    <tr><th style="width: 40%">You pass</th><th>f gets</th></tr>
+    <tr><td>an lvalue</td><td>an lvalue (<b>A</b>)</td></tr>
+    <tr><td>an rvalue</td><td>an rvalue (<b>B</b>)</td></tr>
+  </table>
+  <p style="margin-top: 34px"><code>std::forward</code> passes on what it got.</p>
+  <p class="sm" style="margin-top: 10px"><code>std::move</code> always casts to an rvalue. <code>std::forward&lt;T&gt;</code> casts only if the argument was one.</p>
+</section>
+
+<!-- 6 · real use -->
+<section class="page">
+  <div class="top"><span>C++ IN MOTION · #4</span><span>6 / 6</span></div>
+  <h2>Where you see it</h2>
+<pre style="font-size: 34px; margin-top: 30px"><span class="kw">template</span> &lt;<span class="kw">class</span> T, <span class="kw">class</span>... Args&gt;
+std::unique_ptr&lt;T&gt; make(Args&amp;&amp;... args) {
+    <span class="kw">return</span> std::unique_ptr&lt;T&gt;(
+        <span class="kw">new</span> T(std::forward&lt;Args&gt;(args)...));
+}</pre>
+  <p style="font-size: 44px; margin-top: 34px">Every argument reaches the constructor <b>as it was passed</b>: copied if it was an lvalue, moved if it was a temporary.</p>
+  <p class="sm" style="margin-top: 14px">This is the pattern behind <code>std::make_unique</code> and <code>emplace_back</code>.</p>
+  <div class="big" style="font-size: 54px; margin-top: 44px">Which one do you mix up: <span class="acc">move or forward?</span></div>
+</section>
+
+</body>
+</html>

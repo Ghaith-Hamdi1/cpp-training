@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>C++ in Motion #17</title>
+<style>
+  :root { --bg: #f6f8fa; --panel: #ffffff; --line: #d0d7de; --text: #1f2328; --muted: #656d76;
+          --stack: #0d9488; --stack-bg: #d9f5f1; --heap: #ea580c; --heap-bg: #ffedd5; --warn: #dc2626; --accent: #2563eb; }
+  @page { size: 1080px 1350px; margin: 0; }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; background: var(--bg); color: var(--text); font-family: "Segoe UI", system-ui, sans-serif; }
+  .page { width: 1080px; height: 1350px; padding: 56px 70px 0; background: var(--bg); overflow: hidden; break-after: page; display: flex; flex-direction: column; }
+  .page:last-child { break-after: auto; }
+  .top { display: flex; justify-content: space-between; font-size: 28px; letter-spacing: 3px; color: var(--muted); height: 52px; }
+  h1 { font-size: 84px; line-height: 1.08; font-weight: 800; margin: 40px 0 0; }
+  h2 { font-size: 62px; line-height: 1.12; font-weight: 800; margin: 36px 0 0; }
+  p { font-size: 42px; line-height: 1.38; margin: 28px 0 0; }
+  p.sm { font-size: 34px; color: var(--muted); }
+  code, .mono { font-family: Consolas, "Cascadia Code", "Courier New", monospace; }
+  p code, td code, li code { font-size: 0.88em; background: #eaeef2; border-radius: 8px; padding: 0 8px; }
+  pre { background: var(--panel); border: 3px solid var(--line); border-radius: 24px; padding: 30px 40px; font: 36px/1.55 Consolas, "Cascadia Code", "Courier New", monospace; margin: 34px 0 0; white-space: pre; }
+  .kw { color: #0550ae; } .ty { color: #116329; } .cm { color: var(--muted); font-style: italic; } .str { color: #0a3069; }
+  .warn { color: var(--warn); } .acc { color: var(--accent); } .muted { color: var(--muted); }
+  table { width: 100%; border-collapse: collapse; margin-top: 34px; background: var(--panel); border: 3px solid var(--line); border-radius: 24px; overflow: hidden; font-size: 36px; }
+  th { text-align: left; font-size: 26px; letter-spacing: 2px; text-transform: uppercase; color: var(--muted); background: #eaeef2; padding: 18px 24px; }
+  td { padding: 22px 24px; vertical-align: top; line-height: 1.3; border-top: 2px solid var(--line); }
+  td.k { width: 54%; font-weight: 700; }
+  td.k code { font-size: 30px; white-space: nowrap; }
+  td code { white-space: nowrap; }
+  .w3 th:nth-child(1), .w3 td:nth-child(1) { width: 36%; }
+  .w5 th:nth-child(1), .w5 td:nth-child(1) { width: 12%; }
+  .w5 th:nth-child(2), .w5 td:nth-child(2) { width: 50%; }
+  .t8 { font-size: 33px; }
+  .t8 td { padding: 18px 24px; }
+  ul { margin: 28px 0 0; padding-left: 44px; font-size: 40px; line-height: 1.4; }
+  li { margin: 10px 0; }
+  svg.diag { display: block; margin-top: 34px; width: 940px; }
+  svg text { fill: var(--text); font-family: "Segoe UI", system-ui, sans-serif; }
+  svg text.m { font-family: Consolas, "Cascadia Code", monospace; }
+  .big { font-size: 64px; font-weight: 800; line-height: 1.15; margin-top: 40px; }
+  .swipe { margin-top: auto; padding-bottom: 46px; font-size: 36px; text-align: right; color: var(--accent); }
+</style>
+</head>
+<body>
+<section class="page">
+  <div class="top"><span>C++ IN MOTION · #17</span><span>1 / 6</span></div>
+  <h1><code>*p</code> means: go to the address stored in <code>p</code>.</h1>
+  <h1 class="acc" style="margin-top: 10px">Then use what is there.</h1>
+<pre style="font-size: 34px"><span class="ty">int</span> x = 7;
+<span class="ty">int</span>* p = &amp;x;
+<span class="ty">int</span> y = *p;   <span class="cm">// 7</span></pre>
+  <p>That is dereferencing. The star appears in two jobs, and this is the second one.</p>
+  <div class="swipe">swipe →</div>
+</section>
+
+<section class="page">
+  <div class="top"><span>C++ IN MOTION · #17</span><span>2 / 6</span></div>
+  <h2>What is in memory</h2>
+  <svg viewBox="0 0 940 330" width="940" height="330" style="margin-top: 30px; display: block">
+    <g font-family="Segoe UI, system-ui, sans-serif">
+      <rect x="0" y="0" width="940" height="330" rx="24" fill="#d9f5f1" stroke="#0d9488" stroke-width="4"/>
+      <text x="24" y="42" font-size="28" font-weight="800" letter-spacing="3" style="fill:#0d9488">MEMORY</text>
+      <text x="70" y="104" font-size="26" font-family="Consolas, monospace" style="fill:#656d76">address 0x1000</text>
+      <rect x="60" y="120" width="300" height="130" rx="16" fill="#fff" stroke="#0d9488" stroke-width="3"/>
+      <text x="85" y="170" font-size="34" font-family="Consolas, monospace" font-weight="700" style="fill:#0d9488">x</text>
+      <text x="260" y="215" font-size="64" font-weight="800" text-anchor="middle">7</text>
+      <text x="570" y="104" font-size="26" font-family="Consolas, monospace" style="fill:#656d76">address 0x2000</text>
+      <rect x="560" y="120" width="330" height="130" rx="16" fill="#fff" stroke="#7c3aed" stroke-width="4"/>
+      <text x="585" y="170" font-size="34" font-family="Consolas, monospace" font-weight="700" style="fill:#7c3aed">p</text>
+      <text x="725" y="215" font-size="46" font-family="Consolas, monospace" font-weight="800" text-anchor="middle">0x1000</text>
+      <path d="M560 185 C470 185, 450 185, 372 185" fill="none" stroke="#7c3aed" stroke-width="6" stroke-linecap="round"/>
+      <polygon points="390,167 360,185 390,203" fill="#7c3aed"/>
+      <text x="466" y="168" font-size="30" font-family="Consolas, monospace" font-weight="800" text-anchor="middle" style="fill:#7c3aed">*p</text>
+      <text x="470" y="296" font-size="30" text-anchor="middle" style="fill:#1f2328">p stores an address. *p follows it.</text>
+    </g>
+  </svg>
+  <p class="sm" style="margin-top: 22px"><code>&amp;x</code> is the address of <code>x</code>. A pointer is just a variable that holds one.</p>
+</section>
+
+<section class="page">
+  <div class="top"><span>C++ IN MOTION · #17</span><span>3 / 6</span></div>
+  <h2>Read it, write it</h2>
+<pre style="font-size: 34px; margin-top: 30px"><span class="ty">int</span> y = *p;    <span class="cm">// read: y is 7</span>
+*p = 9;         <span class="cm">// write: x is now 9</span></pre>
+  <p style="font-size: 44px; margin-top: 34px"><code>*p</code> <b>is</b> <code>x</code>, not a copy of it.</p>
+  <p style="margin-top: 20px">Assign to <code>*p</code> and you assign to <code>x</code>.</p>
+  <p class="sm" style="margin-top: 10px">I ran it: <code>y</code> stayed 7, and <code>x</code> became 9.</p>
+</section>
+
+<section class="page">
+  <div class="top"><span>C++ IN MOTION · #17</span><span>4 / 6</span></div>
+  <h2>Pointer to a struct</h2>
+<pre style="font-size: 34px; margin-top: 30px"><span class="kw">struct</span> Player { <span class="ty">int</span> hp; };
+
+Player player;
+Player* q = &amp;player;
+
+(*q).hp = 20;
+q-&gt;hp = 20;     <span class="cm">// the same thing</span></pre>
+  <p style="font-size: 44px; margin-top: 34px"><code>-&gt;</code> is a shortcut for "dereference, then pick a member".</p>
+  <p class="sm" style="margin-top: 10px">The parentheses in <code>(*q).hp</code> are needed because <code>.</code> binds tighter than <code>*</code>.</p>
+</section>
+
+<section class="page">
+  <div class="top"><span>C++ IN MOTION · #17</span><span>5 / 6</span></div>
+  <h2>Four expressions, four meanings</h2>
+  <table style="margin-top: 34px; font-size: 33px; table-layout: fixed">
+    <tr><th style="width: 24%">Write</th><th>It is</th></tr>
+    <tr><td><code>x</code></td><td>the value, 7</td></tr>
+    <tr><td><code>&amp;x</code></td><td>the address of <code>x</code></td></tr>
+    <tr><td><code>p</code></td><td>the address stored in <code>p</code></td></tr>
+    <tr><td><code>*p</code></td><td>the value at that address, 7</td></tr>
+  </table>
+  <p class="sm" style="margin-top: 28px"><code>&amp;p</code> is something else again: the address of the pointer itself.</p>
+</section>
+
+<section class="page">
+  <div class="top"><span>C++ IN MOTION · #17</span><span>6 / 6</span></div>
+  <h2>When it goes wrong</h2>
+  <table style="margin-top: 34px; font-size: 32px; table-layout: fixed">
+    <tr><th style="width: 36%">The pointer is</th><th>Dereferencing it</th></tr>
+    <tr><td><code>nullptr</code></td><td class="warn"><b>undefined behaviour</b></td></tr>
+    <tr><td>uninitialized</td><td class="warn"><b>undefined behaviour</b></td></tr>
+    <tr><td>dangling (object gone)</td><td class="warn"><b>undefined behaviour</b></td></tr>
+  </table>
+  <p style="margin-top: 30px">It often crashes. It sometimes seems to work. Neither is guaranteed.</p>
+  <div class="big" style="font-size: 52px; margin-top: 40px">Where do you <span class="acc">still need a raw <code>*</code>?</span></div>
+</section>
+
+</body>
+</html>

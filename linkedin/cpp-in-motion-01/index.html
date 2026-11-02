@@ -1,0 +1,354 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>C++ in Motion #1</title>
+<style>
+  :root {
+    --bg: #f6f8fa; --panel: #ffffff; --line: #d0d7de;
+    --text: #1f2328; --muted: #656d76;
+    --stack: #0d9488; --stack-bg: #d9f5f1;
+    --heap: #ea580c; --heap-bg: #ffedd5;
+    --warn: #dc2626; --accent: #b45309;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; height: 100%; background: #e5e7eb; overflow: hidden; }
+  body { font-family: "Segoe UI", system-ui, sans-serif; }
+  #stage { position: absolute; left: 0; top: 0; width: 1080px; height: 1350px; transform-origin: 0 0; }
+  .slide { display: none; position: absolute; inset: 0; background: var(--bg); }
+  .slide.on { display: block; }
+  .slide svg { width: 1080px; height: 1350px; display: block; }
+  svg text { fill: var(--text); font-family: "Segoe UI", system-ui, sans-serif; }
+  .mono { font-family: "Cascadia Code", Consolas, "Courier New", monospace; }
+  .tag { font-size: 28px; letter-spacing: 3px; fill: var(--muted); }
+  .kw { fill: #0550ae; } .ty { fill: #116329; } .nm { fill: #953800; } .cm { fill: var(--muted); }
+
+  .f   { opacity: 0; animation: fi .6s ease both; animation-delay: var(--d, 0s); }
+  .p   { opacity: 0; transform-box: fill-box; transform-origin: center;
+         animation: pop .5s cubic-bezier(.2,1.4,.4,1) both; animation-delay: var(--d, 0s); }
+  .d   { stroke-dasharray: 1; stroke-dashoffset: 1; animation: dr .7s ease both; animation-delay: var(--d, 0s); }
+  .out { animation: fo .5s ease forwards; animation-delay: var(--d, 0s); }
+  .dim { animation: dim .6s ease forwards; animation-delay: var(--d, 0s); }
+  .mv  { animation: mv .9s ease both; animation-delay: var(--d, 0s); }
+  @keyframes fi  { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
+  @keyframes fo  { from { opacity: 1; } to { opacity: 0; } }
+  @keyframes dim { from { opacity: 1; } to { opacity: .22; } }
+  @keyframes pop { from { opacity: 0; transform: scale(.6); } to { opacity: 1; transform: scale(1); } }
+  @keyframes dr  { to { stroke-dashoffset: 0; } }
+  @keyframes mv  { 0% { opacity: 0; transform: translateY(0); } 20% { opacity: 1; } 100% { opacity: 1; transform: translate(-470px, 215px); } }
+
+  #dots { position: fixed; bottom: 10px; left: 0; right: 0; text-align: center; z-index: 9; }
+  #dots i { display: inline-block; width: 10px; height: 10px; margin: 0 5px; border-radius: 50%; background: #d0d7de; }
+  #dots i.on { background: var(--accent); }
+  .export #dots { display: none; }
+  @page { size: 1080px 1350px; margin: 0; }
+  .print html, .print body { overflow: visible; height: auto; background: var(--bg); }
+  .print #stage { position: static; transform: none !important; height: auto; }
+  .print .slide { display: block; position: relative; width: 1080px; height: 1350px; page-break-after: always; break-after: page; overflow: hidden; }
+</style>
+</head>
+<body>
+
+<svg width="0" height="0" style="position:absolute"><defs></defs></svg>
+
+<div id="stage">
+
+<!-- 1 · hook -->
+<section class="slide">
+<svg viewBox="0 0 1080 1350">
+  <text class="tag" x="70" y="90">C++ IN MOTION · #1</text>
+  <text class="tag" x="1010" y="90" text-anchor="end">1 / 5</text>
+
+  <text class="f" style="--d:.2s" x="70" y="270" font-size="88" font-weight="800">Where does this</text>
+  <text class="f" style="--d:.4s" x="70" y="370" font-size="88" font-weight="800">vector live?</text>
+
+  <g class="p" style="--d:.9s">
+    <rect x="70" y="450" width="940" height="130" rx="24" fill="#ffffff" stroke="#d0d7de" stroke-width="3"/>
+    <text class="mono" x="110" y="535" font-size="42"><tspan class="ty">std::vector</tspan>&lt;<tspan class="kw">int</tspan>&gt; v = {1, 2, 3};</text>
+  </g>
+
+  <g class="p" style="--d:1.6s">
+    <rect x="70" y="700" width="440" height="200" rx="28" fill="#d9f5f1" stroke="#0d9488" stroke-width="5"/>
+    <text x="290" y="830" font-size="68" font-weight="800" text-anchor="middle" fill="#0d9488" style="fill:#0d9488">STACK</text>
+  </g>
+  <text class="f" style="--d:1.8s;fill:#656d76" x="540" y="815" font-size="34" text-anchor="middle">or</text>
+  <g class="p" style="--d:1.9s">
+    <rect x="570" y="700" width="440" height="200" rx="28" fill="#ffedd5" stroke="#ea580c" stroke-width="5"/>
+    <text x="790" y="830" font-size="68" font-weight="800" text-anchor="middle" style="fill:#ea580c">HEAP</text>
+  </g>
+
+  <text class="f" style="--d:2.8s;fill:#656d76" x="70" y="1040" font-size="56">Pick one.</text>
+  <text class="f" style="--d:4s;fill:#b45309" x="70" y="1120" font-size="56" font-weight="700">There's a catch.</text>
+</svg>
+</section>
+
+<!-- 2 · memory -->
+<section class="slide">
+<svg viewBox="0 0 1080 1350">
+  <text class="tag" x="70" y="90">C++ IN MOTION · #1</text>
+  <text class="tag" x="1010" y="90" text-anchor="end">2 / 5</text>
+
+  <text class="f" style="--d:.2s" x="70" y="210" font-size="60" font-weight="800">What's actually in memory</text>
+  <text class="mono f" style="--d:.4s;fill:#656d76" x="70" y="275" font-size="34">std::vector&lt;int&gt; v = {1, 2, 3};</text>
+
+  <!-- stack band (on top) -->
+  <g class="p" style="--d:.6s"><rect x="70" y="330" width="940" height="210" rx="24" fill="#d9f5f1" stroke="#0d9488" stroke-width="4"/></g>
+  <text class="f" style="--d:.8s;fill:#0d9488" x="100" y="385" font-size="38" font-weight="800" letter-spacing="3">STACK</text>
+  <text class="f" style="--d:.8s;fill:#656d76" x="980" y="385" font-size="28" text-anchor="end">v · the object (typically 24 bytes)</text>
+  <g class="f" style="--d:1s"><rect x="100" y="420" width="270" height="80" rx="12" fill="#ffffff" stroke="#0d9488" stroke-width="2"/><text class="mono" x="125" y="472" font-size="34">ptr</text></g>
+  <g class="f" style="--d:1.2s"><rect x="405" y="420" width="270" height="80" rx="12" fill="#ffffff" stroke="#0d9488" stroke-width="2"/><text class="mono" x="430" y="472" font-size="34">size  3</text></g>
+  <g class="f" style="--d:1.4s"><rect x="710" y="420" width="270" height="80" rx="12" fill="#ffffff" stroke="#0d9488" stroke-width="2"/><text class="mono" x="735" y="472" font-size="34">capacity  3</text></g>
+
+  <!-- heap band (below) -->
+  <g class="p" style="--d:1.8s"><rect x="70" y="720" width="940" height="220" rx="24" fill="#ffedd5" stroke="#ea580c" stroke-width="4"/></g>
+  <text class="f" style="--d:2s;fill:#ea580c" x="100" y="775" font-size="38" font-weight="800" letter-spacing="3">HEAP</text>
+  <text class="f" style="--d:2s;fill:#656d76" x="980" y="775" font-size="28" text-anchor="end">the elements (3 ints · 12 bytes)</text>
+  <g class="f" style="--d:2.1s"><rect x="90" y="795" width="400" height="120" rx="20" fill="#fff7ed" stroke="#ea580c" stroke-width="4" stroke-dasharray="14 10"/></g>
+  <g class="p" style="--d:2.3s"><rect x="110" y="805" width="100" height="100" rx="14" fill="#ffffff" stroke="#ea580c" stroke-width="3"/><text x="160" y="873" font-size="52" font-weight="800" text-anchor="middle">1</text></g>
+  <g class="p" style="--d:2.5s"><rect x="240" y="805" width="100" height="100" rx="14" fill="#ffffff" stroke="#ea580c" stroke-width="3"/><text x="290" y="873" font-size="52" font-weight="800" text-anchor="middle">2</text></g>
+  <g class="p" style="--d:2.7s"><rect x="370" y="805" width="100" height="100" rx="14" fill="#ffffff" stroke="#ea580c" stroke-width="3"/><text x="420" y="873" font-size="52" font-weight="800" text-anchor="middle">3</text></g>
+
+  <path class="d" style="--d:3s" pathLength="1" d="M300 500 L300 790" fill="none" stroke="#1f2328" stroke-width="5" stroke-linecap="round"/>
+  <polygon class="f" style="--d:3.5s" points="286,770 300,794 314,770" fill="#1f2328"/>
+
+  <text class="f" style="--d:3.8s" x="70" y="1040" font-size="60" font-weight="800">The object → <tspan style="fill:#0d9488">stack</tspan></text>
+  <text class="f" style="--d:4.1s" x="70" y="1115" font-size="60" font-weight="800">Its elements → <tspan style="fill:#ea580c">heap</tspan></text>
+  <text class="f" style="--d:4.5s" x="70" y="1230" font-size="52" font-weight="700">So when it grows,</text>
+  <text class="f" style="--d:4.8s;fill:#b45309" x="70" y="1295" font-size="52" font-weight="700">it has to move.</text>
+</svg>
+</section>
+
+<!-- 3 · push_back -->
+<section class="slide">
+<svg viewBox="0 0 1080 1350">
+  <text class="tag" x="70" y="90">C++ IN MOTION · #1</text>
+  <text class="tag" x="1010" y="90" text-anchor="end">3 / 5</text>
+
+  <g class="f" style="--d:.2s">
+    <rect x="70" y="150" width="520" height="110" rx="24" fill="#ffffff" stroke="#d0d7de" stroke-width="3"/>
+    <text class="mono" x="105" y="220" font-size="40">v.<tspan class="nm">push_back</tspan>(4);</text>
+  </g>
+  <text class="f" style="--d:.4s;fill:#dc2626" x="620" y="215" font-size="32" font-weight="600">capacity is full</text>
+
+  <!-- stack band (on top) -->
+  <rect x="70" y="320" width="940" height="200" rx="24" fill="#d9f5f1" stroke="#0d9488" stroke-width="4"/>
+  <text style="fill:#0d9488" x="100" y="372" font-size="36" font-weight="800" letter-spacing="3">STACK</text>
+  <rect x="100" y="400" width="270" height="80" rx="12" fill="#ffffff" stroke="#0d9488" stroke-width="2"/><text class="mono" x="125" y="452" font-size="34">ptr</text>
+  <rect x="405" y="400" width="270" height="80" rx="12" fill="#ffffff" stroke="#0d9488" stroke-width="2"/>
+  <text class="mono out" style="--d:3.7s" x="430" y="452" font-size="34">size  3</text>
+  <text class="mono f" style="--d:3.7s;fill:#b45309" x="430" y="452" font-size="34">size  4</text>
+  <rect x="710" y="400" width="270" height="80" rx="12" fill="#ffffff" stroke="#0d9488" stroke-width="2"/>
+  <text class="mono out" style="--d:3.7s" x="735" y="452" font-size="34">capacity  3</text>
+  <text class="mono f" style="--d:3.7s;fill:#b45309" x="735" y="452" font-size="34">capacity  6</text>
+
+  <!-- heap band (below) -->
+  <rect x="70" y="600" width="940" height="500" rx="24" fill="#ffedd5" stroke="#ea580c" stroke-width="4"/>
+  <text style="fill:#ea580c" x="100" y="652" font-size="36" font-weight="800" letter-spacing="3">HEAP</text>
+
+  <!-- old block -->
+  <g class="dim" style="--d:3.2s">
+    <text x="560" y="692" font-size="28" style="fill:#656d76">old block</text>
+    <rect x="560" y="705" width="368" height="140" rx="20" fill="#fff7ed" stroke="#ea580c" stroke-width="4" stroke-dasharray="14 10"/>
+    <rect x="580" y="725" width="100" height="100" rx="14" fill="#ffffff" stroke="#ea580c" stroke-width="3"/><text x="630" y="793" font-size="50" font-weight="800" text-anchor="middle">1</text>
+    <rect x="694" y="725" width="100" height="100" rx="14" fill="#ffffff" stroke="#ea580c" stroke-width="3"/><text x="744" y="793" font-size="50" font-weight="800" text-anchor="middle">2</text>
+    <rect x="808" y="725" width="100" height="100" rx="14" fill="#ffffff" stroke="#ea580c" stroke-width="3"/><text x="858" y="793" font-size="50" font-weight="800" text-anchor="middle">3</text>
+  </g>
+  <text class="f" style="--d:3.4s;fill:#dc2626" x="535" y="785" font-size="34" font-weight="700" text-anchor="end">freed</text>
+
+  <!-- new block -->
+  <g class="f" style="--d:1s">
+    <text x="810" y="905" font-size="28" text-anchor="end" style="fill:#ea580c">new block · capacity 6</text>
+    <rect x="90" y="920" width="720" height="140" rx="20" fill="#fff7ed" stroke="#ea580c" stroke-width="4" stroke-dasharray="14 10"/>
+    <rect x="566" y="940" width="100" height="100" rx="14" fill="none" stroke="#ea580c" stroke-width="2" stroke-dasharray="6 6"/>
+    <rect x="680" y="940" width="100" height="100" rx="14" fill="none" stroke="#ea580c" stroke-width="2" stroke-dasharray="6 6"/>
+  </g>
+  <!-- copies slide old -> new -->
+  <g class="mv" style="--d:1.8s"><rect x="580" y="725" width="100" height="100" rx="14" fill="#ffffff" stroke="#ea580c" stroke-width="3"/><text x="630" y="793" font-size="50" font-weight="800" text-anchor="middle">1</text></g>
+  <g class="mv" style="--d:2.1s"><rect x="694" y="725" width="100" height="100" rx="14" fill="#ffffff" stroke="#ea580c" stroke-width="3"/><text x="744" y="793" font-size="50" font-weight="800" text-anchor="middle">2</text></g>
+  <g class="mv" style="--d:2.4s"><rect x="808" y="725" width="100" height="100" rx="14" fill="#ffffff" stroke="#ea580c" stroke-width="3"/><text x="858" y="793" font-size="50" font-weight="800" text-anchor="middle">3</text></g>
+  <g class="p" style="--d:2.9s"><rect x="452" y="940" width="100" height="100" rx="14" fill="#ffffff" stroke="#b45309" stroke-width="4"/><text x="502" y="1008" font-size="50" font-weight="800" text-anchor="middle" style="fill:#b45309">4</text></g>
+
+  <!-- pointer arrows -->
+  <g class="out" style="--d:3.4s">
+    <path d="M300 480 C 300 570, 744 560, 744 700" fill="none" stroke="#1f2328" stroke-width="5" stroke-linecap="round"/>
+    <polygon points="730,682 744,706 758,682" fill="#1f2328"/>
+  </g>
+  <path class="d" style="--d:3.4s" pathLength="1" d="M300 480 L300 916" fill="none" stroke="#b45309" stroke-width="5" stroke-linecap="round"/>
+  <polygon class="f" style="--d:4s" points="286,896 300,920 314,896" fill="#b45309"/>
+
+  <text class="f" style="--d:4.3s" x="70" y="1175" font-size="60" font-weight="800">The old block is gone.</text>
+  <text class="f" style="--d:4.6s;fill:#dc2626" x="70" y="1235" font-size="42" font-weight="600">Every iterator and pointer into it now dangles.</text>
+  <text class="f" style="--d:5s;fill:#656d76" x="70" y="1305" font-size="28">Growth factor depends on the implementation.</text>
+</svg>
+</section>
+
+<!-- 4 · scope ends -->
+<section class="slide">
+<svg viewBox="0 0 1080 1350">
+  <text class="tag" x="70" y="90">C++ IN MOTION · #1</text>
+  <text class="tag" x="1010" y="90" text-anchor="end">4 / 5</text>
+
+  <rect x="70" y="150" width="940" height="250" rx="24" fill="#ffffff" stroke="#d0d7de" stroke-width="3"/>
+  <rect class="f" style="--d:1.4s" x="82" y="322" width="916" height="60" rx="10" fill="#f59e0b" fill-opacity=".25"/>
+  <text class="mono" x="110" y="228" font-size="38">{</text>
+  <text class="mono" x="110" y="290" font-size="38">  <tspan class="ty">std::vector</tspan>&lt;<tspan class="kw">int</tspan>&gt; v = {1, 2, 3};</text>
+  <text class="mono" x="110" y="362" font-size="38">}  <tspan class="cm">// v is destroyed here</tspan></text>
+
+  <!-- stack band (on top) -->
+  <g class="dim" style="--d:2.6s">
+    <rect x="70" y="460" width="940" height="200" rx="24" fill="#d9f5f1" stroke="#0d9488" stroke-width="4"/>
+    <text style="fill:#0d9488" x="100" y="512" font-size="36" font-weight="800" letter-spacing="3">STACK</text>
+    <rect x="100" y="540" width="270" height="70" rx="12" fill="#ffffff" stroke="#0d9488" stroke-width="2"/><text class="mono" x="125" y="585" font-size="32">ptr</text>
+    <rect x="405" y="540" width="330" height="70" rx="12" fill="#ffffff" stroke="#0d9488" stroke-width="2"/><text class="mono" x="430" y="585" font-size="30">size 3 · cap 3</text>
+  </g>
+
+  <!-- heap band (below) -->
+  <g class="dim" style="--d:3.3s">
+    <rect x="70" y="740" width="940" height="230" rx="24" fill="#ffedd5" stroke="#ea580c" stroke-width="4"/>
+    <text style="fill:#ea580c" x="100" y="792" font-size="36" font-weight="800" letter-spacing="3">HEAP</text>
+    <rect x="90" y="815" width="368" height="130" rx="20" fill="#fff7ed" stroke="#ea580c" stroke-width="4" stroke-dasharray="14 10"/>
+    <rect x="110" y="830" width="100" height="100" rx="14" fill="#ffffff" stroke="#ea580c" stroke-width="3"/><text x="160" y="898" font-size="50" font-weight="800" text-anchor="middle">1</text>
+    <rect x="224" y="830" width="100" height="100" rx="14" fill="#ffffff" stroke="#ea580c" stroke-width="3"/><text x="274" y="898" font-size="50" font-weight="800" text-anchor="middle">2</text>
+    <rect x="338" y="830" width="100" height="100" rx="14" fill="#ffffff" stroke="#ea580c" stroke-width="3"/><text x="388" y="898" font-size="50" font-weight="800" text-anchor="middle">3</text>
+  </g>
+  <g class="dim" style="--d:3s">
+    <path d="M300 610 L300 811" fill="none" stroke="#1f2328" stroke-width="5" stroke-linecap="round"/>
+    <polygon points="286,791 300,815 314,791" fill="#1f2328"/>
+  </g>
+  <text class="f" style="--d:3.4s;fill:#dc2626" x="490" y="895" font-size="34" font-weight="700">freed</text>
+
+  <text class="mono f" style="--d:2.4s;fill:#0d9488" x="70" y="1050" font-size="42">~vector() runs</text>
+  <text class="f" style="--d:3.4s;fill:#656d76" x="70" y="1105" font-size="36">it frees the heap block for you</text>
+
+  <text class="f" style="--d:4s" x="70" y="1200" font-size="68" font-weight="800">No delete. No leak.</text>
+  <text class="f" style="--d:4.6s;fill:#b45309" x="70" y="1305" font-size="88" font-weight="800">That's RAII.</text>
+</svg>
+</section>
+
+<!-- 6 · rule + question -->
+<section class="slide">
+<svg viewBox="0 0 1080 1350">
+  <text class="tag" x="70" y="90">C++ IN MOTION · #1</text>
+  <text class="tag" x="1010" y="90" text-anchor="end">5 / 5</text>
+
+  <text class="f" style="--d:.2s;fill:#656d76" x="70" y="220" font-size="52">The rule</text>
+  <text class="f" style="--d:.5s" x="70" y="330" font-size="88" font-weight="800">Return it by value.</text>
+
+  <g class="p" style="--d:1s">
+    <rect x="70" y="400" width="940" height="110" rx="24" fill="#ffffff" stroke="#d0d7de" stroke-width="3"/>
+    <text class="mono" x="110" y="470" font-size="42"><tspan class="ty">std::vector</tspan>&lt;<tspan class="kw">int</tspan>&gt; <tspan class="nm">make</tspan>();</text>
+  </g>
+
+  <text class="f" style="--d:1.2s;fill:#0d9488" x="70" y="585" font-size="28" font-weight="800" letter-spacing="3">STACK</text>
+  <text class="f" style="--d:1.9s;fill:#ea580c" x="390" y="815" font-size="28" font-weight="800" letter-spacing="3">HEAP</text>
+  <g class="f" style="--d:1.5s">
+    <rect x="70" y="600" width="300" height="160" rx="24" fill="#d9f5f1" stroke="#0d9488" stroke-width="4"/>
+    <text class="mono" x="220" y="695" font-size="40" text-anchor="middle" style="fill:#0d9488">make()</text>
+  </g>
+  <g class="f" style="--d:1.7s">
+    <rect x="710" y="600" width="300" height="160" rx="24" fill="#d9f5f1" stroke="#0d9488" stroke-width="4"/>
+    <text class="mono" x="860" y="695" font-size="40" text-anchor="middle" style="fill:#0d9488">caller</text>
+  </g>
+  <g class="f" style="--d:1.9s">
+    <rect x="390" y="830" width="300" height="110" rx="20" fill="#ffedd5" stroke="#ea580c" stroke-width="4" stroke-dasharray="14 10"/>
+    <rect x="410" y="850" width="70" height="70" rx="10" fill="#ffffff" stroke="#ea580c" stroke-width="3"/><text x="445" y="898" font-size="36" font-weight="800" text-anchor="middle">1</text>
+    <rect x="495" y="850" width="70" height="70" rx="10" fill="#ffffff" stroke="#ea580c" stroke-width="3"/><text x="530" y="898" font-size="36" font-weight="800" text-anchor="middle">2</text>
+    <rect x="580" y="850" width="70" height="70" rx="10" fill="#ffffff" stroke="#ea580c" stroke-width="3"/><text x="615" y="898" font-size="36" font-weight="800" text-anchor="middle">3</text>
+  </g>
+  <g class="out" style="--d:3s">
+    <path d="M220 760 C 220 885, 300 885, 386 885" fill="none" stroke="#1f2328" stroke-width="5" stroke-linecap="round"/>
+    <polygon points="372,874 390,885 372,896" fill="#1f2328"/>
+  </g>
+  <path class="d" style="--d:3s" pathLength="1" d="M860 760 C 860 885, 780 885, 694 885" fill="none" stroke="#b45309" stroke-width="5" stroke-linecap="round"/>
+  <polygon class="f" style="--d:3.6s" points="708,874 690,885 708,896" fill="#b45309"/>
+  <text class="f" style="--d:3.8s;fill:#656d76" x="540" y="1000" font-size="34" text-anchor="middle">same heap block, new owner · no deep copy</text>
+
+  <text class="f" style="--d:4.3s" x="70" y="1140" font-size="64" font-weight="800">By value or by pointer?</text>
+  <text class="f" style="--d:4.7s;fill:#b45309" x="70" y="1215" font-size="48" font-weight="700">What do you do?</text>
+  <text class="f" style="--d:5s;fill:#656d76" x="70" y="1300" font-size="30">C++ in Motion · #1</text>
+</svg>
+</section>
+
+</div>
+<div id="dots"></div>
+
+<script>
+(function () {
+  var q = new URLSearchParams(location.search);
+  var slides = [].slice.call(document.querySelectorAll('.slide'));
+  var stage = document.getElementById('stage');
+  var dots = document.getElementById('dots');
+  var SLIDE_MS = 6000;
+
+  function fit() {
+    if (q.has('print') || q.get('scale') === '1') { stage.style.transform = 'none'; return; }
+    var s = Math.min(innerWidth / 1080, innerHeight / 1350);
+    stage.style.transform = 'scale(' + s + ')';
+    stage.style.left = Math.max(0, (innerWidth - 1080 * s) / 2) + 'px';
+  }
+  addEventListener('resize', fit); fit();
+
+  function freeze(ms) {
+    document.getAnimations().forEach(function (a) { a.pause(); a.currentTime = ms; });
+  }
+
+  if (q.has('flip')) {                       // swipe-to-animate carousel: one page per animation step
+    var steps = [[1, 5000], [2, 20000], [3, 3200], [3, 20000], [4, 20000], [5, 20000]];
+    document.documentElement.classList.add('print', 'export');
+    var made = steps.map(function (st, i) {
+      var c = slides[st[0] - 1].cloneNode(true);
+      c.classList.add('on');
+      c.querySelectorAll('.tag')[1].textContent = (i + 1) + ' / ' + steps.length;
+      if (i === 0) {
+        var hint = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+        hint.setAttribute('x', 1010); hint.setAttribute('y', 1290);
+        hint.setAttribute('text-anchor', 'end'); hint.setAttribute('font-size', 36);
+        hint.style.fill = '#b45309'; hint.textContent = 'swipe →';
+        c.querySelector('svg').appendChild(hint);
+      }
+      stage.appendChild(c);
+      return [c, st[1]];
+    });
+    slides.forEach(function (s) { s.remove(); });
+    requestAnimationFrame(function () {
+      made.forEach(function (m) {
+        m[0].getAnimations({ subtree: true }).forEach(function (a) { a.pause(); a.currentTime = m[1]; });
+      });
+    });
+    return;
+  }
+  if (q.has('print')) {
+    document.documentElement.classList.add('print', 'export');
+    slides.forEach(function (s) { s.classList.add('on'); });
+    requestAnimationFrame(function () { freeze(20000); });
+    return;
+  }
+  if (q.has('slide')) {                      // export a single frame: ?slide=N&t=ms
+    document.documentElement.classList.add('export');
+    slides[+q.get('slide') - 1].classList.add('on');
+    requestAnimationFrame(function () { freeze(+(q.get('t') || 20000)); });
+    return;
+  }
+
+  // preview: autoplay, arrows / click to move
+  slides.forEach(function () { dots.appendChild(document.createElement('i')); });
+  var cur = -1, timer;
+  function show(i) {
+    cur = (i + slides.length) % slides.length;
+    slides.forEach(function (s, k) { s.classList.toggle('on', k === cur); });
+    [].forEach.call(dots.children, function (d, k) { d.classList.toggle('on', k === cur); });
+    clearTimeout(timer);
+    timer = setTimeout(function () { show(cur + 1); }, SLIDE_MS);
+  }
+  addEventListener('keydown', function (e) {
+    if (e.key === 'ArrowRight') show(cur + 1);
+    if (e.key === 'ArrowLeft') show(cur - 1);
+    if (e.key === 'r') show(cur);
+  });
+  document.body.addEventListener('click', function () { show(cur + 1); });
+  show(0);
+})();
+</script>
+</body>
+</html>
