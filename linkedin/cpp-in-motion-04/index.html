@@ -43,98 +43,100 @@
 </style>
 </head>
 <body>
-<!-- 1 · hook -->
 <section class="page">
   <div class="top"><span>C++ IN MOTION · #4</span><span>1 / 6</span></div>
-  <h1>Sometimes <code>T&amp;&amp;</code> is not an rvalue reference.</h1>
-  <h1 class="acc" style="margin-top: 10px">It binds to anything.</h1>
-<pre style="font-size: 33px"><span class="ty">void</span> f(std::string&amp;&amp; s);
-
-<span class="kw">template</span> &lt;<span class="kw">class</span> T&gt;
-<span class="ty">void</span> g(T&amp;&amp; x);</pre>
-  <p><code>f</code> takes only temporaries. <code>g</code> takes <b>anything</b>.</p>
+  <h1>Call through a base pointer and C++ picks the function by the pointer's type.</h1>
+  <h1 class="acc" style="margin-top: 10px">Unless it is virtual.</h1>
+<pre style="font-size: 36px">Animal* a = <span class="kw">new</span> Dog;
+a-&gt;speak();    <span class="cm">// which speak() runs?</span></pre>
+  <p>The answer surprises most beginners.</p>
   <div class="swipe">swipe →</div>
 </section>
 
-<!-- 2 · the rule -->
 <section class="page">
   <div class="top"><span>C++ IN MOTION · #4</span><span>2 / 6</span></div>
-  <h2>When is it a forwarding reference?</h2>
-  <p style="font-size: 44px; margin-top: 24px">When <code>T</code> is <b>deduced</b> and the type is exactly <code>T&amp;&amp;</code>.</p>
-  <table style="margin-top: 30px; font-size: 29px; table-layout: fixed">
-    <tr><th style="width: 74%">Declaration</th><th>Kind</th></tr>
-    <tr><td><code>void f(std::string&amp;&amp;)</code></td><td>rvalue ref</td></tr>
-    <tr><td><code>template &lt;class T&gt; void g(T&amp;&amp;)</code></td><td class="acc"><b>forwarding</b></td></tr>
-    <tr><td><code>auto&amp;&amp; x = e;</code></td><td class="acc"><b>forwarding</b></td></tr>
-    <tr><td><code>template &lt;class T&gt; void h(std::vector&lt;T&gt;&amp;&amp;)</code></td><td>rvalue ref</td></tr>
-  </table>
-  <p class="sm">The last one is not plain <code>T&amp;&amp;</code>, so nothing is forwarded.</p>
+  <h2>Without <code>virtual</code></h2>
+<pre style="font-size: 31px; margin-top: 30px"><span class="kw">struct</span> Animal {
+    <span class="ty">void</span> speak() { puts(<span class="str">"..."</span>); }
+};
+<span class="kw">struct</span> Dog : Animal {
+    <span class="ty">void</span> speak() { puts(<span class="str">"Woof"</span>); }
+};
+
+Dog d;
+Animal* a = &amp;d;
+a-&gt;speak();</pre>
+  <p class="warn" style="font-weight: 700; margin-top: 30px">Prints the Animal version, not Woof.</p>
+  <p class="sm" style="margin-top: 10px">The compiler only knows <code>a</code> is an <code>Animal*</code>, so it calls <code>Animal::speak</code>.</p>
 </section>
 
-<!-- 3 · deduction -->
 <section class="page">
   <div class="top"><span>C++ IN MOTION · #4</span><span>3 / 6</span></div>
-  <h2>What <code>T</code> becomes</h2>
-<pre style="font-size: 36px; margin-top: 30px"><span class="kw">template</span> &lt;<span class="kw">class</span> T&gt;
-<span class="ty">void</span> g(T&amp;&amp; x);
+  <h2>With <code>virtual</code></h2>
+<pre style="font-size: 31px; margin-top: 30px"><span class="kw">struct</span> Animal {
+    <span class="kw">virtual</span> <span class="ty">void</span> speak() { puts(<span class="str">"..."</span>); }
+};
+<span class="kw">struct</span> Dog : Animal {
+    <span class="ty">void</span> speak() <span class="kw">override</span> { puts(<span class="str">"Woof"</span>); }
+};
 
-<span class="ty">int</span> n = 1;
-g(n);
-g(5);</pre>
-  <table style="margin-top: 30px; font-size: 34px">
-    <tr><th style="width: 30%">Call</th><th style="width: 35%">T</th><th>x is</th></tr>
-    <tr><td><code>g(n)</code></td><td><code>int&amp;</code></td><td><code>int&amp;</code></td></tr>
-    <tr><td><code>g(5)</code></td><td><code>int</code></td><td><code>int&amp;&amp;</code></td></tr>
-  </table>
-  <p class="sm">An lvalue makes <code>T</code> a reference, and <code>&amp;&amp;</code> collapses to <code>&amp;</code>. An rvalue leaves it a plain type.</p>
+Animal* a = &amp;d;
+a-&gt;speak();</pre>
+  <p style="font-weight: 700; margin-top: 30px; color: var(--accent)">Prints <code>Woof</code>.</p>
+  <p class="sm" style="margin-top: 10px">Now the function is chosen by what the object <b>really is</b>, at run time.</p>
 </section>
 
-<!-- 4 · the problem -->
 <section class="page">
   <div class="top"><span>C++ IN MOTION · #4</span><span>4 / 6</span></div>
-  <h2>The catch: <code>x</code> has a name</h2>
-<pre style="font-size: 33px; margin-top: 30px"><span class="ty">void</span> f(std::string&amp;);    <span class="cm">// A</span>
-<span class="ty">void</span> f(std::string&amp;&amp;);   <span class="cm">// B</span>
-
-<span class="kw">template</span> &lt;<span class="kw">class</span> T&gt;
-<span class="ty">void</span> wrap(T&amp;&amp; x) {
-    f(x);
-}
-
-wrap(std::string(<span class="str">"hi"</span>));</pre>
-  <p style="font-size: 44px; margin-top: 34px">It calls <b>A</b>, not <b>B</b>.</p>
-  <p class="sm" style="margin-top: 10px">Inside <code>wrap</code>, <code>x</code> is a named object, so it is an lvalue. The fact that it came from a temporary is lost.</p>
+  <h2>How it works</h2>
+  <svg viewBox="0 0 940 380" width="940" height="380" style="margin-top: 30px; display: block">
+    <g font-family="Segoe UI, system-ui, sans-serif">
+      <text x="20" y="40" font-size="30" font-weight="800" style="fill:#656d76">EACH DOG OBJECT</text>
+      <rect x="20" y="70" width="330" height="190" rx="18" fill="#d9f5f1" stroke="#0d9488" stroke-width="4"/>
+      <rect x="45" y="95" width="280" height="62" rx="12" fill="#fff" stroke="#7c3aed" stroke-width="4"/>
+      <text x="65" y="138" font-size="30" font-family="Consolas, monospace" style="fill:#7c3aed" font-weight="700">vptr</text>
+      <rect x="45" y="175" width="280" height="62" rx="12" fill="#fff" stroke="#0d9488" stroke-width="3"/>
+      <text x="65" y="218" font-size="30" font-family="Consolas, monospace">members...</text>
+      <text x="920" y="40" font-size="30" font-weight="800" text-anchor="end" style="fill:#656d76">ONE VTABLE PER CLASS</text>
+      <rect x="560" y="70" width="360" height="190" rx="18" fill="#ffedd5" stroke="#ea580c" stroke-width="4"/>
+      <text x="590" y="120" font-size="28" font-weight="800" style="fill:#ea580c">Dog</text>
+      <rect x="590" y="140" width="300" height="62" rx="12" fill="#fff" stroke="#ea580c" stroke-width="3"/>
+      <text x="610" y="183" font-size="28" font-family="Consolas, monospace">speak → Dog::speak</text>
+      <path d="M325 126 L548 168" fill="none" stroke="#7c3aed" stroke-width="5" stroke-linecap="round"/>
+      <polygon points="530,152 556,170 526,182" fill="#7c3aed"/>
+      <text x="20" y="320" font-size="32" style="fill:#1f2328">The call follows the arrow at run time.</text>
+    </g>
+  </svg>
+  <p class="sm" style="margin-top: 24px">A class with virtual functions gets a table of them. Every object carries a hidden pointer to its class's table.</p>
 </section>
 
-<!-- 5 · forward -->
 <section class="page">
   <div class="top"><span>C++ IN MOTION · #4</span><span>5 / 6</span></div>
-  <h2>The fix: <code>std::forward</code></h2>
-<pre style="font-size: 36px; margin-top: 30px"><span class="kw">template</span> &lt;<span class="kw">class</span> T&gt;
-<span class="ty">void</span> wrap(T&amp;&amp; x) {
-    f(std::forward&lt;T&gt;(x));
-}</pre>
-  <table style="margin-top: 30px; font-size: 34px">
-    <tr><th style="width: 40%">You pass</th><th>f gets</th></tr>
-    <tr><td>an lvalue</td><td>an lvalue (<b>A</b>)</td></tr>
-    <tr><td>an rvalue</td><td>an rvalue (<b>B</b>)</td></tr>
+  <h2>What you get</h2>
+<pre style="font-size: 31px; margin-top: 30px">std::vector&lt;std::unique_ptr&lt;Animal&gt;&gt; zoo;
+zoo.push_back(std::make_unique&lt;Dog&gt;());
+zoo.push_back(std::make_unique&lt;Cat&gt;());
+
+<span class="kw">for</span> (<span class="kw">auto</span>&amp; x : zoo)
+    x-&gt;speak();</pre>
+  <table class="w5" style="margin-top: 30px; font-size: 34px">
+    <tr><th>Output</th></tr>
+    <tr><td><code>Woof</code></td></tr>
+    <tr><td><code>Meow</code></td></tr>
   </table>
-  <p style="margin-top: 34px"><code>std::forward</code> passes on what it got.</p>
-  <p class="sm" style="margin-top: 10px"><code>std::move</code> always casts to an rvalue. <code>std::forward&lt;T&gt;</code> casts only if the argument was one.</p>
+  <p style="margin-top: 26px">One loop. Each object does its own thing. Add a <code>Bird</code> later and the loop does not change.</p>
 </section>
 
-<!-- 6 · real use -->
 <section class="page">
   <div class="top"><span>C++ IN MOTION · #4</span><span>6 / 6</span></div>
-  <h2>Where you see it</h2>
-<pre style="font-size: 34px; margin-top: 30px"><span class="kw">template</span> &lt;<span class="kw">class</span> T, <span class="kw">class</span>... Args&gt;
-std::unique_ptr&lt;T&gt; make(Args&amp;&amp;... args) {
-    <span class="kw">return</span> std::unique_ptr&lt;T&gt;(
-        <span class="kw">new</span> T(std::forward&lt;Args&gt;(args)...));
-}</pre>
-  <p style="font-size: 44px; margin-top: 34px">Every argument reaches the constructor <b>as it was passed</b>: copied if it was an lvalue, moved if it was a temporary.</p>
-  <p class="sm" style="margin-top: 14px">This is the pattern behind <code>std::make_unique</code> and <code>emplace_back</code>.</p>
-  <div class="big" style="font-size: 54px; margin-top: 44px">Which one do you mix up: <span class="acc">move or forward?</span></div>
+  <h2>The small print</h2>
+  <ul style="font-size: 42px">
+    <li>mark overrides with <code>override</code>: the compiler catches typos</li>
+    <li>give the base a <code>virtual</code> destructor</li>
+    <li>cost: one hidden pointer per object, one extra jump per call</li>
+    <li>it only works through a pointer or reference</li>
+  </ul>
+  <div class="big" style="font-size: 52px; margin-top: 44px">Do you mark every override with <code>override</code>? <span class="acc">It is free.</span></div>
 </section>
 
 </body>

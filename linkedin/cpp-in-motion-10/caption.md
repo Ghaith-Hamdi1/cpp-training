@@ -1,32 +1,37 @@
-# C++ in Motion #10: value categories - caption
+# C++ in Motion #10: the four casts - caption
 
-Every expression is an lvalue, an xvalue or a prvalue. Not just two kinds.
+A C-style cast quietly picks a cast for you. C++ makes you name it.
 
 ```
-x                // lvalue
-std::move(x)     // xvalue
-x + 1            // prvalue
+Derived* d = (Derived*)b;
 ```
 
-Since C++11 there are three basic categories. "lvalue" and "rvalue" are also names for groups of them (glvalue and rvalue). Swipe for the three, the two groups, how to ask the compiler, and why it matters.
+Which cast did the compiler choose here? You cannot tell by reading it.
 
-Which of the three did you not know?
+Swipe for what each of static_cast, dynamic_cast, const_cast and reinterpret_cast is for, and what goes wrong with each.
+
+How many C-style casts are in your codebase?
 
 #cpp #cplusplus #programming #learninpublic
 
 ## Files
 
 - `cpp-in-motion-10-carousel.pdf` - 6 pages, 4:5, light mode. Upload this as the LinkedIn document.
-- `index.html` - source.
+- `index.html` - source (print it to PDF with a page size of 1080 x 1350 px to rebuild the carousel).
 
 ## First comment (post it right after publishing)
 
-Full lesson on move semantics and value categories: <link to your repo>
+Full lesson on types, initialization and casts: <link to your repo>
 
 ## Checks done
 
-Compiled with `g++ -std=c++17 -Wall -Wextra`: `static_assert`s confirmed `decltype((x))`, `decltype((*p))` and `decltype((arr[0]))` are `int&` (lvalues), `decltype(std::move(x))` is `int&&` (xvalue), and `decltype(x + 1)`, `decltype(make())`, `decltype(5)` are non-references (prvalues). A parameter declared `std::string&&` is an lvalue expression inside the function.
+All compiled with `g++ -std=c++17 -Wall -Wextra` and run:
+
+- `static_cast<int>(3.9)` gave 3, and the `Base*` to `Derived*` static downcast of a real `Derived` worked.
+- `dynamic_cast<Derived*>` returned `nullptr` for an `Other` object and a valid pointer for a real `Derived`.
+- `const_cast<char*>` on a string literal passed to a function that only reads it worked.
+- `reinterpret_cast<const unsigned char*>(&x)` read the first byte of an `int` (4 on this little-endian machine).
 
 ## Source of the idea
 
-Based on the topic of the Stack Overflow question "What are rvalues, lvalues, xvalues, glvalues, and prvalues?" (https://stackoverflow.com/questions/3601602/what-are-rvalues-lvalues-xvalues-glvalues-and-prvalues). Wording, diagram and code are written from scratch.
+Based on the topic of the Stack Overflow question "When should static_cast, dynamic_cast, const_cast and reinterpret_cast be used?" (https://stackoverflow.com/questions/332030/when-should-static-cast-dynamic-cast-const-cast-and-reinterpret-cast-be-used). Wording, examples and code are written from scratch.

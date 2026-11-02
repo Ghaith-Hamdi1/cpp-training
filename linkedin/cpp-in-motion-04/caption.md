@@ -1,40 +1,31 @@
-# C++ in Motion #4: forwarding references - caption
+# C++ in Motion #4: why virtual functions - caption
 
-Sometimes T&& is not an rvalue reference. It binds to anything.
+Call through a base pointer and C++ picks the function by the pointer's type. Unless it is virtual.
 
 ```
-void f(std::string&& s);       // only temporaries
-
-template <class T>
-void g(T&& x);                 // anything
+Animal* a = new Dog;
+a->speak();    // which speak() runs?
 ```
 
-In a template, T&& with a deduced T is a forwarding reference. It keeps the information of whether the argument was an lvalue or an rvalue, and std::forward passes it on.
+Swipe for the answer without virtual, with virtual, how the call finds the right function, and the small print.
 
-Swipe for when it applies, what T becomes, why a plain f(x) loses the information, and the make_unique pattern.
-
-Which one do you mix up: std::move or std::forward?
+Do you mark every override with `override`? It is free.
 
 #cpp #cplusplus #programming #learninpublic
 
 ## Files
 
 - `cpp-in-motion-04-carousel.pdf` - 6 pages, 4:5, light mode. Upload this as the LinkedIn document.
-- `index.html` - source (print it to PDF with a page size of 1080 x 1350 px to rebuild the carousel).
+- `index.html` - source.
 
 ## First comment (post it right after publishing)
 
-Full lesson on templates, move semantics and perfect forwarding: <link to your repo>
+Full OOP lesson (virtual functions, vtables, abstract classes): <link to your repo>
 
 ## Checks done
 
-All compiled with `g++ -std=c++17 -Wall -Wextra` and run:
-
-- `wrap` without `std::forward` called the lvalue overload for both a named string and a temporary; with `std::forward` the temporary reached the rvalue overload.
-- `g(n)` deduced `T = int&` and `g(5)` deduced `T = int` (checked with `std::is_lvalue_reference_v`).
-- The `make` function called the `const&` constructor for an lvalue and the `&&` constructor for a temporary.
-- `auto&& r = n;` has type `int&` (static_assert).
+Compiled with `g++ -std=c++17 -Wall -Wextra` and run: without `virtual`, `a->speak()` through an `Animal*` to a `Dog` printed `...`; with `virtual` and `override` it printed `Woof`; a vector of `unique_ptr<Animal>` holding a `Dog` and a `Cat` printed `Woof` then `Meow`.
 
 ## Source of the idea
 
-Follow-up to carousel #3, based on the second half of the Stack Overflow question "What does T&& (double ampersand) mean in C++11?" (https://stackoverflow.com/questions/5481539/what-does-t-double-ampersand-mean-in-c11). Wording, examples and code are written from scratch.
+Based on the topic of the Stack Overflow question "Why do we need virtual functions in C++?" (https://stackoverflow.com/questions/2391679/why-do-we-need-virtual-functions-in-c). Wording, diagram and code are written from scratch.

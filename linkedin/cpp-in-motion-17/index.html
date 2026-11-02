@@ -43,89 +43,98 @@
 </style>
 </head>
 <body>
+<!-- 1 · hook -->
 <section class="page">
   <div class="top"><span>C++ IN MOTION · #17</span><span>1 / 6</span></div>
-  <h1><code>*p</code> means: go to the address stored in <code>p</code>.</h1>
-  <h1 class="acc" style="margin-top: 10px">Then use what is there.</h1>
-<pre style="font-size: 34px"><span class="ty">int</span> x = 7;
-<span class="ty">int</span>* p = &amp;x;
-<span class="ty">int</span> y = *p;   <span class="cm">// 7</span></pre>
-  <p>That is dereferencing. The star appears in two jobs, and this is the second one.</p>
+  <h1>Sometimes <code>T&amp;&amp;</code> is not an rvalue reference.</h1>
+  <h1 class="acc" style="margin-top: 10px">It binds to anything.</h1>
+<pre style="font-size: 33px"><span class="ty">void</span> f(std::string&amp;&amp; s);
+
+<span class="kw">template</span> &lt;<span class="kw">class</span> T&gt;
+<span class="ty">void</span> g(T&amp;&amp; x);</pre>
+  <p><code>f</code> takes only temporaries. <code>g</code> takes <b>anything</b>.</p>
   <div class="swipe">swipe →</div>
 </section>
 
+<!-- 2 · the rule -->
 <section class="page">
   <div class="top"><span>C++ IN MOTION · #17</span><span>2 / 6</span></div>
-  <h2>What is in memory</h2>
-  <svg viewBox="0 0 940 330" width="940" height="330" style="margin-top: 30px; display: block">
-    <g font-family="Segoe UI, system-ui, sans-serif">
-      <rect x="0" y="0" width="940" height="330" rx="24" fill="#d9f5f1" stroke="#0d9488" stroke-width="4"/>
-      <text x="24" y="42" font-size="28" font-weight="800" letter-spacing="3" style="fill:#0d9488">MEMORY</text>
-      <text x="70" y="104" font-size="26" font-family="Consolas, monospace" style="fill:#656d76">address 0x1000</text>
-      <rect x="60" y="120" width="300" height="130" rx="16" fill="#fff" stroke="#0d9488" stroke-width="3"/>
-      <text x="85" y="170" font-size="34" font-family="Consolas, monospace" font-weight="700" style="fill:#0d9488">x</text>
-      <text x="260" y="215" font-size="64" font-weight="800" text-anchor="middle">7</text>
-      <text x="570" y="104" font-size="26" font-family="Consolas, monospace" style="fill:#656d76">address 0x2000</text>
-      <rect x="560" y="120" width="330" height="130" rx="16" fill="#fff" stroke="#7c3aed" stroke-width="4"/>
-      <text x="585" y="170" font-size="34" font-family="Consolas, monospace" font-weight="700" style="fill:#7c3aed">p</text>
-      <text x="725" y="215" font-size="46" font-family="Consolas, monospace" font-weight="800" text-anchor="middle">0x1000</text>
-      <path d="M560 185 C470 185, 450 185, 372 185" fill="none" stroke="#7c3aed" stroke-width="6" stroke-linecap="round"/>
-      <polygon points="390,167 360,185 390,203" fill="#7c3aed"/>
-      <text x="466" y="168" font-size="30" font-family="Consolas, monospace" font-weight="800" text-anchor="middle" style="fill:#7c3aed">*p</text>
-      <text x="470" y="296" font-size="30" text-anchor="middle" style="fill:#1f2328">p stores an address. *p follows it.</text>
-    </g>
-  </svg>
-  <p class="sm" style="margin-top: 22px"><code>&amp;x</code> is the address of <code>x</code>. A pointer is just a variable that holds one.</p>
+  <h2>When is it a forwarding reference?</h2>
+  <p style="font-size: 44px; margin-top: 24px">When <code>T</code> is <b>deduced</b> and the type is exactly <code>T&amp;&amp;</code>.</p>
+  <table style="margin-top: 30px; font-size: 29px; table-layout: fixed">
+    <tr><th style="width: 74%">Declaration</th><th>Kind</th></tr>
+    <tr><td><code>void f(std::string&amp;&amp;)</code></td><td>rvalue ref</td></tr>
+    <tr><td><code>template &lt;class T&gt; void g(T&amp;&amp;)</code></td><td class="acc"><b>forwarding</b></td></tr>
+    <tr><td><code>auto&amp;&amp; x = e;</code></td><td class="acc"><b>forwarding</b></td></tr>
+    <tr><td><code>template &lt;class T&gt; void h(std::vector&lt;T&gt;&amp;&amp;)</code></td><td>rvalue ref</td></tr>
+  </table>
+  <p class="sm">The last one is not plain <code>T&amp;&amp;</code>, so nothing is forwarded.</p>
 </section>
 
+<!-- 3 · deduction -->
 <section class="page">
   <div class="top"><span>C++ IN MOTION · #17</span><span>3 / 6</span></div>
-  <h2>Read it, write it</h2>
-<pre style="font-size: 34px; margin-top: 30px"><span class="ty">int</span> y = *p;    <span class="cm">// read: y is 7</span>
-*p = 9;         <span class="cm">// write: x is now 9</span></pre>
-  <p style="font-size: 44px; margin-top: 34px"><code>*p</code> <b>is</b> <code>x</code>, not a copy of it.</p>
-  <p style="margin-top: 20px">Assign to <code>*p</code> and you assign to <code>x</code>.</p>
-  <p class="sm" style="margin-top: 10px">I ran it: <code>y</code> stayed 7, and <code>x</code> became 9.</p>
+  <h2>What <code>T</code> becomes</h2>
+<pre style="font-size: 36px; margin-top: 30px"><span class="kw">template</span> &lt;<span class="kw">class</span> T&gt;
+<span class="ty">void</span> g(T&amp;&amp; x);
+
+<span class="ty">int</span> n = 1;
+g(n);
+g(5);</pre>
+  <table style="margin-top: 30px; font-size: 34px">
+    <tr><th style="width: 30%">Call</th><th style="width: 35%">T</th><th>x is</th></tr>
+    <tr><td><code>g(n)</code></td><td><code>int&amp;</code></td><td><code>int&amp;</code></td></tr>
+    <tr><td><code>g(5)</code></td><td><code>int</code></td><td><code>int&amp;&amp;</code></td></tr>
+  </table>
+  <p class="sm">An lvalue makes <code>T</code> a reference, and <code>&amp;&amp;</code> collapses to <code>&amp;</code>. An rvalue leaves it a plain type.</p>
 </section>
 
+<!-- 4 · the problem -->
 <section class="page">
   <div class="top"><span>C++ IN MOTION · #17</span><span>4 / 6</span></div>
-  <h2>Pointer to a struct</h2>
-<pre style="font-size: 34px; margin-top: 30px"><span class="kw">struct</span> Player { <span class="ty">int</span> hp; };
+  <h2>The catch: <code>x</code> has a name</h2>
+<pre style="font-size: 33px; margin-top: 30px"><span class="ty">void</span> f(std::string&amp;);    <span class="cm">// A</span>
+<span class="ty">void</span> f(std::string&amp;&amp;);   <span class="cm">// B</span>
 
-Player player;
-Player* q = &amp;player;
+<span class="kw">template</span> &lt;<span class="kw">class</span> T&gt;
+<span class="ty">void</span> wrap(T&amp;&amp; x) {
+    f(x);
+}
 
-(*q).hp = 20;
-q-&gt;hp = 20;     <span class="cm">// the same thing</span></pre>
-  <p style="font-size: 44px; margin-top: 34px"><code>-&gt;</code> is a shortcut for "dereference, then pick a member".</p>
-  <p class="sm" style="margin-top: 10px">The parentheses in <code>(*q).hp</code> are needed because <code>.</code> binds tighter than <code>*</code>.</p>
+wrap(std::string(<span class="str">"hi"</span>));</pre>
+  <p style="font-size: 44px; margin-top: 34px">It calls <b>A</b>, not <b>B</b>.</p>
+  <p class="sm" style="margin-top: 10px">Inside <code>wrap</code>, <code>x</code> is a named object, so it is an lvalue. The fact that it came from a temporary is lost.</p>
 </section>
 
+<!-- 5 · forward -->
 <section class="page">
   <div class="top"><span>C++ IN MOTION · #17</span><span>5 / 6</span></div>
-  <h2>Four expressions, four meanings</h2>
-  <table style="margin-top: 34px; font-size: 33px; table-layout: fixed">
-    <tr><th style="width: 24%">Write</th><th>It is</th></tr>
-    <tr><td><code>x</code></td><td>the value, 7</td></tr>
-    <tr><td><code>&amp;x</code></td><td>the address of <code>x</code></td></tr>
-    <tr><td><code>p</code></td><td>the address stored in <code>p</code></td></tr>
-    <tr><td><code>*p</code></td><td>the value at that address, 7</td></tr>
+  <h2>The fix: <code>std::forward</code></h2>
+<pre style="font-size: 36px; margin-top: 30px"><span class="kw">template</span> &lt;<span class="kw">class</span> T&gt;
+<span class="ty">void</span> wrap(T&amp;&amp; x) {
+    f(std::forward&lt;T&gt;(x));
+}</pre>
+  <table style="margin-top: 30px; font-size: 34px">
+    <tr><th style="width: 40%">You pass</th><th>f gets</th></tr>
+    <tr><td>an lvalue</td><td>an lvalue (<b>A</b>)</td></tr>
+    <tr><td>an rvalue</td><td>an rvalue (<b>B</b>)</td></tr>
   </table>
-  <p class="sm" style="margin-top: 28px"><code>&amp;p</code> is something else again: the address of the pointer itself.</p>
+  <p style="margin-top: 34px"><code>std::forward</code> passes on what it got.</p>
+  <p class="sm" style="margin-top: 10px"><code>std::move</code> always casts to an rvalue. <code>std::forward&lt;T&gt;</code> casts only if the argument was one.</p>
 </section>
 
+<!-- 6 · real use -->
 <section class="page">
   <div class="top"><span>C++ IN MOTION · #17</span><span>6 / 6</span></div>
-  <h2>When it goes wrong</h2>
-  <table style="margin-top: 34px; font-size: 32px; table-layout: fixed">
-    <tr><th style="width: 36%">The pointer is</th><th>Dereferencing it</th></tr>
-    <tr><td><code>nullptr</code></td><td class="warn"><b>undefined behaviour</b></td></tr>
-    <tr><td>uninitialized</td><td class="warn"><b>undefined behaviour</b></td></tr>
-    <tr><td>dangling (object gone)</td><td class="warn"><b>undefined behaviour</b></td></tr>
-  </table>
-  <p style="margin-top: 30px">It often crashes. It sometimes seems to work. Neither is guaranteed.</p>
-  <div class="big" style="font-size: 52px; margin-top: 40px">Where do you <span class="acc">still need a raw <code>*</code>?</span></div>
+  <h2>Where you see it</h2>
+<pre style="font-size: 34px; margin-top: 30px"><span class="kw">template</span> &lt;<span class="kw">class</span> T, <span class="kw">class</span>... Args&gt;
+std::unique_ptr&lt;T&gt; make(Args&amp;&amp;... args) {
+    <span class="kw">return</span> std::unique_ptr&lt;T&gt;(
+        <span class="kw">new</span> T(std::forward&lt;Args&gt;(args)...));
+}</pre>
+  <p style="font-size: 44px; margin-top: 34px">Every argument reaches the constructor <b>as it was passed</b>: copied if it was an lvalue, moved if it was a temporary.</p>
+  <p class="sm" style="margin-top: 14px">This is the pattern behind <code>std::make_unique</code> and <code>emplace_back</code>.</p>
+  <div class="big" style="font-size: 54px; margin-top: 44px">Which one do you mix up: <span class="acc">move or forward?</span></div>
 </section>
 
 </body>

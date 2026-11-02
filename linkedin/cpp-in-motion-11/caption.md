@@ -1,15 +1,15 @@
-# C++ in Motion #11: why virtual functions - caption
+# C++ in Motion #11: object slicing - caption
 
-Call through a base pointer and C++ picks the function by the pointer's type. Unless it is virtual.
+Copy a Derived into a Base and the Derived part is cut off. That is object slicing.
 
 ```
-Animal* a = new Dog;
-a->speak();    // which speak() runs?
+Derived d;
+Base b = d;
 ```
 
-Swipe for the answer without virtual, with virtual, how the call finds the right function, and the small print.
+It compiles without a single warning. Swipe for what gets lost, why the virtual call changes too, where it hides, and how to stop it.
 
-Do you mark every override with `override`? It is free.
+Is there a vector<Base> hiding in your code?
 
 #cpp #cplusplus #programming #learninpublic
 
@@ -20,12 +20,12 @@ Do you mark every override with `override`? It is free.
 
 ## First comment (post it right after publishing)
 
-Full OOP lesson (virtual functions, vtables, abstract classes): <link to your repo>
+Full OOP lesson (virtual functions, polymorphism, copying): <link to your repo>
 
 ## Checks done
 
-Compiled with `g++ -std=c++17 -Wall -Wextra` and run: without `virtual`, `a->speak()` through an `Animal*` to a `Dog` printed `...`; with `virtual` and `override` it printed `Woof`; a vector of `unique_ptr<Animal>` holding a `Dog` and a `Cat` printed `Woof` then `Meow`.
+Compiled with `g++ -std=c++17 -Wall -Wextra` and run: `Base b = d;` then `b.print()` printed "Base"; passing by value, `vector<Base>::push_back` and `catch (Base e)` all sliced and printed "Base"; passing by reference and a `vector<unique_ptr<Base>>` printed "Derived"; with `Base(const Base&) = delete;` the slicing line failed to compile.
 
 ## Source of the idea
 
-Based on the topic of the Stack Overflow question "Why do we need virtual functions in C++?" (https://stackoverflow.com/questions/2391679/why-do-we-need-virtual-functions-in-c). Wording, diagram and code are written from scratch.
+Based on the topic of the Stack Overflow question "What is object slicing?" (https://stackoverflow.com/questions/274626/what-is-object-slicing). Wording and code are written from scratch.

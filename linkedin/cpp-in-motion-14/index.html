@@ -45,79 +45,87 @@
 <body>
 <section class="page">
   <div class="top"><span>C++ IN MOTION · #14</span><span>1 / 6</span></div>
-  <h1>Copy a <code>Derived</code> into a <code>Base</code> and the Derived part is cut off.</h1>
-  <h1 class="acc" style="margin-top: 10px">That is object slicing.</h1>
-<pre style="font-size: 36px">Derived d;
-Base b = d;   <span class="cm">// d's y is gone</span></pre>
-  <p>It compiles without a single warning.</p>
+  <h1><code>std::move</code> is for the last time you use a variable.</h1>
+  <h1 class="acc" style="margin-top: 10px">Not for returns.</h1>
+<pre style="font-size: 34px">std::string s = read();
+names.push_back(std::move(s));
+<span class="cm">// s is finished</span></pre>
+  <p>Knowing when to write it matters more than knowing what it is.</p>
   <div class="swipe">swipe →</div>
 </section>
 
 <section class="page">
   <div class="top"><span>C++ IN MOTION · #14</span><span>2 / 6</span></div>
-  <h2>What gets lost</h2>
-<pre style="font-size: 31px; margin-top: 30px"><span class="kw">struct</span> Base {
-    <span class="ty">int</span> x = 1;
-    <span class="kw">virtual</span> <span class="ty">void</span> print() <span class="kw">const</span>;   <span class="cm">// "Base"</span>
-};
-<span class="kw">struct</span> Derived : Base {
-    <span class="ty">int</span> y = 2;
-    <span class="ty">void</span> print() <span class="kw">const override</span>;     <span class="cm">// "Derived"</span>
+  <h2>Use it to hand something over</h2>
+<pre style="font-size: 33px; margin-top: 30px">names.push_back(std::move(s));
+
+<span class="kw">struct</span> Person {
+    std::string name;
+    Person(std::string n)
+        : name(std::move(n)) {}
 };</pre>
-  <table class="w5" style="margin-top: 30px; font-size: 33px">
-    <tr><th>Object</th><th>Holds</th></tr>
-    <tr><td><code>d</code></td><td><code>x</code> and <code>y</code></td></tr>
-    <tr><td><code>b</code> (copy)</td><td class="warn"><b><code>x</code> only</b></td></tr>
-  </table>
+  <ul>
+    <li>into a container</li>
+    <li>into a member, from a by-value parameter</li>
+    <li>into a <code>unique_ptr</code> or another owner</li>
+  </ul>
+  <p class="sm" style="margin-top: 20px">In each case the variable is not needed afterwards, so stealing its contents is free.</p>
 </section>
 
 <section class="page">
   <div class="top"><span>C++ IN MOTION · #14</span><span>3 / 6</span></div>
-  <h2>Even the virtual call changes</h2>
-<pre style="font-size: 34px; margin-top: 30px">Derived d;
-Base b = d;
-b.print();</pre>
-  <p class="warn" style="font-weight: 700; margin-top: 34px">Prints "Base", not "Derived".</p>
-  <p style="margin-top: 20px"><code>b</code> is a real <code>Base</code> object. Its hidden vtable pointer was built for <code>Base</code>.</p>
-  <p class="sm" style="margin-top: 10px">A virtual call only follows the real type if you go through a pointer or reference to the original object.</p>
+  <h2>Do not use it on a return</h2>
+<pre style="font-size: 34px; margin-top: 30px">T make() {
+    T x;
+    <span class="kw">return</span> std::move(x);   <span class="cm">// worse</span>
+}
+
+T make() {
+    T x;
+    <span class="kw">return</span> x;              <span class="cm">// better</span>
+}</pre>
+  <p style="font-size: 44px; margin-top: 34px">A plain <code>return x;</code> already moves, or builds <code>x</code> in the caller with no move at all.</p>
+  <p class="sm" style="margin-top: 10px">Writing <code>std::move</code> there blocks that. GCC warns about it with <code>-Wpessimizing-move</code>.</p>
 </section>
 
 <section class="page">
   <div class="top"><span>C++ IN MOTION · #14</span><span>4 / 6</span></div>
-  <h2>Where it hides</h2>
-<pre style="font-size: 33px; margin-top: 30px"><span class="ty">void</span> f(Base b);                <span class="cm">// slices</span>
+  <h2>After the move</h2>
+<pre style="font-size: 33px; margin-top: 30px">std::string s = <span class="str">"a long string..."</span>;
+names.push_back(std::move(s));
 
-std::vector&lt;Base&gt; v;
-v.push_back(Derived());         <span class="cm">// slices</span>
-
-<span class="kw">catch</span> (Base e) { }                <span class="cm">// slices</span></pre>
-  <p style="font-size: 42px; margin-top: 30px">Passing by value, storing in a container, catching by value.</p>
-  <p class="sm" style="margin-top: 10px">All three sliced in my test, and the virtual call then printed "Base".</p>
+s.size();   <span class="cm">// 0 here, but not guaranteed</span></pre>
+  <p class="warn" style="font-weight: 700; margin-top: 34px">A moved-from object is valid, but its value is unspecified.</p>
+  <ul>
+    <li>safe: destroy it, or assign a new value</li>
+    <li>not safe: depend on what it contains</li>
+  </ul>
 </section>
 
 <section class="page">
   <div class="top"><span>C++ IN MOTION · #14</span><span>5 / 6</span></div>
-  <h2>The fixes</h2>
-<pre style="font-size: 33px; margin-top: 30px"><span class="ty">void</span> f(<span class="kw">const</span> Base&amp; b);
+  <h2>Moving a <code>const</code> copies</h2>
+<pre style="font-size: 34px; margin-top: 30px"><span class="kw">const</span> T c;
+T d = std::move(c);   <span class="cm">// copy</span>
 
-std::vector&lt;std::unique_ptr&lt;Base&gt;&gt; v;
-
-<span class="kw">catch</span> (<span class="kw">const</span> Base&amp; e) { }</pre>
-  <p style="font-size: 42px; margin-top: 30px">Pass by reference, store pointers, catch by reference.</p>
-  <p class="sm" style="margin-top: 10px">Or make the copy impossible: <code>Base(const Base&amp;) = delete;</code> turns the slice into a compile error. I checked.</p>
+T e;
+T f = std::move(e);   <span class="cm">// move</span></pre>
+  <p style="font-size: 44px; margin-top: 34px">A <code>const</code> object cannot be emptied, so the move constructor does not match.</p>
+  <p class="sm" style="margin-top: 10px">I checked it with a type that prints "copy" and "move". The compiler silently picks the copy.</p>
 </section>
 
 <section class="page">
   <div class="top"><span>C++ IN MOTION · #14</span><span>6 / 6</span></div>
-  <h2>The rule</h2>
-  <table style="margin-top: 34px; font-size: 33px; table-layout: fixed">
-    <tr><th style="width: 50%">If it is polymorphic</th><th>Then</th></tr>
-    <tr><td>a parameter</td><td><code>const Base&amp;</code></td></tr>
-    <tr><td>a container element</td><td><code>unique_ptr&lt;Base&gt;</code></td></tr>
-    <tr><td>a copy</td><td>a <code>clone()</code> function</td></tr>
+  <h2>When to write it</h2>
+  <table style="margin-top: 34px; font-size: 32px; table-layout: fixed">
+    <tr><th style="width: 58%">Situation</th><th>std::move?</th></tr>
+    <tr><td>last use, handing it on</td><td class="acc"><b>yes</b></td></tr>
+    <tr><td>filling a member from a parameter</td><td class="acc"><b>yes</b></td></tr>
+    <tr><td><code>return x;</code></td><td class="warn"><b>no</b></td></tr>
+    <tr><td>the object is <code>const</code></td><td class="warn"><b>no</b></td></tr>
+    <tr><td>you use it again afterwards</td><td class="warn"><b>no</b></td></tr>
   </table>
-  <p style="margin-top: 30px">Never copy a polymorphic object by value.</p>
-  <div class="big" style="font-size: 52px; margin-top: 40px">Is there a <code>vector&lt;Base&gt;</code> <span class="acc">hiding in your code?</span></div>
+  <div class="big" style="font-size: 52px; margin-top: 40px">Have you ever written <code>return std::move(x);</code>? <span class="acc">Be honest.</span></div>
 </section>
 
 </body>

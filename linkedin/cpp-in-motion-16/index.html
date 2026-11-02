@@ -45,80 +45,88 @@
 <body>
 <section class="page">
   <div class="top"><span>C++ IN MOTION · #16</span><span>1 / 6</span></div>
-  <h1>The <code>const</code> after a member function's parentheses is a promise.</h1>
-  <h1 class="acc" style="margin-top: 10px">It will not change the object.</h1>
-<pre style="font-size: 36px"><span class="ty">int</span> size() <span class="kw">const</span>;</pre>
-  <p>Easy to forget, and it breaks code that has nothing to do with it.</p>
+  <h1>Every expression is an lvalue, an xvalue or a prvalue.</h1>
+  <h1 class="acc" style="margin-top: 10px">Not just two kinds.</h1>
+<pre style="font-size: 36px">x                <span class="cm">// lvalue</span>
+std::move(x)     <span class="cm">// xvalue</span>
+x + 1            <span class="cm">// prvalue</span></pre>
+  <p>Since C++11 there are three basic categories. The words lvalue and rvalue are groups of them.</p>
   <div class="swipe">swipe →</div>
 </section>
 
 <section class="page">
   <div class="top"><span>C++ IN MOTION · #16</span><span>2 / 6</span></div>
-  <h2>What it means</h2>
-<pre style="font-size: 31px; margin-top: 30px"><span class="kw">struct</span> Counter {
-    <span class="ty">int</span> n = 0;
-    <span class="ty">int</span> get() <span class="kw">const</span> { <span class="kw">return</span> n; }    <span class="cm">// ok</span>
-    <span class="ty">int</span> bad() <span class="kw">const</span> { ++n; <span class="kw">return</span> n; } <span class="cm">// error</span>
-};</pre>
-  <p style="font-size: 44px; margin-top: 34px">Inside, <code>this</code> is a <code>const Counter*</code>.</p>
-  <p class="sm" style="margin-top: 10px">So the members are read-only there, and the compiler rejects any write.</p>
+  <h2>The three basic ones</h2>
+  <table style="margin-top: 34px; font-size: 30px; table-layout: fixed">
+    <tr><th style="width: 20%">Category</th><th style="width: 44%">It is</th><th>Example</th></tr>
+    <tr><td><b>lvalue</b></td><td>an object with a name or address</td><td><code>x</code><br><code>*p</code><br><code>arr[0]</code></td></tr>
+    <tr><td><b>prvalue</b></td><td>a pure temporary value</td><td><code>5</code><br><code>x + 1</code><br><code>make()</code></td></tr>
+    <tr><td><b>xvalue</b></td><td>an object that is about to be abandoned</td><td><code>std::move(x)</code></td></tr>
+  </table>
+  <p class="sm" style="margin-top: 24px"><code>make()</code> returns a <code>std::string</code> by value.</p>
 </section>
 
 <section class="page">
   <div class="top"><span>C++ IN MOTION · #16</span><span>3 / 6</span></div>
-  <h2>Who can call it</h2>
-<pre style="font-size: 33px; margin-top: 30px"><span class="kw">const</span> Counter c;
-c.get();    <span class="cm">// ok</span>
-c.inc();    <span class="cm">// error: inc is not const</span>
-
-<span class="ty">int</span> f(<span class="kw">const</span> Counter&amp; c) {
-    <span class="kw">return</span> c.get();
-}</pre>
-  <p style="font-size: 44px; margin-top: 34px">A <code>const</code> object can only call <code>const</code> functions.</p>
-  <p class="sm" style="margin-top: 10px">A missing <code>const</code> on a getter makes it unusable through <code>const&amp;</code>, which is how most parameters are passed.</p>
+  <h2>Two groups</h2>
+  <svg viewBox="0 0 940 420" width="940" height="420" style="margin-top: 30px; display: block">
+    <g font-family="Segoe UI, system-ui, sans-serif">
+      <rect x="10" y="150" width="290" height="110" rx="16" fill="#d9f5f1" stroke="#0d9488" stroke-width="4"/>
+      <text x="155" y="215" font-size="40" font-weight="800" text-anchor="middle" style="fill:#0d9488">lvalue</text>
+      <rect x="325" y="150" width="290" height="110" rx="16" fill="#ede9fe" stroke="#7c3aed" stroke-width="4"/>
+      <text x="470" y="215" font-size="40" font-weight="800" text-anchor="middle" style="fill:#7c3aed">xvalue</text>
+      <rect x="640" y="150" width="290" height="110" rx="16" fill="#ffedd5" stroke="#ea580c" stroke-width="4"/>
+      <text x="785" y="215" font-size="40" font-weight="800" text-anchor="middle" style="fill:#ea580c">prvalue</text>
+      <path d="M10 130 L10 100 L615 100 L615 130" fill="none" stroke="#1f2328" stroke-width="4"/>
+      <text x="312" y="84" font-size="38" font-weight="800" text-anchor="middle" style="fill:#1f2328">glvalue</text>
+      <text x="312" y="36" font-size="26" text-anchor="middle" style="fill:#656d76">has an identity</text>
+      <path d="M325 280 L325 310 L930 310 L930 280" fill="none" stroke="#2563eb" stroke-width="4"/>
+      <text x="627" y="365" font-size="38" font-weight="800" text-anchor="middle" style="fill:#2563eb">rvalue</text>
+      <text x="627" y="400" font-size="26" text-anchor="middle" style="fill:#656d76">can be moved from</text>
+    </g>
+  </svg>
+  <p class="sm" style="margin-top: 20px">The xvalue is the one in both groups: it has an identity and can be moved from.</p>
 </section>
 
 <section class="page">
   <div class="top"><span>C++ IN MOTION · #16</span><span>4 / 6</span></div>
-  <h2>Two versions of one function</h2>
-<pre style="font-size: 31px; margin-top: 30px"><span class="kw">struct</span> Vec {
-    <span class="ty">int</span>&amp; at(<span class="ty">int</span> i);
-    <span class="kw">const</span> <span class="ty">int</span>&amp; at(<span class="ty">int</span> i) <span class="kw">const</span>;
-};
-
-Vec v;        v.at(0) = 5;    <span class="cm">// first</span>
-<span class="kw">const</span> Vec c;  <span class="ty">int</span> x = c.at(2);  <span class="cm">// second</span></pre>
-  <p style="font-size: 42px; margin-top: 30px"><code>const</code> counts as part of the signature.</p>
-  <p class="sm" style="margin-top: 10px">The standard containers do exactly this. I ran it and each call picked the version I expected.</p>
+  <h2>Ask the compiler</h2>
+<pre style="font-size: 30px; margin-top: 30px"><span class="kw">decltype</span>((x))           <span class="cm">// int&amp;   lvalue</span>
+<span class="kw">decltype</span>(std::move(x))  <span class="cm">// int&amp;&amp;  xvalue</span>
+<span class="kw">decltype</span>(x + 1)         <span class="cm">// int    prvalue</span></pre>
+  <table style="margin-top: 30px; font-size: 32px; table-layout: fixed">
+    <tr><th style="width: 40%">Result type</th><th>Category</th></tr>
+    <tr><td><code>T&amp;</code></td><td>lvalue</td></tr>
+    <tr><td><code>T&amp;&amp;</code></td><td>xvalue</td></tr>
+    <tr><td><code>T</code></td><td>prvalue</td></tr>
+  </table>
+  <p class="sm" style="margin-top: 20px">Checked with <code>static_assert</code>. The double parentheses matter for a bare name.</p>
 </section>
 
 <section class="page">
   <div class="top"><span>C++ IN MOTION · #16</span><span>5 / 6</span></div>
-  <h2>The escape hatch: <code>mutable</code></h2>
-<pre style="font-size: 32px; margin-top: 30px"><span class="kw">class</span> Account {
-    <span class="kw">mutable</span> std::mutex m_;
-    <span class="ty">int</span> balance_ = 0;
-<span class="kw">public</span>:
-    <span class="ty">int</span> balance() <span class="kw">const</span> {
-        std::lock_guard g(m_);
-        <span class="kw">return</span> balance_;
-    }
-};</pre>
-  <p style="font-size: 42px; margin-top: 30px">For members that are not part of the visible state: a lock, a cache, a counter.</p>
-  <p class="sm" style="margin-top: 10px">Without <code>mutable</code> the lock does not compile in a <code>const</code> function.</p>
+  <h2>Why it matters</h2>
+  <table style="margin-top: 34px; font-size: 33px; table-layout: fixed">
+    <tr><th style="width: 40%">Reference</th><th>Binds to</th></tr>
+    <tr><td><code>T&amp;</code></td><td>lvalues</td></tr>
+    <tr><td><code>const T&amp;</code></td><td>everything</td></tr>
+    <tr><td><code>T&amp;&amp;</code></td><td>xvalues and prvalues</td></tr>
+  </table>
+  <p style="font-size: 44px; margin-top: 34px">Overload resolution reads the category to pick copy or move.</p>
+  <p class="sm" style="margin-top: 10px">Since C++17 a prvalue builds its object directly where it will live: no temporary, no move.</p>
 </section>
 
 <section class="page">
   <div class="top"><span>C++ IN MOTION · #16</span><span>6 / 6</span></div>
-  <h2>The habit</h2>
-  <table style="margin-top: 34px; font-size: 33px; table-layout: fixed">
-    <tr><th style="width: 58%">The function</th><th>Write</th></tr>
-    <tr><td>only reads the object</td><td><code>... const</code></td></tr>
-    <tr><td>changes the object</td><td>no <code>const</code></td></tr>
-    <tr><td>reads, but locks or caches</td><td><code>const</code> + <code>mutable</code></td></tr>
-  </table>
-  <p style="margin-top: 30px">Start with <code>const</code>. Remove it only when the compiler makes you.</p>
-  <div class="big" style="font-size: 52px; margin-top: 40px">How many of your getters <span class="acc">are missing <code>const</code>?</span></div>
+  <h2>One more catch</h2>
+<pre style="font-size: 34px; margin-top: 30px"><span class="ty">void</span> take(std::string&amp;&amp; s) {
+    <span class="cm">// s is an lvalue here</span>
+}
+
+take(make());</pre>
+  <p style="font-size: 44px; margin-top: 34px">The type is an rvalue reference. The <b>expression</b> <code>s</code> is an lvalue.</p>
+  <p class="sm" style="margin-top: 10px">A name always makes an lvalue. That is why you write <code>std::move(s)</code> again to pass it on.</p>
+  <div class="big" style="font-size: 52px; margin-top: 40px">Which of the three <span class="acc">did you not know?</span></div>
 </section>
 
 </body>

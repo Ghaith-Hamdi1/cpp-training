@@ -1,31 +1,26 @@
-# C++ in Motion #7: pointer or object? - caption
+# C++ in Motion #7 — caption
 
-In C++, the object itself is the default. A pointer needs a reason.
+Quick quiz: where does `std::vector<int> v = {1, 2, 3};` live?
 
-```
-Player a;                  // the default
-Player* b = new Player;    // needs a reason
-```
+The vector object sits on the stack. Its elements sit on the heap.
 
-Coming from Java or C#, it feels backwards. Swipe for what a pointer costs, the four real reasons to use one, and what to use instead of a raw pointer.
+Swipe through to see what happens when it grows, why that breaks your iterators, and why you never have to call `delete`.
 
-How many raw `new` are in your code?
+Which would you do in your own code: return a vector by value or by pointer?
 
 #cpp #cplusplus #programming #learninpublic
 
 ## Files
 
-- `cpp-in-motion-07-carousel.pdf` - 6 pages, 4:5, light mode. Upload this as the LinkedIn document.
-- `index.html` - source.
+- `cpp-in-motion-07-carousel.pdf` — 6 pages, light mode. Upload this as the LinkedIn document.
+- `index.html` — source. Open it to watch the animated version; `?flip` shows the carousel layout (print it to PDF to regenerate).
 
 ## First comment (post it right after publishing)
 
-Full lesson on pointers, references and smart pointers: <link to your repo>
+Slides + code from my C++ study repo: <link>
 
-## Checks done
+## Posting checklist
 
-Compiled with `g++ -std=c++17 -Wall -Wextra` and run: returning a `Player` by value, a `unique_ptr<Player>` holding a `Boss` calling the override, and `std::optional<Player>` with and without a value. The dangling `return &p;` version is shown only as a bug.
-
-## Source of the idea
-
-Based on the topic of the Stack Overflow question "Why should I use a pointer rather than the object itself?" (https://stackoverflow.com/questions/22146094/why-should-i-use-a-pointer-rather-than-the-object-itself). Wording and code are written from scratch.
+- Tuesday, about 8:30 Tunisia time (UTC+1)
+- Reply to every comment in the first hour
+- Thursday follow-up: the "dangling reference" puzzle (draft 2)

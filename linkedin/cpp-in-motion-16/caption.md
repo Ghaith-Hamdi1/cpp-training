@@ -1,14 +1,16 @@
-# C++ in Motion #16: const after a member function - caption
+# C++ in Motion #16: value categories - caption
 
-The const after a member function's parentheses is a promise: it will not change the object.
+Every expression is an lvalue, an xvalue or a prvalue. Not just two kinds.
 
 ```
-int size() const;
+x                // lvalue
+std::move(x)     // xvalue
+x + 1            // prvalue
 ```
 
-Easy to forget, and it breaks code that has nothing to do with it. Swipe for what it means, who can call it, overloading on const, and mutable.
+Since C++11 there are three basic categories. "lvalue" and "rvalue" are also names for groups of them (glvalue and rvalue). Swipe for the three, the two groups, how to ask the compiler, and why it matters.
 
-How many of your getters are missing const?
+Which of the three did you not know?
 
 #cpp #cplusplus #programming #learninpublic
 
@@ -19,12 +21,12 @@ How many of your getters are missing const?
 
 ## First comment (post it right after publishing)
 
-Full OOP lesson (classes, const-correctness, member functions): <link to your repo>
+Full lesson on move semantics and value categories: <link to your repo>
 
 ## Checks done
 
-Checked with `g++ -std=c++17 -Wall -Wextra -fsyntax-only`: modifying a member in a const function fails, reading works; a const object can call const functions and cannot call non-const ones; a non-const getter cannot be called through `const&`; a `mutable` counter and a `mutable std::mutex` compile in a const function while a non-mutable mutex does not. The `at()` overload pair was compiled and run: the non-const object picked the non-const version and the const object picked the const version.
+Compiled with `g++ -std=c++17 -Wall -Wextra`: `static_assert`s confirmed `decltype((x))`, `decltype((*p))` and `decltype((arr[0]))` are `int&` (lvalues), `decltype(std::move(x))` is `int&&` (xvalue), and `decltype(x + 1)`, `decltype(make())`, `decltype(5)` are non-references (prvalues). A parameter declared `std::string&&` is an lvalue expression inside the function.
 
 ## Source of the idea
 
-Based on the topic of the Stack Overflow question "What is the meaning of 'const' at the end of a member function declaration?" (https://stackoverflow.com/questions/751681/what-is-the-meaning-of-const-at-the-end-of-a-member-function-declaration). Wording and code are written from scratch.
+Based on the topic of the Stack Overflow question "What are rvalues, lvalues, xvalues, glvalues, and prvalues?" (https://stackoverflow.com/questions/3601602/what-are-rvalues-lvalues-xvalues-glvalues-and-prvalues). Wording, diagram and code are written from scratch.

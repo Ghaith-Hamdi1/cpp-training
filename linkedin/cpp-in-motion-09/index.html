@@ -45,79 +45,77 @@
 <body>
 <section class="page">
   <div class="top"><span>C++ IN MOTION · #9</span><span>1 / 6</span></div>
-  <h1>A lambda is a function you write right where you need it.</h1>
-<pre style="font-size: 33px">std::sort(v.begin(), v.end(),
-          [](<span class="ty">int</span> a, <span class="ty">int</span> b) {
-              <span class="kw">return</span> a &gt; b;
-          });</pre>
-  <p>No separate function. No name. Just the logic, in place.</p>
+  <h1>One keyword decides who can see the base class.</h1>
+  <h1 class="acc" style="margin-top: 10px">public, protected or private.</h1>
+<pre style="font-size: 36px"><span class="kw">class</span> A : <span class="kw">public</span>    Base {};
+<span class="kw">class</span> B : <span class="kw">protected</span> Base {};
+<span class="kw">class</span> C : <span class="kw">private</span>   Base {};</pre>
+  <p>Same class, three very different relationships.</p>
   <div class="swipe">swipe →</div>
 </section>
 
 <section class="page">
   <div class="top"><span>C++ IN MOTION · #9</span><span>2 / 6</span></div>
-  <h2>Three parts</h2>
-<pre style="font-size: 40px; margin-top: 30px">[limit](<span class="ty">int</span> x) {
-    <span class="kw">return</span> x &gt; limit;
-}</pre>
-  <table style="margin-top: 34px; font-size: 34px; table-layout: fixed">
-    <tr><th style="width: 24%"></th><th>What it is</th></tr>
-    <tr><td><code>[ ]</code></td><td>the <b>capture</b>: what it can see from outside</td></tr>
-    <tr><td><code>( )</code></td><td>the <b>parameters</b>, like any function</td></tr>
-    <tr><td><code>{ }</code></td><td>the <b>body</b></td></tr>
+  <h2>What the base's members become</h2>
+  <table style="margin-top: 34px; font-size: 32px; table-layout: fixed">
+    <tr><th style="width: 34%">Inheritance</th><th>Base <code>public</code></th><th>Base <code>protected</code></th></tr>
+    <tr><td><code>public</code></td><td class="acc"><b>public</b></td><td>protected</td></tr>
+    <tr><td><code>protected</code></td><td>protected</td><td>protected</td></tr>
+    <tr><td><code>private</code></td><td class="warn"><b>private</b></td><td class="warn"><b>private</b></td></tr>
   </table>
+  <p class="sm" style="margin-top: 28px">The base's <code>private</code> members are never accessible from the derived class, whatever you choose.</p>
 </section>
 
 <section class="page">
   <div class="top"><span>C++ IN MOTION · #9</span><span>3 / 6</span></div>
-  <h2>The capture list</h2>
-  <table style="margin-top: 36px; font-size: 33px; table-layout: fixed">
-    <tr><th style="width: 26%">Write</th><th>Meaning</th></tr>
-    <tr><td><code>[]</code></td><td>nothing from outside</td></tr>
-    <tr><td><code>[x]</code></td><td>a <b>copy</b> of <code>x</code></td></tr>
-    <tr><td><code>[&amp;x]</code></td><td>a <b>reference</b> to <code>x</code></td></tr>
-    <tr><td><code>[=]</code></td><td>copy everything it uses</td></tr>
-    <tr><td><code>[&amp;]</code></td><td>reference everything it uses</td></tr>
-  </table>
-  <p class="sm" style="margin-top: 28px">Listing names explicitly makes it obvious what the lambda depends on.</p>
+  <h2><code>public</code>: "is a"</h2>
+<pre style="font-size: 34px; margin-top: 30px"><span class="kw">class</span> Dog : <span class="kw">public</span> Animal {};
+
+Dog d;
+Animal&amp; a = d;     <span class="cm">// ok</span>
+d.name();          <span class="cm">// ok</span></pre>
+  <p style="font-size: 44px; margin-top: 34px">A <code>Dog</code> can be used anywhere an <code>Animal</code> is expected.</p>
+  <p class="sm" style="margin-top: 10px">This is the one you use for polymorphism. Everything else is the exception.</p>
 </section>
 
 <section class="page">
   <div class="top"><span>C++ IN MOTION · #9</span><span>4 / 6</span></div>
-  <h2>Where it shines</h2>
-<pre style="font-size: 33px; margin-top: 30px"><span class="ty">int</span> limit = 3;
+  <h2><code>private</code>: "built with"</h2>
+<pre style="font-size: 31px; margin-top: 30px"><span class="kw">class</span> Stack : <span class="kw">private</span> std::vector&lt;<span class="ty">int</span>&gt; {
+<span class="kw">public</span>:
+    <span class="ty">void</span> push(<span class="ty">int</span> x) { push_back(x); }
+};
 
-<span class="kw">auto</span> n = std::count_if(
-    v.begin(), v.end(),
-    [limit](<span class="ty">int</span> x) { <span class="kw">return</span> x &gt; limit; });</pre>
-  <p style="font-size: 44px; margin-top: 34px">The standard algorithms take a <b>rule</b> as an argument.</p>
-  <p class="sm" style="margin-top: 10px">I ran this on <code>{3, 1, 4, 1, 5, 9, 2, 6}</code>: it counted 4 numbers above 3.</p>
+Stack s;
+s.push(1);        <span class="cm">// ok</span>
+s.push_back(2);   <span class="cm">// error</span></pre>
+  <p style="font-size: 42px; margin-top: 30px">The base is an implementation detail. Outsiders cannot see it or convert to it.</p>
+  <p class="sm" style="margin-top: 10px">Often a data member does the same job more clearly.</p>
 </section>
 
 <section class="page">
   <div class="top"><span>C++ IN MOTION · #9</span><span>5 / 6</span></div>
-  <h2>The trap: a reference that outlives</h2>
-<pre style="font-size: 33px; margin-top: 30px"><span class="kw">auto</span> make() {
-    <span class="ty">int</span> n = 5;
-    <span class="kw">return</span> [&amp;n] { <span class="kw">return</span> n; };   <span class="cm">// n is gone</span>
-}</pre>
-  <p class="warn" style="font-weight: 700; margin-top: 34px">The lambda now holds a dangling reference.</p>
-  <p style="margin-top: 20px">Fix: capture by value, <code>[n]</code>.</p>
-  <p class="sm" style="margin-top: 10px">Capture by reference only when the lambda is used and finished while the variable is still alive.</p>
+  <h2>Who can use <code>Derived</code> as a <code>Base</code>?</h2>
+  <table style="margin-top: 34px; font-size: 33px; table-layout: fixed">
+    <tr><th style="width: 42%">Inheritance</th><th>Who can convert</th></tr>
+    <tr><td><code>public</code></td><td class="acc"><b>everyone</b></td></tr>
+    <tr><td><code>protected</code></td><td>the class and its subclasses</td></tr>
+    <tr><td><code>private</code></td><td class="warn"><b>only the class itself</b></td></tr>
+  </table>
+  <p class="sm" style="margin-top: 28px">Friends count as the class itself.</p>
 </section>
 
 <section class="page">
   <div class="top"><span>C++ IN MOTION · #9</span><span>6 / 6</span></div>
-  <h2>It is really an object</h2>
-<pre style="font-size: 34px; margin-top: 30px"><span class="kw">auto</span> twice = [](<span class="ty">int</span> x) {
-    <span class="kw">return</span> x * 2;
-};</pre>
-  <p style="font-size: 44px; margin-top: 34px">The compiler writes a small class with an <code>operator()</code>.</p>
-  <ul>
-    <li><code>auto</code> keeps its exact type: fast, can be inlined</li>
-    <li><code>std::function</code> can hold any callable, with some overhead</li>
-  </ul>
-  <div class="big" style="font-size: 52px; margin-top: 40px">Do you write <code>[=]</code> <span class="acc">or list each capture?</span></div>
+  <h2>The short version</h2>
+  <table style="margin-top: 34px; font-size: 33px; table-layout: fixed">
+    <tr><th style="width: 34%">Use</th><th>When</th></tr>
+    <tr><td><code>public</code></td><td>it <b>is a</b> kind of the base</td></tr>
+    <tr><td><code>private</code></td><td>it is <b>built using</b> the base</td></tr>
+    <tr><td><code>protected</code></td><td>almost never</td></tr>
+  </table>
+  <p class="sm" style="margin-top: 26px">With <code>class</code> the default is <b>private</b>; with <code>struct</code> it is <b>public</b>.</p>
+  <div class="big" style="font-size: 52px; margin-top: 40px">When did you last use <span class="acc">private inheritance?</span></div>
 </section>
 
 </body>

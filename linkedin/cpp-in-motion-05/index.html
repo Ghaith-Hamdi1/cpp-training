@@ -43,87 +43,82 @@
 </style>
 </head>
 <body>
-<!-- 1 · hook -->
 <section class="page">
   <div class="top"><span>C++ IN MOTION · #5</span><span>1 / 6</span></div>
-  <h1>A C-style cast quietly picks a cast for you.</h1>
-  <h1 class="acc" style="margin-top: 10px">C++ makes you name it.</h1>
-<pre style="font-size: 34px">Derived* d = (Derived*)b;</pre>
-  <p>Which cast did the compiler choose here? You cannot tell by reading it.</p>
+  <h1>The <code>const</code> after a member function's parentheses is a promise.</h1>
+  <h1 class="acc" style="margin-top: 10px">It will not change the object.</h1>
+<pre style="font-size: 36px"><span class="ty">int</span> size() <span class="kw">const</span>;</pre>
+  <p>Easy to forget, and it breaks code that has nothing to do with it.</p>
   <div class="swipe">swipe →</div>
 </section>
 
-<!-- 2 · the four -->
 <section class="page">
   <div class="top"><span>C++ IN MOTION · #5</span><span>2 / 6</span></div>
-  <h2>The four casts</h2>
-  <table style="margin-top: 36px; font-size: 34px; table-layout: fixed">
-    <tr><th style="width: 36%">Cast</th><th style="width: 38%">Use it to</th><th>Checked</th></tr>
-    <tr><td><code>static_cast</code></td><td>convert normally</td><td>at compile time</td></tr>
-    <tr><td><code>dynamic_cast</code></td><td>downcast safely</td><td class="acc"><b>at run time</b></td></tr>
-    <tr><td><code>const_cast</code></td><td>add or remove <code>const</code></td><td>at compile time</td></tr>
-    <tr><td><code>reinterpret_cast</code></td><td>reread the bits</td><td class="warn"><b>not at all</b></td></tr>
-  </table>
-  <p style="margin-top: 36px">Reach for them <b>in this order</b>. The further down, the rarer it should be.</p>
+  <h2>What it means</h2>
+<pre style="font-size: 31px; margin-top: 30px"><span class="kw">struct</span> Counter {
+    <span class="ty">int</span> n = 0;
+    <span class="ty">int</span> get() <span class="kw">const</span> { <span class="kw">return</span> n; }    <span class="cm">// ok</span>
+    <span class="ty">int</span> bad() <span class="kw">const</span> { ++n; <span class="kw">return</span> n; } <span class="cm">// error</span>
+};</pre>
+  <p style="font-size: 44px; margin-top: 34px">Inside, <code>this</code> is a <code>const Counter*</code>.</p>
+  <p class="sm" style="margin-top: 10px">So the members are read-only there, and the compiler rejects any write.</p>
 </section>
 
-<!-- 3 · static_cast -->
 <section class="page">
   <div class="top"><span>C++ IN MOTION · #5</span><span>3 / 6</span></div>
-  <h2><code>static_cast</code></h2>
-<pre style="font-size: 34px; margin-top: 30px"><span class="ty">double</span> d = 3.9;
-<span class="ty">int</span> i = <span class="kw">static_cast</span>&lt;<span class="ty">int</span>&gt;(d);   <span class="cm">// 3</span>
+  <h2>Who can call it</h2>
+<pre style="font-size: 33px; margin-top: 30px"><span class="kw">const</span> Counter c;
+c.get();    <span class="cm">// ok</span>
+c.inc();    <span class="cm">// error: inc is not const</span>
 
-Base* b = <span class="kw">new</span> Derived;
-Derived* p = <span class="kw">static_cast</span>&lt;Derived*&gt;(b);</pre>
-  <p style="font-size: 44px; margin-top: 36px">The everyday cast. Numbers, and pointers up or down a class hierarchy.</p>
-  <p class="warn" style="font-weight: 700; margin-top: 20px">Downcasting is a promise.</p>
-  <p class="sm" style="margin-top: 8px">If <code>b</code> is not really a <code>Derived</code>, the behaviour is undefined. Nothing checks it.</p>
+<span class="ty">int</span> f(<span class="kw">const</span> Counter&amp; c) {
+    <span class="kw">return</span> c.get();
+}</pre>
+  <p style="font-size: 44px; margin-top: 34px">A <code>const</code> object can only call <code>const</code> functions.</p>
+  <p class="sm" style="margin-top: 10px">A missing <code>const</code> on a getter makes it unusable through <code>const&amp;</code>, which is how most parameters are passed.</p>
 </section>
 
-<!-- 4 · dynamic_cast -->
 <section class="page">
   <div class="top"><span>C++ IN MOTION · #5</span><span>4 / 6</span></div>
-  <h2><code>dynamic_cast</code></h2>
-<pre style="font-size: 36px; margin-top: 30px"><span class="kw">if</span> (<span class="kw">auto</span>* p =
-        <span class="kw">dynamic_cast</span>&lt;Derived*&gt;(b)) {
-    <span class="cm">// b really is a Derived</span>
-}</pre>
-  <p style="font-size: 44px; margin-top: 36px">The same downcast, but <b>checked at run time</b>.</p>
-  <ul>
-    <li>a pointer gives <code>nullptr</code> if it is wrong</li>
-    <li>a reference throws <code>std::bad_cast</code></li>
-    <li>needs a <code>virtual</code> function in <code>Base</code></li>
-  </ul>
-  <p class="sm" style="margin-top: 20px">It costs a lookup. If you use it a lot, a virtual function is usually the better design.</p>
+  <h2>Two versions of one function</h2>
+<pre style="font-size: 31px; margin-top: 30px"><span class="kw">struct</span> Vec {
+    <span class="ty">int</span>&amp; at(<span class="ty">int</span> i);
+    <span class="kw">const</span> <span class="ty">int</span>&amp; at(<span class="ty">int</span> i) <span class="kw">const</span>;
+};
+
+Vec v;        v.at(0) = 5;    <span class="cm">// first</span>
+<span class="kw">const</span> Vec c;  <span class="ty">int</span> x = c.at(2);  <span class="cm">// second</span></pre>
+  <p style="font-size: 42px; margin-top: 30px"><code>const</code> counts as part of the signature.</p>
+  <p class="sm" style="margin-top: 10px">The standard containers do exactly this. I ran it and each call picked the version I expected.</p>
 </section>
 
-<!-- 5 · const_cast and reinterpret_cast -->
 <section class="page">
   <div class="top"><span>C++ IN MOTION · #5</span><span>5 / 6</span></div>
-  <h2>The two you rarely need</h2>
-  <div style="font-size: 36px; font-weight: 800; margin-top: 30px"><code>const_cast</code></div>
-<pre style="font-size: 32px; margin-top: 10px; padding: 20px 36px">legacy(<span class="kw">const_cast</span>&lt;<span class="ty">char</span>*&gt;(s));</pre>
-  <p class="sm" style="margin-top: 14px">For an old function that takes <code>char*</code> but only reads. Writing to an object that was declared <code>const</code> is undefined behaviour.</p>
-  <div style="font-size: 36px; font-weight: 800; margin-top: 34px"><code>reinterpret_cast</code></div>
-<pre style="font-size: 32px; margin-top: 10px; padding: 20px 36px"><span class="kw">auto</span>* bytes =
-    <span class="kw">reinterpret_cast</span>&lt;<span class="kw">const</span> <span class="ty">unsigned char</span>*&gt;(&amp;x);</pre>
-  <p class="sm" style="margin-top: 14px">Reading an object as bytes is allowed. Reading it as another type is not. For that, use <code>memcpy</code> or <code>std::bit_cast</code>.</p>
+  <h2>The escape hatch: <code>mutable</code></h2>
+<pre style="font-size: 32px; margin-top: 30px"><span class="kw">class</span> Account {
+    <span class="kw">mutable</span> std::mutex m_;
+    <span class="ty">int</span> balance_ = 0;
+<span class="kw">public</span>:
+    <span class="ty">int</span> balance() <span class="kw">const</span> {
+        std::lock_guard g(m_);
+        <span class="kw">return</span> balance_;
+    }
+};</pre>
+  <p style="font-size: 42px; margin-top: 30px">For members that are not part of the visible state: a lock, a cache, a counter.</p>
+  <p class="sm" style="margin-top: 10px">Without <code>mutable</code> the lock does not compile in a <code>const</code> function.</p>
 </section>
 
-<!-- 6 · summary -->
 <section class="page">
   <div class="top"><span>C++ IN MOTION · #5</span><span>6 / 6</span></div>
-  <h2>Which one do I use?</h2>
-  <table style="margin-top: 36px; font-size: 33px; table-layout: fixed">
-    <tr><th style="width: 52%">You want to</th><th>Use</th></tr>
-    <tr><td>convert a number or a type</td><td><code>static_cast</code></td></tr>
-    <tr><td>downcast and you are not sure</td><td><code>dynamic_cast</code></td></tr>
-    <tr><td>drop <code>const</code> for an old API</td><td><code>const_cast</code></td></tr>
-    <tr><td>look at raw bytes</td><td><code>reinterpret_cast</code></td></tr>
+  <h2>The habit</h2>
+  <table style="margin-top: 34px; font-size: 33px; table-layout: fixed">
+    <tr><th style="width: 58%">The function</th><th>Write</th></tr>
+    <tr><td>only reads the object</td><td><code>... const</code></td></tr>
+    <tr><td>changes the object</td><td>no <code>const</code></td></tr>
+    <tr><td>reads, but locks or caches</td><td><code>const</code> + <code>mutable</code></td></tr>
   </table>
-  <p style="margin-top: 36px">And avoid the C-style cast: it silently becomes a <code>static_cast</code>, <code>const_cast</code> or <code>reinterpret_cast</code>, <b>whichever compiles</b>.</p>
-  <div class="big" style="font-size: 54px; margin-top: 44px">How many C-style casts <span class="acc">are in your codebase?</span></div>
+  <p style="margin-top: 30px">Start with <code>const</code>. Remove it only when the compiler makes you.</p>
+  <div class="big" style="font-size: 52px; margin-top: 40px">How many of your getters <span class="acc">are missing <code>const</code>?</span></div>
 </section>
 
 </body>

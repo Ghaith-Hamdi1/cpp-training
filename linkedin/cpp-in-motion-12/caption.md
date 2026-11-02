@@ -1,32 +1,37 @@
-# C++ in Motion #12: public, protected and private inheritance - caption
+# C++ in Motion #12: virtual destructors - caption
 
-One keyword decides who can see the base class.
+Deleting through a base pointer is undefined behaviour, unless the base destructor is virtual.
 
 ```
-class A : public    Base {};
-class B : protected Base {};
-class C : private   Base {};
+Base* p = new Derived;
+delete p;
 ```
 
-Same class, three very different relationships. Swipe for what the base's members become, and when to use each.
+It compiles without a warning and it usually runs. In my test only ~Base ran, so everything Derived owned leaked.
 
-When did you last use private inheritance?
+Swipe for what happens, the one-keyword fix, when you need it, and what it costs.
+
+Is -Wnon-virtual-dtor on in your build?
 
 #cpp #cplusplus #programming #learninpublic
 
 ## Files
 
 - `cpp-in-motion-12-carousel.pdf` - 6 pages, 4:5, light mode. Upload this as the LinkedIn document.
-- `index.html` - source.
+- `index.html` - source (print it to PDF with a page size of 1080 x 1350 px to rebuild the carousel).
 
 ## First comment (post it right after publishing)
 
-Full lesson on the object model, inheritance and composition: <link to your repo>
+Full OOP lesson (virtual functions, vtables, Rule of 0/3/5): <link to your repo>
 
 ## Checks done
 
-Every access claim was checked with `g++ -std=c++17 -fsyntax-only`: public members and base conversion work with public inheritance; with protected inheritance they fail outside the class but work in subclasses; with private inheritance they fail outside and in subclasses but work inside the class; the base's private members are never accessible; a class inheriting privately from `std::vector<int>` hides `push_back`; `class` defaults to private inheritance and `struct` to public.
+Compiled with `g++ -std=c++17 -Wall -Wextra` and run:
+
+- Without `virtual`: only `~Base` was printed (the standard calls this undefined behaviour; this is what the compiler did).
+- With `virtual`: `~Derived` then `~Base`.
+- `sizeof` of an `int`-only struct is 4, with a virtual destructor it is 16 (64-bit build).
 
 ## Source of the idea
 
-Based on the topic of the Stack Overflow question "What is the difference between public, private, and protected inheritance in C++?" (https://stackoverflow.com/questions/860339/what-is-the-difference-between-public-private-and-protected-inheritance). Wording and code are written from scratch.
+Based on the topic of the Stack Overflow question "When to use virtual destructors?" (https://stackoverflow.com/questions/461203/when-to-use-virtual-destructors). Wording, examples and code are written from scratch.

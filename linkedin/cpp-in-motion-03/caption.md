@@ -1,35 +1,31 @@
-# C++ in Motion #3: what && means — caption
+# C++ in Motion #3: lambdas - caption
 
-In a type, && does not mean "and". It is a new kind of reference.
+A lambda is a function you write right where you need it.
 
 ```
-int&  a = x;
-int&& b = 5;
+std::sort(v.begin(), v.end(),
+          [](int a, int b) { return a > b; });
 ```
 
-The second one is an rvalue reference. It binds only to temporaries, and that is what lets a class steal the contents of a temporary instead of copying it.
+No separate function, no name, just the logic in place. Swipe for the three parts, the capture list, where lambdas shine, and the one trap to avoid.
 
-Swipe for lvalues vs rvalues, why moving is cheap, what std::move really does, and how to write a move constructor.
-
-Do you write move operations yourself or let the compiler do it?
+Do you write [=] or list each capture?
 
 #cpp #cplusplus #programming #learninpublic
 
 ## Files
 
 - `cpp-in-motion-03-carousel.pdf` - 6 pages, 4:5, light mode. Upload this as the LinkedIn document.
-- `index.html` - source (print it to PDF with a page size of 1080 x 1350 px to rebuild the carousel).
+- `index.html` - source.
 
 ## First comment (post it right after publishing)
 
-Full lesson on move semantics, smart pointers and the Rule of 5: <link to your repo>
+Full lesson on lambdas and callables: <link to your repo>
 
 ## Checks done
 
-- The overload example printed `1: lvalue ref` for a named string and `2: rvalue ref` for a temporary and for `std::move(s)`.
-- `std::vector<int> b = std::move(a)` left `a` with size 0 and `b` with size 3.
-- The `Numbers` move constructor compiled with `g++ -std=c++17 -Wall -Wextra`; the moved-from object held a null pointer and its destructor ran safely.
+Compiled with `g++ -std=c++17 -Wall -Wextra` and run: the descending sort gave 9 first and 1 last; `count_if` with `[limit]` (limit 3) counted 4 numbers above 3; a by-value capture kept its value (10) while a by-reference capture saw the later change (30); the by-value `make()` returned 5; the lambda was converted to a `std::function`. The dangling `[&n]` version is shown only as a bug.
 
 ## Source of the idea
 
-Based on the topic of the Stack Overflow question "What does T&& (double ampersand) mean in C++11?" (https://stackoverflow.com/questions/5481539/what-does-t-double-ampersand-mean-in-c11). The wording, examples and code are written from scratch; nothing is copied from the answers.
+Based on the topic of the Stack Overflow question "What is a lambda expression, and when should I use one?" (https://stackoverflow.com/questions/7627098/what-is-a-lambda-expression-and-when-should-i-use-one). Wording and code are written from scratch.

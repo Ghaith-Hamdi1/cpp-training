@@ -1,26 +1,32 @@
-# C++ in Motion #1 — caption
+# C++ in Motion #1: dereferencing a pointer - caption
 
-Quick quiz: where does `std::vector<int> v = {1, 2, 3};` live?
+*p means: go to the address stored in p. Then use what is there.
 
-The vector object sits on the stack. Its elements sit on the heap.
+```
+int x = 7;
+int* p = &x;
+int y = *p;   // 7
+```
 
-Swipe through to see what happens when it grows, why that breaks your iterators, and why you never have to call `delete`.
+That is dereferencing. Swipe for what is in memory, reading and writing through a pointer, the arrow operator, and what goes wrong.
 
-Which would you do in your own code: return a vector by value or by pointer?
+Where do you still need a raw *?
 
 #cpp #cplusplus #programming #learninpublic
 
 ## Files
 
-- `cpp-in-motion-01-carousel.pdf` — 7 pages, light mode. Upload this as the LinkedIn document.
-- `index.html` — source. Open it to watch the animated version; `?flip` shows the carousel layout (print it to PDF to regenerate).
+- `cpp-in-motion-01-carousel.pdf` - 6 pages, 4:5, light mode. Upload this as the LinkedIn document.
+- `index.html` - source.
 
 ## First comment (post it right after publishing)
 
-Slides + code from my C++ study repo: <link>
+Full lesson on pointers, references and memory: <link to your repo>
 
-## Posting checklist
+## Checks done
 
-- Tuesday, about 8:30 Tunisia time (UTC+1)
-- Reply to every comment in the first hour
-- Thursday follow-up: the "dangling reference" puzzle (draft 2)
+Compiled with `g++ -std=c++17 -Wall -Wextra` and run: `int y = *p;` gave 7; after `*p = 9;` x was 9 and y stayed 7; `(*q).hp` and `q->hp` read the same member; `p == &x` was true; `&p` differs from `p`. The undefined-behaviour cases (null, uninitialized, dangling) are described, not run. The memory diagram uses made-up addresses.
+
+## Source of the idea
+
+Based on the topic of the Stack Overflow question "What does dereferencing a pointer mean in C/C++?" (https://stackoverflow.com/questions/4955198/what-does-dereferencing-a-pointer-mean-in-c-c). Wording, diagram and code are written from scratch.

@@ -45,98 +45,79 @@
 <body>
 <section class="page">
   <div class="top"><span>C++ IN MOTION · #11</span><span>1 / 6</span></div>
-  <h1>Call through a base pointer and C++ picks the function by the pointer's type.</h1>
-  <h1 class="acc" style="margin-top: 10px">Unless it is virtual.</h1>
-<pre style="font-size: 36px">Animal* a = <span class="kw">new</span> Dog;
-a-&gt;speak();    <span class="cm">// which speak() runs?</span></pre>
-  <p>The answer surprises most beginners.</p>
+  <h1>Copy a <code>Derived</code> into a <code>Base</code> and the Derived part is cut off.</h1>
+  <h1 class="acc" style="margin-top: 10px">That is object slicing.</h1>
+<pre style="font-size: 36px">Derived d;
+Base b = d;   <span class="cm">// d's y is gone</span></pre>
+  <p>It compiles without a single warning.</p>
   <div class="swipe">swipe →</div>
 </section>
 
 <section class="page">
   <div class="top"><span>C++ IN MOTION · #11</span><span>2 / 6</span></div>
-  <h2>Without <code>virtual</code></h2>
-<pre style="font-size: 31px; margin-top: 30px"><span class="kw">struct</span> Animal {
-    <span class="ty">void</span> speak() { puts(<span class="str">"..."</span>); }
+  <h2>What gets lost</h2>
+<pre style="font-size: 31px; margin-top: 30px"><span class="kw">struct</span> Base {
+    <span class="ty">int</span> x = 1;
+    <span class="kw">virtual</span> <span class="ty">void</span> print() <span class="kw">const</span>;   <span class="cm">// "Base"</span>
 };
-<span class="kw">struct</span> Dog : Animal {
-    <span class="ty">void</span> speak() { puts(<span class="str">"Woof"</span>); }
-};
-
-Dog d;
-Animal* a = &amp;d;
-a-&gt;speak();</pre>
-  <p class="warn" style="font-weight: 700; margin-top: 30px">Prints the Animal version, not Woof.</p>
-  <p class="sm" style="margin-top: 10px">The compiler only knows <code>a</code> is an <code>Animal*</code>, so it calls <code>Animal::speak</code>.</p>
+<span class="kw">struct</span> Derived : Base {
+    <span class="ty">int</span> y = 2;
+    <span class="ty">void</span> print() <span class="kw">const override</span>;     <span class="cm">// "Derived"</span>
+};</pre>
+  <table class="w5" style="margin-top: 30px; font-size: 33px">
+    <tr><th>Object</th><th>Holds</th></tr>
+    <tr><td><code>d</code></td><td><code>x</code> and <code>y</code></td></tr>
+    <tr><td><code>b</code> (copy)</td><td class="warn"><b><code>x</code> only</b></td></tr>
+  </table>
 </section>
 
 <section class="page">
   <div class="top"><span>C++ IN MOTION · #11</span><span>3 / 6</span></div>
-  <h2>With <code>virtual</code></h2>
-<pre style="font-size: 31px; margin-top: 30px"><span class="kw">struct</span> Animal {
-    <span class="kw">virtual</span> <span class="ty">void</span> speak() { puts(<span class="str">"..."</span>); }
-};
-<span class="kw">struct</span> Dog : Animal {
-    <span class="ty">void</span> speak() <span class="kw">override</span> { puts(<span class="str">"Woof"</span>); }
-};
-
-Animal* a = &amp;d;
-a-&gt;speak();</pre>
-  <p style="font-weight: 700; margin-top: 30px; color: var(--accent)">Prints <code>Woof</code>.</p>
-  <p class="sm" style="margin-top: 10px">Now the function is chosen by what the object <b>really is</b>, at run time.</p>
+  <h2>Even the virtual call changes</h2>
+<pre style="font-size: 34px; margin-top: 30px">Derived d;
+Base b = d;
+b.print();</pre>
+  <p class="warn" style="font-weight: 700; margin-top: 34px">Prints "Base", not "Derived".</p>
+  <p style="margin-top: 20px"><code>b</code> is a real <code>Base</code> object. Its hidden vtable pointer was built for <code>Base</code>.</p>
+  <p class="sm" style="margin-top: 10px">A virtual call only follows the real type if you go through a pointer or reference to the original object.</p>
 </section>
 
 <section class="page">
   <div class="top"><span>C++ IN MOTION · #11</span><span>4 / 6</span></div>
-  <h2>How it works</h2>
-  <svg viewBox="0 0 940 380" width="940" height="380" style="margin-top: 30px; display: block">
-    <g font-family="Segoe UI, system-ui, sans-serif">
-      <text x="20" y="40" font-size="30" font-weight="800" style="fill:#656d76">EACH DOG OBJECT</text>
-      <rect x="20" y="70" width="330" height="190" rx="18" fill="#d9f5f1" stroke="#0d9488" stroke-width="4"/>
-      <rect x="45" y="95" width="280" height="62" rx="12" fill="#fff" stroke="#7c3aed" stroke-width="4"/>
-      <text x="65" y="138" font-size="30" font-family="Consolas, monospace" style="fill:#7c3aed" font-weight="700">vptr</text>
-      <rect x="45" y="175" width="280" height="62" rx="12" fill="#fff" stroke="#0d9488" stroke-width="3"/>
-      <text x="65" y="218" font-size="30" font-family="Consolas, monospace">members...</text>
-      <text x="920" y="40" font-size="30" font-weight="800" text-anchor="end" style="fill:#656d76">ONE VTABLE PER CLASS</text>
-      <rect x="560" y="70" width="360" height="190" rx="18" fill="#ffedd5" stroke="#ea580c" stroke-width="4"/>
-      <text x="590" y="120" font-size="28" font-weight="800" style="fill:#ea580c">Dog</text>
-      <rect x="590" y="140" width="300" height="62" rx="12" fill="#fff" stroke="#ea580c" stroke-width="3"/>
-      <text x="610" y="183" font-size="28" font-family="Consolas, monospace">speak → Dog::speak</text>
-      <path d="M325 126 L548 168" fill="none" stroke="#7c3aed" stroke-width="5" stroke-linecap="round"/>
-      <polygon points="530,152 556,170 526,182" fill="#7c3aed"/>
-      <text x="20" y="320" font-size="32" style="fill:#1f2328">The call follows the arrow at run time.</text>
-    </g>
-  </svg>
-  <p class="sm" style="margin-top: 24px">A class with virtual functions gets a table of them. Every object carries a hidden pointer to its class's table.</p>
+  <h2>Where it hides</h2>
+<pre style="font-size: 33px; margin-top: 30px"><span class="ty">void</span> f(Base b);                <span class="cm">// slices</span>
+
+std::vector&lt;Base&gt; v;
+v.push_back(Derived());         <span class="cm">// slices</span>
+
+<span class="kw">catch</span> (Base e) { }                <span class="cm">// slices</span></pre>
+  <p style="font-size: 42px; margin-top: 30px">Passing by value, storing in a container, catching by value.</p>
+  <p class="sm" style="margin-top: 10px">All three sliced in my test, and the virtual call then printed "Base".</p>
 </section>
 
 <section class="page">
   <div class="top"><span>C++ IN MOTION · #11</span><span>5 / 6</span></div>
-  <h2>What you get</h2>
-<pre style="font-size: 31px; margin-top: 30px">std::vector&lt;std::unique_ptr&lt;Animal&gt;&gt; zoo;
-zoo.push_back(std::make_unique&lt;Dog&gt;());
-zoo.push_back(std::make_unique&lt;Cat&gt;());
+  <h2>The fixes</h2>
+<pre style="font-size: 33px; margin-top: 30px"><span class="ty">void</span> f(<span class="kw">const</span> Base&amp; b);
 
-<span class="kw">for</span> (<span class="kw">auto</span>&amp; x : zoo)
-    x-&gt;speak();</pre>
-  <table class="w5" style="margin-top: 30px; font-size: 34px">
-    <tr><th>Output</th></tr>
-    <tr><td><code>Woof</code></td></tr>
-    <tr><td><code>Meow</code></td></tr>
-  </table>
-  <p style="margin-top: 26px">One loop. Each object does its own thing. Add a <code>Bird</code> later and the loop does not change.</p>
+std::vector&lt;std::unique_ptr&lt;Base&gt;&gt; v;
+
+<span class="kw">catch</span> (<span class="kw">const</span> Base&amp; e) { }</pre>
+  <p style="font-size: 42px; margin-top: 30px">Pass by reference, store pointers, catch by reference.</p>
+  <p class="sm" style="margin-top: 10px">Or make the copy impossible: <code>Base(const Base&amp;) = delete;</code> turns the slice into a compile error. I checked.</p>
 </section>
 
 <section class="page">
   <div class="top"><span>C++ IN MOTION · #11</span><span>6 / 6</span></div>
-  <h2>The small print</h2>
-  <ul style="font-size: 42px">
-    <li>mark overrides with <code>override</code>: the compiler catches typos</li>
-    <li>give the base a <code>virtual</code> destructor</li>
-    <li>cost: one hidden pointer per object, one extra jump per call</li>
-    <li>it only works through a pointer or reference</li>
-  </ul>
-  <div class="big" style="font-size: 52px; margin-top: 44px">Do you mark every override with <code>override</code>? <span class="acc">It is free.</span></div>
+  <h2>The rule</h2>
+  <table style="margin-top: 34px; font-size: 33px; table-layout: fixed">
+    <tr><th style="width: 50%">If it is polymorphic</th><th>Then</th></tr>
+    <tr><td>a parameter</td><td><code>const Base&amp;</code></td></tr>
+    <tr><td>a container element</td><td><code>unique_ptr&lt;Base&gt;</code></td></tr>
+    <tr><td>a copy</td><td>a <code>clone()</code> function</td></tr>
+  </table>
+  <p style="margin-top: 30px">Never copy a polymorphic object by value.</p>
+  <div class="big" style="font-size: 52px; margin-top: 40px">Is there a <code>vector&lt;Base&gt;</code> <span class="acc">hiding in your code?</span></div>
 </section>
 
 </body>

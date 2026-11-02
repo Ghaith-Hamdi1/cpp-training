@@ -43,73 +43,96 @@
 </style>
 </head>
 <body>
+<!-- 1 · hook -->
 <section class="page">
   <div class="top"><span>C++ IN MOTION · #15</span><span>1 / 6</span></div>
-  <h1><code>const</code> means "I won't change it".</h1>
-  <h1 class="acc" style="margin-top: 10px"><code>constexpr</code> means "the compiler knows it".</h1>
-<pre style="font-size: 34px"><span class="kw">const</span> <span class="ty">int</span> a = std::rand();
-<span class="kw">constexpr</span> <span class="ty">int</span> b = 5 * 2;</pre>
-  <p>Both are read-only. Only one of them is known before the program runs.</p>
+  <h1>In a type, <code>&amp;&amp;</code> does not mean “and”.</h1>
+  <h1 class="acc" style="margin-top: 10px">It is a new kind of reference.</h1>
+<pre><span class="ty">int</span>&amp;  a = x;
+<span class="ty">int</span>&amp;&amp; b = 5;</pre>
+  <p>The second one is an <b>rvalue reference</b>.</p>
+  <p class="sm" style="margin-top: 10px">Added in C++11. It is what makes move semantics possible.</p>
   <div class="swipe">swipe →</div>
 </section>
 
+<!-- 2 · lvalue vs rvalue -->
 <section class="page">
   <div class="top"><span>C++ IN MOTION · #15</span><span>2 / 6</span></div>
-  <h2><code>const</code> can wait for run time</h2>
-<pre style="font-size: 33px; margin-top: 30px"><span class="kw">const</span> <span class="ty">int</span> a = std::rand();   <span class="cm">// ok</span>
-<span class="kw">constexpr</span> <span class="ty">int</span> b = std::rand(); <span class="cm">// error</span></pre>
-  <p style="font-size: 44px; margin-top: 34px"><code>const</code> only promises not to change <b>after</b> initialization.</p>
-  <p style="margin-top: 20px">The value can come from input, a file, a random number.</p>
-  <p class="sm" style="margin-top: 10px"><code>constexpr</code> demands a value the compiler can work out itself.</p>
+  <h2>Two kinds of value</h2>
+  <table style="margin-top: 40px; font-size: 38px">
+    <tr><th style="width: 22%"></th><th style="width: 38%">lvalue</th><th>rvalue</th></tr>
+    <tr><td><b>It is</b></td><td>a named object</td><td>a temporary</td></tr>
+    <tr><td><b>Lifetime</b></td><td>lives on after the line</td><td>gone at the <code>;</code></td></tr>
+    <tr><td><b>Examples</b></td><td><code>x</code><br><code>s</code></td><td><code>5</code><br><code>a + b</code><br><code>std::string("hi")</code></td></tr>
+  </table>
+  <p style="margin-top: 40px">Nobody can use an rvalue after this line. <b>So nobody will miss what is inside it.</b></p>
 </section>
 
+<!-- 3 · binding -->
 <section class="page">
   <div class="top"><span>C++ IN MOTION · #15</span><span>3 / 6</span></div>
-  <h2>Why it matters</h2>
-<pre style="font-size: 33px; margin-top: 30px"><span class="kw">constexpr</span> <span class="ty">int</span> n = 4;
-std::array&lt;<span class="ty">int</span>, n&gt; a;      <span class="cm">// ok</span>
+  <h2>Each reference picks its own</h2>
+  <table class="w5" style="margin-top: 36px; font-size: 38px">
+    <tr><th>Type</th><th>Binds to</th></tr>
+    <tr><td><code>T&amp;</code></td><td>lvalues only</td></tr>
+    <tr><td><code>const T&amp;</code></td><td>both (so it can copy)</td></tr>
+    <tr><td><code>T&amp;&amp;</code></td><td><b>rvalues only</b></td></tr>
+  </table>
+<pre style="font-size: 33px; margin-top: 34px"><span class="ty">void</span> f(std::string&amp;);    <span class="cm">// 1</span>
+<span class="ty">void</span> f(std::string&amp;&amp;);   <span class="cm">// 2</span>
 
-<span class="kw">const</span> <span class="ty">int</span> m = std::rand();
-std::array&lt;<span class="ty">int</span>, m&gt; b;      <span class="cm">// error</span></pre>
-  <p style="font-size: 44px; margin-top: 34px">Array sizes, template arguments and <code>static_assert</code> need a compile-time value.</p>
-  <p class="sm" style="margin-top: 10px">A <code>const int</code> with a literal initializer also works there, which hides the difference. <code>constexpr</code> makes it a guarantee.</p>
+f(s);                   <span class="cm">// 1</span>
+f(std::string(<span class="str">"hi"</span>));   <span class="cm">// 2</span></pre>
+  <p class="sm">The overload tells the function whether it may take the contents.</p>
 </section>
 
+<!-- 4 · copy vs move -->
 <section class="page">
   <div class="top"><span>C++ IN MOTION · #15</span><span>4 / 6</span></div>
-  <h2><code>constexpr</code> functions</h2>
-<pre style="font-size: 33px; margin-top: 30px"><span class="kw">constexpr</span> <span class="ty">int</span> square(<span class="ty">int</span> x) {
-    <span class="kw">return</span> x * x;
-}
-
-<span class="kw">static_assert</span>(square(4) == 16);   <span class="cm">// compile time</span>
-<span class="ty">int</span> r = square(std::rand());      <span class="cm">// run time</span></pre>
-  <p style="font-size: 44px; margin-top: 34px">The same function runs in <b>both</b> worlds.</p>
-  <p class="sm" style="margin-top: 10px">Given constants, it can run during compilation. Given run-time values, it runs normally.</p>
+  <h2>Why: copy or steal</h2>
+<pre style="font-size: 34px; padding: 22px 36px; margin-top: 24px">std::vector&lt;<span class="ty">int</span>&gt; b = a;               <span class="cm">// copy</span>
+std::vector&lt;<span class="ty">int</span>&gt; b = std::move(a);   <span class="cm">// move</span></pre>
+  <div style="display: flex; gap: 40px; margin-top: 34px">
+    <div style="width: 450px">
+      <div style="font-size: 32px; font-weight: 800; color: var(--muted); margin-bottom: 12px">Copy</div>
+      <svg viewBox="0 0 450 340" width="450" height="340"><rect x="0" y="0" width="450" height="140" rx="20" fill="#d9f5f1" stroke="#0d9488" stroke-width="3"/><text x="16" y="34" font-size="22" font-weight="800" letter-spacing="3" style="fill:#0d9488">STACK</text><rect x="0" y="210" width="450" height="130" rx="20" fill="#ffedd5" stroke="#ea580c" stroke-width="3"/><text x="16" y="240" font-size="22" font-weight="800" letter-spacing="3" style="fill:#ea580c">HEAP</text><rect x="20" y="52" width="190" height="70" rx="12" fill="#fff" stroke="#0d9488" stroke-width="3"/><text class="m" x="34" y="96" font-size="26" font-weight="700" style="fill:#0d9488">a</text><rect x="66" y="62" width="132" height="50" rx="8" fill="#fff" stroke="#0d9488" stroke-width="2"/><text class="m" x="80" y="95" font-size="22">data</text><rect x="240" y="52" width="190" height="70" rx="12" fill="#fff" stroke="#0d9488" stroke-width="3"/><text class="m" x="254" y="96" font-size="26" font-weight="700" style="fill:#0d9488">b</text><rect x="286" y="62" width="132" height="50" rx="8" fill="#fff" stroke="#0d9488" stroke-width="2"/><text class="m" x="300" y="95" font-size="22">data</text><rect x="27" y="252" width="176" height="76" rx="14" fill="#fff7ed" stroke="#ea580c" stroke-width="3" stroke-dasharray="10 7"/><rect x="37" y="266" width="48" height="48" rx="9" fill="#fff" stroke="#ea580c" stroke-width="3"/><text x="61" y="300" font-size="26" font-weight="800" text-anchor="middle">1</text><rect x="91" y="266" width="48" height="48" rx="9" fill="#fff" stroke="#ea580c" stroke-width="3"/><text x="115" y="300" font-size="26" font-weight="800" text-anchor="middle">2</text><rect x="145" y="266" width="48" height="48" rx="9" fill="#fff" stroke="#ea580c" stroke-width="3"/><text x="169" y="300" font-size="26" font-weight="800" text-anchor="middle">3</text><rect x="247" y="252" width="176" height="76" rx="14" fill="#fff7ed" stroke="#ea580c" stroke-width="3" stroke-dasharray="10 7"/><rect x="257" y="266" width="48" height="48" rx="9" fill="#fff" stroke="#ea580c" stroke-width="3"/><text x="281" y="300" font-size="26" font-weight="800" text-anchor="middle">1</text><rect x="311" y="266" width="48" height="48" rx="9" fill="#fff" stroke="#ea580c" stroke-width="3"/><text x="335" y="300" font-size="26" font-weight="800" text-anchor="middle">2</text><rect x="365" y="266" width="48" height="48" rx="9" fill="#fff" stroke="#ea580c" stroke-width="3"/><text x="389" y="300" font-size="26" font-weight="800" text-anchor="middle">3</text><path d="M115 112 C115 190, 115 170, 115 232" fill="none" stroke="#7c3aed" stroke-width="5" stroke-linecap="round"/><polygon points="105,218 115,238 125,218" fill="#7c3aed"/><path d="M335 112 C335 190, 335 170, 335 232" fill="none" stroke="#2563eb" stroke-width="5" stroke-linecap="round"/><polygon points="325,218 335,238 345,218" fill="#2563eb"/></svg>
+      <p style="font-size: 30px; margin-top: 12px">New block, new ints.</p>
+    </div>
+    <div style="width: 450px">
+      <div style="font-size: 32px; font-weight: 800; color: var(--accent); margin-bottom: 12px">Move</div>
+      <svg viewBox="0 0 450 340" width="450" height="340"><rect x="0" y="0" width="450" height="140" rx="20" fill="#d9f5f1" stroke="#0d9488" stroke-width="3"/><text x="16" y="34" font-size="22" font-weight="800" letter-spacing="3" style="fill:#0d9488">STACK</text><rect x="0" y="210" width="450" height="130" rx="20" fill="#ffedd5" stroke="#ea580c" stroke-width="3"/><text x="16" y="240" font-size="22" font-weight="800" letter-spacing="3" style="fill:#ea580c">HEAP</text><rect x="20" y="52" width="190" height="70" rx="12" fill="#fff" stroke="#0d9488" stroke-width="3"/><text class="m" x="34" y="96" font-size="26" font-weight="700" style="fill:#0d9488">a</text><rect x="66" y="62" width="132" height="50" rx="8" fill="#fff" stroke="#0d9488" stroke-width="2"/><text class="m" x="80" y="95" font-size="22" style="fill:#656d76">null</text><rect x="240" y="52" width="190" height="70" rx="12" fill="#fff" stroke="#0d9488" stroke-width="3"/><text class="m" x="254" y="96" font-size="26" font-weight="700" style="fill:#0d9488">b</text><rect x="286" y="62" width="132" height="50" rx="8" fill="#fff" stroke="#0d9488" stroke-width="2"/><text class="m" x="300" y="95" font-size="22">data</text><rect x="247" y="252" width="176" height="76" rx="14" fill="#fff7ed" stroke="#ea580c" stroke-width="3" stroke-dasharray="10 7"/><rect x="257" y="266" width="48" height="48" rx="9" fill="#fff" stroke="#ea580c" stroke-width="3"/><text x="281" y="300" font-size="26" font-weight="800" text-anchor="middle">1</text><rect x="311" y="266" width="48" height="48" rx="9" fill="#fff" stroke="#ea580c" stroke-width="3"/><text x="335" y="300" font-size="26" font-weight="800" text-anchor="middle">2</text><rect x="365" y="266" width="48" height="48" rx="9" fill="#fff" stroke="#ea580c" stroke-width="3"/><text x="389" y="300" font-size="26" font-weight="800" text-anchor="middle">3</text><path d="M335 112 C335 190, 335 170, 335 232" fill="none" stroke="#2563eb" stroke-width="5" stroke-linecap="round"/><polygon points="325,218 335,238 345,218" fill="#2563eb"/></svg>
+      <p style="font-size: 30px; margin-top: 12px; font-weight: 700">Same block, new owner.</p>
+    </div>
+  </div>
+  <p style="font-size: 40px; margin-top: 44px">A move copies one pointer, not the elements.</p>
 </section>
 
+<!-- 5 · std::move -->
 <section class="page">
   <div class="top"><span>C++ IN MOTION · #15</span><span>5 / 6</span></div>
-  <h2>Side by side</h2>
-  <table style="margin-top: 34px; font-size: 31px; table-layout: fixed">
-    <tr><th style="width: 40%"></th><th><code>const</code></th><th><code>constexpr</code></th></tr>
-    <tr><td>read-only</td><td class="acc"><b>yes</b></td><td class="acc"><b>yes</b></td></tr>
-    <tr><td>initializer</td><td>may be run time</td><td>must be compile time</td></tr>
-    <tr><td>array size, template argument</td><td>only if constant</td><td class="acc"><b>always</b></td></tr>
-  </table>
-  <p class="sm" style="margin-top: 26px">All of these were checked with the compiler.</p>
+  <h2><code>std::move</code> moves nothing</h2>
+<pre style="font-size: 36px; margin-top: 30px">std::string a = <span class="str">"hello"</span>;
+std::string b = std::move(a);</pre>
+  <p style="font-size: 44px; margin-top: 40px">It is only a cast: <b>“treat <code>a</code> as an rvalue”</b>.</p>
+  <p style="font-size: 44px; margin-top: 6px">The move itself happens in the move constructor of <code>std::string</code>.</p>
+  <p class="warn" style="font-weight: 700; margin-top: 40px">After it, <code>a</code> is moved-from.</p>
+  <ul>
+    <li>still valid, contents unspecified</li>
+    <li>only destroy it or assign to it</li>
+  </ul>
 </section>
 
+<!-- 6 · writing one -->
 <section class="page">
   <div class="top"><span>C++ IN MOTION · #15</span><span>6 / 6</span></div>
-  <h2>Which one?</h2>
-  <table style="margin-top: 34px; font-size: 33px; table-layout: fixed">
-    <tr><th style="width: 58%">You have</th><th>Write</th></tr>
-    <tr><td>a fixed number, known now</td><td><code>constexpr</code></td></tr>
-    <tr><td>a value set once at run time</td><td><code>const</code></td></tr>
-    <tr><td>a function usable in both</td><td><code>constexpr</code></td></tr>
-  </table>
-  <div class="big" style="font-size: 52px; margin-top: 50px">Do you still use <code>#define</code> <span class="acc">for constants?</span></div>
+  <h2>Writing the move constructor</h2>
+<pre style="font-size: 36px; margin-top: 30px">Numbers(Numbers&amp;&amp; o) <span class="kw">noexcept</span>
+    : data(o.data) {
+    o.data = <span class="kw">nullptr</span>;
+}</pre>
+  <p style="font-size: 44px; margin-top: 40px">Take the pointer. Leave the source empty.</p>
+  <p class="sm" style="margin-top: 14px">The destructor stays safe: <code>delete[] nullptr</code> does nothing. Mark it <code>noexcept</code>, or <code>std::vector</code> will copy instead of move when it grows.</p>
+  <div class="big" style="font-size: 54px; margin-top: 50px">Do you write move operations <span class="acc">or let the compiler?</span></div>
 </section>
 
 </body>

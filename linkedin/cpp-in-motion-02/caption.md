@@ -1,35 +1,31 @@
-# C++ in Motion #2: the Rule of Three — caption
+# C++ in Motion #2: pointer or object? - caption
 
-These two lines compile. They still crash.
+In C++, the object itself is the default. A pointer needs a reason.
 
 ```
-Numbers a(3);
-Numbers b = a;
+Player a;                  // the default
+Player* b = new Player;    // needs a reason
 ```
 
-It compiles. It may even run. It is still a bug: the compiler copies the pointer, not the memory it points to, so a and b end up owning the same block, and the second destructor frees it again.
+Coming from Java or C#, it feels backwards. Swipe for what a pointer costs, the four real reasons to use one, and what to use instead of a raw pointer.
 
-Swipe to see why, what the Rule of Three says, and how to avoid the whole problem.
-
-Do you reach for the Rule of Zero or the Rule of Three?
+How many raw `new` are in your code?
 
 #cpp #cplusplus #programming #learninpublic
 
 ## Files
 
-- `cpp-in-motion-02-carousel.pdf` — 7 pages, 4:5, light mode. Upload this as the LinkedIn document.
-- `index.html` — source (open it in a browser, or print it to PDF with a page size of 1080 x 1350 px to rebuild the carousel).
+- `cpp-in-motion-02-carousel.pdf` - 6 pages, 4:5, light mode. Upload this as the LinkedIn document.
+- `index.html` - source.
 
 ## First comment (post it right after publishing)
 
-Code and the full OOP lesson (Rule of 3, 5 and 0): <link to your repo>
+Full lesson on pointers, references and smart pointers: <link to your repo>
 
 ## Checks done
 
-- The simplified fixed `Numbers` (fixed size of 3, copy constructor, copy assignment, self-assignment) compiled with `g++ -std=c++17 -Wall -Wextra` and printed `7 9 7` (changing `b` leaves `a` alone).
-- The `std::vector` (Rule of Zero) version compiled and printed `0 9 0`.
-- The version with only a destructor compiled and then crashed with a heap-corruption error on the author's Windows machine (a double delete is undefined behaviour, so the exact symptom varies).
+Compiled with `g++ -std=c++17 -Wall -Wextra` and run: returning a `Player` by value, a `unique_ptr<Player>` holding a `Boss` calling the override, and `std::optional<Player>` with and without a value. The dangling `return &p;` version is shown only as a bug.
 
 ## Source of the idea
 
-Based on the topic of the Stack Overflow question "What is The Rule of Three?" (https://stackoverflow.com/questions/4172722/what-is-the-rule-of-three). The wording, example and code here are written from scratch; nothing is copied from the answers.
+Based on the topic of the Stack Overflow question "Why should I use a pointer rather than the object itself?" (https://stackoverflow.com/questions/22146094/why-should-i-use-a-pointer-rather-than-the-object-itself). Wording and code are written from scratch.

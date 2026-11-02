@@ -1,32 +1,40 @@
-# C++ in Motion #17: dereferencing a pointer - caption
+# C++ in Motion #17: forwarding references - caption
 
-*p means: go to the address stored in p. Then use what is there.
+Sometimes T&& is not an rvalue reference. It binds to anything.
 
 ```
-int x = 7;
-int* p = &x;
-int y = *p;   // 7
+void f(std::string&& s);       // only temporaries
+
+template <class T>
+void g(T&& x);                 // anything
 ```
 
-That is dereferencing. Swipe for what is in memory, reading and writing through a pointer, the arrow operator, and what goes wrong.
+In a template, T&& with a deduced T is a forwarding reference. It keeps the information of whether the argument was an lvalue or an rvalue, and std::forward passes it on.
 
-Where do you still need a raw *?
+Swipe for when it applies, what T becomes, why a plain f(x) loses the information, and the make_unique pattern.
+
+Which one do you mix up: std::move or std::forward?
 
 #cpp #cplusplus #programming #learninpublic
 
 ## Files
 
 - `cpp-in-motion-17-carousel.pdf` - 6 pages, 4:5, light mode. Upload this as the LinkedIn document.
-- `index.html` - source.
+- `index.html` - source (print it to PDF with a page size of 1080 x 1350 px to rebuild the carousel).
 
 ## First comment (post it right after publishing)
 
-Full lesson on pointers, references and memory: <link to your repo>
+Full lesson on templates, move semantics and perfect forwarding: <link to your repo>
 
 ## Checks done
 
-Compiled with `g++ -std=c++17 -Wall -Wextra` and run: `int y = *p;` gave 7; after `*p = 9;` x was 9 and y stayed 7; `(*q).hp` and `q->hp` read the same member; `p == &x` was true; `&p` differs from `p`. The undefined-behaviour cases (null, uninitialized, dangling) are described, not run. The memory diagram uses made-up addresses.
+All compiled with `g++ -std=c++17 -Wall -Wextra` and run:
+
+- `wrap` without `std::forward` called the lvalue overload for both a named string and a temporary; with `std::forward` the temporary reached the rvalue overload.
+- `g(n)` deduced `T = int&` and `g(5)` deduced `T = int` (checked with `std::is_lvalue_reference_v`).
+- The `make` function called the `const&` constructor for an lvalue and the `&&` constructor for a temporary.
+- `auto&& r = n;` has type `int&` (static_assert).
 
 ## Source of the idea
 
-Based on the topic of the Stack Overflow question "What does dereferencing a pointer mean in C/C++?" (https://stackoverflow.com/questions/4955198/what-does-dereferencing-a-pointer-mean-in-c-c). Wording, diagram and code are written from scratch.
+Follow-up to carousel #15, based on the second half of the Stack Overflow question "What does T&& (double ampersand) mean in C++11?" (https://stackoverflow.com/questions/5481539/what-does-t-double-ampersand-mean-in-c11). Wording, examples and code are written from scratch.

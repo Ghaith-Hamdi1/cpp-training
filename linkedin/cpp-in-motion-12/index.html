@@ -43,79 +43,98 @@
 </style>
 </head>
 <body>
+<!-- 1 · hook -->
 <section class="page">
   <div class="top"><span>C++ IN MOTION · #12</span><span>1 / 6</span></div>
-  <h1>One keyword decides who can see the base class.</h1>
-  <h1 class="acc" style="margin-top: 10px">public, protected or private.</h1>
-<pre style="font-size: 36px"><span class="kw">class</span> A : <span class="kw">public</span>    Base {};
-<span class="kw">class</span> B : <span class="kw">protected</span> Base {};
-<span class="kw">class</span> C : <span class="kw">private</span>   Base {};</pre>
-  <p>Same class, three very different relationships.</p>
+  <h1>Deleting through a base pointer is undefined behaviour.</h1>
+  <h1 class="acc" style="margin-top: 10px">Unless the base destructor is virtual.</h1>
+<pre style="font-size: 36px">Base* p = <span class="kw">new</span> Derived;
+<span class="kw">delete</span> p;</pre>
+  <p>It compiles without a warning. It usually runs.</p>
   <div class="swipe">swipe →</div>
 </section>
 
+<!-- 2 · what goes wrong -->
 <section class="page">
   <div class="top"><span>C++ IN MOTION · #12</span><span>2 / 6</span></div>
-  <h2>What the base's members become</h2>
-  <table style="margin-top: 34px; font-size: 32px; table-layout: fixed">
-    <tr><th style="width: 34%">Inheritance</th><th>Base <code>public</code></th><th>Base <code>protected</code></th></tr>
-    <tr><td><code>public</code></td><td class="acc"><b>public</b></td><td>protected</td></tr>
-    <tr><td><code>protected</code></td><td>protected</td><td>protected</td></tr>
-    <tr><td><code>private</code></td><td class="warn"><b>private</b></td><td class="warn"><b>private</b></td></tr>
-  </table>
-  <p class="sm" style="margin-top: 28px">The base's <code>private</code> members are never accessible from the derived class, whatever you choose.</p>
-</section>
-
-<section class="page">
-  <div class="top"><span>C++ IN MOTION · #12</span><span>3 / 6</span></div>
-  <h2><code>public</code>: "is a"</h2>
-<pre style="font-size: 34px; margin-top: 30px"><span class="kw">class</span> Dog : <span class="kw">public</span> Animal {};
-
-Dog d;
-Animal&amp; a = d;     <span class="cm">// ok</span>
-d.name();          <span class="cm">// ok</span></pre>
-  <p style="font-size: 44px; margin-top: 34px">A <code>Dog</code> can be used anywhere an <code>Animal</code> is expected.</p>
-  <p class="sm" style="margin-top: 10px">This is the one you use for polymorphism. Everything else is the exception.</p>
-</section>
-
-<section class="page">
-  <div class="top"><span>C++ IN MOTION · #12</span><span>4 / 6</span></div>
-  <h2><code>private</code>: "built with"</h2>
-<pre style="font-size: 31px; margin-top: 30px"><span class="kw">class</span> Stack : <span class="kw">private</span> std::vector&lt;<span class="ty">int</span>&gt; {
-<span class="kw">public</span>:
-    <span class="ty">void</span> push(<span class="ty">int</span> x) { push_back(x); }
+  <h2>What actually happens</h2>
+<pre style="font-size: 31px; margin-top: 30px"><span class="kw">struct</span> Base {
+    ~Base() { puts(<span class="str">"~Base"</span>); }
 };
 
-Stack s;
-s.push(1);        <span class="cm">// ok</span>
-s.push_back(2);   <span class="cm">// error</span></pre>
-  <p style="font-size: 42px; margin-top: 30px">The base is an implementation detail. Outsiders cannot see it or convert to it.</p>
-  <p class="sm" style="margin-top: 10px">Often a data member does the same job more clearly.</p>
+<span class="kw">struct</span> Derived : Base {
+    <span class="ty">int</span>* data = <span class="kw">new</span> <span class="ty">int</span>[100];
+    ~Derived() { <span class="kw">delete</span>[] data; puts(<span class="str">"~Derived"</span>); }
+};</pre>
+  <table class="w5" style="margin-top: 30px; font-size: 34px">
+    <tr><th>Step</th><th>Output</th></tr>
+    <tr><td>1</td><td><code>~Base</code></td></tr>
+    <tr><td>2</td><td class="warn"><b>(nothing)</b></td></tr>
+  </table>
+  <p class="sm" style="margin-top: 20px">I ran it: <code>~Derived</code> never runs, so <code>data</code> leaks. The standard calls it undefined; this is what typical compilers do.</p>
 </section>
 
+<!-- 3 · the fix -->
+<section class="page">
+  <div class="top"><span>C++ IN MOTION · #12</span><span>3 / 6</span></div>
+  <h2>The fix: one keyword</h2>
+<pre style="font-size: 38px; margin-top: 30px"><span class="kw">struct</span> Base {
+    <span class="kw">virtual</span> ~Base() { puts(<span class="str">"~Base"</span>); }
+};</pre>
+  <table class="w5" style="margin-top: 34px; font-size: 34px">
+    <tr><th>Step</th><th>Output</th></tr>
+    <tr><td>1</td><td><code>~Derived</code></td></tr>
+    <tr><td>2</td><td><code>~Base</code></td></tr>
+  </table>
+  <p style="font-size: 44px; margin-top: 34px">The destructor is picked by the <b>real type</b>, like any virtual function.</p>
+  <p class="sm" style="margin-top: 10px">Derived first, then Base. Nothing else changes in <code>Derived</code>.</p>
+</section>
+
+<!-- 4 · when -->
+<section class="page">
+  <div class="top"><span>C++ IN MOTION · #12</span><span>4 / 6</span></div>
+  <h2>When do you need it?</h2>
+  <table style="margin-top: 36px; font-size: 32px; table-layout: fixed">
+    <tr><th style="width: 52%">Your class</th><th>Destructor</th></tr>
+    <tr><td>meant as a base, deleted through a <code>Base*</code></td><td class="acc"><b>public virtual</b></td></tr>
+    <tr><td>a base that is never deleted through a base pointer</td><td><code>protected</code>, not virtual</td></tr>
+    <tr><td>not meant as a base</td><td>nothing special</td></tr>
+  </table>
+  <p style="margin-top: 36px">A simple rule: <b>if a class has any <code>virtual</code> function, give it a virtual destructor.</b></p>
+  <p class="sm" style="margin-top: 10px">Turn on <code>-Wnon-virtual-dtor</code> and the compiler will remind you.</p>
+</section>
+
+<!-- 5 · cost -->
 <section class="page">
   <div class="top"><span>C++ IN MOTION · #12</span><span>5 / 6</span></div>
-  <h2>Who can use <code>Derived</code> as a <code>Base</code>?</h2>
-  <table style="margin-top: 34px; font-size: 33px; table-layout: fixed">
-    <tr><th style="width: 42%">Inheritance</th><th>Who can convert</th></tr>
-    <tr><td><code>public</code></td><td class="acc"><b>everyone</b></td></tr>
-    <tr><td><code>protected</code></td><td>the class and its subclasses</td></tr>
-    <tr><td><code>private</code></td><td class="warn"><b>only the class itself</b></td></tr>
-  </table>
-  <p class="sm" style="margin-top: 28px">Friends count as the class itself.</p>
+  <h2>What it costs</h2>
+<pre style="font-size: 34px; margin-top: 30px"><span class="kw">struct</span> Plain {
+    <span class="ty">int</span> x;
+};
+<span class="kw">struct</span> V {
+    <span class="kw">virtual</span> ~V() = <span class="kw">default</span>;
+    <span class="ty">int</span> x;
+};
+
+<span class="kw">sizeof</span>(Plain)   <span class="cm">// 4</span>
+<span class="kw">sizeof</span>(V)       <span class="cm">// 16</span></pre>
+  <p style="font-size: 44px; margin-top: 30px">A pointer to the vtable inside <b>every object</b>.</p>
+  <p class="sm" style="margin-top: 10px">Measured on a 64-bit build.</p>
+  <p class="warn" style="font-weight: 700; margin-top: 30px">So do not inherit from <code>std::string</code> or <code>std::vector</code>.</p>
+  <p class="sm" style="margin-top: 10px">They have no virtual destructor. Use composition instead.</p>
 </section>
 
+<!-- 6 · summary -->
 <section class="page">
   <div class="top"><span>C++ IN MOTION · #12</span><span>6 / 6</span></div>
-  <h2>The short version</h2>
-  <table style="margin-top: 34px; font-size: 33px; table-layout: fixed">
-    <tr><th style="width: 34%">Use</th><th>When</th></tr>
-    <tr><td><code>public</code></td><td>it <b>is a</b> kind of the base</td></tr>
-    <tr><td><code>private</code></td><td>it is <b>built using</b> the base</td></tr>
-    <tr><td><code>protected</code></td><td>almost never</td></tr>
-  </table>
-  <p class="sm" style="margin-top: 26px">With <code>class</code> the default is <b>private</b>; with <code>struct</code> it is <b>public</b>.</p>
-  <div class="big" style="font-size: 52px; margin-top: 40px">When did you last use <span class="acc">private inheritance?</span></div>
+  <h2>The one-line habit</h2>
+<pre style="font-size: 36px; margin-top: 30px"><span class="kw">class</span> Shape {
+<span class="kw">public</span>:
+    <span class="kw">virtual</span> ~Shape() = <span class="kw">default</span>;
+    <span class="kw">virtual</span> <span class="ty">double</span> area() <span class="kw">const</span> = 0;
+};</pre>
+  <p style="font-size: 44px; margin-top: 36px">Polymorphic base class? Add <code>virtual ~Base() = default;</code>.</p>
+  <div class="big" style="font-size: 54px; margin-top: 50px">Is <code>-Wnon-virtual-dtor</code> <span class="acc">on in your build?</span></div>
 </section>
 
 </body>

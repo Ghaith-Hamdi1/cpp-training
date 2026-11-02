@@ -20,7 +20,7 @@
   code, .mono { font-family: Consolas, "Cascadia Code", "Courier New", monospace; }
   p code, td code, li code { font-size: 0.88em; background: #eaeef2; border-radius: 8px; padding: 0 8px; }
   pre { background: var(--panel); border: 3px solid var(--line); border-radius: 24px; padding: 30px 40px; font: 36px/1.55 Consolas, "Cascadia Code", "Courier New", monospace; margin: 34px 0 0; white-space: pre; }
-  .kw { color: #0550ae; } .ty { color: #116329; } .cm { color: var(--muted); font-style: italic; } .str { color: #0a3069; }
+  .kw { color: #0550ae; } .ty { color: #116329; } .cm { color: var(--muted); font-style: italic; }
   .warn { color: var(--warn); } .acc { color: var(--accent); } .muted { color: var(--muted); }
   table { width: 100%; border-collapse: collapse; margin-top: 34px; background: var(--panel); border: 3px solid var(--line); border-radius: 24px; overflow: hidden; font-size: 36px; }
   th { text-align: left; font-size: 26px; letter-spacing: 2px; text-transform: uppercase; color: var(--muted); background: #eaeef2; padding: 18px 24px; }
@@ -43,89 +43,119 @@
 </style>
 </head>
 <body>
+
+<!-- 1 · hook -->
 <section class="page">
-  <div class="top"><span>C++ IN MOTION · #13</span><span>1 / 6</span></div>
-  <h1><code>std::move</code> is for the last time you use a variable.</h1>
-  <h1 class="acc" style="margin-top: 10px">Not for returns.</h1>
-<pre style="font-size: 34px">std::string s = read();
-names.push_back(std::move(s));
-<span class="cm">// s is finished</span></pre>
-  <p>Knowing when to write it matters more than knowing what it is.</p>
+  <div class="top"><span>C++ IN MOTION · #13</span><span>1 / 7</span></div>
+  <h1>These two lines compile.</h1>
+  <h1 class="acc" style="margin-top: 10px">They still crash.</h1>
+<pre style="font-size: 33px"><span class="kw">class</span> Numbers {
+    <span class="ty">int</span>* data;
+
+<span class="kw">public</span>:
+    Numbers() : data(<span class="kw">new</span> <span class="ty">int</span>[3]{}) {}
+    ~Numbers() { <span class="kw">delete</span>[] data; }
+};
+
+<span class="ty">int</span> main() {
+    Numbers a;
+    Numbers b = a;
+}</pre>
+  <p class="warn" style="font-weight: 700; margin-top: 10px">Both objects free the same memory.</p>
   <div class="swipe">swipe →</div>
 </section>
 
+<!-- 2 · what a copy is -->
 <section class="page">
-  <div class="top"><span>C++ IN MOTION · #13</span><span>2 / 6</span></div>
-  <h2>Use it to hand something over</h2>
-<pre style="font-size: 33px; margin-top: 30px">names.push_back(std::move(s));
-
-<span class="kw">struct</span> Person {
-    std::string name;
-    Person(std::string n)
-        : name(std::move(n)) {}
-};</pre>
-  <ul>
-    <li>into a container</li>
-    <li>into a member, from a by-value parameter</li>
-    <li>into a <code>unique_ptr</code> or another owner</li>
-  </ul>
-  <p class="sm" style="margin-top: 20px">In each case the variable is not needed afterwards, so stealing its contents is free.</p>
-</section>
-
-<section class="page">
-  <div class="top"><span>C++ IN MOTION · #13</span><span>3 / 6</span></div>
-  <h2>Do not use it on a return</h2>
-<pre style="font-size: 34px; margin-top: 30px">T make() {
-    T x;
-    <span class="kw">return</span> std::move(x);   <span class="cm">// worse</span>
-}
-
-T make() {
-    T x;
-    <span class="kw">return</span> x;              <span class="cm">// better</span>
-}</pre>
-  <p style="font-size: 44px; margin-top: 34px">A plain <code>return x;</code> already moves, or builds <code>x</code> in the caller with no move at all.</p>
-  <p class="sm" style="margin-top: 10px">Writing <code>std::move</code> there blocks that. GCC warns about it with <code>-Wpessimizing-move</code>.</p>
-</section>
-
-<section class="page">
-  <div class="top"><span>C++ IN MOTION · #13</span><span>4 / 6</span></div>
-  <h2>After the move</h2>
-<pre style="font-size: 33px; margin-top: 30px">std::string s = <span class="str">"a long string..."</span>;
-names.push_back(std::move(s));
-
-s.size();   <span class="cm">// 0 here, but not guaranteed</span></pre>
-  <p class="warn" style="font-weight: 700; margin-top: 34px">A moved-from object is valid, but its value is unspecified.</p>
-  <ul>
-    <li>safe: destroy it, or assign a new value</li>
-    <li>not safe: depend on what it contains</li>
-  </ul>
-</section>
-
-<section class="page">
-  <div class="top"><span>C++ IN MOTION · #13</span><span>5 / 6</span></div>
-  <h2>Moving a <code>const</code> copies</h2>
-<pre style="font-size: 34px; margin-top: 30px"><span class="kw">const</span> T c;
-T d = std::move(c);   <span class="cm">// copy</span>
-
-T e;
-T f = std::move(e);   <span class="cm">// move</span></pre>
-  <p style="font-size: 44px; margin-top: 34px">A <code>const</code> object cannot be emptied, so the move constructor does not match.</p>
-  <p class="sm" style="margin-top: 10px">I checked it with a type that prints "copy" and "move". The compiler silently picks the copy.</p>
-</section>
-
-<section class="page">
-  <div class="top"><span>C++ IN MOTION · #13</span><span>6 / 6</span></div>
-  <h2>When to write it</h2>
-  <table style="margin-top: 34px; font-size: 32px; table-layout: fixed">
-    <tr><th style="width: 58%">Situation</th><th>std::move?</th></tr>
-    <tr><td>last use, handing it on</td><td class="acc"><b>yes</b></td></tr>
-    <tr><td>filling a member from a parameter</td><td class="acc"><b>yes</b></td></tr>
-    <tr><td><code>return x;</code></td><td class="warn"><b>no</b></td></tr>
-    <tr><td>the object is <code>const</code></td><td class="warn"><b>no</b></td></tr>
-    <tr><td>you use it again afterwards</td><td class="warn"><b>no</b></td></tr>
+  <div class="top"><span>C++ IN MOTION · #13</span><span>2 / 7</span></div>
+  <h2>Two kinds of copy</h2>
+  <table class="w3">
+    <tr><th>You write</th><th>What runs</th><th>Its job</th></tr>
+    <tr><td><code>Numbers b = a;</code></td><td>copy constructor</td><td>build a <b>new</b> object from <code>a</code></td></tr>
+    <tr><td><code>b = a;</code></td><td>copy assignment</td><td>overwrite an <b>existing</b> <code>b</code> with <code>a</code></td></tr>
   </table>
-  <div class="big" style="font-size: 52px; margin-top: 40px">Have you ever written <code>return std::move(x);</code>? <span class="acc">Be honest.</span></div>
+  <p>If you write neither, the compiler writes both for you. It copies every member, one by one.</p>
+  <p>For an <code>int</code> or a <code>std::string</code> member, that is exactly right.</p>
+  <p class="warn" style="font-weight: 700">For a raw pointer it copies the address, not what it points to.</p>
+</section>
+
+<!-- 3 · the copy -->
+<section class="page">
+  <div class="top"><span>C++ IN MOTION · #13</span><span>3 / 7</span></div>
+  <h2>What the copy really does</h2>
+<pre style="font-size: 34px; padding: 22px 36px; margin-top: 24px">Numbers a;
+Numbers b = a;</pre>
+  <div style="display: flex; gap: 40px; margin-top: 34px">
+    <div style="width: 450px">
+      <div style="font-size: 32px; font-weight: 800; color: var(--stack); margin-bottom: 12px">What you want</div>
+      <svg viewBox="0 0 450 340" width="450" height="340"><rect x="0" y="0" width="450" height="140" rx="20" fill="#d9f5f1" stroke="#0d9488" stroke-width="3"/><text x="16" y="34" font-size="22" font-weight="800" letter-spacing="3" style="fill:#0d9488">STACK</text><rect x="0" y="210" width="450" height="130" rx="20" fill="#ffedd5" stroke="#ea580c" stroke-width="3"/><text x="16" y="240" font-size="22" font-weight="800" letter-spacing="3" style="fill:#ea580c">HEAP</text><rect x="20" y="52" width="190" height="70" rx="12" fill="#fff" stroke="#0d9488" stroke-width="3"/><text class="m" x="34" y="96" font-size="26" font-weight="700" style="fill:#0d9488">a</text><rect x="66" y="62" width="132" height="50" rx="8" fill="#fff" stroke="#0d9488" stroke-width="2"/><text class="m" x="80" y="95" font-size="22">data</text><rect x="240" y="52" width="190" height="70" rx="12" fill="#fff" stroke="#0d9488" stroke-width="3"/><text class="m" x="254" y="96" font-size="26" font-weight="700" style="fill:#0d9488">b</text><rect x="286" y="62" width="132" height="50" rx="8" fill="#fff" stroke="#0d9488" stroke-width="2"/><text class="m" x="300" y="95" font-size="22">data</text><rect x="27" y="252" width="176" height="76" rx="14" fill="#fff7ed" stroke="#ea580c" stroke-width="3" stroke-dasharray="10 7"/><rect x="37" y="266" width="48" height="48" rx="9" fill="#fff" stroke="#ea580c" stroke-width="3"/><text x="61" y="300" font-size="26" font-weight="800" text-anchor="middle">0</text><rect x="91" y="266" width="48" height="48" rx="9" fill="#fff" stroke="#ea580c" stroke-width="3"/><text x="115" y="300" font-size="26" font-weight="800" text-anchor="middle">0</text><rect x="145" y="266" width="48" height="48" rx="9" fill="#fff" stroke="#ea580c" stroke-width="3"/><text x="169" y="300" font-size="26" font-weight="800" text-anchor="middle">0</text><rect x="247" y="252" width="176" height="76" rx="14" fill="#fff7ed" stroke="#ea580c" stroke-width="3" stroke-dasharray="10 7"/><rect x="257" y="266" width="48" height="48" rx="9" fill="#fff" stroke="#ea580c" stroke-width="3"/><text x="281" y="300" font-size="26" font-weight="800" text-anchor="middle">0</text><rect x="311" y="266" width="48" height="48" rx="9" fill="#fff" stroke="#ea580c" stroke-width="3"/><text x="335" y="300" font-size="26" font-weight="800" text-anchor="middle">0</text><rect x="365" y="266" width="48" height="48" rx="9" fill="#fff" stroke="#ea580c" stroke-width="3"/><text x="389" y="300" font-size="26" font-weight="800" text-anchor="middle">0</text><path d="M115 112 C115 190, 115 170, 115 232" fill="none" stroke="#7c3aed" stroke-width="5" stroke-linecap="round"/><polygon points="105,218 115,238 125,218" fill="#7c3aed"/><path d="M335 112 C335 190, 335 170, 335 232" fill="none" stroke="#2563eb" stroke-width="5" stroke-linecap="round"/><polygon points="325,218 335,238 345,218" fill="#2563eb"/></svg>
+      <p style="font-size: 30px; margin-top: 12px">Two blocks, one each.</p>
+    </div>
+    <div style="width: 450px">
+      <div style="font-size: 32px; font-weight: 800; color: var(--warn); margin-bottom: 12px">What you get</div>
+      <svg viewBox="0 0 450 340" width="450" height="340"><rect x="0" y="0" width="450" height="140" rx="20" fill="#d9f5f1" stroke="#0d9488" stroke-width="3"/><text x="16" y="34" font-size="22" font-weight="800" letter-spacing="3" style="fill:#0d9488">STACK</text><rect x="0" y="210" width="450" height="130" rx="20" fill="#ffedd5" stroke="#ea580c" stroke-width="3"/><text x="16" y="240" font-size="22" font-weight="800" letter-spacing="3" style="fill:#ea580c">HEAP</text><rect x="20" y="52" width="190" height="70" rx="12" fill="#fff" stroke="#0d9488" stroke-width="3"/><text class="m" x="34" y="96" font-size="26" font-weight="700" style="fill:#0d9488">a</text><rect x="66" y="62" width="132" height="50" rx="8" fill="#fff" stroke="#0d9488" stroke-width="2"/><text class="m" x="80" y="95" font-size="22">data</text><rect x="240" y="52" width="190" height="70" rx="12" fill="#fff" stroke="#0d9488" stroke-width="3"/><text class="m" x="254" y="96" font-size="26" font-weight="700" style="fill:#0d9488">b</text><rect x="286" y="62" width="132" height="50" rx="8" fill="#fff" stroke="#0d9488" stroke-width="2"/><text class="m" x="300" y="95" font-size="22">data</text><rect x="137" y="252" width="176" height="76" rx="14" fill="#fff7ed" stroke="#ea580c" stroke-width="3" stroke-dasharray="10 7"/><rect x="147" y="266" width="48" height="48" rx="9" fill="#fff" stroke="#ea580c" stroke-width="3"/><text x="171" y="300" font-size="26" font-weight="800" text-anchor="middle">0</text><rect x="201" y="266" width="48" height="48" rx="9" fill="#fff" stroke="#ea580c" stroke-width="3"/><text x="225" y="300" font-size="26" font-weight="800" text-anchor="middle">0</text><rect x="255" y="266" width="48" height="48" rx="9" fill="#fff" stroke="#ea580c" stroke-width="3"/><text x="279" y="300" font-size="26" font-weight="800" text-anchor="middle">0</text><path d="M115 112 C115 190, 200 170, 200 232" fill="none" stroke="#7c3aed" stroke-width="5" stroke-linecap="round"/><polygon points="190,218 200,238 210,218" fill="#7c3aed"/><path d="M335 112 C335 190, 250 170, 250 232" fill="none" stroke="#2563eb" stroke-width="5" stroke-linecap="round"/><polygon points="240,218 250,238 260,218" fill="#2563eb"/></svg>
+      <p class="warn" style="font-size: 30px; font-weight: 700; margin-top: 12px">Two pointers, one block.</p>
+    </div>
+  </div>
+<p style="font-size: 40px; margin-top: 44px">The compiler copied <code>data</code>, not the three ints.</p>
+  <p style="font-size: 40px; margin-top: 8px">When both objects die, the block is <b class="warn">freed twice</b>.</p>
+</section>
+
+<!-- 5 · double delete -->
+<section class="page">
+  <div class="top"><span>C++ IN MOTION · #13</span><span>4 / 7</span></div>
+  <h2>Then the scope ends</h2>
+<pre>}   <span class="cm">// b is destroyed, then a</span></pre>
+  <table class="w5">
+    <tr><th>Step</th><th>What runs</th><th>Result</th></tr>
+    <tr><td>1</td><td><code>~b</code>: <code>delete[] data</code></td><td>the block is freed</td></tr>
+    <tr><td>2</td><td><code>~a</code>: <code>delete[] data</code></td><td class="warn"><b>the same block, freed again</b></td></tr>
+  </table>
+  <p class="warn" style="font-weight: 700">Double delete: undefined behaviour.</p>
+  <p class="sm" style="margin-top: 10px">I ran this exact class: on my machine it crashed with a heap-corruption error.</p>
+  <ul>
+    <li>changing <code>b</code>'s ints also changes <code>a</code>'s</li>
+    <li>destroy one, and the other points at freed memory</li>
+  </ul>
+</section>
+
+<!-- 6 · the rule -->
+<section class="page">
+  <div class="top"><span>C++ IN MOTION · #13</span><span>5 / 7</span></div>
+  <h2>The Rule of Three</h2>
+  <p style="font-size: 48px; font-weight: 700">If you write one of these, you almost certainly need all three.</p>
+  <table>
+    <tr><th>You write</th><th>Because</th></tr>
+    <tr><td class="k"><code>~Numbers()</code><br><span class="muted" style="font-weight: 400; font-size: 30px">destructor</span></td><td>the class owns a resource and must release it</td></tr>
+    <tr><td class="k"><code>Numbers(const Numbers&amp;)</code><br><span class="muted" style="font-weight: 400; font-size: 30px">copy constructor</span></td><td>a copy must not share the resource</td></tr>
+    <tr><td class="k"><code>operator=(const Numbers&amp;)</code><br><span class="muted" style="font-weight: 400; font-size: 30px">copy assignment</span></td><td>the same for <code>b = a</code>: copy into <code>b</code>, never share</td></tr>
+  </table>
+  <p class="sm">No compiler enforces it. It is a design rule.</p>
+</section>
+
+<!-- 7 · the fix -->
+<section class="page">
+  <div class="top"><span>C++ IN MOTION · #13</span><span>6 / 7</span></div>
+  <h2>The fix: copy the ints</h2>
+<pre style="font-size: 38px; margin-top: 30px">Numbers(<span class="kw">const</span> Numbers&amp; o)
+    : data(<span class="kw">new</span> <span class="ty">int</span>[3]) {
+    std::copy_n(o.data, 3, data);
+}</pre>
+  <p style="font-size: 44px; margin-top: 40px">New block, same values.</p>
+  <p style="font-size: 44px; margin-top: 6px"><code>a</code> and <code>b</code> now own <b>separate</b> blocks.</p>
+  <p class="sm" style="margin-top: 40px"><code>operator=</code> needs the same fix. Together with the destructor, that is the Rule of Three.</p>
+</section>
+
+<!-- 8 · zero -->
+<section class="page">
+  <div class="top"><span>C++ IN MOTION · #13</span><span>7 / 7</span></div>
+  <h2 style="margin-top: 24px">Or write none of them</h2>
+<pre style="margin-top: 30px; font-size: 42px"><span class="kw">struct</span> Numbers {
+    std::vector&lt;<span class="ty">int</span>&gt; data = {0, 0, 0};
+};</pre>
+  <p style="font-size: 44px; margin-top: 40px"><code>std::vector</code> already copies and frees correctly.</p>
+  <p style="font-size: 44px; margin-top: 6px">That is the <b>Rule of Zero</b>.</p>
+  <div class="big" style="font-size: 54px; margin-top: 60px">Rule of Zero or Rule of Three: <span class="acc">which do you reach for?</span></div>
 </section>
 
 </body>

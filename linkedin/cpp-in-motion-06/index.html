@@ -43,98 +43,73 @@
 </style>
 </head>
 <body>
-<!-- 1 · hook -->
 <section class="page">
   <div class="top"><span>C++ IN MOTION · #6</span><span>1 / 6</span></div>
-  <h1>Deleting through a base pointer is undefined behaviour.</h1>
-  <h1 class="acc" style="margin-top: 10px">Unless the base destructor is virtual.</h1>
-<pre style="font-size: 36px">Base* p = <span class="kw">new</span> Derived;
-<span class="kw">delete</span> p;</pre>
-  <p>It compiles without a warning. It usually runs.</p>
+  <h1><code>const</code> means "I won't change it".</h1>
+  <h1 class="acc" style="margin-top: 10px"><code>constexpr</code> means "the compiler knows it".</h1>
+<pre style="font-size: 34px"><span class="kw">const</span> <span class="ty">int</span> a = std::rand();
+<span class="kw">constexpr</span> <span class="ty">int</span> b = 5 * 2;</pre>
+  <p>Both are read-only. Only one of them is known before the program runs.</p>
   <div class="swipe">swipe →</div>
 </section>
 
-<!-- 2 · what goes wrong -->
 <section class="page">
   <div class="top"><span>C++ IN MOTION · #6</span><span>2 / 6</span></div>
-  <h2>What actually happens</h2>
-<pre style="font-size: 31px; margin-top: 30px"><span class="kw">struct</span> Base {
-    ~Base() { puts(<span class="str">"~Base"</span>); }
-};
-
-<span class="kw">struct</span> Derived : Base {
-    <span class="ty">int</span>* data = <span class="kw">new</span> <span class="ty">int</span>[100];
-    ~Derived() { <span class="kw">delete</span>[] data; puts(<span class="str">"~Derived"</span>); }
-};</pre>
-  <table class="w5" style="margin-top: 30px; font-size: 34px">
-    <tr><th>Step</th><th>Output</th></tr>
-    <tr><td>1</td><td><code>~Base</code></td></tr>
-    <tr><td>2</td><td class="warn"><b>(nothing)</b></td></tr>
-  </table>
-  <p class="sm" style="margin-top: 20px">I ran it: <code>~Derived</code> never runs, so <code>data</code> leaks. The standard calls it undefined; this is what typical compilers do.</p>
+  <h2><code>const</code> can wait for run time</h2>
+<pre style="font-size: 33px; margin-top: 30px"><span class="kw">const</span> <span class="ty">int</span> a = std::rand();   <span class="cm">// ok</span>
+<span class="kw">constexpr</span> <span class="ty">int</span> b = std::rand(); <span class="cm">// error</span></pre>
+  <p style="font-size: 44px; margin-top: 34px"><code>const</code> only promises not to change <b>after</b> initialization.</p>
+  <p style="margin-top: 20px">The value can come from input, a file, a random number.</p>
+  <p class="sm" style="margin-top: 10px"><code>constexpr</code> demands a value the compiler can work out itself.</p>
 </section>
 
-<!-- 3 · the fix -->
 <section class="page">
   <div class="top"><span>C++ IN MOTION · #6</span><span>3 / 6</span></div>
-  <h2>The fix: one keyword</h2>
-<pre style="font-size: 38px; margin-top: 30px"><span class="kw">struct</span> Base {
-    <span class="kw">virtual</span> ~Base() { puts(<span class="str">"~Base"</span>); }
-};</pre>
-  <table class="w5" style="margin-top: 34px; font-size: 34px">
-    <tr><th>Step</th><th>Output</th></tr>
-    <tr><td>1</td><td><code>~Derived</code></td></tr>
-    <tr><td>2</td><td><code>~Base</code></td></tr>
-  </table>
-  <p style="font-size: 44px; margin-top: 34px">The destructor is picked by the <b>real type</b>, like any virtual function.</p>
-  <p class="sm" style="margin-top: 10px">Derived first, then Base. Nothing else changes in <code>Derived</code>.</p>
+  <h2>Why it matters</h2>
+<pre style="font-size: 33px; margin-top: 30px"><span class="kw">constexpr</span> <span class="ty">int</span> n = 4;
+std::array&lt;<span class="ty">int</span>, n&gt; a;      <span class="cm">// ok</span>
+
+<span class="kw">const</span> <span class="ty">int</span> m = std::rand();
+std::array&lt;<span class="ty">int</span>, m&gt; b;      <span class="cm">// error</span></pre>
+  <p style="font-size: 44px; margin-top: 34px">Array sizes, template arguments and <code>static_assert</code> need a compile-time value.</p>
+  <p class="sm" style="margin-top: 10px">A <code>const int</code> with a literal initializer also works there, which hides the difference. <code>constexpr</code> makes it a guarantee.</p>
 </section>
 
-<!-- 4 · when -->
 <section class="page">
   <div class="top"><span>C++ IN MOTION · #6</span><span>4 / 6</span></div>
-  <h2>When do you need it?</h2>
-  <table style="margin-top: 36px; font-size: 32px; table-layout: fixed">
-    <tr><th style="width: 52%">Your class</th><th>Destructor</th></tr>
-    <tr><td>meant as a base, deleted through a <code>Base*</code></td><td class="acc"><b>public virtual</b></td></tr>
-    <tr><td>a base that is never deleted through a base pointer</td><td><code>protected</code>, not virtual</td></tr>
-    <tr><td>not meant as a base</td><td>nothing special</td></tr>
-  </table>
-  <p style="margin-top: 36px">A simple rule: <b>if a class has any <code>virtual</code> function, give it a virtual destructor.</b></p>
-  <p class="sm" style="margin-top: 10px">Turn on <code>-Wnon-virtual-dtor</code> and the compiler will remind you.</p>
+  <h2><code>constexpr</code> functions</h2>
+<pre style="font-size: 33px; margin-top: 30px"><span class="kw">constexpr</span> <span class="ty">int</span> square(<span class="ty">int</span> x) {
+    <span class="kw">return</span> x * x;
+}
+
+<span class="kw">static_assert</span>(square(4) == 16);   <span class="cm">// compile time</span>
+<span class="ty">int</span> r = square(std::rand());      <span class="cm">// run time</span></pre>
+  <p style="font-size: 44px; margin-top: 34px">The same function runs in <b>both</b> worlds.</p>
+  <p class="sm" style="margin-top: 10px">Given constants, it can run during compilation. Given run-time values, it runs normally.</p>
 </section>
 
-<!-- 5 · cost -->
 <section class="page">
   <div class="top"><span>C++ IN MOTION · #6</span><span>5 / 6</span></div>
-  <h2>What it costs</h2>
-<pre style="font-size: 34px; margin-top: 30px"><span class="kw">struct</span> Plain {
-    <span class="ty">int</span> x;
-};
-<span class="kw">struct</span> V {
-    <span class="kw">virtual</span> ~V() = <span class="kw">default</span>;
-    <span class="ty">int</span> x;
-};
-
-<span class="kw">sizeof</span>(Plain)   <span class="cm">// 4</span>
-<span class="kw">sizeof</span>(V)       <span class="cm">// 16</span></pre>
-  <p style="font-size: 44px; margin-top: 30px">A pointer to the vtable inside <b>every object</b>.</p>
-  <p class="sm" style="margin-top: 10px">Measured on a 64-bit build.</p>
-  <p class="warn" style="font-weight: 700; margin-top: 30px">So do not inherit from <code>std::string</code> or <code>std::vector</code>.</p>
-  <p class="sm" style="margin-top: 10px">They have no virtual destructor. Use composition instead.</p>
+  <h2>Side by side</h2>
+  <table style="margin-top: 34px; font-size: 31px; table-layout: fixed">
+    <tr><th style="width: 40%"></th><th><code>const</code></th><th><code>constexpr</code></th></tr>
+    <tr><td>read-only</td><td class="acc"><b>yes</b></td><td class="acc"><b>yes</b></td></tr>
+    <tr><td>initializer</td><td>may be run time</td><td>must be compile time</td></tr>
+    <tr><td>array size, template argument</td><td>only if constant</td><td class="acc"><b>always</b></td></tr>
+  </table>
+  <p class="sm" style="margin-top: 26px">All of these were checked with the compiler.</p>
 </section>
 
-<!-- 6 · summary -->
 <section class="page">
   <div class="top"><span>C++ IN MOTION · #6</span><span>6 / 6</span></div>
-  <h2>The one-line habit</h2>
-<pre style="font-size: 36px; margin-top: 30px"><span class="kw">class</span> Shape {
-<span class="kw">public</span>:
-    <span class="kw">virtual</span> ~Shape() = <span class="kw">default</span>;
-    <span class="kw">virtual</span> <span class="ty">double</span> area() <span class="kw">const</span> = 0;
-};</pre>
-  <p style="font-size: 44px; margin-top: 36px">Polymorphic base class? Add <code>virtual ~Base() = default;</code>.</p>
-  <div class="big" style="font-size: 54px; margin-top: 50px">Is <code>-Wnon-virtual-dtor</code> <span class="acc">on in your build?</span></div>
+  <h2>Which one?</h2>
+  <table style="margin-top: 34px; font-size: 33px; table-layout: fixed">
+    <tr><th style="width: 58%">You have</th><th>Write</th></tr>
+    <tr><td>a fixed number, known now</td><td><code>constexpr</code></td></tr>
+    <tr><td>a value set once at run time</td><td><code>const</code></td></tr>
+    <tr><td>a function usable in both</td><td><code>constexpr</code></td></tr>
+  </table>
+  <div class="big" style="font-size: 52px; margin-top: 50px">Do you still use <code>#define</code> <span class="acc">for constants?</span></div>
 </section>
 
 </body>
