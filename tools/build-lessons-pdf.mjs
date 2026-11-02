@@ -33,6 +33,11 @@ const PRINT_CSS = `
   p, li { orphans: 3; widows: 3; }
   section > p:has(+ figure), section > p:has(+ .widget), section > p:has(+ table), section > p:has(+ details) { break-after: avoid; }
   .further-page { break-before: page; }
+  .further-page table { display: table; width: 100%; break-inside: auto; font-size: 0.82rem; }
+  .further-page thead { display: table-header-group; }
+  .further-page td, .further-page th { padding: 0.28em 0.6em; line-height: 1.35; }
+  .further-page td.pg { white-space: nowrap; }
+  .further-page tr.grp td { border-top: 2px solid #999; }
 `;
 
 // Runs inside the lesson page (serialized with toString) before it is printed. Only touches the DOM, so it must not use anything from this file.
@@ -166,9 +171,21 @@ function pdfPrep(file) {
   if (reading.size) {
     const page = document.createElement('section');
     page.className = 'further-page';
-    page.innerHTML = '<h2>Further reading by section</h2><p>Where each section of this lesson is explained in more depth. Page numbers are PDF viewer pages.</p>' +
-      $$('main > section').filter((s) => reading.has(s)).map((s) => '<h3>' + esc(s.dataset.title || norm(s.querySelector('h2').textContent)) + '</h3>' +
-        [...reading.get(s)].map(([t, items]) => '<p><b>' + esc(t) + '</b></p><ul>' + [...items.values()].map((h) => '<li>' + h + '</li>').join('') + '</ul>').join('')).join('');
+    const rows = [];
+    for (const s of $$('main > section').filter((x) => reading.has(x))) {
+      const title = esc(s.dataset.title || norm(s.querySelector('h2').textContent));
+      let first = true;
+      for (const [book, items] of reading.get(s)) {
+        const shortBook = book.replace(/\s*\([^)]*\)\s*$/, '');   // drop the authors
+        for (const h of items.values()) {
+          const m = h.match(/^([\s\S]*?)\s*\(PDF pages? ([^()]*)\)\s*$/);
+          rows.push('<tr' + (first ? ' class="grp"' : '') + '><td>' + (first ? '<b>' + title + '</b>' : '') + '</td><td>' + esc(shortBook) + '</td><td>' + (m ? m[1] : h) + '</td><td class="pg">' + (m ? esc(m[2]) : '') + '</td></tr>');
+          first = false;
+        }
+      }
+    }
+    page.innerHTML = '<h2>Further reading by section</h2><p>Where each section of this lesson is explained in more depth. Pages are PDF viewer pages (the number your PDF reader shows).</p>' +
+      '<table><thead><tr><th style="width:22%">Section</th><th style="width:26%">Book</th><th style="width:40%">Part of the book</th><th style="width:12%">PDF pages</th></tr></thead><tbody>' + rows.join('') + '</tbody></table>';
     $$('main > section').pop().after(page);
   }
   return $$('.widget, .threadsim, select').length;   // anything left over is reported by the caller
@@ -204,7 +221,7 @@ try {
     await sleep(400);
     // a block that fits on one page is never split; report any block taller than a page
     const rep = await send('Runtime.evaluate', { returnByValue: true, expression: `(() => { const H = ${PAGE_PX}; const big = [];
-      document.querySelectorAll('figure, .callout, .widget, table, pre, details, p, ul, ol, svg').forEach((e) => { if (e.offsetHeight > H && !(e.closest('.widget') && e.closest('.widget').offsetHeight > H && e !== e.closest('.widget') && e.offsetHeight <= H)) big.push(e.tagName + '.' + e.className + ' ' + e.offsetHeight + ' ' + (e.textContent || '').trim().slice(0, 40)); });
+      document.querySelectorAll('figure, .callout, .widget, table, pre, details, p, ul, ol, svg').forEach((e) => { if (e.offsetHeight > H && !e.closest('.further-page') && !(e.closest('.widget') && e.closest('.widget').offsetHeight > H && e !== e.closest('.widget') && e.offsetHeight <= H)) big.push(e.tagName + '.' + e.className + ' ' + e.offsetHeight + ' ' + (e.textContent || '').trim().slice(0, 40)); });
       return big; })()` });
     if (rep.result.value && rep.result.value.length) console.log('taller than a page in', l.file, JSON.stringify(rep.result.value));
     const { data } = await send('Page.printToPDF', { printBackground: true, preferCSSPageSize: false, paperWidth: 8.27, paperHeight: 11.69, marginTop: 0.4, marginBottom: 0.45, marginLeft: 0.5, marginRight: 0.5 });
