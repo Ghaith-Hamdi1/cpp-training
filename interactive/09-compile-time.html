@@ -172,7 +172,7 @@ static_assert(Fact<5>::value == 120);
 </script>
 <p>Each <code>Fact&lt;N&gt;</code> is a separate class; the result is a baked-in constant.</p>
 <ul>
-<li><b>Limits:</b> recursion depth cap (a few hundred), slow builds, long errors.</li>
+<li><b>Limits:</b> recursion depth cap (typically 900 to 1024 levels; <code>-ftemplate-depth</code> raises it), slow builds, long errors.</li>
 <li><b>Today:</b> <code>constexpr</code> for values, traits + <code>if constexpr</code>/concepts for types; TMP only to compute <i>types</i>.</li>
 </ul>
 <table>

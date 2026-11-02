@@ -59,6 +59,15 @@ public:
 <script type="text/x-cpp">
 struct Sink { virtual ~Sink() = default; virtual std::string write(const std::string&) = 0; };
 struct Plain : Sink { std::string write(const std::string& s) override { return s; } };
+struct Upper : Sink {
+    std::unique_ptr<Sink> inner;                                   // wraps ANY Sink too
+    explicit Upper(std::unique_ptr<Sink> i) : inner(std::move(i)) {}
+    std::string write(const std::string& s) override {
+        std::string r = inner->write(s);
+        for (char& c : r) c = static_cast<char>(std::toupper(static_cast<unsigned char>(c)));
+        return r;
+    }
+};
 struct Bracket : Sink {
     std::unique_ptr<Sink> inner;                                   // wraps ANY Sink
     explicit Bracket(std::unique_ptr<Sink> i) : inner(std::move(i)) {}

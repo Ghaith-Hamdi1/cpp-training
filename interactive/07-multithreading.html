@@ -388,7 +388,7 @@ If <code>pop()</code> returned by value and the copy threw after removal, the el
 std::mutex a, b;
 
 void thread1() { std::scoped_lock lk(a, b); /* ... */ }   // C++17: locks both with a deadlock-avoidance algorithm
-void thread2() { std::scoped_lock lk(b, a); /* ... */ }   // OK even though the order differs: scoped_lock sorts it out
+void thread2() { std::scoped_lock lk(b, a); /* ... */ }   // OK even though the order differs: scoped_lock avoids the deadlock
 
 // pre-C++17:
 std::lock(a, b);                                          // lock both atomically (deadlock-free)

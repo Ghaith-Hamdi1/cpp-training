@@ -38,7 +38,7 @@ If a class has an <code>initializer_list</code> constructor, <code>{...}</code> 
 <ul>
 <li><b>Initialize everything.</b> An uninitialized local is <b>indeterminate</b>; reading it is undefined behaviour.</li>
 <li>Braces catch accidental narrowing at compile time: a free safety check.</li>
-<li>A <code>static_cast</code> in braces (<code>int{x}</code>) is a conversion that must not narrow.</li>
+<li><code>int{x}</code> is list-initialization, not a <code>static_cast</code>: it converts, but must not narrow, so the compiler flags a conversion that could lose information.</li>
 </ul>
 <!-- read-more:start -->
 <div class="callout tip"><span class="label">Read more</span>

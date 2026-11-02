@@ -187,7 +187,7 @@ public:
 </table>
 <ul>
 <li>A class can quietly lose its moves (a later logging destructor turns every move into a copy). Ask for defaults with <code>= default</code>; a polymorphic base needs them defaulted too.</li>
-<li><b>Never <code>= delete</code> a move</b>: it kills the copy fallback too. For a move-only type, delete the <i>copy</i> operations.</li>
+<li><b>Avoid <code>= delete</code> on a move</b>: a deleted move still takes part in overload resolution, so an rvalue no longer falls back to the copy and the call fails to compile. For a move-only type, delete the <i>copy</i> operations instead.</li>
 </ul>
 <div class="callout tip"><span class="label">In short</span>"Rule of Zero: <code>vector</code> and smart pointers make the generated members correct. Rule of Five only when wrapping a raw resource."</div>
 <!-- read-more:start -->
