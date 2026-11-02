@@ -1,4 +1,4 @@
-// Small items from several lessons: std::bind (Lambdas, lesson 7), <random> (The STL, lesson 6), user-defined literals (OOP, lesson 3),
+// Small items from several lessons: std::bind (Lambdas, lesson 6), <random> (The STL, lesson 7), user-defined literals (OOP, lesson 3),
 // extern "C" (this lesson) and placement new (Performance & Memory, lesson 20). Compile with -std=c++23.
 #include <cmath>
 #include <cstdio>

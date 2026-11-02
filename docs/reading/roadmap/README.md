@@ -66,9 +66,9 @@ A one-page reminder: every big topic, the lesson that teaches it and the book ch
 | RAII and exceptions | [9. Core Language: RAII & Exceptions](https://ghaith-hamdi1.github.io/cpp-training/03-core-language.html) | Primer 18.1 (801 to 813); PPP 18.4 to 18.5 (542 to 553) |
 | Move semantics and value categories | [11. Move Semantics](https://ghaith-hamdi1.github.io/cpp-training/13-move-semantics.html) | Primer 13.6 (560 to 579); EMC Items 23, 25 (176 to 195); Move Semantics ch. 2 (43 to 52) |
 | Smart pointers | [12. Smart Pointers & Ownership](https://ghaith-hamdi1.github.io/cpp-training/14-smart-pointers.html) | Primer 12.1 (479 to 504); EMC Items 18 to 22 (136 to 174) |
-| Lambdas and callables | [7. Lambdas & Callables](https://ghaith-hamdi1.github.io/cpp-training/15-lambdas.html) | Primer 10.3, 14.8 (414 to 429; 600 to 607); EMC Items 31 to 32 (234 to 247) |
+| Lambdas and callables | [6. Lambdas & Callables](https://ghaith-hamdi1.github.io/cpp-training/15-lambdas.html) | Primer 10.3, 14.8 (414 to 429; 600 to 607); EMC Items 31 to 32 (234 to 247) |
 | Strings, regex, time | [5. Strings, Regex & Time](https://ghaith-hamdi1.github.io/cpp-training/08-strings-regex-time.html) | Primer 9.5, 17.3 (389 to 396; 757 to 773) |
-| The STL: containers, iterators, algorithms | [6. The STL](https://ghaith-hamdi1.github.io/cpp-training/04-stl.html) | Primer ch. 9 to 11 (355 to 477); PPP 19 to 21 (559 to 635) |
+| The STL: containers, iterators, algorithms | [7. The STL](https://ghaith-hamdi1.github.io/cpp-training/04-stl.html) | Primer ch. 9 to 11 (355 to 477); PPP 19 to 21 (559 to 635) |
 | Templates | [8. Templates](https://ghaith-hamdi1.github.io/cpp-training/05-templates.html) | Primer ch. 16 (681 to 743); EMC Item 1 (27 to 36) |
 | Forwarding and variadics | [8. Templates](https://ghaith-hamdi1.github.io/cpp-training/05-templates.html) | Primer 16.2.5 to 16.4 (716 to 734); EMC Item 28 (215 to 221) |
 | Type traits, `constexpr`, concepts | [13. Type Traits & Compile-time C++](https://ghaith-hamdi1.github.io/cpp-training/09-compile-time.html) | EMC Item 15 (115 to 121); PPP 18.1.2 to 18.1.4 (530 to 534) |

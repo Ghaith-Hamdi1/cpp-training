@@ -98,7 +98,7 @@ export const phases = [
       ['ppp', 'Choosing a container: 20.3 to 20.7.1', [[598, 612]], 'Container overview, iterator categories, timing'],
       ['ppp', 'Algorithms: 21.1, 21.2, 21.5', [[617, 626], [633, 635]], 'Standard algorithms, function objects, sorting and searching'],
     ],
-    lessons: ['strings', 'stl', 'lambdas', 'templates'], practice: ['12 (`Stack<T>`)', 25],
+    lessons: ['strings', 'lambdas', 'stl', 'templates'], practice: ['12 (`Stack<T>`)', 25],
     recap: 'Explain: how a lambda is compiled (a closure class with `operator()`), when `vector` invalidates iterators, why `map::operator[]` can insert, what a strict weak ordering is, how a template is instantiated, and why `std::sort` does not work on `std::list`.',
   },
   {

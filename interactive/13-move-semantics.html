@@ -204,6 +204,35 @@ public:
 <!-- read-more:end -->
 </section>
 
+<section id="forwarding" data-title="Perfect forwarding">
+<h2>Perfect forwarding</h2>
+<p>This builds on the <a href="05-templates.html#s4">forwarding references</a> of the Templates lesson (<code>T&amp;&amp;</code> with a deduced <code>T</code> binds to anything and remembers whether it was an lvalue or an rvalue) and on <code>std::move</code> above.</p>
+<p>A wrapper's parameter has a <i>name</i>, so it is an lvalue and the callee would always copy. <code>std::forward</code> restores the category:</p>
+<script type="text/x-cpp">
+template <typename T, typename... Args>
+std::unique_ptr<T> makeUnique(Args&&... args) {                  // forwarding references
+    return std::unique_ptr<T>(new T(std::forward<Args>(args)...));  // lvalues stay lvalues, rvalues stay rvalues
+}
+
+std::string s = "abc";
+auto a = makeUnique<Widget>(s);              // s is an lvalue  -> Widget copies it
+auto b = makeUnique<Widget>(std::string("x"));// temporary rvalue -> Widget MOVES it
+</script>
+<div class="callout warn"><span class="label">std::move vs std::forward</span><code>move</code> <i>always</i> casts to rvalue. <code>forward&lt;T&gt;</code> casts to rvalue <i>only if</i> the argument was one. Use <code>forward</code> only on a forwarding reference, once.</div>
+<p>Step through perfect forwarding:</p>
+<div id="st-forward"></div>
+<!-- read-more:start -->
+<div class="callout tip"><span class="label">Read more</span>
+<p><b>C++ Move Semantics (Josuttis)</b></p>
+<ul>
+<li>9.1 to 9.3 Perfect forwarding; universal versus rvalue references (PDF pages 159 to 166)</li>
+<li>9.4 to 9.5 Overload resolution with universal references; perfect forwarding in lambdas (PDF pages 167 to 170)</li>
+<li>Chapter 11 Perfect passing with auto&amp;&amp; (PDF pages 191 to 202)</li>
+</ul>
+</div>
+<!-- read-more:end -->
+</section>
+
 <section id="cheat" data-title="Cheat sheet">
 <h2>Cheat sheet</h2>
 <p>Answer aloud, then open.</p>
@@ -214,6 +243,7 @@ public:
 <details class="ex"><summary>What state is a moved-from object in?</summary><div><p>Valid but unspecified: you may destroy it or assign a new value to it, but not rely on its contents. For standard types it is usually empty.</p></div></details>
 <details class="ex"><summary>How do you write a class that stores a string argument efficiently?</summary><div><p>Take the parameter by value and <code>std::move</code> it into the member. An lvalue costs one copy plus one move, an rvalue costs one move, and there is a single function to write.</p></div></details>
 <details class="ex"><summary>What is the difference between <code>push_back</code> and <code>emplace_back</code>?</summary><div><p><code>push_back</code> takes an existing object (copied or moved into the container). <code>emplace_back</code> forwards its arguments and constructs the element in place, saving a temporary. Both reallocate the same way.</p></div></details>
+<details class="ex"><summary>What is perfect forwarding, and why do we need it?</summary><div><p>Passing arguments through a wrapper to another function without changing their value category or constness, so the callee can still choose copy vs move correctly. Without it you would need an overload per combination of lvalue/rvalue/const for every parameter.</p></div></details>
 </section>
 
 </main>
@@ -241,6 +271,29 @@ std::vector<int> c = std::move(a);
       note: 'Now overload resolution sees an <b>rvalue</b>. <code>vector(vector&amp;&amp;)</code> (the <b>move constructor</b>) is a better match than <code>vector(const vector&amp;)</code>, so it is chosen. That constructor, not <code>std::move</code>, does the stealing.' },
     { line: 3, mem: [{ n: 'a.ptr', t: 'int*', v: 'nullptr' }, { n: 'a.size', t: 'size_t', v: '0' }, { n: 'std::move(a)', fam: 'a', t: 'vector&&', v: 'gone (temporary)', dead: true }, { n: 'c.ptr', t: 'int*', v: '0x5000', p: 'buffer A' }, { n: 'c.size', t: 'size_t', v: '1000' }, { n: 'b.ptr', t: 'int*', v: '0x6000', p: 'buffer B' }, { n: 'b.size', t: 'size_t', v: '1000' }, { n: 'buffer A @0x5000', t: '1000 ints', v: '7, 7, 7 ...', k: 'heap' }, { n: 'buffer B @0x6000', t: '1000 ints', v: '7, 7, 7 ...', k: 'heap' }],
       note: '<b>Move:</b> no allocation, no element copying. <b>c</b> takes over buffer A\'s pointer and size, and <b>a</b> is left empty (valid but unspecified: assign to it or let it die, do not read it). O(1). Had <code>a</code> been <code>const</code>, the cast would give <code>const vector&amp;&amp;</code>, which cannot bind to the move constructor, so it would <b>copy</b> silently.' }
+  ]
+});
+
+CT.stepper('#st-forward', {
+  title: 'Perfect forwarding: copy for lvalues, move for rvalues',
+  code: String.raw`
+template <typename T>
+void wrap(T&& arg) { target(std::forward<T>(arg)); }
+
+std::string s = "abc";
+wrap(s);
+wrap(std::string("x"));
+`,
+  steps: [
+    { line: 5, mem: [{ n: 's', t: 'string', v: '"abc"' }], note: 'An ordinary named string: an <b>lvalue</b>.' },
+    { line: 6, mem: [{ n: 's', t: 'string', v: '"abc"' }, { n: 'T', t: 'deduced', v: 'string&' }, { n: 'arg', t: 'string&', v: 'alias', to: 's' }],
+      note: '<code>wrap(s)</code>: s is an lvalue, so <b>T = string&amp;</b>. The parameter <code>T&amp;&amp;</code> collapses to <code>string&amp;</code> and binds to s without copying.' },
+    { line: 2, mem: [{ n: 's', t: 'string', v: '"abc"' }, { n: 'T', t: 'deduced', v: 'string&' }, { n: 'arg', t: 'string&', v: 'alias', to: 's' }], out: 'target(const string&): COPY\n',
+      note: '<code>std::forward&lt;string&amp;&gt;(arg)</code> keeps it an <b>lvalue</b>, so target picks the copying overload. Inside wrap, arg has a name and is always an lvalue; forward restores what the caller passed.' },
+    { line: 7, mem: [{ n: 's', t: 'string', v: '"abc"' }, { n: 'temp', t: 'string', v: '"x"', p: 'unnamed temporary' }, { n: 'T', t: 'deduced', v: 'string' }, { n: 'arg', t: 'string&&', v: 'alias', to: 'temp' }],
+      note: '<code>wrap(std::string("x"))</code>: a temporary is an <b>rvalue</b>, so <b>T = string</b> and the parameter is a true <code>string&amp;&amp;</code> bound to the temporary.' },
+    { line: 2, mem: [{ n: 's', t: 'string', v: '"abc"' }, { n: 'temp', t: 'string', v: 'moved-from', p: 'unnamed temporary' }, { n: 'T', t: 'deduced', v: 'string' }, { n: 'arg', t: 'string&&', v: 'alias', to: 'temp' }], out: 'target(string&&): MOVE\n',
+      note: '<code>std::forward&lt;string&gt;(arg)</code> casts to an <b>rvalue</b>, so target picks the move overload. Same wrapper, correct behaviour for both: that is perfect forwarding. (<code>std::move</code> would have moved in <i>both</i> cases.)' }
   ]
 });
 

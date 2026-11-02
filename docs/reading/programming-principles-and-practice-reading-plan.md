@@ -69,9 +69,9 @@ The book stops at introductory templates. Variadic templates, forwarding referen
 
 | # | Checkpoint questions | After |
 |---|---|---|
-| 11 | How does generalizing a loop over an array lead to iterators and `[first, last)` ranges?<br>What does `++words[s]` do when `s` is not yet a key? | Lesson 6 (The STL), sections 1 to 4; its quiz |
-| 12 | Why is `vector` the default container?<br>Name the six iterator categories and which container gives which.<br>Why measure before claiming something is faster, and how do you stop the optimizer deleting your test? | Lesson 6, "Which container should I use?"; time `find` in a `vector` against a `map` with `<chrono>` |
-| 13 | How do algorithms report "not found"?<br>Why do `binary_search` and `equal_range` need a sorted sequence?<br>How does a lambda differ from a function object? | Lessons 6 (Algorithms) and 7 (Lambdas); quiz for lesson 6 |
+| 11 | How does generalizing a loop over an array lead to iterators and `[first, last)` ranges?<br>What does `++words[s]` do when `s` is not yet a key? | Lesson 7 (The STL), sections 1 to 4; its quiz |
+| 12 | Why is `vector` the default container?<br>Name the six iterator categories and which container gives which.<br>Why measure before claiming something is faster, and how do you stop the optimizer deleting your test? | Lesson 7, "Which container should I use?"; time `find` in a `vector` against a `map` with `<chrono>` |
+| 13 | How do algorithms report "not found"?<br>Why do `binary_search` and `equal_range` need a sorted sequence?<br>How does a lambda differ from a function object? | Lessons 7 (Algorithms) and 6 (Lambdas); quiz for lesson 7 |
 
 ## Part E: optional extras (session 14)
 

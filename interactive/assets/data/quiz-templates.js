@@ -46,14 +46,6 @@ struct Buffer { T data[N]; };`,
       opts: ['Collapses to T&', 'Collapses to T&&', 'Is an error', 'Collapses to T'], a: 1,
       why: 'If either side is an lvalue reference the result is an lvalue reference. Only rvalue-reference-to-rvalue-reference stays an rvalue reference.' },
 
-    { sec: 's4', q: 'What is the difference between `std::move(x)` and `std::forward<T>(x)`?',
-      opts: ['They are the same: both just cast their argument to T&&', 'move always casts to an rvalue; forward does so only if the argument was one', 'forward makes a copy of its argument before passing it on', 'move works only on standard library containers and on strings'], a: 1,
-      why: '`std::forward` preserves the value category of a forwarding reference argument, enabling perfect forwarding. `std::move` unconditionally says "this may be stolen from".' },
-
-    { sec: 's4', q: 'What is the purpose of perfect forwarding?',
-      opts: ['To make a call run faster than a normal function call would', 'To pass arguments through a wrapper keeping lvalue/rvalue-ness and const', 'To forward exceptions up through the call stack to the caller', 'To call virtual functions through template code without a vtable'], a: 1,
-      why: 'Without it a wrapper would treat every named parameter as an lvalue and force copies (or need many overloads). `std::make_unique` and `emplace_back` rely on it.' },
-
     { sec: 's5', q: 'What does this compute?',
       code: String.raw`
 template <typename... Args>

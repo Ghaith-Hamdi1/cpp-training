@@ -127,6 +127,24 @@ public:
 <li><b><code>explicit</code></b> on a one-argument constructor blocks silent conversions.</li>
 </ul>
 
+<h3>A first look at RAII</h3>
+<p>Because the destructor always runs when the object goes out of scope, a class can <b>acquire</b> a resource in its constructor and <b>release</b> it in its destructor. You never have to remember to clean up. This idea, <b>RAII</b>, has its own lesson later (<a href="03-core-language.html#s1">RAII and exceptions</a>); for now it is enough to see the shape of it:</p>
+<script type="text/x-cpp">
+class File {
+    std::FILE* f_;
+public:
+    explicit File(const char* path) : f_(std::fopen(path, "r")) {}   // acquire in the constructor
+    ~File() { if (f_) std::fclose(f_); }                              // release in the destructor
+    File(const File&) = delete;                                       // see the next section: copying would close it twice
+    File& operator=(const File&) = delete;
+};
+
+void work() {
+    File f("data.txt");
+    // use f ... a return or an exception below still runs ~File
+}   // f is closed here, automatically
+</script>
+
 <h3>Order of construction and destruction</h3>
 <p>Construction: base, members, derived body. Destruction: the exact reverse.</p>
 <div id="st-order"></div>

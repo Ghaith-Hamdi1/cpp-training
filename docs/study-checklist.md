@@ -127,6 +127,16 @@ Streams, containers, iterators, algorithms, templates.. Roadmap page: [phase-3-t
 - [ ] Cheat sheet (say each answer aloud)
 - [ ] Take the quiz, then retry the missed questions
 
+**Lambdas & Callables:** [15-lambdas.html](../interactive/15-lambdas.html), quiz: [15-lambdas-quiz.html](../interactive/15-lambdas-quiz.html) (15 questions).
+
+- [ ] Before lambdas: function pointers and functors
+- [ ] What a lambda is
+- [ ] Captures: by value and by reference (step through; dangling captures)
+- [ ] `mutable`, init-capture, generic and recursive lambdas
+- [ ] Function pointer, functor, lambda, `std::function`
+- [ ] Cheat sheet (say each answer aloud)
+- [ ] Take the quiz, then retry the missed questions
+
 **The STL:** [04-stl.html](../interactive/04-stl.html), quiz: [04-stl-quiz.html](../interactive/04-stl-quiz.html) (33 questions).
 
 - [ ] The big picture
@@ -143,24 +153,14 @@ Streams, containers, iterators, algorithms, templates.. Roadmap page: [phase-3-t
 - [ ] Cheat sheet (say each answer aloud)
 - [ ] Take the quiz, then retry the missed questions
 
-**Lambdas & Callables:** [15-lambdas.html](../interactive/15-lambdas.html), quiz: [15-lambdas-quiz.html](../interactive/15-lambdas-quiz.html) (15 questions).
-
-- [ ] Before lambdas: function pointers and functors
-- [ ] What a lambda is
-- [ ] Captures: by value and by reference (step through; dangling captures)
-- [ ] `mutable`, init-capture, generic and recursive lambdas
-- [ ] Function pointer, functor, lambda, `std::function`
-- [ ] Cheat sheet (say each answer aloud)
-- [ ] Take the quiz, then retry the missed questions
-
-**Templates:** [05-templates.html](../interactive/05-templates.html), quiz: [05-templates-quiz.html](../interactive/05-templates-quiz.html) (28 questions).
+**Templates:** [05-templates.html](../interactive/05-templates.html), quiz: [05-templates-quiz.html](../interactive/05-templates-quiz.html) (26 questions).
 
 - [ ] Why templates, and function templates
 - [ ] Template argument deduction
 - [ ] Class templates
 - [ ] Specialization
 - [ ] Variadic templates and fold expressions (step through the recursion)
-- [ ] Forwarding references and perfect forwarding (use the explorer, step through it)
+- [ ] Forwarding references (use the explorer, step through it)
 - [ ] Alias templates, variable templates and more
 - [ ] Type traits and `if constexpr`
 - [ ] Pitfalls and good practice
@@ -229,13 +229,14 @@ Move semantics, smart pointers, forwarding, `constexpr`, vocabulary types, conce
 - [ ] Cheat sheet (say each answer aloud)
 - [ ] Take the quiz, then retry the missed questions
 
-**Move Semantics:** [13-move-semantics.html](../interactive/13-move-semantics.html), quiz: [13-move-semantics-quiz.html](../interactive/13-move-semantics-quiz.html) (15 questions).
+**Move Semantics:** [13-move-semantics.html](../interactive/13-move-semantics.html), quiz: [13-move-semantics-quiz.html](../interactive/13-move-semantics-quiz.html) (17 questions).
 
 - [ ] Lvalues, rvalues and value categories
 - [ ] Copy versus move (step through it; what `std::move` really does)
 - [ ] Writing move operations
 - [ ] Returning objects: elision and `std::move`
 - [ ] Sink parameters and move traps (the `const` trap)
+- [ ] Perfect forwarding
 - [ ] Cheat sheet (say each answer aloud)
 - [ ] Take the quiz, then retry the missed questions
 

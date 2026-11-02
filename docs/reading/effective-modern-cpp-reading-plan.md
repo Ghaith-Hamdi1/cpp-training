@@ -85,7 +85,7 @@ After: Lesson 3 (Rule of 3, 5, 0), Lesson 12 (Smart pointers) and Lesson 14 (Pim
 2. How do you tell a universal reference from an rvalue reference?
 3. Why does `return std::move(local)` hurt?
 
-After: Lesson 11 (Move semantics) and Lesson 8 (forwarding references).
+After: Lesson 11 (Move semantics and Perfect forwarding) and Lesson 8 (forwarding references).
 
 ## Session 5: overloading and moves in practice
 
@@ -100,7 +100,7 @@ After: Lesson 11 (Move semantics) and Lesson 8 (forwarding references).
 2. Name two ways to avoid overloading on universal references.
 3. When is `emplace_back` really faster than `push_back`?
 
-After: Lesson 11, Lesson 13 (tag dispatch, `enable_if`, concepts) and Lesson 6 (vector).
+After: Lesson 11, Lesson 13 (tag dispatch, `enable_if`, concepts) and Lesson 7 (vector).
 
 ## Session 6: lambdas
 
@@ -112,7 +112,7 @@ After: Lesson 11, Lesson 13 (tag dispatch, `enable_if`, concepts) and Lesson 6 (
 1. Why is `[=]` inside a member function not self-contained?
 2. How do you move a `unique_ptr` into a lambda?
 
-After: Lesson 7 (Lambdas) and its quiz.
+After: Lesson 6 (Lambdas) and its quiz.
 
 ## Session 7: concurrency
 

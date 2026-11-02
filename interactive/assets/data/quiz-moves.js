@@ -69,6 +69,14 @@ Buffer(Buffer&& o) noexcept : data_(o.data_), n_(o.n_) {}`,
 
     { sec: 'traps', q: 'Which statement about `emplace_back` is true?',
       opts: ['It does not construct anything itself, it only inserts', 'It constructs the element in place from its arguments', 'It avoids reallocation of the underlying vector', 'It only works for built-in types such as int and double'], a: 1,
-      why: '`emplace_back(args...)` forwards the arguments to the element\'s constructor inside the container\'s storage. Reallocation still happens when the capacity is exceeded.' }
+      why: '`emplace_back(args...)` forwards the arguments to the element\'s constructor inside the container\'s storage. Reallocation still happens when the capacity is exceeded.' },
+
+    { sec: 'forwarding', q: 'What is the difference between `std::move(x)` and `std::forward<T>(x)`?',
+      opts: ['They are the same: both just cast their argument to T&&', 'move always casts to an rvalue; forward does so only if the argument was one', 'forward makes a copy of its argument before passing it on', 'move works only on standard library containers and on strings'], a: 1,
+      why: '`std::forward` preserves the value category of a forwarding reference argument, enabling perfect forwarding. `std::move` unconditionally says "this may be stolen from".' },
+
+    { sec: 'forwarding', q: 'What is the purpose of perfect forwarding?',
+      opts: ['To make a call run faster than a normal function call would', 'To pass arguments through a wrapper keeping lvalue/rvalue-ness and const', 'To forward exceptions up through the call stack to the caller', 'To call virtual functions through template code without a vtable'], a: 1,
+      why: 'Without it a wrapper would treat every named parameter as an lvalue and force copies (or need many overloads). `std::make_unique` and `emplace_back` rely on it.' }
   ]
 };

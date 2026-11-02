@@ -198,8 +198,8 @@ sizeof...(Args);                                          // number of elements 
 <!-- read-more:end -->
 </section>
 
-<section id="s4" data-title="Forwarding references and perfect forwarding">
-<h2>Forwarding references and perfect forwarding</h2>
+<section id="s4" data-title="Forwarding references">
+<h2>Forwarding references</h2>
 <figure class="fig"><svg viewBox="0 0 640 150" role="img" aria-label="For a forwarding reference, an lvalue argument deduces T as X& and an rvalue deduces T as X"><defs><marker id="f2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path class="ah" d="M0 0L10 5L0 10z"/></marker></defs><text class="t" x="10" y="20">template&lt;class T&gt; void f(T&amp;&amp; x)</text><rect class="acc" x="10" y="40" width="150" height="34" rx="6"/><text x="85" y="62" text-anchor="middle">f(lvalue)  s</text><path class="ar" d="M160 57H210" marker-end="url(#f2)"/><rect class="box" x="212" y="40" width="130" height="34" rx="6"/><text x="277" y="62" text-anchor="middle">T = X&amp;</text><path class="ar" d="M342 57H392" marker-end="url(#f2)"/><rect class="wn" x="394" y="40" width="236" height="34" rx="6"/><text x="512" y="62" text-anchor="middle">X&amp; &amp;&amp; collapses to X&amp;</text><rect class="acc" x="10" y="90" width="150" height="34" rx="6"/><text x="85" y="112" text-anchor="middle">f(rvalue)  string("x")</text><path class="ar" d="M160 107H210" marker-end="url(#f2)"/><rect class="box" x="212" y="90" width="130" height="34" rx="6"/><text x="277" y="112" text-anchor="middle">T = X</text><path class="ar" d="M342 107H392" marker-end="url(#f2)"/><rect class="wn" x="394" y="90" width="236" height="34" rx="6"/><text x="512" y="112" text-anchor="middle">parameter is X&amp;&amp;</text><text class="m" x="10" y="144">Collapsing rule: any lvalue reference involved gives an lvalue reference. std::forward restores the original category.</text></svg><figcaption>One signature accepts both; std::forward passes the category on.</figcaption></figure>
 <p><code>T&amp;&amp;</code> <b>in a function template</b> is a <b>forwarding reference</b>, not an rvalue reference: it binds to anything and remembers lvalue vs rvalue. Explore:</p>
 <div id="w-deduce"></div>
@@ -221,21 +221,7 @@ sizeof...(Args);                                          // number of elements 
 <tr><td><code>T&amp; &amp;</code>, <code>T&amp; &amp;&amp;</code>, <code>T&amp;&amp; &amp;</code></td><td><code>T&amp;</code></td></tr>
 <tr><td><code>T&amp;&amp; &amp;&amp;</code></td><td><code>T&amp;&amp;</code></td></tr>
 </table>
-<h3>Perfect forwarding</h3>
-<p>A wrapper's parameter has a <i>name</i>, so it is an lvalue and the callee would always copy. <code>std::forward</code> restores the category:</p>
-<script type="text/x-cpp">
-template <typename T, typename... Args>
-std::unique_ptr<T> makeUnique(Args&&... args) {                  // forwarding references
-    return std::unique_ptr<T>(new T(std::forward<Args>(args)...));  // lvalues stay lvalues, rvalues stay rvalues
-}
-
-std::string s = "abc";
-auto a = makeUnique<Widget>(s);              // s is an lvalue  -> Widget copies it
-auto b = makeUnique<Widget>(std::string("x"));// temporary rvalue -> Widget MOVES it
-</script>
-<div class="callout warn"><span class="label">std::move vs std::forward</span><code>move</code> <i>always</i> casts to rvalue. <code>forward&lt;T&gt;</code> casts to rvalue <i>only if</i> the argument was one. Use <code>forward</code> only on a forwarding reference, once.</div>
-<p>Step through perfect forwarding:</p>
-<div id="st-forward"></div>
+<p>The last step, passing the value category on to another function with <code>std::forward</code>, needs <code>std::move</code> and rvalues first. It is the last section of the <a href="13-move-semantics.html#forwarding">Move Semantics</a> lesson.</p>
 <!-- read-more:start -->
 <div class="callout tip"><span class="label">Read more</span>
 <p><b>C++ Primer (Lippman, Lajoie, Moo)</b></p>
@@ -244,15 +230,8 @@ auto b = makeUnique<Widget>(std::string("x"));// temporary rvalue -> Widget MOVE
 </ul>
 <p><b>Effective Modern C++ (Meyers)</b></p>
 <ul>
-<li>Item 23, Understand std::move and std::forward (PDF pages 176 to 182)</li>
 <li>Item 24, Distinguish universal references from rvalue references (PDF pages 182 to 186)</li>
 <li>Items 26 to 27, and 30 Overloading on universal references; perfect forwarding failure cases (PDF pages 195 to 215 and 225 to 232)</li>
-</ul>
-<p><b>C++ Move Semantics (Josuttis)</b></p>
-<ul>
-<li>9.1 to 9.3 Perfect forwarding; universal versus rvalue references (PDF pages 159 to 166)</li>
-<li>9.4 to 9.5 Overload resolution with universal references; perfect forwarding in lambdas (PDF pages 167 to 170)</li>
-<li>Chapter 11 Perfect passing with auto&amp;&amp; (PDF pages 191 to 202)</li>
 </ul>
 </div>
 <!-- read-more:end -->
@@ -340,7 +319,6 @@ std::string describe(const T& v) {
 <details class="ex"><summary>What are alias templates and variable templates?</summary><div><p>An alias template is a parameterised <code>using</code> (<code>template&lt;class T&gt; using Vec = std::vector&lt;T&gt;;</code>), which a <code>typedef</code> cannot be. A variable template is a constant or variable per type (<code>template&lt;class T&gt; constexpr T zero = T{};</code>); <code>std::is_integral_v</code> is one.</p></div></details>
 <details class="ex"><summary>What happens when you use a function template?</summary><div><p>The compiler deduces the template arguments from the call, then <b>instantiates</b> a concrete function for that combination of types (once per distinct combination across the program), and compiles it like normal code. The template itself generates no code.</p></div></details>
 <details class="ex"><summary>What is a forwarding reference?</summary><div><p>A <code>T&amp;&amp;</code> parameter where <code>T</code> is deduced for that very function template (or <code>auto&amp;&amp;</code>). It binds to lvalues and rvalues alike: for an lvalue <code>T</code> becomes <code>X&amp;</code> and reference collapsing makes the parameter <code>X&amp;</code>; for an rvalue <code>T</code> is <code>X</code> and the parameter is <code>X&amp;&amp;</code>. <code>std::forward</code> then preserves that category.</p></div></details>
-<details class="ex"><summary>What is perfect forwarding, and why do we need it?</summary><div><p>Passing arguments through a wrapper to another function without changing their value category or constness, so the callee can still choose copy vs move correctly. Without it you would need an overload per combination of lvalue/rvalue/const for every parameter.</p></div></details>
 <details class="ex"><summary>Explain SFINAE.</summary><div><p>If substituting deduced types into a function template's signature yields an invalid type or expression, that candidate is removed from the overload set rather than raising an error. <code>std::enable_if</code> exploits it to enable a function only for suitable types. C++17 <code>if constexpr</code> and C++20 concepts are the clearer modern tools.</p></div></details>
 <details class="ex"><summary>Full vs partial specialization?</summary><div><p>Full: all template arguments fixed. Partial: a pattern with some parameters still free (<code>Foo&lt;T*&gt;</code>), allowed for class templates and variable templates but not for function templates (use overloading).</p></div></details>
 <details class="ex"><summary>Why must template definitions be in headers?</summary><div><p>The compiler needs the body to instantiate it in each translation unit that uses a particular type. If only the declaration is visible, no instantiation happens and the linker cannot find the function. Alternative: explicit instantiation in one <code>.cpp</code>.</p></div></details>
@@ -433,28 +411,6 @@ sum(1, 2, 3);
   show();
 })();
 
-CT.stepper('#st-forward', {
-  title: 'Perfect forwarding: copy for lvalues, move for rvalues',
-  code: String.raw`
-template <typename T>
-void wrap(T&& arg) { target(std::forward<T>(arg)); }
-
-std::string s = "abc";
-wrap(s);
-wrap(std::string("x"));
-`,
-  steps: [
-    { line: 5, mem: [{ n: 's', t: 'string', v: '"abc"' }], note: 'An ordinary named string: an <b>lvalue</b>.' },
-    { line: 6, mem: [{ n: 's', t: 'string', v: '"abc"' }, { n: 'T', t: 'deduced', v: 'string&' }, { n: 'arg', t: 'string&', v: 'alias', to: 's' }],
-      note: '<code>wrap(s)</code>: s is an lvalue, so <b>T = string&amp;</b>. The parameter <code>T&amp;&amp;</code> collapses to <code>string&amp;</code> and binds to s without copying.' },
-    { line: 2, mem: [{ n: 's', t: 'string', v: '"abc"' }, { n: 'T', t: 'deduced', v: 'string&' }, { n: 'arg', t: 'string&', v: 'alias', to: 's' }], out: 'target(const string&): COPY\n',
-      note: '<code>std::forward&lt;string&amp;&gt;(arg)</code> keeps it an <b>lvalue</b>, so target picks the copying overload. Inside wrap, arg has a name and is always an lvalue; forward restores what the caller passed.' },
-    { line: 7, mem: [{ n: 's', t: 'string', v: '"abc"' }, { n: 'temp', t: 'string', v: '"x"', p: 'unnamed temporary' }, { n: 'T', t: 'deduced', v: 'string' }, { n: 'arg', t: 'string&&', v: 'alias', to: 'temp' }],
-      note: '<code>wrap(std::string("x"))</code>: a temporary is an <b>rvalue</b>, so <b>T = string</b> and the parameter is a true <code>string&amp;&amp;</code> bound to the temporary.' },
-    { line: 2, mem: [{ n: 's', t: 'string', v: '"abc"' }, { n: 'temp', t: 'string', v: 'moved-from', p: 'unnamed temporary' }, { n: 'T', t: 'deduced', v: 'string' }, { n: 'arg', t: 'string&&', v: 'alias', to: 'temp' }], out: 'target(string&&): MOVE\n',
-      note: '<code>std::forward&lt;string&gt;(arg)</code> casts to an <b>rvalue</b>, so target picks the move overload. Same wrapper, correct behaviour for both: that is perfect forwarding. (<code>std::move</code> would have moved in <i>both</i> cases.)' }
-  ]
-});
 </script>
 </body>
 </html>
