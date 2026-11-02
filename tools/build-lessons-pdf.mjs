@@ -130,7 +130,20 @@ function pdfPrep(file, splitCodePx, splitListPx) {
     ['18-atomics-memory-model.html', /The simulator above shows/, 'The table of outcomes above shows'],
     ['18-atomics-memory-model.html', / with a simulator,/, ','],
     ['08-strings-regex-time.html', /\s*but not in the tester/, ''],
-    ['01-basics.html', /\s*\(see the step-through above\)/, '']
+    ['01-basics.html', /\s*\(see the step-through above\)/, ''],
+    // sentences that only point at the website or at the repo (nothing to click on paper)
+    ['02-oop.html', /^Related notes in your repo:/, null],
+    ['04-stl.html', /^Notes: <a[^>]*>Module 3<\/a>\.$/, null],
+    ['05-templates.html', /^Notes: <a[^>]*>Module 4<\/a>; <a[^>]*>modern-cpp-features<\/a>\.$/, null],
+    ['06-design-patterns.html', /^Notes: <a[^>]*>Module 4<\/a>, <a[^>]*>examples<\/a>\.$/, null],
+    ['16-types-and-casts.html', /\s*Full lists: <a[^>]*>modern-cpp-features<\/a>, <a[^>]*>modern-cpp-tutorial<\/a>\. Your notes: <a[^>]*>Module 3<\/a>\./, ''],
+    ['07-multithreading.html', /^<span class="label">Where next<\/span>/, null],
+    ['07-multithreading.html', /^Further reading: your notes in /, null],
+    ['11-wire-formats.html', /\s*Compiled examples are in <code>examples\/lessons\/11-wire-formats<\/code>\./, ''],
+    ['12-low-latency.html', /\s*Compiled examples are in <code>examples\/lessons\/12-low-latency<\/code>\./, ''],
+    // wording that depended on the original section order
+    ['06-design-patterns.html', /so read this table first and refer back to it\./, 'so use this table to connect each pattern back to the principle it serves.'],
+    ['08-strings-regex-time.html', /then <code>&lt;regex&gt;<\/code> and <code>&lt;chrono&gt;<\/code>/, 'then <code>&lt;chrono&gt;</code> and <code>&lt;regex&gt;</code>']
   ];
   for (const [f, re, rep] of FIXES) {
     if (f !== file) continue;
@@ -139,6 +152,11 @@ function pdfPrep(file, splitCodePx, splitListPx) {
       if (rep === null) el.remove(); else el.innerHTML = el.innerHTML.replace(re, rep);
     });
   }
+
+  // The "Phase N of 8 ... checklist, book reading" line above the title: keep the phase and lesson number, drop the two website links
+  $$('main > *').forEach((e) => {
+    if (/Phase \d+ of \d+/.test(e.textContent) && /book reading/.test(e.textContent)) e.innerHTML = e.innerHTML.replace(/\s*(?:·|&middot;)\s*<a[^>]*>checklist<\/a>\s*(?:·|&middot;)\s*<a[^>]*>book reading<\/a>/, '');
+  });
 
   // "Read more" notes: taken out of the sections and listed per section on a page of their own at the end of the lesson
   const notes = $$('.callout').filter((c) => { const lb = c.querySelector(':scope > .label'); return lb && /^read more$/i.test(lb.textContent.trim()); });
