@@ -5,6 +5,7 @@
 // simulators, testers, advisors), together with the sentence that introduces each. Three simulators and the container advisor are replaced by
 // a short static table. The "Read more" book notes of a lesson are collected into one "Further reading" box at the end of the lesson, and
 // a few sections are moved within their lesson where that reads better on paper (see ORDER in pdfPrep).
+// The "Read more" book notes are taken out of the sections and listed per section (book, chapter and PDF pages) on a last page of their own.
 // The files are numbered in study order (lesson 1 to 20, as in the registry), not by the page's own file name.
 // Needs Edge or Chrome. Usage: node tools/build-lessons-pdf.mjs
 import { existsSync, mkdirSync, mkdtempSync, readdirSync, rmSync, unlinkSync, writeFileSync } from 'node:fs';
@@ -31,7 +32,7 @@ const PRINT_CSS = `
   ul, ol { break-inside: avoid-page; }
   p, li { orphans: 3; widows: 3; }
   section > p:has(+ figure), section > p:has(+ .widget), section > p:has(+ table), section > p:has(+ details) { break-after: avoid; }
-  .callout.further, .callout.further ul { break-inside: auto; }
+  .further-page { break-before: page; }
 `;
 
 // Runs inside the lesson page (serialized with toString) before it is printed. Only touches the DOM, so it must not use anything from this file.
@@ -127,10 +128,13 @@ function pdfPrep(file) {
     });
   }
 
-  // "Read more" notes: one "Further reading" box at the end of the lesson, repeated entries listed once
+  // "Read more" notes: taken out of the sections and listed per section on a page of their own at the end of the lesson
   const notes = $$('.callout').filter((c) => { const lb = c.querySelector(':scope > .label'); return lb && /^read more$/i.test(lb.textContent.trim()); });
-  const books = new Map();
+  const reading = new Map();   // section element -> Map(book title -> Map(entry text -> entry html))
   for (const n of notes) {
+    const section = n.closest('section');
+    if (!section) { n.remove(); continue; }
+    const books = reading.get(section) || new Map();
     let title = '';
     for (const el of n.children) {
       if (el.tagName === 'P') title = norm(el.textContent);
@@ -140,6 +144,7 @@ function pdfPrep(file) {
         books.set(title, items);
       }
     }
+    reading.set(section, books);
     n.remove();
   }
 
@@ -158,11 +163,13 @@ function pdfPrep(file) {
     if (!s || !a) { console.log('ORDER: section not found in ' + file + ': ' + (s ? anchor : t)); continue; }
     if (where === 'before') a.before(s); else a.after(s);
   }
-  if (books.size) {
-    const box = document.createElement('div');
-    box.className = 'callout tip further';
-    box.innerHTML = '<span class="label">Further reading</span>' + [...books].map(([t, items]) => '<p><b>' + esc(t) + '</b></p><ul>' + [...items.values()].map((h) => '<li>' + h + '</li>').join('') + '</ul>').join('');
-    $$('main > section').pop().appendChild(box);
+  if (reading.size) {
+    const page = document.createElement('section');
+    page.className = 'further-page';
+    page.innerHTML = '<h2>Further reading by section</h2><p>Where each section of this lesson is explained in more depth. Page numbers are PDF viewer pages.</p>' +
+      $$('main > section').filter((s) => reading.has(s)).map((s) => '<h3>' + esc(s.dataset.title || norm(s.querySelector('h2').textContent)) + '</h3>' +
+        [...reading.get(s)].map(([t, items]) => '<p><b>' + esc(t) + '</b></p><ul>' + [...items.values()].map((h) => '<li>' + h + '</li>').join('') + '</ul>').join('')).join('');
+    $$('main > section').pop().after(page);
   }
   return $$('.widget, .threadsim, select').length;   // anything left over is reported by the caller
 }
@@ -197,7 +204,7 @@ try {
     await sleep(400);
     // a block that fits on one page is never split; report any block taller than a page
     const rep = await send('Runtime.evaluate', { returnByValue: true, expression: `(() => { const H = ${PAGE_PX}; const big = [];
-      document.querySelectorAll('figure, .callout, .widget, table, pre, details, p, ul, ol, svg').forEach((e) => { if (e.offsetHeight > H && !e.classList.contains('further') && !(e.closest('.widget') && e.closest('.widget').offsetHeight > H && e !== e.closest('.widget') && e.offsetHeight <= H)) big.push(e.tagName + '.' + e.className + ' ' + e.offsetHeight + ' ' + (e.textContent || '').trim().slice(0, 40)); });
+      document.querySelectorAll('figure, .callout, .widget, table, pre, details, p, ul, ol, svg').forEach((e) => { if (e.offsetHeight > H && !(e.closest('.widget') && e.closest('.widget').offsetHeight > H && e !== e.closest('.widget') && e.offsetHeight <= H)) big.push(e.tagName + '.' + e.className + ' ' + e.offsetHeight + ' ' + (e.textContent || '').trim().slice(0, 40)); });
       return big; })()` });
     if (rep.result.value && rep.result.value.length) console.log('taller than a page in', l.file, JSON.stringify(rep.result.value));
     const { data } = await send('Page.printToPDF', { printBackground: true, preferCSSPageSize: false, paperWidth: 8.27, paperHeight: 11.69, marginTop: 0.4, marginBottom: 0.45, marginLeft: 0.5, marginRight: 0.5 });
