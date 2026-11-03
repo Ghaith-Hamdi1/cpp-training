@@ -11,9 +11,7 @@ One template file per reading session, filled in as you read. The folders follow
 | [3. The standard library and generic programming](phase-3-the-standard-library-and-generic-programming/README.md) | C++ Primer, 5th ed.: 10; Programming: Principles and Practice, 3rd ed.: 5; Effective Modern C++: 1 |
 | [4. RAII, exceptions and advanced language tools](phase-4-raii-exceptions-and-advanced-language-tools/README.md) | C++ Primer, 5th ed.: 2; Programming: Principles and Practice, 3rd ed.: 1; Effective Modern C++: 1 |
 | [5. Modern C++ (C++11 to C++20)](phase-5-modern-cpp/README.md) | C++ Primer, 5th ed.: 2; Effective Modern C++: 4; C++ Move Semantics: The Complete Guide: 7 |
-| [6. Design patterns and SOLID](phase-6-design-patterns-and-solid/README.md) | lessons only |
-| [7. Concurrency and the memory model](phase-7-concurrency-and-the-memory-model/README.md) | Effective Modern C++: 1; C++ Concurrency in Action, 2nd ed.: 7 |
-| [8. Performance, memory layout and binary data](phase-8-performance-memory-layout-and-binary-data/README.md) | C++ Primer, 5th ed.: 1 |
+| [7. Concurrency and the memory model](phase-6-concurrency-and-the-memory-model/README.md) | Effective Modern C++: 1; C++ Concurrency in Action, 2nd ed.: 7 |
 
 ## By book
 
@@ -57,7 +55,7 @@ Plan: [cpp-primer-reading-plan.md](../cpp-primer-reading-plan.md).
 | 30 | Exception handling and namespaces | 4 | [30-exceptions-and-namespaces.md](phase-4-raii-exceptions-and-advanced-language-tools/cpp-primer/30-exceptions-and-namespaces.md) |
 | 31 | Multiple inheritance and RTTI | 2 | [31-multiple-inheritance-and-rtti.md](phase-2-classes-memory-and-object-oriented-design/cpp-primer/31-multiple-inheritance-and-rtti.md) |
 | 32 | Memory control, enums, unions, nested classes | 4 | [32-specialized-tools.md](phase-4-raii-exceptions-and-advanced-language-tools/cpp-primer/32-specialized-tools.md) |
-| 33 | Optional extras | 8 | [33-optional-extras.md](phase-8-performance-memory-layout-and-binary-data/cpp-primer/33-optional-extras.md) |
+| 33 | Optional extras | 4 | [33-optional-extras.md](phase-4-raii-exceptions-and-advanced-language-tools/cpp-primer/33-optional-extras.md) |
 
 ### Programming: Principles and Practice, 3rd ed.
 
@@ -92,7 +90,7 @@ Plan: [effective-modern-cpp-reading-plan.md](../effective-modern-cpp-reading-pla
 | 4 | std::move, std::forward and universal references | 5 | [04-move-forward-universal-references.md](phase-5-modern-cpp/effective-modern-cpp/04-move-forward-universal-references.md) |
 | 5 | Overloading and moves in practice | 5 | [05-overloading-and-moves-in-practice.md](phase-5-modern-cpp/effective-modern-cpp/05-overloading-and-moves-in-practice.md) |
 | 6 | Lambdas | 3 | [06-lambdas.md](phase-3-the-standard-library-and-generic-programming/effective-modern-cpp/06-lambdas.md) |
-| 7 | Concurrency | 7 | [07-concurrency.md](phase-7-concurrency-and-the-memory-model/effective-modern-cpp/07-concurrency.md) |
+| 7 | Concurrency | 6 | [07-concurrency.md](phase-6-concurrency-and-the-memory-model/effective-modern-cpp/07-concurrency.md) |
 
 ### C++ Move Semantics: The Complete Guide
 
@@ -114,10 +112,10 @@ Plan: [concurrency-in-action-reading-plan.md](../concurrency-in-action-reading-p
 
 | # | Session | Phase | Notes file |
 |---|---|---|---|
-| 1 | Why threads, and launching them | 7 | [01-why-threads-and-launching.md](phase-7-concurrency-and-the-memory-model/concurrency-in-action/01-why-threads-and-launching.md) |
-| 2 | Sharing data and mutexes | 7 | [02-sharing-data-and-mutexes.md](phase-7-concurrency-and-the-memory-model/concurrency-in-action/02-sharing-data-and-mutexes.md) |
-| 3 | Deadlock and locking | 7 | [03-deadlock-and-locking.md](phase-7-concurrency-and-the-memory-model/concurrency-in-action/03-deadlock-and-locking.md) |
-| 4 | Waiting for events and results | 7 | [04-waiting-for-events-and-results.md](phase-7-concurrency-and-the-memory-model/concurrency-in-action/04-waiting-for-events-and-results.md) |
-| 5 | How many threads, and a thread pool | 7 | [05-thread-counts-and-pools.md](phase-7-concurrency-and-the-memory-model/concurrency-in-action/05-thread-counts-and-pools.md) |
-| 6 | The memory model and data structures | 7 | [06-memory-model-and-data-structures.md](phase-7-concurrency-and-the-memory-model/concurrency-in-action/06-memory-model-and-data-structures.md) |
-| 7 | Performance and bugs | 7 | [07-performance-and-bugs.md](phase-7-concurrency-and-the-memory-model/concurrency-in-action/07-performance-and-bugs.md) |
+| 1 | Why threads, and launching them | 6 | [01-why-threads-and-launching.md](phase-6-concurrency-and-the-memory-model/concurrency-in-action/01-why-threads-and-launching.md) |
+| 2 | Sharing data and mutexes | 6 | [02-sharing-data-and-mutexes.md](phase-6-concurrency-and-the-memory-model/concurrency-in-action/02-sharing-data-and-mutexes.md) |
+| 3 | Deadlock and locking | 6 | [03-deadlock-and-locking.md](phase-6-concurrency-and-the-memory-model/concurrency-in-action/03-deadlock-and-locking.md) |
+| 4 | Waiting for events and results | 6 | [04-waiting-for-events-and-results.md](phase-6-concurrency-and-the-memory-model/concurrency-in-action/04-waiting-for-events-and-results.md) |
+| 5 | How many threads, and a thread pool | 6 | [05-thread-counts-and-pools.md](phase-6-concurrency-and-the-memory-model/concurrency-in-action/05-thread-counts-and-pools.md) |
+| 6 | The memory model and data structures | 6 | [06-memory-model-and-data-structures.md](phase-6-concurrency-and-the-memory-model/concurrency-in-action/06-memory-model-and-data-structures.md) |
+| 7 | Performance and bugs | 6 | [07-performance-and-bugs.md](phase-6-concurrency-and-the-memory-model/concurrency-in-action/07-performance-and-bugs.md) |

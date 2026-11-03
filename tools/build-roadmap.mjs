@@ -79,9 +79,9 @@ function phasePage(p, k) {
 function readme() {
   let o = '';
   const w = (s = '') => { o += s + '\n'; };
-  w('# C++ recap and roadmap: eight phases, five books');
+  w('# C++ recap and roadmap: six phases, five books');
   w();
-  w('A map of every big C++ topic, grouped into eight phases from solid fundamentals to advanced tools to modern C++, with the exact book chapters (PDF pages) to read in each phase, the lessons and exercises that go with them, and a time estimate. Use it as a **reading guide** when you want to study a phase properly, and as a **recap** when you want to check that you can still explain the topics. The [topic index](#topic-index-where-to-look) at the end is the quick reminder.');
+  w('A map of every big C++ topic, grouped into six phases from solid fundamentals to advanced tools to modern C++, with the exact book chapters (PDF pages) to read in each phase, the lessons and exercises that go with them, and a time estimate. Use it as a **reading guide** when you want to study a phase properly, and as a **recap** when you want to check that you can still explain the topics. The [topic index](#topic-index-where-to-look) at the end is the quick reminder.');
   w();
   w('All page numbers are **PDF viewer pages** (the number your PDF reader shows). The books are in [`books/`](../../../books).');
   w();
@@ -108,7 +108,7 @@ function readme() {
   w();
   w(`The core path is about **${Math.round(totCoreMin / 60)} hours**: roughly ${Math.round(totCoreMin / 60 / 6)} weeks at 6 hours a week, or ${Math.round(totCoreMin / 60 / 12)} weeks at 12. Adding every deepen list brings it to about **${Math.round((totCoreMin + totDeepMin) / 60)} hours**. If you only want a refresher on what you already know, skim the "core reading" at 25 pages an hour and spend your time on the lessons, quizzes and recap questions.`);
   w();
-  w('Do the phases in order, because each builds on the one before. The lesson numbers on the site follow the same order, so lessons 1 to 20 are exactly phases 1 to 8 read top to bottom. Phase 6 (design patterns) uses `unique_ptr`, lambdas and `variant` from phases 3 and 5. Phase 7 (concurrency) needs move semantics, lambdas and RAII. Phase 8 needs phases 1 to 3 and the cache and threads ideas from phase 7; it can be read last or interleaved with phase 7.');
+  w('Do the phases in order, because each builds on the one before. Phase 6 (concurrency) needs move semantics, lambdas and RAII from the earlier phases.');
   w();
   w('## How to study a phase');
   w();

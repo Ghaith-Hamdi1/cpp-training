@@ -48,9 +48,6 @@ const EXTRA = {
     { book: 'cia', label: '6.2 Lock-based concurrent data structures (a thread-safe stack and queue, fine-grained locks)', pages: '199 to 216', deepens: ['Thread-safe data structures'] },
     { book: 'cia', label: '7.1 to 7.3 Lock-free data structures: definitions, a lock-free stack, memory reclamation, the ABA problem', pages: '229 to 274', deepens: ['Thread-safe data structures', 'Atomic operations and compare_exchange'] }
   ],
-  latency: [
-    { book: 'cia', label: '8.3 Designing data structures for multithreaded performance', pages: '289 to 292', deepens: ['Threads, cores and busy-polling'] }
-  ],
   compiletime: [
     { book: 'emc', label: 'Item 15 Use constexpr whenever possible', pages: '115 to 121', deepens: ['constexpr, consteval, constinit'] },
     { book: 'emc', label: 'Items 26 to 27 Overloading on universal references and its alternatives (tag dispatch, enable_if)', pages: '195 to 215', deepens: ['enable_if and SFINAE'] }

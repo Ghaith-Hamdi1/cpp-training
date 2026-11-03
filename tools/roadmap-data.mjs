@@ -1,4 +1,4 @@
-// The data behind the C++ roadmap (docs/reading/roadmap): the eight phases with their topics, book reading, lessons, exercises and
+// The data behind the C++ roadmap (docs/reading/roadmap): the six phases with their topics, book reading, lessons, exercises and
 // recap, plus the topic index. tools/build-roadmap.mjs turns it into the roadmap README and one page per phase, and `--check` (run in CI)
 // fails if those pages differ from it. Edit this file, then run `node tools/build-roadmap.mjs`.
 //
@@ -131,7 +131,7 @@ export const phases = [
       ['Forwarding and variadic templates', 'Forwarding references, reference collapsing, `std::forward`, parameter packs, fold expressions.'],
       ['Compile-time programming', '`constexpr`, `consteval`, type traits, `if constexpr`, SFINAE, concepts and `requires`.'],
       ['Vocabulary types', '`optional`, `variant` and `visit`, `expected`, `span`, `string_view`, `tuple`.'],
-      ['Ranges and C++20', 'Views and pipelines, `std::format`, `<=>`, `jthread` (see phase 7).'],
+      ['Ranges and C++20', 'Views and pipelines, `std::format`, `<=>`, `jthread` (see phase 6).'],
     ],
     core: [
       ['primer', '12.1 smart pointers (shared_ptr, unique_ptr, weak_ptr)', [P(450, 457), P(464, 475)], 'The C++11 smart pointers'],
@@ -158,24 +158,7 @@ export const phases = [
     note: 'C++ Primer (2013) stops at C++11, so for C++14, C++17 and C++20 features (vocabulary types, `if constexpr`, concepts, ranges, structured bindings) the lessons and Effective Modern C++ are the sources. Josuttis is a deep dive: read it after Effective Modern C++ if move semantics is the part you want to master.',
   },
   {
-    n: 6, name: 'Design patterns and SOLID', sub: 'Common designs in modern C++, with real code',
-    topics: [
-      ['What patterns are and are not', 'Patterns as names for recurring solutions, and when they are overkill.'],
-      ['SOLID', 'The five principles and how they show up in C++ interfaces.'],
-      ['Creational', 'Singleton, Factory, Builder.'],
-      ['Behavioral', 'Strategy (often just a lambda), Observer, State, Command with undo, Visitor with `variant`.'],
-      ['Structural', 'Decorator, Adapter, Pimpl.'],
-    ],
-    core: [],
-    deepen: [
-      ['emc', 'Item 22 Pimpl', [[165, 174]], 'The one design pattern Meyers covers in depth'],
-    ],
-    lessons: ['patterns', 'patterns2'], practice: ['none (use the lessons\' step-throughs and quizzes)', 0],
-    recap: 'Explain: when Strategy is just a lambda, why Singleton is a global with a nicer name, how Observer avoids dangling subscribers, and how `variant` plus `visit` replaces a Visitor class hierarchy.',
-    note: 'No book in this set covers design patterns, so the two lessons are the only source; Item 22 of Effective Modern C++ covers the Pimpl idiom.',
-  },
-  {
-    n: 7, name: 'Concurrency and the memory model', sub: 'Threads, mutexes, condition variables, futures and pools, atomics',
+    n: 6, name: 'Concurrency and the memory model', sub: 'Threads, mutexes, condition variables, futures and pools, atomics',
     topics: [
       ['Threads and data races', 'Launching, joining, passing arguments, shared data, what a data race is.'],
       ['Mutexes and deadlock', '`lock_guard`, `unique_lock`, `scoped_lock`, interface races, deadlock and lock ordering.'],
@@ -198,25 +181,6 @@ export const phases = [
     lessons: ['threads', 'tasks', 'atomics'], practice: ['13 (`SafeCounter`) and 14 (`BoundedQueue<T>`)', 50],
     recap: 'Explain: what a data race is and why it is undefined behavior, why a mutex per method is not enough, the four conditions for deadlock, why `wait` needs a predicate, what release and acquire guarantee, and what the ABA problem is.',
     note: 'C++ Primer and Programming: Principles and Practice have no chapters on threads. Concurrency in Action is the main book; Effective Modern C++ items 35 to 40 are the short version.',
-  },
-  {
-    n: 8, name: 'Performance, memory layout and binary data', sub: 'Cache, allocation, struct layout, endianness, parsing, queues',
-    topics: [
-      ['Where latency comes from', 'Tail latency, percentiles, measuring correctly, the cost of allocation, exceptions, system calls.'],
-      ['Memory on the hot path', 'Preallocation, object pools, arenas, placement `new`.'],
-      ['Cache-friendly data', 'Contiguous versus linked, array of structs versus struct of arrays, false sharing, dense keys instead of maps.'],
-      ['Binary data and parsing', 'Bit manipulation, struct padding and alignment, endianness, aliasing and `memcpy`, zero-copy parsing, fixed-point numbers, sequence numbers.'],
-      ['Queues and pipelines', 'SPSC ring buffers, bounded queues and drop policies, busy-polling and thread pinning.'],
-    ],
-    core: [
-      ['primer', '17.2 `bitset`; 19.8 bit-fields, `volatile`, `extern "C"`', [P(723, 727), P(854, 863)], 'The only low-level chapters in the five books; the rest is in the lessons'],
-    ],
-    deepen: [
-      ['cia', '8.2 Factors affecting the performance of concurrent code (also in phase 7)', [[283, 289]], 'Cache ping-pong and false sharing'],
-    ],
-    lessons: ['wire', 'latency'], practice: ['17 (`BucketTable`)', 25],
-    recap: 'Explain: why the average hides the tail, how an object pool works, why a struct is bigger than the sum of its members, what endianness is and the portable way to read a big-endian value, and what false sharing is.',
-    note: 'None of the five books covers this phase, so the two lessons are the main source. The C++ Primer sections are a small supplement.',
   },
 ];
 
@@ -241,10 +205,7 @@ export const topicIndex = [
   ['Templates', 'templates', `Primer ch. 16 (${fmt([P(652, 714)])}); EMC Item 1 (27 to 36)`],
   ['Forwarding and variadics', 'templates', `Primer 16.2.5 to 16.4 (${fmt([P(687, 705)])}); EMC Item 28 (215 to 221)`],
   ['Type traits, `constexpr`, concepts', 'compiletime', `EMC Item 15 (115 to 121); PPP 18.1.2 to 18.1.4 (530 to 534)`],
-  ['Design patterns, SOLID', 'patterns', 'lessons only; EMC Item 22 Pimpl (165 to 174)'],
   ['Threads, mutexes, deadlock', 'threads', 'Concurrency in Action ch. 2 to 4 (40 to 113)'],
   ['Futures, pools, tasks', 'tasks', 'Concurrency in Action 4.2, 9.1.1 (105 to 113; 324 to 326); EMC Items 35 to 39 (259 to 289)'],
   ['Atomics and the memory model', 'atomics', 'Concurrency in Action 5.1, 5.3 (148 to 151; 165 to 170); EMC Item 40 (289 to 297)'],
-  ['Binary data, endianness, aliasing', 'wire', `Primer 17.2, 19.8 (${fmt([P(723, 727), P(854, 863)])}); lessons mainly`],
-  ['Performance, cache, pools', 'latency', 'Concurrency in Action 8.2 (283 to 289); lessons mainly'],
 ];

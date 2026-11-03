@@ -94,7 +94,7 @@ const extraItems = (p) => {
 // ---- markdown ----
 let md = `# Study checklist
 
-A step-by-step plan through the lessons and the books, one phase at a time. The phases are the same eight as the [C++ roadmap](reading/roadmap/README.md), and lessons 1 to 20 run through them in order. Each phase lists its lessons with their sections and quizzes, the core book reading, the practice exercises and a recap check.
+A step-by-step plan through the lessons and the books, one phase at a time. The phases are the same six as the [C++ roadmap](reading/roadmap/README.md), and the lessons run through them in order. Each phase lists its lessons with their sections and quizzes, the core book reading, the practice exercises and a recap check.
 
 **Want ticks that save?** Use the interactive version: <https://ghaith-hamdi1.github.io/cpp-training/study-checklist.html> (also at [\`interactive/study-checklist.html\`](../interactive/study-checklist.html)). It has one tab per phase and its checkboxes remember your progress in your browser.
 

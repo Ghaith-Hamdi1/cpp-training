@@ -1,6 +1,6 @@
-# Notes for phase 7: Concurrency and the memory model
+# Notes for phase 6: Concurrency and the memory model
 
-Reading-session templates for this phase, grouped by book. Roadmap page: [phase 7](../../roadmap/phase-7-concurrency-and-the-memory-model.md). Back to the [notes index](../README.md).
+Reading-session templates for this phase, grouped by book. Roadmap page: [phase 6](../../roadmap/phase-6-concurrency-and-the-memory-model.md). Back to the [notes index](../README.md).
 
 | Book | Session | Topic | Notes file |
 |---|---|---|---|

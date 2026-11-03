@@ -1,6 +1,6 @@
 # Phase 5: Modern C++ (C++11 to C++20)
 
-[Roadmap](README.md) | Previous: [Phase 4: RAII, exceptions and advanced language tools](phase-4-raii-exceptions-and-advanced-language-tools.md) | Next: [Phase 6: Design patterns and SOLID](phase-6-design-patterns-and-solid.md)
+[Roadmap](README.md) | Previous: [Phase 4: RAII, exceptions and advanced language tools](phase-4-raii-exceptions-and-advanced-language-tools.md) | Next: [Phase 6: Concurrency and the memory model](phase-6-concurrency-and-the-memory-model.md)
 
 *Move semantics, smart pointers, forwarding, `constexpr`, vocabulary types, concepts.*
 
@@ -16,7 +16,7 @@
 | **Forwarding and variadic templates** | Forwarding references, reference collapsing, `std::forward`, parameter packs, fold expressions. |
 | **Compile-time programming** | `constexpr`, `consteval`, type traits, `if constexpr`, SFINAE, concepts and `requires`. |
 | **Vocabulary types** | `optional`, `variant` and `visit`, `expected`, `span`, `string_view`, `tuple`. |
-| **Ranges and C++20** | Views and pipelines, `std::format`, `<=>`, `jthread` (see phase 7). |
+| **Ranges and C++20** | Views and pipelines, `std::format`, `<=>`, `jthread` (see phase 6). |
 
 ## Core reading (207 pages)
 
@@ -63,4 +63,4 @@ Exercises: 15 (`optional`/`variant`) and 16 (concepts).
 
 ---
 
-[Roadmap](README.md) | Previous: [Phase 4: RAII, exceptions and advanced language tools](phase-4-raii-exceptions-and-advanced-language-tools.md) | Next: [Phase 6: Design patterns and SOLID](phase-6-design-patterns-and-solid.md)
+[Roadmap](README.md) | Previous: [Phase 4: RAII, exceptions and advanced language tools](phase-4-raii-exceptions-and-advanced-language-tools.md) | Next: [Phase 6: Concurrency and the memory model](phase-6-concurrency-and-the-memory-model.md)

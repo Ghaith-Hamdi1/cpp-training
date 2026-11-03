@@ -54,4 +54,4 @@ What surprised me when I ran it:
 
 ## After this session
 
-Lesson 20 (Performance and Memory), "Threads, cores and busy-polling"; Lesson 16, "Debugging and common bugs"
+Lesson 14, "Debugging and common bugs"

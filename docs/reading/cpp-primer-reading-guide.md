@@ -12,10 +12,10 @@ The sections and their summaries come from the book's table of contents and chap
 
 | Covers well | Does not cover |
 |---|---|
-| Types, expressions, statements, functions, classes | Threads, mutexes, atomics (use *C++ Concurrency in Action* and lessons 16 to 18) |
-| The whole standard library of C++11: strings, containers, algorithms, IO, smart pointers | C++14, C++17 and C++20: `optional`, `variant`, `string_view`, structured bindings, `if constexpr`, concepts, ranges, `std::format` (lessons 2, 10, 7, 6, 13) |
+| Types, expressions, statements, functions, classes | Threads, mutexes, atomics (use *C++ Concurrency in Action* and lessons 14 to 16) |
+| The whole standard library of C++11: strings, containers, algorithms, IO, smart pointers | C++14, C++17 and C++20: `optional`, `variant`, `string_view`, structured bindings, `if constexpr`, concepts, ranges, `std::format` (lessons 2, 10, 7, 6 and 13) |
 | Copy control, move semantics, operator overloading | Deep move semantics and forwarding (*Effective Modern C++* and *C++ Move Semantics*) |
-| Inheritance and virtual functions, templates, exceptions | Design patterns, performance and memory layout (lessons 14, 15, 19 and 20) |
+| Inheritance and virtual functions, templates, exceptions | Design patterns, performance and memory layout (use other books; the lessons no longer cover them) |
 
 ## Tier 1: read these first (about 467 pages)
 
@@ -81,7 +81,7 @@ The sections that teach what the lessons rely on: types and `const`, strings and
 | **3.6** Multidimensional arrays | 154 to 161 | Arrays of arrays and pointers into them. | 1. Arrays, C-strings and std::string |
 | **4.2 to 4.3** Arithmetic, logical and relational operators | 168 to 172 | Integer division and `%` with negative operands, overflow, and short-circuit evaluation of `&&` and `||`, which makes `p && p->x` safe. | 1. Operators and control flow |
 | **4.4 to 4.5** Assignment, increment and decrement | 173 to 178 | Assignment returns an lvalue; prefer prefix `++`. | 1. Operators and control flow |
-| **4.8** The bitwise operators | 181 to 184 | Shifts, masks and `bitset`. | 19. Integers and bit manipulation |
+| **4.8** The bitwise operators | 181 to 184 | Shifts, masks and `bitset`. | Not in the lessons |
 | **5.3 to 5.5** Conditional, iterative and jump statements | 203 to 221 | `switch` and fall-through, the dangling `else`, range-for, `do`-`while`, and `break`, `continue` and `goto`. | 1. Operators and control flow |
 | **6.1** Function basics | 231 to 236 | Parameters, local and `static` objects, separate compilation. | 1. Functions and passing arguments |
 | **6.5** Features for specialized uses | 265 to 270 | Default arguments, `inline`, `constexpr` functions, `assert` and `NDEBUG`. | 2. const, constexpr and static |
@@ -105,11 +105,11 @@ The sections that teach what the lessons rely on: types and `const`, strings and
 | **16.5** Template specializations | 735 to 743 | Full and partial specialization. | 8. Specialization |
 | **17.1** The tuple type | 747 to 751 | `tuple`, `get`, `tie` and returning several values. | 10. pair, tuple and structured bindings |
 | **18.2** Namespaces | 814 to 830 | Definitions, aliases, `using` directives, argument-dependent lookup, overloading. | 1. How a C++ program is built |
-| **19.1** Controlling memory allocation | 849 to 853 | Overloading `operator new`, placement `new`. | 20. Memory on the hot path |
+| **19.1** Controlling memory allocation | 849 to 853 | Overloading `operator new`, placement `new`. | Not in the lessons |
 | **19.3** Enumerations | 861 to 863 | Scoped `enum class` and the underlying type. | 2. Implicit conversions and enum class |
 | **19.4** Pointer to class member | 864 to 871 | Pointers to data and function members, and how `std::function` and `std::invoke` handle them. | Not in the lessons |
 | **19.5 to 19.6** Nested classes and unions | 872 to 880 | Nested classes, `union`, discriminated unions (the idea behind `variant`). | 10. variant and std::visit |
-| **17.2** The bitset type | 752 to 756 | Fixed-size bit sets. | 19. Integers and bit manipulation |
+| **17.2** The bitset type | 752 to 756 | Fixed-size bit sets. | Not in the lessons |
 | **19.7 to 19.8** Local classes and nonportable features | 881 to 893 | Bit-fields, `volatile`, `extern "C"`. | Not in the lessons |
 
 ## Skip on a first read

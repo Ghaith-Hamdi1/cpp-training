@@ -58,4 +58,4 @@ What surprised me when I ran it:
 
 ## After this session
 
-Lesson 16, "Condition variables"; Lesson 17, "Futures and async" and "promise, shared_future and packaged_task"
+Lesson 14, "Condition variables"; Lesson 15, "Futures and async" and "promise, shared_future and packaged_task"

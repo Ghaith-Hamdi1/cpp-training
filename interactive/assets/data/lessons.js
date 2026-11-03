@@ -5,12 +5,12 @@
  *
  * To add a lesson: create <file> and <quiz> (and assets/data/quiz-<id>.js), then add one entry below.
  * Navigation order and the displayed number come from the position in this array, not from the file name.
- * Fields: id (lowercase letters and digits, used in saved progress), phase (1 to 8, the roadmap phase the lesson belongs to; see CT.phases), file, quiz, title, time, assess (questions drawn
+ * Fields: id (lowercase letters and digits, used in saved progress), phase (1 to 6, the roadmap phase the lesson belongs to; see CT.phases), file, quiz, title, time, assess (questions drawn
  * for the level check: 2 for every lesson, so the check is even; 0 leaves the lesson out), blurb.
  */
 window.CT = window.CT || {};
 
-/* The eight phases of the C++ roadmap (docs/reading/roadmap). tools/build-checklist.mjs checks that every lesson's phase and
+/* The six phases of the C++ roadmap (docs/reading/roadmap). tools/build-checklist.mjs checks that every lesson's phase and
  * every phase's name and page match the roadmap files, so edit both together. */
 CT.phases = [
   { n: 1, name: 'Core language foundations', page: 'phase-1-core-language-foundations.md' },
@@ -18,9 +18,7 @@ CT.phases = [
   { n: 3, name: 'The standard library and generic programming', page: 'phase-3-the-standard-library-and-generic-programming.md' },
   { n: 4, name: 'RAII, exceptions and advanced language tools', page: 'phase-4-raii-exceptions-and-advanced-language-tools.md' },
   { n: 5, name: 'Modern C++ (C++11 to C++20)', page: 'phase-5-modern-cpp.md' },
-  { n: 6, name: 'Design patterns and SOLID', page: 'phase-6-design-patterns-and-solid.md' },
-  { n: 7, name: 'Concurrency and the memory model', page: 'phase-7-concurrency-and-the-memory-model.md' },
-  { n: 8, name: 'Performance, memory layout and binary data', page: 'phase-8-performance-memory-layout-and-binary-data.md' }
+  { n: 6, name: 'Concurrency and the memory model', page: 'phase-6-concurrency-and-the-memory-model.md' }
 ];
 
 CT.lessons = [
@@ -50,20 +48,12 @@ CT.lessons = [
     blurb: 'unique_ptr, shared_ptr and weak_ptr, the control block, cycles, custom deleters and how to pass ownership around.' },
   { id: 'compiletime', file: '09-compile-time.html', quiz: '09-compile-time-quiz.html', title: 'Type Traits & Compile-time C++', time: '45 min', assess: 2, phase: 5,
     blurb: 'Type traits, SFINAE, concepts and requires, if constexpr, constexpr and consteval, and classic template metaprogramming.' },
-  { id: 'patterns', file: '06-design-patterns.html', quiz: '06-design-patterns-quiz.html', title: 'Design Patterns', time: '50 min', assess: 2, phase: 6,
-    blurb: 'Singleton, Factory, Strategy, Observer and State in modern C++, plus the idioms you should recognise.' },
-  { id: 'patterns2', file: '20-more-patterns.html', quiz: '20-more-patterns-quiz.html', title: 'More Patterns', time: '40 min', assess: 2, phase: 6,
-    blurb: 'Command with undo, Decorator, Adapter, Builder, Visitor with std::variant and a protocol state machine, with real code.' },
-  { id: 'threads', file: '07-multithreading.html', quiz: '07-multithreading-quiz.html', title: 'Multithreading', time: '60 min', assess: 2, phase: 7,
+  { id: 'threads', file: '07-multithreading.html', quiz: '07-multithreading-quiz.html', title: 'Multithreading', time: '60 min', assess: 2, phase: 6,
     blurb: 'From your first thread to data races, mutexes, deadlocks, condition variables and the other mutex types.' },
-  { id: 'tasks', file: '17-tasks-parallelism.html', quiz: '17-tasks-parallelism-quiz.html', title: 'Tasks & Parallelism', time: '45 min', assess: 2, phase: 7,
+  { id: 'tasks', file: '17-tasks-parallelism.html', quiz: '17-tasks-parallelism-quiz.html', title: 'Tasks & Parallelism', time: '45 min', assess: 2, phase: 6,
     blurb: 'Futures and async, promises, thread pools and work stealing, latch, barrier, semaphore, stop_token and parallel algorithms.' },
-  { id: 'atomics', file: '18-atomics-memory-model.html', quiz: '18-atomics-memory-model-quiz.html', title: 'Atomics & the Memory Model', time: '55 min', assess: 2, phase: 7,
+  { id: 'atomics', file: '18-atomics-memory-model.html', quiz: '18-atomics-memory-model-quiz.html', title: 'Atomics & the Memory Model', time: '55 min', assess: 2, phase: 6,
     blurb: 'Atomic operations, compare-and-swap, memory orders and happens-before with a simulator, ordering patterns and concurrent data structures.' },
-  { id: 'wire', file: '11-wire-formats.html', quiz: '11-wire-formats-quiz.html', title: 'Binary Data & Parsing', time: '60 min', assess: 2, phase: 8,
-    blurb: 'Bit manipulation, struct layout and padding, endianness, aliasing and memcpy, zero-copy parsing, fixed-point numbers and sequence numbers.' },
-  { id: 'latency', file: '12-low-latency.html', quiz: '12-low-latency-quiz.html', title: 'Performance & Memory', time: '60 min', assess: 2, phase: 8,
-    blurb: 'Tail latency, pools and arenas, cache-friendly data, lookup structures, SPSC queues, predictable hot paths and core pinning.' }
 ];
 
 /* When a section moves to another lesson, record where it went so old links keep working:
@@ -83,7 +73,6 @@ CT.moved = {
   '07-multithreading.html#s6': '18-atomics-memory-model.html#ops',        // the multithreading lesson was split in three
   '07-multithreading.html#s8': '17-tasks-parallelism.html#futures',
   '07-multithreading.html#s9': '17-tasks-parallelism.html#pool',
-  '07-multithreading.html#s10': '12-low-latency.html#s8',
   '19-object-model.html#conversions': '02-oop.html#conversions',          // explicit, conversion operators and copy-and-swap moved to OOP
   '04-stl.html#s8': '08-strings-regex-time.html#s1'       // the STL strings section is covered by the Strings lesson
 };
@@ -223,6 +212,16 @@ CT.progressMigrations = [
     if (store.get('last:strings', '') === 's3') store.set('last:strings', 's2');
     var li = store.get('lastinfo', null);
     if (li && li.id === 'strings' && li.sec === 's3') { li.sec = 's2'; store.set('lastinfo', li); }
+  } },
+  /* v9: the lessons Design Patterns, More Patterns, Binary Data and Performance & Memory were removed. Forget their progress. */
+  { to: 9, run: function (store) {
+    var GONE = ['patterns', 'patterns2', 'wire', 'latency'];
+    GONE.forEach(function (id) {
+      ['done:', 'last:', 'quiz:', 'total:', 'weak:'].forEach(function (p) { store.set(p + id, p === 'done:' ? [] : p === 'weak:' ? {} : p === 'last:' ? '' : null); });
+    });
+    var li = store.get('lastinfo', null);
+    if (li && GONE.indexOf(li.id) >= 0) store.set('lastinfo', null);
+    store.set('mock:missed', store.get('mock:missed', []).filter(function (id) { return !GONE.some(function (g) { return id.indexOf(g + '-') === 0; }); }));
   } }
 ];
 

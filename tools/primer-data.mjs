@@ -47,7 +47,7 @@ export const sessions = [
       I('4.1', 'Fundamentals', 134, 138, true, 'Lvalues and rvalues, precedence, evaluation order and what is unspecified.', '11. Lvalues, rvalues and value categories'),
       I('4.2 to 4.3', 'Arithmetic, logical and relational operators', 139, 143, false, 'Integer division and `%` with negative operands, overflow, and short-circuit evaluation of `&&` and `||`, which makes `p && p->x` safe.', '1. Operators and control flow'),
       I('4.4 to 4.5', 'Assignment, increment and decrement', 144, 149, false, 'Assignment returns an lvalue; prefer prefix `++`.', '1. Operators and control flow'),
-      I('4.8', 'The bitwise operators', 152, 155, false, 'Shifts, masks and `bitset`.', '19. Integers and bit manipulation'),
+      I('4.8', 'The bitwise operators', 152, 155, false, 'Shifts, masks and `bitset`.', NL),
       I('4.11', 'Type conversions', 159, 165, true, 'Every implicit conversion, the usual arithmetic conversions, and the named casts.', '2. Implicit conversions and enum class; Casts and type conversion'),
     ],
     q: ['Which of `i = i++ + 1` and `a[i] = i++` are undefined behavior, and why?', 'What is an lvalue and what is an rvalue, in your own words?', 'What does `static_cast` do that a C-style cast hides?', 'Why does `-1 < 1u` evaluate to false?', 'Why does `p && p->x` not crash when `p` is null?', 'Why prefer `++it` to `it++` for an iterator or a class type?'],
@@ -244,20 +244,20 @@ export const sessions = [
     after: 'Lesson 4 (The Object Model in Depth) and its quiz' },
   { part: 'D', slug: 'specialized-tools', title: 'Memory control, enums, unions, nested classes',
     items: [
-      I('19.1', 'Controlling memory allocation', 820, 824, false, 'Overloading `operator new`, placement `new`.', '20. Memory on the hot path'),
+      I('19.1', 'Controlling memory allocation', 820, 824, false, 'Overloading `operator new`, placement `new`.', NL),
       I('19.3', 'Enumerations', 832, 834, false, 'Scoped `enum class` and the underlying type.', '2. Implicit conversions and enum class'),
       I('19.4', 'Pointer to class member', 835, 842, false, 'Pointers to data and function members, and how `std::function` and `std::invoke` handle them.', NL),
       I('19.5 to 19.6', 'Nested classes and unions', 843, 851, false, 'Nested classes, `union`, discriminated unions (the idea behind `variant`).', '10. variant and std::visit'),
     ],
     q: ['What does placement `new` do and when would you use it?', 'Why is `enum class` better than a plain `enum`?', 'How does a discriminated union avoid reading the wrong member?'],
-    after: 'Lesson 10, section 4; lesson 20, section 3' },
+    after: 'Lesson 10, section 4' },
   { part: 'E', slug: 'optional-extras', title: 'Optional extras',
     items: [
-      I('17.2', 'The bitset type', 723, 727, false, 'Fixed-size bit sets.', '19. Integers and bit manipulation'),
+      I('17.2', 'The bitset type', 723, 727, false, 'Fixed-size bit sets.', NL),
       I('19.7 to 19.8', 'Local classes and nonportable features', 852, 864, false, 'Bit-fields, `volatile`, `extern "C"`.', NL),
     ],
     q: null,
-    after: 'Lesson 19 (Binary Data and Parsing), sections 1 to 3' },
+    after: 'Nothing to practise: these are optional extras' },
 ];
 export const skip = [
   ['Chapter 1', 'The first program, the bookstore program and flow of control; Lesson 1 covers the build process.'],

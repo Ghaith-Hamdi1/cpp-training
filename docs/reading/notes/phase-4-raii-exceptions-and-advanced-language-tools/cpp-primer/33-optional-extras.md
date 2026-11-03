@@ -1,7 +1,7 @@
 # Session 33: Optional extras
 
 *C++ Primer (5th ed.)*, Part E: optional extras.
-Plan: [reading plan](../../../cpp-primer-reading-plan.md). Previous: [session 32](../../phase-4-raii-exceptions-and-advanced-language-tools/cpp-primer/32-specialized-tools.md). Next: none.
+Plan: [reading plan](../../../cpp-primer-reading-plan.md). Previous: [session 32](32-specialized-tools.md). Next: none.
 
 - [ ] Read
 - [ ] Wrote the code from memory
@@ -55,4 +55,4 @@ What I got wrong when I compared it with the book:
 
 ## After this session
 
-Lesson 19 (Binary Data and Parsing), sections 1 to 3
+Nothing to practise: these are optional extras

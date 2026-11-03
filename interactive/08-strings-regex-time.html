@@ -85,7 +85,7 @@ for (int i = 0; i < 1000; ++i) s += 'a';
 
 std::string t = "a" + name + "b";    // each + may build a temporary: prefer append, a format call or an ostringstream
 </script>
-<div class="callout interview"><span class="label">Key point</span>"What is SSO?" Short strings are stored in the string object, so no heap allocation and no pointer chase. It is why short-string copies are cheap and why <code>string</code> moves are not always pointer steals. On a hot path <code>reserve</code> and avoid building strings at all (<a href="12-low-latency.html">Performance &amp; Memory</a>).</div>
+<div class="callout interview"><span class="label">Key point</span>"What is SSO?" Short strings are stored in the string object, so no heap allocation and no pointer chase. It is why short-string copies are cheap and why <code>string</code> moves are not always pointer steals. On a hot path <code>reserve</code> and avoid building strings at all.</div>
 </section>
 
 <section id="numbers" data-title="Numbers and text: from_chars, to_chars, stoi">

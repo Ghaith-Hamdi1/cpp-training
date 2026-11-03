@@ -93,7 +93,7 @@ Read chapter 13 Move-only types (213 to 218), chapter 14 Moving algorithms and i
 2. Why does `std::remove` leave moved-from elements at the end?
 3. Is a moved-from `std::string` guaranteed to be empty?
 
-After: Lesson 12 (Smart pointers), Lesson 7 (STL algorithms) and Lesson 17 (futures and threads are move-only).
+After: Lesson 12 (Smart pointers), Lesson 7 (STL algorithms) and Lesson 15 (futures and threads are move-only).
 
 ## Optional additions
 

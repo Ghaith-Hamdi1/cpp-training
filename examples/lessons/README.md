@@ -6,7 +6,7 @@ Each file is a complete program (it has `main` and its own `#include`s) that dem
 g++ -std=c++23 -Wall -Wextra -pthread 01-basics/01_init_and_traps.cpp -o demo && ./demo
 ```
 
-Or build everything with `make` (outputs go to `build/`). The `-pthread` flag is only needed for lessons 16 to 18, but it is harmless elsewhere. Add `-fsanitize=address,undefined` to catch memory bugs; `-fsanitize=thread` finds data races on Linux or WSL (it is not available for MinGW).
+Or build everything with `make` (outputs go to `build/`). The `-pthread` flag is only needed for lessons 14 to 16, but it is harmless elsewhere. Add `-fsanitize=address,undefined` to catch memory bugs; `-fsanitize=thread` finds data races on Linux or WSL (it is not available for MinGW).
 
 The folder names follow the lesson file names (`13-move-semantics` holds the lesson file `13-move-semantics.html`); the Lesson column uses the numbers shown on the site, which follow the study order.
 
@@ -21,10 +21,10 @@ The folder names follow the lesson file names (`13-move-semantics` holds the les
 |  | `03_virtual_slicing_interfaces.cpp` | virtual vs non-virtual, slicing, abstract interface, virtual call in a constructor |
 | 4 Object model | `01_multiple_inheritance_rtti_conversions.cpp` | two interfaces and pointer adjustment, the plain and virtual diamond, RTTI and cross-casts, private inheritance, `explicit`, copy-and-swap |
 | 5 Strings | `01_sso_numbers_format_streams.cpp` | small string optimisation and capacity, `from_chars`, `to_chars`, `stoi`, `std::format`, string and file streams |
-| 6 STL | `01_vector_map_algorithms.cpp` | vector growth, `map::operator[]` inserting, erase-remove, algorithms, heaps |
+| 7 STL | `01_vector_map_algorithms.cpp` | vector growth, `map::operator[]` inserting, erase-remove, algorithms, heaps |
 |  | `02_strings_regex_chrono.cpp` | `string_view`, `regex_match` vs `regex_search`, captures, `chrono` |
 |  | `03_keys_adaptors_ranges.cpp` | a case-insensitive comparator, a custom hash, transparent lookup, `try_emplace`, `multimap`, inserters, `erase_if`, ranges and views |
-| 7 Lambdas | `01_callables.cpp` | function pointer, functor, lambda and `std::function`, captures, `mutable`, init-capture, generic and recursive lambdas, `std::function` allocation |
+| 6 Lambdas | `01_callables.cpp` | function pointer, functor, lambda and `std::function`, captures, `mutable`, init-capture, generic and recursive lambdas, `std::function` allocation |
 | 8 Templates | `01_templates_specialization_forwarding.cpp` | templates, specialization, perfect forwarding, variadics, fold expressions |
 |  | `03_deduction_and_tools.cpp` | deduction by value, by reference and forwarding reference, class template argument deduction, alias and variable templates, template template parameters, `index_sequence` |
 | 8 Templates | `02_traits_constexpr_concepts.cpp` | type traits, `if constexpr`, `enable_if`, concepts, `constexpr`, `consteval`, TMP |
@@ -34,24 +34,13 @@ The folder names follow the lesson file names (`13-move-semantics` holds the les
 | 10 Vocabulary types | `01_optional_variant_expected_span.cpp` | `pair`/`tuple`, `optional`, `variant` with `visit`, `expected` (C++23), `span` |
 | 11 Move semantics | `01_value_categories_moves.cpp` | value categories checked with `decltype`, copy and move counts, elision and `return std::move`, sink parameters, `std::exchange`, copy-and-swap |
 | 12 Smart pointers | `01_ownership_deleters.cpp` | `unique_ptr` ownership and custom deleters, `shared_ptr` counts, a cycle that leaks and the `weak_ptr` fix, `enable_shared_from_this` |
-| 14 Patterns | `01_singleton_factory_strategy.cpp` | Meyers Singleton, factory and registry, three kinds of Strategy |
-|  | `02_observer_state_crtp.cpp` | Observer that survives detaching, State with `variant`, CRTP |
-| 15 More patterns | `01_command_decorator_adapter_builder_visitor.cpp` | Command with undo, Decorator, Adapter, Builder, Visitor with `variant`, a session state machine |
-| 16 Multithreading | `01_threads_basics_and_guard.cpp` | `std::thread`, `std::ref`, join guard, `jthread` |
+| 14 Multithreading | `01_threads_basics_and_guard.cpp` | `std::thread`, `std::ref`, join guard, `jthread` |
 |  | `02_race_mutex_atomic.cpp` | a real lost-update race, fixed with a mutex and with an atomic |
 |  | `03_interface_race_and_deadlock.cpp` | `try_pop`, `scoped_lock` with opposite orders |
 |  | `04_condvar_queue_and_thread_pool.cpp` | condition variable, blocking queue, thread pool |
 |  | `05_async_atomics_spsc.cpp` | `async`, `promise`, `packaged_task`, release/acquire, CAS, lock-free SPSC queue |
 |  | `06_mutex_types.cpp` | `recursive_mutex`, `timed_mutex` with `try_lock_for`, a `shared_mutex` price table, `call_once` |
-| 17 Tasks | `01_futures_coordination_parallel.cpp` | a `promise<void>` start signal through a `shared_future`, `latch`, `barrier`, `counting_semaphore`, `jthread` with `stop_token`, `reduce(par)` |
-| 18 Atomics | `01_atomics_ordering_patterns.cpp` | relaxed counter, release/acquire publication tested 2000 times, CAS weak versus strong, an `atomic_flag` spinlock, a reference count, a lock-free push, a two-lock queue |
-| 19 Binary data | `01_bits_layout_endian.cpp` | bit manipulation, struct padding and `offsetof`, `#pragma pack`, endianness |
-|  | `02_parse_message.cpp` | a binary message read with `memcpy`-style loads, a zero-copy text parser with `string_view` and `from_chars` |
-|  | `03_fixed_point_and_sequence.cpp` | prices as scaled integers versus `double`, sequence-number gaps with wrap-around |
-| 20 Performance | `01_pool_allocator.cpp` | an object pool with a free list and a `pmr` arena, with a counting `operator new` proving zero allocations |
-|  | `02_latency_percentiles.cpp` | mean versus p50, p99 and p99.9 on a synthetic sample set, and how to time with `steady_clock` |
-|  | `03_dense_keys_array.cpp` | counts in an array indexed by key, checked against `std::map` |
-|  | `04_aos_vs_soa.cpp` | array of structs versus struct of arrays, and cache-line padding |
-|  | `05_spsc_ring_padded.cpp` | an SPSC ring with a power-of-two mask, padded indices and a drop-newest policy |
+| 15 Tasks | `01_futures_coordination_parallel.cpp` | a `promise<void>` start signal through a `shared_future`, `latch`, `barrier`, `counting_semaphore`, `jthread` with `stop_token`, `reduce(par)` |
+| 16 Atomics | `01_atomics_ordering_patterns.cpp` | relaxed counter, release/acquire publication tested 2000 times, CAS weak versus strong, an `atomic_flag` spinlock, a reference count, a lock-free push, a two-lock queue |
 
 Some outputs vary between runs on purpose: the unsafe counter in `02_race_mutex_atomic.cpp` is a data race (undefined behavior) kept only to show lost updates.

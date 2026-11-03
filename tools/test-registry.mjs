@@ -110,7 +110,7 @@ test('the real v3 migration splits the multithreading progress and is idempotent
   assert.deepEqual(s.get('done:tasks').sort(), ['futures', 'pool', 'signals', 'stealing']);
   assert.equal(s.get('last:threads'), '');
   assert.equal(s.get('lastinfo', 'gone'), null);
-  assert.deepEqual(s.get('weak:latency'), { 'What is false sharing?': 0 });
+  assert.deepEqual(s.get('weak:latency'), {}, 'v3 filed it under the Performance lesson, which v9 later removed');
   assert.deepEqual(s.get('weak:threads'), { 'a question that stayed': 1 });
   assert.deepEqual(s.get('mock:missed'), []);
   const before = JSON.stringify(s.dump());
@@ -162,12 +162,28 @@ test('the real v7 migration forgets the removed Coding Rules lesson and keeps ot
   assert.ok(!CT.lessons.some((l) => l.id === 'rules'));
 });
 
-test('the real v7 migration renames the patterns2 section feed to state-machine', () => {
+test('the real v7 migration renames the patterns2 section feed to state-machine (run alone: v9 later removes that lesson)', () => {
   const CT = loadRegistry();
-  const s = makeStore({ 'schema': 6, 'done:patterns2': ['command', 'feed'], 'last:patterns2': 'feed' });
-  assert.equal(CT.migrate(s), CT.schemaVersion());
+  const s = makeStore({ 'done:patterns2': ['command', 'feed'], 'last:patterns2': 'feed' });
+  CT.progressMigrations.find((m) => m.to === 7).run(s);
   assert.deepEqual(s.get('done:patterns2'), ['command', 'state-machine']);
   assert.equal(s.get('last:patterns2'), 'state-machine');
+});
+
+test('the real v9 migration forgets the four removed lessons and keeps other progress', () => {
+  const CT = loadRegistry();
+  const s = makeStore({ 'schema': 8, 'done:patterns': ['s1'], 'done:patterns2': ['command'], 'done:wire': ['s1'], 'done:latency': ['s1'], 'last:wire': 's2',
+    'quiz:latency': { best: 90, last: 80, total: 14 }, 'weak:patterns': { q: 1 }, 'lastinfo': { id: 'wire', sec: 's2' }, 'done:stl': ['s2'], 'quiz:stl': { best: 70, last: 70, total: 20 },
+    'mock:missed': ['wire-1', 'stl-2', 'latency-3', 'patterns2-0'] });
+  assert.equal(CT.migrate(s), CT.schemaVersion());
+  for (const id of ['patterns', 'patterns2', 'wire', 'latency']) assert.deepEqual(s.get('done:' + id), []);
+  assert.equal(s.get('quiz:latency'), null);
+  assert.deepEqual(s.get('weak:patterns'), {});
+  assert.equal(s.get('lastinfo', 'gone'), null);
+  assert.deepEqual(s.get('done:stl'), ['s2']);
+  assert.equal(s.get('quiz:stl').best, 70);
+  assert.deepEqual(s.get('mock:missed'), ['stl-2']);
+  assert.ok(!CT.lessons.some((l) => ['patterns', 'patterns2', 'wire', 'latency'].includes(l.id)));
 });
 
 test('the real v8 migration merges the strings regex sections', () => {

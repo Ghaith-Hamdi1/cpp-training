@@ -25,9 +25,7 @@
 <button type="button" role="tab" class="ck-tab" data-tab="phase-3" title="The standard library and generic programming">Phase 3 <span class="ck-tab-count"></span></button>
 <button type="button" role="tab" class="ck-tab" data-tab="phase-4" title="RAII, exceptions and advanced language tools">Phase 4 <span class="ck-tab-count"></span></button>
 <button type="button" role="tab" class="ck-tab" data-tab="phase-5" title="Modern C++ (C++11 to C++20)">Phase 5 <span class="ck-tab-count"></span></button>
-<button type="button" role="tab" class="ck-tab" data-tab="phase-6" title="Design patterns and SOLID">Phase 6 <span class="ck-tab-count"></span></button>
-<button type="button" role="tab" class="ck-tab" data-tab="phase-7" title="Concurrency and the memory model">Phase 7 <span class="ck-tab-count"></span></button>
-<button type="button" role="tab" class="ck-tab" data-tab="phase-8" title="Performance, memory layout and binary data">Phase 8 <span class="ck-tab-count"></span></button>
+<button type="button" role="tab" class="ck-tab" data-tab="phase-6" title="Concurrency and the memory model">Phase 6 <span class="ck-tab-count"></span></button>
 <button type="button" role="tab" class="ck-tab" data-tab="final">Final <span class="ck-tab-count"></span></button>
 <button type="button" role="tab" class="ck-tab" data-tab="moves-deep" title="Move semantics deep dive (optional)">Deep dive <span class="ck-tab-count"></span></button>
 </div>
@@ -313,44 +311,8 @@
 </section>
 
 <section class="ck-section" data-ck-section id="phase-6" role="tabpanel">
-<h2>Phase 6: Design patterns and SOLID (about 1.5 hours) <span class="ck-count"></span></h2>
-<p class="ck-note">Common designs in modern C++, with real code.. <a href="https://github.com/Ghaith-Hamdi1/cpp-training/blob/main/docs/reading/roadmap/phase-6-design-patterns-and-solid.md">Roadmap page for this phase</a>.</p>
-<h3 class="ck-sub">Lessons and quizzes</h3>
-<h4>Design Patterns</h4>
-<p class="ck-note"><a href="06-design-patterns.html">Lesson</a> <span class="badge" data-lesson="patterns"></span> and <a href="06-design-patterns-quiz.html">quiz</a> (20 questions) <span class="badge" data-quiz="patterns"></span></p>
-<ul class="ck-list">
-<li><label><input type="checkbox" data-ck="patterns-s1"><span class="t">What patterns are and are not <a href="06-design-patterns.html#s1">open</a></span></label></li>
-<li><label><input type="checkbox" data-ck="patterns-s8"><span class="t">SOLID principles <a href="06-design-patterns.html#s8">open</a></span></label></li>
-<li><label><input type="checkbox" data-ck="patterns-s2"><span class="t">Singleton <a href="06-design-patterns.html#s2">open</a></span></label></li>
-<li><label><input type="checkbox" data-ck="patterns-s3"><span class="t">Factory <a href="06-design-patterns.html#s3">open</a></span></label></li>
-<li><label><input type="checkbox" data-ck="patterns-s4"><span class="t">Strategy (try the widget) <a href="06-design-patterns.html#s4">open</a></span></label></li>
-<li><label><input type="checkbox" data-ck="patterns-s5"><span class="t">Observer (subscribe and unsubscribe in the demo) <a href="06-design-patterns.html#s5">open</a></span></label></li>
-<li><label><input type="checkbox" data-ck="patterns-s6"><span class="t">State (use the turnstile demo) <a href="06-design-patterns.html#s6">open</a></span></label></li>
-<li><label><input type="checkbox" data-ck="patterns-s7"><span class="t">Other patterns worth recognising <a href="06-design-patterns.html#s7">open</a></span></label></li>
-<li><label><input type="checkbox" data-ck="patterns-s9"><span class="t">Cheat sheet (say each answer aloud) <a href="06-design-patterns.html#s9">open</a></span></label></li>
-<li><label><input type="checkbox" data-ck="patterns-quiz"><span class="t">Take the quiz, then retry the missed questions <a href="06-design-patterns-quiz.html">open</a></span></label></li>
-</ul>
-<h4>More Patterns</h4>
-<p class="ck-note"><a href="20-more-patterns.html">Lesson</a> <span class="badge" data-lesson="patterns2"></span> and <a href="20-more-patterns-quiz.html">quiz</a> (11 questions) <span class="badge" data-quiz="patterns2"></span></p>
-<ul class="ck-list">
-<li><label><input type="checkbox" data-ck="patterns2-command"><span class="t">Command (with undo) <a href="20-more-patterns.html#command">open</a></span></label></li>
-<li><label><input type="checkbox" data-ck="patterns2-decorator"><span class="t">Decorator <a href="20-more-patterns.html#decorator">open</a></span></label></li>
-<li><label><input type="checkbox" data-ck="patterns2-adapter"><span class="t">Adapter <a href="20-more-patterns.html#adapter">open</a></span></label></li>
-<li><label><input type="checkbox" data-ck="patterns2-builder"><span class="t">Builder <a href="20-more-patterns.html#builder">open</a></span></label></li>
-<li><label><input type="checkbox" data-ck="patterns2-visitor"><span class="t">Visitor and <code>std::variant</code> <a href="20-more-patterns.html#visitor">open</a></span></label></li>
-<li><label><input type="checkbox" data-ck="patterns2-state-machine"><span class="t">A protocol state machine with <code>variant</code> <a href="20-more-patterns.html#state-machine">open</a></span></label></li>
-<li><label><input type="checkbox" data-ck="patterns2-cheat"><span class="t">Cheat sheet (say each answer aloud) <a href="20-more-patterns.html#cheat">open</a></span></label></li>
-<li><label><input type="checkbox" data-ck="patterns2-quiz"><span class="t">Take the quiz, then retry the missed questions <a href="20-more-patterns-quiz.html">open</a></span></label></li>
-</ul>
-<h3 class="ck-sub">Recap</h3>
-<ul class="ck-list">
-<li><label><input type="checkbox" data-ck="recap-6"><span class="t">Recap check. Explain: when Strategy is just a lambda, why Singleton is a global with a nicer name, how Observer avoids dangling subscribers, and how <code>variant</code> plus <code>visit</code> replaces a Visitor class hierarchy.</span></label></li>
-</ul>
-</section>
-
-<section class="ck-section" data-ck-section id="phase-7" role="tabpanel">
-<h2>Phase 7: Concurrency and the memory model (about 14.4 hours) <span class="ck-count"></span></h2>
-<p class="ck-note">Threads, mutexes, condition variables, futures and pools, atomics.. <a href="https://github.com/Ghaith-Hamdi1/cpp-training/blob/main/docs/reading/roadmap/phase-7-concurrency-and-the-memory-model.md">Roadmap page for this phase</a>.</p>
+<h2>Phase 6: Concurrency and the memory model (about 14.4 hours) <span class="ck-count"></span></h2>
+<p class="ck-note">Threads, mutexes, condition variables, futures and pools, atomics.. <a href="https://github.com/Ghaith-Hamdi1/cpp-training/blob/main/docs/reading/roadmap/phase-6-concurrency-and-the-memory-model.md">Roadmap page for this phase</a>.</p>
 <h3 class="ck-sub">Lessons and quizzes</h3>
 <h4>Multithreading</h4>
 <p class="ck-note"><a href="07-multithreading.html">Lesson</a> <span class="badge" data-lesson="threads"></span> and <a href="07-multithreading-quiz.html">quiz</a> (28 questions) <span class="badge" data-quiz="threads"></span></p>
@@ -391,67 +353,21 @@
 </ul>
 <h3 class="ck-sub">Book reading (core)</h3>
 <ul class="ck-list">
-<li><label><input type="checkbox" data-ck="read-7-1"><span class="t"><b>C++ Concurrency in Action:</b> Why threads and launching them: 1.1, 1.2.3, 2.1, 2.2 (PDF pages 25 to 30; 32 to 33; 40 to 50)</span></label></li>
-<li><label><input type="checkbox" data-ck="read-7-2"><span class="t"><b>C++ Concurrency in Action:</b> Sharing data and mutexes: 3.1, 3.2.1 to 3.2.3 (PDF pages 60 to 74)</span></label></li>
-<li><label><input type="checkbox" data-ck="read-7-3"><span class="t"><b>C++ Concurrency in Action:</b> Deadlock and locking: 3.2.4 to 3.2.8, 3.3.1 (PDF pages 74 to 91)</span></label></li>
-<li><label><input type="checkbox" data-ck="read-7-4"><span class="t"><b>C++ Concurrency in Action:</b> Waiting for events and results: 4.1, 4.2.1 to 4.2.4 (PDF pages 96 to 113)</span></label></li>
-<li><label><input type="checkbox" data-ck="read-7-5"><span class="t"><b>C++ Concurrency in Action:</b> Thread counts and a pool: 2.4, 9.1.1 (PDF pages 54 to 57; 324 to 326)</span></label></li>
-<li><label><input type="checkbox" data-ck="read-7-6"><span class="t"><b>C++ Concurrency in Action:</b> The memory model and data structures: 5.1, 5.3 overview, 6.1 to 6.2.2 (PDF pages 148 to 151; 165 to 170; 197 to 206)</span></label></li>
-<li><label><input type="checkbox" data-ck="read-7-7"><span class="t"><b>C++ Concurrency in Action:</b> Performance and bugs: 8.2, 11.1 to 11.2.1 (PDF pages 283 to 289; 363 to 367)</span></label></li>
+<li><label><input type="checkbox" data-ck="read-6-1"><span class="t"><b>C++ Concurrency in Action:</b> Why threads and launching them: 1.1, 1.2.3, 2.1, 2.2 (PDF pages 25 to 30; 32 to 33; 40 to 50)</span></label></li>
+<li><label><input type="checkbox" data-ck="read-6-2"><span class="t"><b>C++ Concurrency in Action:</b> Sharing data and mutexes: 3.1, 3.2.1 to 3.2.3 (PDF pages 60 to 74)</span></label></li>
+<li><label><input type="checkbox" data-ck="read-6-3"><span class="t"><b>C++ Concurrency in Action:</b> Deadlock and locking: 3.2.4 to 3.2.8, 3.3.1 (PDF pages 74 to 91)</span></label></li>
+<li><label><input type="checkbox" data-ck="read-6-4"><span class="t"><b>C++ Concurrency in Action:</b> Waiting for events and results: 4.1, 4.2.1 to 4.2.4 (PDF pages 96 to 113)</span></label></li>
+<li><label><input type="checkbox" data-ck="read-6-5"><span class="t"><b>C++ Concurrency in Action:</b> Thread counts and a pool: 2.4, 9.1.1 (PDF pages 54 to 57; 324 to 326)</span></label></li>
+<li><label><input type="checkbox" data-ck="read-6-6"><span class="t"><b>C++ Concurrency in Action:</b> The memory model and data structures: 5.1, 5.3 overview, 6.1 to 6.2.2 (PDF pages 148 to 151; 165 to 170; 197 to 206)</span></label></li>
+<li><label><input type="checkbox" data-ck="read-6-7"><span class="t"><b>C++ Concurrency in Action:</b> Performance and bugs: 8.2, 11.1 to 11.2.1 (PDF pages 283 to 289; 363 to 367)</span></label></li>
 </ul>
 <h3 class="ck-sub">Practice</h3>
 <ul class="ck-list">
-<li><label><input type="checkbox" data-ck="ex-7"><span class="t">Practice exercises: 13 (<code>SafeCounter</code>) and 14 (<code>BoundedQueue&lt;T&gt;</code>) <a href="https://github.com/Ghaith-Hamdi1/cpp-training/blob/main/examples/practice/README.md">open</a></span></label></li>
+<li><label><input type="checkbox" data-ck="ex-6"><span class="t">Practice exercises: 13 (<code>SafeCounter</code>) and 14 (<code>BoundedQueue&lt;T&gt;</code>) <a href="https://github.com/Ghaith-Hamdi1/cpp-training/blob/main/examples/practice/README.md">open</a></span></label></li>
 </ul>
 <h3 class="ck-sub">Recap</h3>
 <ul class="ck-list">
-<li><label><input type="checkbox" data-ck="recap-7"><span class="t">Recap check. Explain: what a data race is and why it is undefined behavior, why a mutex per method is not enough, the four conditions for deadlock, why <code>wait</code> needs a predicate, what release and acquire guarantee, and what the ABA problem is.</span></label></li>
-</ul>
-</section>
-
-<section class="ck-section" data-ck-section id="phase-8" role="tabpanel">
-<h2>Phase 8: Performance, memory layout and binary data (about 3.9 hours) <span class="ck-count"></span></h2>
-<p class="ck-note">Cache, allocation, struct layout, endianness, parsing, queues.. <a href="https://github.com/Ghaith-Hamdi1/cpp-training/blob/main/docs/reading/roadmap/phase-8-performance-memory-layout-and-binary-data.md">Roadmap page for this phase</a>.</p>
-<h3 class="ck-sub">Lessons and quizzes</h3>
-<h4>Binary Data &amp; Parsing</h4>
-<p class="ck-note"><a href="11-wire-formats.html">Lesson</a> <span class="badge" data-lesson="wire"></span> and <a href="11-wire-formats-quiz.html">quiz</a> (21 questions) <span class="badge" data-quiz="wire"></span></p>
-<ul class="ck-list">
-<li><label><input type="checkbox" data-ck="wire-s1"><span class="t">From bytes to values <a href="11-wire-formats.html#s1">open</a></span></label></li>
-<li><label><input type="checkbox" data-ck="wire-s2"><span class="t">Integers and bit manipulation <a href="11-wire-formats.html#s2">open</a></span></label></li>
-<li><label><input type="checkbox" data-ck="wire-s3"><span class="t">Struct layout, alignment and padding <a href="11-wire-formats.html#s3">open</a></span></label></li>
-<li><label><input type="checkbox" data-ck="wire-s4"><span class="t">Endianness <a href="11-wire-formats.html#s4">open</a></span></label></li>
-<li><label><input type="checkbox" data-ck="wire-s5"><span class="t">Reading bytes safely: aliasing and memcpy <a href="11-wire-formats.html#s5">open</a></span></label></li>
-<li><label><input type="checkbox" data-ck="wire-s6"><span class="t">Zero-copy parsing <a href="11-wire-formats.html#s6">open</a></span></label></li>
-<li><label><input type="checkbox" data-ck="wire-s7"><span class="t">Money amounts: fixed-point versus double <a href="11-wire-formats.html#s7">open</a></span></label></li>
-<li><label><input type="checkbox" data-ck="wire-s8"><span class="t">Sequence numbers and gaps <a href="11-wire-formats.html#s8">open</a></span></label></li>
-<li><label><input type="checkbox" data-ck="wire-s9"><span class="t">Cheat sheet (say each answer aloud) <a href="11-wire-formats.html#s9">open</a></span></label></li>
-<li><label><input type="checkbox" data-ck="wire-quiz"><span class="t">Take the quiz, then retry the missed questions <a href="11-wire-formats-quiz.html">open</a></span></label></li>
-</ul>
-<h4>Performance &amp; Memory</h4>
-<p class="ck-note"><a href="12-low-latency.html">Lesson</a> <span class="badge" data-lesson="latency"></span> and <a href="12-low-latency-quiz.html">quiz</a> (23 questions) <span class="badge" data-quiz="latency"></span></p>
-<ul class="ck-list">
-<li><label><input type="checkbox" data-ck="latency-s1"><span class="t">Where latency comes from <a href="12-low-latency.html#s1">open</a></span></label></li>
-<li><label><input type="checkbox" data-ck="latency-s2"><span class="t">Measuring: percentiles and tail latency <a href="12-low-latency.html#s2">open</a></span></label></li>
-<li><label><input type="checkbox" data-ck="latency-s3"><span class="t">Memory on the hot path <a href="12-low-latency.html#s3">open</a></span></label></li>
-<li><label><input type="checkbox" data-ck="latency-s4"><span class="t">Cache-friendly data <a href="12-low-latency.html#s4">open</a></span></label></li>
-<li><label><input type="checkbox" data-ck="latency-s5"><span class="t">Dense keys: an array instead of a map <a href="12-low-latency.html#s5">open</a></span></label></li>
-<li><label><input type="checkbox" data-ck="latency-s6"><span class="t">Queues between threads <a href="12-low-latency.html#s6">open</a></span></label></li>
-<li><label><input type="checkbox" data-ck="latency-s7"><span class="t">A predictable hot path <a href="12-low-latency.html#s7">open</a></span></label></li>
-<li><label><input type="checkbox" data-ck="latency-s8"><span class="t">Threads, cores and busy-polling <a href="12-low-latency.html#s8">open</a></span></label></li>
-<li><label><input type="checkbox" data-ck="latency-s9"><span class="t">Cheat sheet (say each answer aloud) <a href="12-low-latency.html#s9">open</a></span></label></li>
-<li><label><input type="checkbox" data-ck="latency-quiz"><span class="t">Take the quiz, then retry the missed questions <a href="12-low-latency-quiz.html">open</a></span></label></li>
-</ul>
-<h3 class="ck-sub">Book reading (core)</h3>
-<ul class="ck-list">
-<li><label><input type="checkbox" data-ck="read-8-1"><span class="t"><b>C++ Primer:</b> 17.2 <code>bitset</code>; 19.8 bit-fields, <code>volatile</code>, <code>extern "C"</code> (PDF pages 752 to 756; 883 to 892)</span></label></li>
-</ul>
-<h3 class="ck-sub">Practice</h3>
-<ul class="ck-list">
-<li><label><input type="checkbox" data-ck="ex-8"><span class="t">Practice exercises: 17 (<code>BucketTable</code>) <a href="https://github.com/Ghaith-Hamdi1/cpp-training/blob/main/examples/practice/README.md">open</a></span></label></li>
-</ul>
-<h3 class="ck-sub">Recap</h3>
-<ul class="ck-list">
-<li><label><input type="checkbox" data-ck="recap-8"><span class="t">Recap check. Explain: why the average hides the tail, how an object pool works, why a struct is bigger than the sum of its members, what endianness is and the portable way to read a big-endian value, and what false sharing is.</span></label></li>
+<li><label><input type="checkbox" data-ck="recap-6"><span class="t">Recap check. Explain: what a data race is and why it is undefined behavior, why a mutex per method is not enough, the four conditions for deadlock, why <code>wait</code> needs a predicate, what release and acquire guarantee, and what the ABA problem is.</span></label></li>
 </ul>
 </section>
 

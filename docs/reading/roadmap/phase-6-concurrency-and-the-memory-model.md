@@ -1,6 +1,6 @@
-# Phase 7: Concurrency and the memory model
+# Phase 6: Concurrency and the memory model
 
-[Roadmap](README.md) | Previous: [Phase 6: Design patterns and SOLID](phase-6-design-patterns-and-solid.md) | Next: [Phase 8: Performance, memory layout and binary data](phase-8-performance-memory-layout-and-binary-data.md)
+[Roadmap](README.md) | Previous: [Phase 5: Modern C++ (C++11 to C++20)](phase-5-modern-cpp.md)
 
 *Threads, mutexes, condition variables, futures and pools, atomics.*
 
@@ -38,9 +38,9 @@
 
 | Lesson | Time |
 |---|---|
-| [16. Multithreading](https://ghaith-hamdi1.github.io/cpp-training/07-multithreading.html) and its [quiz](https://ghaith-hamdi1.github.io/cpp-training/07-multithreading-quiz.html) | 60 min |
-| [17. Tasks & Parallelism](https://ghaith-hamdi1.github.io/cpp-training/17-tasks-parallelism.html) and its [quiz](https://ghaith-hamdi1.github.io/cpp-training/17-tasks-parallelism-quiz.html) | 45 min |
-| [18. Atomics & the Memory Model](https://ghaith-hamdi1.github.io/cpp-training/18-atomics-memory-model.html) and its [quiz](https://ghaith-hamdi1.github.io/cpp-training/18-atomics-memory-model-quiz.html) | 55 min |
+| [14. Multithreading](https://ghaith-hamdi1.github.io/cpp-training/07-multithreading.html) and its [quiz](https://ghaith-hamdi1.github.io/cpp-training/07-multithreading-quiz.html) | 60 min |
+| [15. Tasks & Parallelism](https://ghaith-hamdi1.github.io/cpp-training/17-tasks-parallelism.html) and its [quiz](https://ghaith-hamdi1.github.io/cpp-training/17-tasks-parallelism-quiz.html) | 45 min |
+| [16. Atomics & the Memory Model](https://ghaith-hamdi1.github.io/cpp-training/18-atomics-memory-model.html) and its [quiz](https://ghaith-hamdi1.github.io/cpp-training/18-atomics-memory-model-quiz.html) | 55 min |
 
 Exercises: 13 (`SafeCounter`) and 14 (`BoundedQueue<T>`).
 
@@ -48,8 +48,8 @@ Exercises: 13 (`SafeCounter`) and 14 (`BoundedQueue<T>`).
 
 **Recap check.** Explain: what a data race is and why it is undefined behavior, why a mutex per method is not enough, the four conditions for deadlock, why `wait` needs a predicate, what release and acquire guarantee, and what the ABA problem is.
 
-**Notes templates.** [Reading notes for phase 7](../notes/phase-7-concurrency-and-the-memory-model/README.md).
+**Notes templates.** [Reading notes for phase 6](../notes/phase-6-concurrency-and-the-memory-model/README.md).
 
 ---
 
-[Roadmap](README.md) | Previous: [Phase 6: Design patterns and SOLID](phase-6-design-patterns-and-solid.md) | Next: [Phase 8: Performance, memory layout and binary data](phase-8-performance-memory-layout-and-binary-data.md)
+[Roadmap](README.md) | Previous: [Phase 5: Modern C++ (C++11 to C++20)](phase-5-modern-cpp.md)

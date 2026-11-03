@@ -1,7 +1,7 @@
 # Session 6: Lambdas
 
 *Effective Modern C++*, Scott Meyers.
-Plan: [reading plan](../../../effective-modern-cpp-reading-plan.md). Previous: [session 5](../../phase-5-modern-cpp/effective-modern-cpp/05-overloading-and-moves-in-practice.md). Next: [session 7](../../phase-7-concurrency-and-the-memory-model/effective-modern-cpp/07-concurrency.md).
+Plan: [reading plan](../../../effective-modern-cpp-reading-plan.md). Previous: [session 5](../../phase-5-modern-cpp/effective-modern-cpp/05-overloading-and-moves-in-practice.md). Next: [session 7](../../phase-6-concurrency-and-the-memory-model/effective-modern-cpp/07-concurrency.md).
 
 - [ ] Read
 - [ ] Ran the key example and changed it

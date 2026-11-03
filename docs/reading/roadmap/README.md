@@ -1,6 +1,6 @@
-# C++ recap and roadmap: eight phases, five books
+# C++ recap and roadmap: six phases, five books
 
-A map of every big C++ topic, grouped into eight phases from solid fundamentals to advanced tools to modern C++, with the exact book chapters (PDF pages) to read in each phase, the lessons and exercises that go with them, and a time estimate. Use it as a **reading guide** when you want to study a phase properly, and as a **recap** when you want to check that you can still explain the topics. The [topic index](#topic-index-where-to-look) at the end is the quick reminder.
+A map of every big C++ topic, grouped into six phases from solid fundamentals to advanced tools to modern C++, with the exact book chapters (PDF pages) to read in each phase, the lessons and exercises that go with them, and a time estimate. Use it as a **reading guide** when you want to study a phase properly, and as a **recap** when you want to check that you can still explain the topics. The [topic index](#topic-index-where-to-look) at the end is the quick reminder.
 
 All page numbers are **PDF viewer pages** (the number your PDF reader shows). The books are in [`books/`](../../../books).
 
@@ -27,14 +27,12 @@ Time = core reading at about 10 pages an hour (pages with code you type in and r
 | [3](phase-3-the-standard-library-and-generic-programming.md) | The standard library and generic programming | 231 pages, 23.1 h | 3.3 h | 0.4 h | **26.8 h** | 67 pages, 6.7 h |
 | [4](phase-4-raii-exceptions-and-advanced-language-tools.md) | RAII, exceptions and advanced language tools | 66 pages, 6.6 h | 0.6 h | 0.0 h | **7.2 h** | 23 pages, 2.3 h |
 | [5](phase-5-modern-cpp.md) | Modern C++ (C++11 to C++20) | 207 pages, 20.7 h | 2.8 h | 0.8 h | **24.3 h** | 118 pages, 11.8 h |
-| [6](phase-6-design-patterns-and-solid.md) | Design patterns and SOLID | 0 pages, 0.0 h | 1.5 h | 0.0 h | **1.5 h** | 10 pages, 1.0 h |
-| [7](phase-7-concurrency-and-the-memory-model.md) | Concurrency and the memory model | 109 pages, 10.9 h | 2.7 h | 0.8 h | **14.4 h** | 39 pages, 3.9 h |
-| [8](phase-8-performance-memory-layout-and-binary-data.md) | Performance, memory layout and binary data | 15 pages, 1.5 h | 2.0 h | 0.4 h | **3.9 h** | 7 pages, 0.7 h |
-| | **Total** | 1038 pages | | | **125.5 h** | 434 pages, 43.4 h |
+| [6](phase-6-concurrency-and-the-memory-model.md) | Concurrency and the memory model | 109 pages, 10.9 h | 2.7 h | 0.8 h | **14.4 h** | 39 pages, 3.9 h |
+| | **Total** | 1023 pages | | | **120.1 h** | 417 pages, 41.7 h |
 
-The core path is about **125 hours**: roughly 21 weeks at 6 hours a week, or 10 weeks at 12. Adding every deepen list brings it to about **169 hours**. If you only want a refresher on what you already know, skim the "core reading" at 25 pages an hour and spend your time on the lessons, quizzes and recap questions.
+The core path is about **120 hours**: roughly 20 weeks at 6 hours a week, or 10 weeks at 12. Adding every deepen list brings it to about **162 hours**. If you only want a refresher on what you already know, skim the "core reading" at 25 pages an hour and spend your time on the lessons, quizzes and recap questions.
 
-Do the phases in order, because each builds on the one before. The lesson numbers on the site follow the same order, so lessons 1 to 20 are exactly phases 1 to 8 read top to bottom. Phase 6 (design patterns) uses `unique_ptr`, lambdas and `variant` from phases 3 and 5. Phase 7 (concurrency) needs move semantics, lambdas and RAII. Phase 8 needs phases 1 to 3 and the cache and threads ideas from phase 7; it can be read last or interleaved with phase 7.
+Do the phases in order, because each builds on the one before. Phase 6 (concurrency) needs move semantics, lambdas and RAII from the earlier phases.
 
 ## How to study a phase
 
@@ -72,12 +70,9 @@ A one-page reminder: every big topic, the lesson that teaches it and the book ch
 | Templates | [8. Templates](https://ghaith-hamdi1.github.io/cpp-training/05-templates.html) | Primer ch. 16 (681 to 743); EMC Item 1 (27 to 36) |
 | Forwarding and variadics | [8. Templates](https://ghaith-hamdi1.github.io/cpp-training/05-templates.html) | Primer 16.2.5 to 16.4 (716 to 734); EMC Item 28 (215 to 221) |
 | Type traits, `constexpr`, concepts | [13. Type Traits & Compile-time C++](https://ghaith-hamdi1.github.io/cpp-training/09-compile-time.html) | EMC Item 15 (115 to 121); PPP 18.1.2 to 18.1.4 (530 to 534) |
-| Design patterns, SOLID | [14. Design Patterns](https://ghaith-hamdi1.github.io/cpp-training/06-design-patterns.html) | lessons only; EMC Item 22 Pimpl (165 to 174) |
-| Threads, mutexes, deadlock | [16. Multithreading](https://ghaith-hamdi1.github.io/cpp-training/07-multithreading.html) | Concurrency in Action ch. 2 to 4 (40 to 113) |
-| Futures, pools, tasks | [17. Tasks & Parallelism](https://ghaith-hamdi1.github.io/cpp-training/17-tasks-parallelism.html) | Concurrency in Action 4.2, 9.1.1 (105 to 113; 324 to 326); EMC Items 35 to 39 (259 to 289) |
-| Atomics and the memory model | [18. Atomics & the Memory Model](https://ghaith-hamdi1.github.io/cpp-training/18-atomics-memory-model.html) | Concurrency in Action 5.1, 5.3 (148 to 151; 165 to 170); EMC Item 40 (289 to 297) |
-| Binary data, endianness, aliasing | [19. Binary Data & Parsing](https://ghaith-hamdi1.github.io/cpp-training/11-wire-formats.html) | Primer 17.2, 19.8 (752 to 756; 883 to 892); lessons mainly |
-| Performance, cache, pools | [20. Performance & Memory](https://ghaith-hamdi1.github.io/cpp-training/12-low-latency.html) | Concurrency in Action 8.2 (283 to 289); lessons mainly |
+| Threads, mutexes, deadlock | [14. Multithreading](https://ghaith-hamdi1.github.io/cpp-training/07-multithreading.html) | Concurrency in Action ch. 2 to 4 (40 to 113) |
+| Futures, pools, tasks | [15. Tasks & Parallelism](https://ghaith-hamdi1.github.io/cpp-training/17-tasks-parallelism.html) | Concurrency in Action 4.2, 9.1.1 (105 to 113; 324 to 326); EMC Items 35 to 39 (259 to 289) |
+| Atomics and the memory model | [16. Atomics & the Memory Model](https://ghaith-hamdi1.github.io/cpp-training/18-atomics-memory-model.html) | Concurrency in Action 5.1, 5.3 (148 to 151; 165 to 170); EMC Item 40 (289 to 297) |
 
 ## Notes on the books
 

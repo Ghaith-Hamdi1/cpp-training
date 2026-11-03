@@ -6,7 +6,7 @@
 // a short static table. The "Read more" book notes of a lesson are collected into one "Further reading" box at the end of the lesson, and
 // a few sections are moved within their lesson where that reads better on paper (see ORDER in pdfPrep).
 // The "Read more" book notes are taken out of the sections and listed per section (book, chapter and PDF pages) on a last page of their own.
-// The files are numbered in study order (lesson 1 to 20, as in the registry), not by the page's own file name.
+// The files are numbered in study order (lesson 1 upwards, as in the registry), not by the page's own file name.
 // Needs Edge or Chrome. Usage: node tools/build-lessons-pdf.mjs
 import { existsSync, mkdirSync, mkdtempSync, readdirSync, rmSync, unlinkSync, writeFileSync } from 'node:fs';
 import { resolve, join } from 'node:path';
@@ -135,14 +135,10 @@ function pdfPrep(file, splitCodePx, splitListPx) {
     ['02-oop.html', /^Related notes in your repo:/, null],
     ['04-stl.html', /^Notes: <a[^>]*>Module 3<\/a>\.$/, null],
     ['05-templates.html', /^Notes: <a[^>]*>Module 4<\/a>; <a[^>]*>modern-cpp-features<\/a>\.$/, null],
-    ['06-design-patterns.html', /^Notes: <a[^>]*>Module 4<\/a>, <a[^>]*>examples<\/a>\.$/, null],
     ['16-types-and-casts.html', /\s*Full lists: <a[^>]*>modern-cpp-features<\/a>, <a[^>]*>modern-cpp-tutorial<\/a>\. Your notes: <a[^>]*>Module 3<\/a>\./, ''],
     ['07-multithreading.html', /^<span class="label">Where next<\/span>/, null],
     ['07-multithreading.html', /^Further reading: your notes in /, null],
-    ['11-wire-formats.html', /\s*Compiled examples are in <code>examples\/lessons\/11-wire-formats<\/code>\./, ''],
-    ['12-low-latency.html', /\s*Compiled examples are in <code>examples\/lessons\/12-low-latency<\/code>\./, ''],
     // wording that depended on the original section order
-    ['06-design-patterns.html', /so read this table first and refer back to it\./, 'so use this table to connect each pattern back to the principle it serves.'],
     ['08-strings-regex-time.html', /then <code>&lt;regex&gt;<\/code> and <code>&lt;chrono&gt;<\/code>/, 'then <code>&lt;chrono&gt;</code> and <code>&lt;regex&gt;</code>']
   ];
   for (const [f, re, rep] of FIXES) {
@@ -185,7 +181,6 @@ function pdfPrep(file, splitCodePx, splitListPx) {
     '08-strings-regex-time.html': [['Inside std::string: SSO and capacity', 'before', 'String streams and files'], ['Regular expressions', 'after', 'Time with std::chrono']],
     '04-stl.html': [['Which container should I use?', 'before', 'Custom keys: comparators and hashes']],
     '09-compile-time.html': [['constexpr, consteval, constinit', 'before', 'enable_if and SFINAE']],
-    '06-design-patterns.html': [['SOLID principles', 'before', 'Other patterns worth recognising']]
   };
   const sec = (title) => $$('main > section').find((s) => s.dataset.title === title);
   for (const [t, where, anchor] of ORDER[file] || []) {

@@ -62,4 +62,4 @@ What surprised me when I ran it:
 
 ## After this session
 
-Lessons 16 to 18 (Multithreading, Tasks, Atomics) and their quizzes
+Lessons 14 to 16 (Multithreading, Tasks, Atomics) and their quizzes

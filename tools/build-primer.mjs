@@ -48,10 +48,10 @@ The sections and their summaries come from the book's table of contents and chap
 
 | Covers well | Does not cover |
 |---|---|
-| Types, expressions, statements, functions, classes | Threads, mutexes, atomics (use *C++ Concurrency in Action* and lessons 16 to 18) |
-| The whole standard library of C++11: strings, containers, algorithms, IO, smart pointers | C++14, C++17 and C++20: \`optional\`, \`variant\`, \`string_view\`, structured bindings, \`if constexpr\`, concepts, ranges, \`std::format\` (lessons 2, 10, 7, 6, 13) |
+| Types, expressions, statements, functions, classes | Threads, mutexes, atomics (use *C++ Concurrency in Action* and lessons 14 to 16) |
+| The whole standard library of C++11: strings, containers, algorithms, IO, smart pointers | C++14, C++17 and C++20: \`optional\`, \`variant\`, \`string_view\`, structured bindings, \`if constexpr\`, concepts, ranges, \`std::format\` (lessons 2, 10, 7, 6 and 13) |
 | Copy control, move semantics, operator overloading | Deep move semantics and forwarding (*Effective Modern C++* and *C++ Move Semantics*) |
-| Inheritance and virtual functions, templates, exceptions | Design patterns, performance and memory layout (lessons 14, 15, 19 and 20) |
+| Inheritance and virtual functions, templates, exceptions | Design patterns, performance and memory layout (use other books; the lessons no longer cover them) |
 
 ## Tier 1: read these first (about ${tp(true)} pages)
 
@@ -145,11 +145,11 @@ ${skip.map(([a, b]) => `| ${a} | ${b} |`).join('\n')}
 
 | Topic | Where to learn it |
 |---|---|
-| Threads, mutexes, atomics | *C++ Concurrency in Action* in \`books/\`; lessons 16 to 18 |
+| Threads, mutexes, atomics | *C++ Concurrency in Action* in \`books/\`; lessons 14 to 16 |
 | C++14 to C++20 (\`optional\`, \`variant\`, \`string_view\`, concepts, ranges) | lessons 2, 10, 7, 6 and 13 |
 | Move semantics and forwarding in depth | *C++ Move Semantics* and *Effective Modern C++* in \`books/\` |
-| Design patterns | lessons 14 and 15 |
-| Binary data, memory layout and performance | lessons 19 and 20 |
+| Design patterns | not covered here; use a dedicated book |
+| Binary data, memory layout and performance | not covered here; *C++ Concurrency in Action* ch. 8 touches on performance |
 
 ## Notes on the edition
 

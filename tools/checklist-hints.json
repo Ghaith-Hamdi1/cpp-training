@@ -23,8 +23,5 @@
  "types:cheat": "say each answer aloud",
  "templates:s5": "step through the recursion",
  "templates:s4": "use the explorer, step through it",
- "templates:s9": "say each answer aloud",
- "patterns:s4": "try the widget",
- "patterns:s5": "subscribe and unsubscribe in the demo",
- "patterns:s6": "use the turnstile demo"
+ "templates:s9": "say each answer aloud"
 }

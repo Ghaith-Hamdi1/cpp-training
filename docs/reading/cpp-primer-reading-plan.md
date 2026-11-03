@@ -110,7 +110,7 @@ Chapters 17 to 19. Specialized tools; read the parts you need.
 | 29 | What is the difference between `regex_match` and `regex_search`?<br>Why do you create the engine once, outside the loop?<br>How do you return several values without defining a struct? | Lesson 10, section 2; lesson 5, section 6; lesson 7, section 11; practice 15 (`parse-value`) |
 | 30 | What are the three exception-safety guarantees?<br>Why must a destructor not throw?<br>What is argument-dependent lookup, and why does `operator<<` for your type just work?<br>What does `noexcept` promise and what happens if you break it? | Lesson 9, sections 2 to 5 and its quiz |
 | 31 | What is the diamond problem and how does a virtual base solve it?<br>When does `dynamic_cast` return null and when does it throw?<br>Why is a chain of `dynamic_cast` often a design smell? | Lesson 4 (The Object Model in Depth) and its quiz |
-| 32 | What does placement `new` do and when would you use it?<br>Why is `enum class` better than a plain `enum`?<br>How does a discriminated union avoid reading the wrong member? | Lesson 10, section 4; lesson 20, section 3 |
+| 32 | What does placement `new` do and when would you use it?<br>Why is `enum class` better than a plain `enum`?<br>How does a discriminated union avoid reading the wrong member? | Lesson 10, section 4 |
 
 ## Part E: optional extras (session 33)
 
@@ -118,7 +118,7 @@ Optional.
 
 | # | Read | After |
 |---|---|---|
-| 33 | 17.2 The bitset type; 19.7 to 19.8 Local classes and nonportable features | Lesson 19 (Binary Data and Parsing), sections 1 to 3 |
+| 33 | 17.2 The bitset type; 19.7 to 19.8 Local classes and nonportable features | Nothing to practise: these are optional extras |
 
 ## What to skip
 
@@ -134,11 +134,11 @@ Optional.
 
 | Topic | Where to learn it |
 |---|---|
-| Threads, mutexes, atomics | *C++ Concurrency in Action* in `books/`; lessons 16 to 18 |
+| Threads, mutexes, atomics | *C++ Concurrency in Action* in `books/`; lessons 14 to 16 |
 | C++14 to C++20 (`optional`, `variant`, `string_view`, concepts, ranges) | lessons 2, 10, 7, 6 and 13 |
 | Move semantics and forwarding in depth | *C++ Move Semantics* and *Effective Modern C++* in `books/` |
-| Design patterns | lessons 14 and 15 |
-| Binary data, memory layout and performance | lessons 19 and 20 |
+| Design patterns | not covered here; use a dedicated book |
+| Binary data, memory layout and performance | not covered here; *C++ Concurrency in Action* ch. 8 touches on performance |
 
 ## Notes on the edition
 

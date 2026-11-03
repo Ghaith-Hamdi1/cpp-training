@@ -1,6 +1,6 @@
 # Study checklist
 
-A step-by-step plan through the lessons and the books, one phase at a time. The phases are the same eight as the [C++ roadmap](reading/roadmap/README.md), and lessons 1 to 20 run through them in order. Each phase lists its lessons with their sections and quizzes, the core book reading, the practice exercises and a recap check.
+A step-by-step plan through the lessons and the books, one phase at a time. The phases are the same six as the [C++ roadmap](reading/roadmap/README.md), and the lessons run through them in order. Each phase lists its lessons with their sections and quizzes, the core book reading, the practice exercises and a recap check.
 
 **Want ticks that save?** Use the interactive version: <https://ghaith-hamdi1.github.io/cpp-training/study-checklist.html> (also at [`interactive/study-checklist.html`](../interactive/study-checklist.html)). It has one tab per phase and its checkboxes remember your progress in your browser.
 
@@ -279,43 +279,9 @@ Move semantics, smart pointers, forwarding, `constexpr`, vocabulary types, conce
 
 - [ ] Recap check. Explain: what `std::move` does at run time (nothing), why `return std::move(local)` hurts, the three value categories, what a forwarding reference is, why `make_shared` needs one allocation, and what a concept replaces.
 
-## Phase 6: Design patterns and SOLID (about 1.5 hours)
+## Phase 6: Concurrency and the memory model (about 14.4 hours)
 
-Common designs in modern C++, with real code.. Roadmap page: [phase-6-design-patterns-and-solid.md](reading/roadmap/phase-6-design-patterns-and-solid.md).
-
-### Lessons and quizzes
-
-**Design Patterns:** [06-design-patterns.html](../interactive/06-design-patterns.html), quiz: [06-design-patterns-quiz.html](../interactive/06-design-patterns-quiz.html) (20 questions).
-
-- [ ] What patterns are and are not
-- [ ] SOLID principles
-- [ ] Singleton
-- [ ] Factory
-- [ ] Strategy (try the widget)
-- [ ] Observer (subscribe and unsubscribe in the demo)
-- [ ] State (use the turnstile demo)
-- [ ] Other patterns worth recognising
-- [ ] Cheat sheet (say each answer aloud)
-- [ ] Take the quiz, then retry the missed questions
-
-**More Patterns:** [20-more-patterns.html](../interactive/20-more-patterns.html), quiz: [20-more-patterns-quiz.html](../interactive/20-more-patterns-quiz.html) (11 questions).
-
-- [ ] Command (with undo)
-- [ ] Decorator
-- [ ] Adapter
-- [ ] Builder
-- [ ] Visitor and `std::variant`
-- [ ] A protocol state machine with `variant`
-- [ ] Cheat sheet (say each answer aloud)
-- [ ] Take the quiz, then retry the missed questions
-
-### Recap
-
-- [ ] Recap check. Explain: when Strategy is just a lambda, why Singleton is a global with a nicer name, how Observer avoids dangling subscribers, and how `variant` plus `visit` replaces a Visitor class hierarchy.
-
-## Phase 7: Concurrency and the memory model (about 14.4 hours)
-
-Threads, mutexes, condition variables, futures and pools, atomics.. Roadmap page: [phase-7-concurrency-and-the-memory-model.md](reading/roadmap/phase-7-concurrency-and-the-memory-model.md).
+Threads, mutexes, condition variables, futures and pools, atomics.. Roadmap page: [phase-6-concurrency-and-the-memory-model.md](reading/roadmap/phase-6-concurrency-and-the-memory-model.md).
 
 ### Lessons and quizzes
 
@@ -370,50 +336,6 @@ Threads, mutexes, condition variables, futures and pools, atomics.. Roadmap page
 ### Recap
 
 - [ ] Recap check. Explain: what a data race is and why it is undefined behavior, why a mutex per method is not enough, the four conditions for deadlock, why `wait` needs a predicate, what release and acquire guarantee, and what the ABA problem is.
-
-## Phase 8: Performance, memory layout and binary data (about 3.9 hours)
-
-Cache, allocation, struct layout, endianness, parsing, queues.. Roadmap page: [phase-8-performance-memory-layout-and-binary-data.md](reading/roadmap/phase-8-performance-memory-layout-and-binary-data.md).
-
-### Lessons and quizzes
-
-**Binary Data & Parsing:** [11-wire-formats.html](../interactive/11-wire-formats.html), quiz: [11-wire-formats-quiz.html](../interactive/11-wire-formats-quiz.html) (21 questions).
-
-- [ ] From bytes to values
-- [ ] Integers and bit manipulation
-- [ ] Struct layout, alignment and padding
-- [ ] Endianness
-- [ ] Reading bytes safely: aliasing and memcpy
-- [ ] Zero-copy parsing
-- [ ] Money amounts: fixed-point versus double
-- [ ] Sequence numbers and gaps
-- [ ] Cheat sheet (say each answer aloud)
-- [ ] Take the quiz, then retry the missed questions
-
-**Performance & Memory:** [12-low-latency.html](../interactive/12-low-latency.html), quiz: [12-low-latency-quiz.html](../interactive/12-low-latency-quiz.html) (23 questions).
-
-- [ ] Where latency comes from
-- [ ] Measuring: percentiles and tail latency
-- [ ] Memory on the hot path
-- [ ] Cache-friendly data
-- [ ] Dense keys: an array instead of a map
-- [ ] Queues between threads
-- [ ] A predictable hot path
-- [ ] Threads, cores and busy-polling
-- [ ] Cheat sheet (say each answer aloud)
-- [ ] Take the quiz, then retry the missed questions
-
-### Book reading (core)
-
-- [ ] C++ Primer: 17.2 `bitset`; 19.8 bit-fields, `volatile`, `extern "C"` (PDF pages 752 to 756; 883 to 892)
-
-### Practice
-
-- [ ] Practice exercises: 17 (`BucketTable`) ([examples/practice](../examples/practice/README.md))
-
-### Recap
-
-- [ ] Recap check. Explain: why the average hides the tail, how an object pool works, why a struct is bigger than the sum of its members, what endianness is and the portable way to read a big-endian value, and what false sharing is.
 
 ## Final review
 

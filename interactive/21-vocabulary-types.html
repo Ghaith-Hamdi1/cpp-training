@@ -124,7 +124,7 @@ std::vector<Shape> shapes{Circle{2}, Rect{3, 4}};   // a heterogeneous collectio
 // total area: 12 + 12 = 24 (compiled)
 </script>
 <ul>
-<li><b>Variant or virtual functions?</b> A variant fits a <i>closed</i> set of types you control (messages, tokens, syntax-tree nodes), where you keep adding operations. Virtual functions fit an <i>open</i> set that others may extend. The trade-off is spelled out under Visitor in <a href="20-more-patterns.html">More Patterns</a>.</li>
+<li><b>Variant or virtual functions?</b> A variant fits a <i>closed</i> set of types you control (messages, tokens, syntax-tree nodes), where you keep adding operations. Virtual functions fit an <i>open</i> set that others may extend.</li>
 <li>If an alternative's constructor throws during assignment, the variant can end up <i>valueless by exception</i> (<code>valueless_by_exception()</code>). It is rare, and it is why you should keep alternatives cheap and non-throwing to move.</li>
 <li>A reference alternative is ill-formed (use <code>std::reference_wrapper</code>). The same type twice is legal, but then you can only reach it by index, not by type.</li>
 <li><code>std::monostate</code> is an empty alternative: put it first to make a variant default-constructible when no alternative should be the default.</li>
