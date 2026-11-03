@@ -3,14 +3,14 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Core Language: RAII and Exceptions</title>
+<title>RAII and Exceptions</title>
 <script>try{var t=JSON.parse(localStorage.getItem('cpptrain:theme'));if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
 <link rel="stylesheet" href="assets/style.css">
 </head>
 <body data-topic="core" data-kind="lesson">
 <main>
-<h1>Core Language: RAII and Exceptions</h1>
-<p class="lead">RAII and scope guards, the exception-safety guarantees, <code>noexcept</code>, and choosing between exceptions and return values. Assumes <a href="01-basics.html">Basics</a> and <a href="02-oop.html">OOP</a>; move semantics, smart pointers, lambdas and types follow in their own lessons.</p>
+<h1>RAII and Exceptions</h1>
+<p class="lead">Tie a resource to an object so cleanup is automatic: RAII and scope guards, stack unwinding, the exception-safety guarantees and <code>noexcept</code>. Choosing between exceptions and return values is in <a href="21-vocabulary-types.html#errors">Values or Errors</a>. Assumes <a href="26-copying.html">Copy Control and Operators</a>.</p>
 
 <section id="s1" data-title="RAII: the central idea">
 <h2>RAII: the central idea</h2>
@@ -161,35 +161,6 @@ void Table::replaceAll(const std::vector<Row>& fresh) {
 <!-- read-more:end -->
 </section>
 
-<section id="errors" data-title="Exceptions, error codes and optional">
-<h2>Exceptions, error codes and optional</h2>
-<table>
-<tr><th>Situation</th><th>Use</th></tr>
-<tr><td>a failure the caller cannot sensibly handle here (out of memory, broken invariant, constructor failure)</td><td><b>exception</b>: it unwinds to code that can cope</td></tr>
-<tr><td>an <b>expected</b> failure in normal flow (bad input, "not found", parse error)</td><td>return a value that says so: <code>std::optional</code>, an error code or enum, <code>std::expected</code> (C++23)</td></tr>
-<tr><td>a hot path with steady latency (real-time code)</td><td><b>no exceptions</b>: error codes or <code>optional</code></td></tr>
-<tr><td>a <code>noexcept</code> context, or a destructor</td><td>never throw: catch inside and log or ignore</td></tr>
-</table>
-<script type="text/x-cpp">
-std::optional<int> parseInt(std::string_view s) {  // failure is expected: no exception
-    int v = 0;
-    auto r = std::from_chars(s.data(), s.data() + s.size(), v);
-    if (r.ec != std::errc{} || r.ptr != s.data() + s.size()) return std::nullopt;
-    return v;
-}
-
-if (auto n = parseInt(input)) use(*n);  // the caller must look at the result
-else report("not a number");
-</script>
-<ul>
-<li><b>Exceptions</b> keep the normal path clean and cannot be silently ignored; the cost is that a throw is slow and the control flow is invisible.</li>
-<li><b>Return values</b> make failure explicit and cheap; the cost is that every caller must check, and <code>[[nodiscard]]</code> helps remind them.</li>
-<li>Constructors cannot return a code: either throw, or use a factory function returning <code>optional</code> or an <code>expected</code>.</li>
-<li>Be consistent inside a module, and document what a function can throw.</li>
-</ul>
-<div class="callout interview"><span class="label">Key point</span>"Exceptions or error codes?" Exceptions for rare failures that need unwinding, return values for expected failures and for hot paths. Mention RAII (so nothing leaks either way) and that a destructor must never throw.</div>
-</section>
-
 <section id="s11" data-title="Cheat sheet">
 <h2>Cheat sheet</h2>
 <p>Answer aloud, then open.</p>
@@ -199,7 +170,6 @@ else report("not a number");
 <details class="ex"><summary>What are the exception-safety guarantees?</summary><div><p>No-throw (never throws: destructors, swap, moves), strong (if it throws, the state is exactly as before: commit or rollback), and basic (nothing leaks and invariants hold, but values may have changed). Get the strong guarantee by doing the work on a copy and publishing with a non-throwing swap.</p></div></details>
 <details class="ex"><summary>Why mark move operations <code>noexcept</code>?</summary><div><p><code>std::vector</code> moves its elements when it grows only if the move cannot throw; otherwise it copies them to keep the strong guarantee. A missing <code>noexcept</code> silently turns every reallocation into a round of copies.</p></div></details>
 <details class="ex"><summary>What happens if a <code>noexcept</code> function throws?</summary><div><p><code>std::terminate</code> is called: the exception does not propagate. So only promise <code>noexcept</code> when it is true.</p></div></details>
-<details class="ex"><summary>Exceptions or error codes?</summary><div><p>Exceptions for rare failures the local code cannot handle (and constructors); return values (<code>optional</code>, error codes, <code>expected</code>) for expected failures and for hot paths where a throw's cost and unpredictability are unacceptable.</p></div></details>
 <details class="ex"><summary>How do you run cleanup on every path without <code>finally</code>?</summary><div><p>Put it in a destructor: a standard RAII wrapper (<code>lock_guard</code>, <code>unique_ptr</code>, <code>fstream</code>) or a small scope guard class. Release the guard on success to commit.</p></div></details>
 </section>
 </main>

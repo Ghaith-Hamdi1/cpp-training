@@ -81,7 +81,7 @@ Chapters 8 to 12. The containers, algorithms and smart pointers you will use eve
 | 14 | What is a predicate, and what does a lambda save you from writing?<br>What is the erase-remove idiom, and why is `remove` alone not enough?<br>What is the difference between capturing by value and by reference, and when is the reference version dangerous?<br>Why do algorithms take iterators, not containers? | Lesson 10 (Lambdas), sections 2 to 4; lesson 14 (Algorithms and Ranges) |
 | 15 | Name the iterator categories and one container for each.<br>Why does `std::sort` not work on a `list`?<br>What does `back_inserter` do? | Lesson 13 (Iterators) and its quiz |
 | 16 | What does `m[key]` do when the key is missing, and why can that surprise you?<br>What ordering must a key type provide in a `map`, and what in an `unordered_map`?<br>When would you choose `unordered_map` over `map`?<br>How do you give your own struct a hash? | Lesson 12, sections 1 and 2; practice 06 and 17 (`BucketTable`) |
-| 17 | Who owns the object when you write `new` and who deletes it?<br>How is `unique_ptr` different from `shared_ptr`, and which is the default choice?<br>What is a reference cycle, and which pointer breaks it?<br>Why prefer `make_shared` and `make_unique` over `new`? | Lesson 22 (Smart Pointers and Ownership) and its quiz |
+| 17 | Who owns the object when you write `new` and who deletes it?<br>How is `unique_ptr` different from `shared_ptr`, and which is the default choice?<br>What is a reference cycle, and which pointer breaks it?<br>Why prefer `make_shared` and `make_unique` over `new`? | Lesson 27 (Smart Pointers and Ownership) and its quiz |
 | 18 | What goes wrong if you `delete` memory that was `new[]`-allocated?<br>Why separate allocation from construction in a container like `vector`?<br>Read 12.3 and sketch the classes before you read the code. Which owns which? | Practice 12 (`Stack<T>`) with a raw array; lesson 1, section 9 |
 
 ## Part C: tools for class authors (sessions 19 to 28)
@@ -134,7 +134,7 @@ Optional.
 
 | Topic | Where to learn it |
 |---|---|
-| Threads, mutexes, atomics | *C++ Concurrency in Action* in `books/`; lessons 23 to 25 |
+| Threads, mutexes, atomics | *C++ Concurrency in Action* in `books/`; lessons 29 to 31 |
 | C++14 to C++20 (`optional`, `variant`, `string_view`, concepts, ranges) | lessons 3, 19, 11, 10 and 17 |
 | Move semantics and forwarding in depth | *C++ Move Semantics* and *Effective Modern C++* in `books/` |
 | Design patterns | not covered here; use a dedicated book |

@@ -3,14 +3,14 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>optional, variant and expected</title>
+<title>Values or Errors: optional, variant and expected</title>
 <script>try{var t=JSON.parse(localStorage.getItem('cpptrain:theme'));if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
 <link rel="stylesheet" href="assets/style.css">
 </head>
 <body data-topic="vocab" data-kind="lesson">
 <main>
-<h1>optional, variant and expected</h1>
-<p class="lead">The small standard types that make a function's contract visible in its signature: <code>optional</code> for a value that may be missing, <code>variant</code> for one of several types and <code>expected</code> for a value or an error. <code>pair</code> and <code>tuple</code> are in <a href="31-assoc.html#pairs">Maps, Sets and Hashing</a>; <code>span</code> and <code>string_view</code> in <a href="28-iterators.html#views">Iterators</a>. Builds on <a href="16-types-and-casts.html">Types, Initialization &amp; Constants</a>.</p>
+<h1>Values or Errors: optional, variant and expected</h1>
+<p class="lead">How to say "no value" or "it failed" in the type: exceptions versus return values, <code>optional</code> for a value that may be missing, <code>variant</code> for one of several types and <code>expected</code> for a value or an error. Builds on <a href="03-core-language.html">RAII and Exceptions</a>.</p>
 
 <section id="why" data-title="Why vocabulary types">
 <h2>Why vocabulary types</h2>
@@ -24,6 +24,35 @@
 <tr><td>A run of elements?</td><td>a pointer plus a count</td><td><code>std::span&lt;T&gt;</code>, <code>std::string_view</code></td></tr>
 </table>
 <p>All of them are ordinary value types: no heap allocation, no virtual functions, nothing to free.</p>
+</section>
+
+<section id="errors" data-title="Exceptions, error codes and optional">
+<h2>Exceptions, error codes and optional</h2>
+<table>
+<tr><th>Situation</th><th>Use</th></tr>
+<tr><td>a failure the caller cannot sensibly handle here (out of memory, broken invariant, constructor failure)</td><td><b>exception</b>: it unwinds to code that can cope</td></tr>
+<tr><td>an <b>expected</b> failure in normal flow (bad input, "not found", parse error)</td><td>return a value that says so: <code>std::optional</code>, an error code or enum, <code>std::expected</code> (C++23)</td></tr>
+<tr><td>a hot path with steady latency (real-time code)</td><td><b>no exceptions</b>: error codes or <code>optional</code></td></tr>
+<tr><td>a <code>noexcept</code> context, or a destructor</td><td>never throw: catch inside and log or ignore</td></tr>
+</table>
+<script type="text/x-cpp">
+std::optional<int> parseInt(std::string_view s) {  // failure is expected: no exception
+    int v = 0;
+    auto r = std::from_chars(s.data(), s.data() + s.size(), v);
+    if (r.ec != std::errc{} || r.ptr != s.data() + s.size()) return std::nullopt;
+    return v;
+}
+
+if (auto n = parseInt(input)) use(*n);  // the caller must look at the result
+else report("not a number");
+</script>
+<ul>
+<li><b>Exceptions</b> keep the normal path clean and cannot be silently ignored; the cost is that a throw is slow and the control flow is invisible.</li>
+<li><b>Return values</b> make failure explicit and cheap; the cost is that every caller must check, and <code>[[nodiscard]]</code> helps remind them.</li>
+<li>Constructors cannot return a code: either throw, or use a factory function returning <code>optional</code> or an <code>expected</code>.</li>
+<li>Be consistent inside a module, and document what a function can throw.</li>
+</ul>
+<div class="callout interview"><span class="label">Key point</span>"Exceptions or error codes?" Exceptions for rare failures that need unwinding, return values for expected failures and for hot paths. Mention RAII (so nothing leaks either way) and that a destructor must never throw.</div>
 </section>
 
 <section id="optional" data-title="optional: a value or nothing">
@@ -160,6 +189,7 @@ parse("").value();                              // throws std::bad_expected_acce
 <details class="ex"><summary>Why is <code>std::visit</code> safer than a chain of <code>if</code> / <code>get_if</code>?</summary><div><p>The visitor must handle every alternative, so adding a type to the variant makes every incomplete visitor a compile error instead of a silent missing case. It also reads the active alternative without a manual check.</p></div></details>
 <details class="ex"><summary>Variant or virtual functions for a set of message or shape types?</summary><div><p>A variant when the set of types is closed and you keep adding operations: values are stored inline, there are no allocations or virtual calls, and the compiler checks completeness. Virtual functions when the set of types is open for others to extend and the operations are few.</p></div></details>
 <details class="ex"><summary><code>optional</code>, <code>expected</code>, exception or error code?</summary><div><p><code>optional</code> when "no value" needs no explanation. <code>expected&lt;T, E&gt;</code> (C++23) when the failure is normal and the reason matters. An exception for rare failures the local code cannot handle, and for constructors. An error code only at C boundaries.</p></div></details>
+<details class="ex"><summary>Exceptions or error codes?</summary><div><p>Exceptions for rare failures the local code cannot handle (and constructors); return values (<code>optional</code>, error codes, <code>expected</code>) for expected failures and for hot paths where a throw's cost and unpredictability are unacceptable.</p></div></details>
 </section>
 </main>
 

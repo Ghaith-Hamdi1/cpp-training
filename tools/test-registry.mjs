@@ -83,12 +83,13 @@ test('the real v2 migration splits the old core lesson progress and is idempoten
   });
   assert.equal(CT.migrate(s), CT.schemaVersion());
   assert.deepEqual(s.get('done:core'), ['s1', 's7']);
-  assert.deepEqual(s.get('done:moves').sort(), ['copy-move', 'returning', 'traps', 'writing']);
+  assert.deepEqual(s.get('done:moves'), []);                   // v16 then moved the four sections to the new move-semantics lessons
+  assert.ok(s.get('done:copymove').includes('stdmove') && s.get('done:sinks').includes('traps') && s.get('done:elision').includes('whenmove') && s.get('done:writemoves').includes('ctor'));
   assert.ok(s.get('done:uniqueptr').includes('basics'));        // v2 filed it under smartptr, v12 moved it to unique_ptr
   assert.deepEqual(s.get('done:types'), ['const']);
   assert.equal(s.get('last:core'), '');
   assert.equal(s.get('lastinfo', 'gone'), null);
-  assert.deepEqual(s.get('weak:moves'), { 'What does `std::move(x)` do?': 0 });
+  assert.deepEqual(s.get('weak:copymove'), { 'What does `std::move(x)` do?': 0 });
   assert.deepEqual(s.get('weak:core'), { 'a question that stayed in core': 1 });
   assert.deepEqual(s.get('mock:missed'), []);   // v7 clears the saved missed mock questions
   assert.deepEqual(s.get('quiz:core'), { best: 80, last: 70, total: 24 });
@@ -301,7 +302,7 @@ test('the real v15 migration splits the STL and Templates lessons and moves pair
   const s = makeStore({ 'schema': 14,
     'done:stl': ['s1', 's2', 's4', 's6', 's7', 'ranges', 's9', 's10'], 'last:stl': 's6', 'lastinfo': { id: 'stl', sec: 's7' },
     'done:vocab': ['why', 'pairs', 'optional', 'views'], 'done:templates': ['s1', 's2', 'tools', 's6', 's9'],
-    'weak:stl': { 'a question that stayed': 1 }, 'mock:missed': ['stl-1', 'templates-2', 'core-3'] });
+    'weak:stl': { 'a question that stayed': 1 }, 'mock:missed': ['stl-1', 'templates-2', 'tasks-3'] });
   assert.equal(CT.migrate(s), CT.schemaVersion());
   assert.deepEqual(s.get('done:stl').sort(), ['cheat', 'pitfalls', 's1', 's2']);
   assert.deepEqual(s.get('done:assoc').sort(), ['pairs', 's4']);
@@ -314,9 +315,30 @@ test('the real v15 migration splits the STL and Templates lessons and moves pair
   assert.equal(s.get('last:stl'), '');
   assert.equal(s.get('lastinfo', 'gone'), null);
   assert.deepEqual(s.get('weak:stl'), { 'a question that stayed': 1 });
-  assert.deepEqual(s.get('mock:missed'), ['core-3']);
+  assert.deepEqual(s.get('mock:missed'), ['tasks-3']);
   const before = JSON.stringify(s.dump());
   s.set('schema', 14);
+  CT.migrate(s);
+  assert.equal(JSON.stringify(s.dump()), before, 'running it again must change nothing');
+});
+
+test('the real v16 migration splits Move Semantics and shared_ptr/weak_ptr and moves the errors section', () => {
+  const CT = loadRegistry();
+  const s = makeStore({ 'schema': 15, 'done:moves': ['values', 'copy-move', 'forwarding'], 'last:moves': 'forwarding', 'lastinfo': { id: 'moves', sec: 'traps' },
+    'done:smartptr': ['shared', 'weak', 'pitfalls'], 'done:core': ['s1', 'errors'], 'weak:moves': { 'a question that stayed': 1 }, 'mock:missed': ['moves-1', 'core-2', 'tasks-3'] });
+  assert.equal(CT.migrate(s), CT.schemaVersion());
+  assert.deepEqual(s.get('done:moves').sort(), ['binding', 'named', 'values']);
+  assert.deepEqual(s.get('done:copymove').sort(), ['cost', 'movedfrom', 'stdmove']);
+  assert.deepEqual(s.get('done:forwarding').sort(), ['collapse', 'forward', 'problem']);
+  assert.deepEqual(s.get('done:smartptr').sort(), ['pitfalls', 'shared']);
+  assert.deepEqual(s.get('done:weakptr').sort(), ['cycle', 'weak']);
+  assert.deepEqual(s.get('done:core'), ['s1']);
+  assert.deepEqual(s.get('done:vocab'), ['errors']);
+  assert.equal(s.get('last:moves'), '');
+  assert.deepEqual(s.get('weak:moves'), { 'a question that stayed': 1 });
+  assert.deepEqual(s.get('mock:missed'), ['tasks-3']);
+  const before = JSON.stringify(s.dump());
+  s.set('schema', 15);
   CT.migrate(s);
   assert.equal(JSON.stringify(s.dump()), before, 'running it again must change nothing');
 });

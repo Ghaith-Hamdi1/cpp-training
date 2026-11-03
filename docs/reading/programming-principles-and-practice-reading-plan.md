@@ -61,7 +61,7 @@ These sessions are the heart of the book. Do not skip them.
 | 7 | When do you pass a pointer and when a reference?<br>What replaces a (pointer, count) pair (`span`) and a possibly-null pointer (`not_null`)?<br>How does a reference differ from a pointer in reassignment? | Practice 05, 06, 07, 08, 09; quiz for lesson 1 |
 | 8 | What is a shallow copy, and why is it a bug for a class that owns memory?<br>What are the "essential operations", the rule of zero and the rule of all?<br>How does `vector` grow: what do `reserve`, `resize` and `push_back` each do?<br>What state is a moved-from object in? | Lesson 20 (Move Semantics); practice 10 (`MyString`, Rule of Five), written fully from memory |
 | 9 | Templates versus virtual functions: what is resolved at compile time and what at run time?<br>What is a concept, and what does it improve (errors at the call site)?<br>Why is `vector<Circle>` not a `vector<Shape>`? | Lessons 15 and 16 (function templates, deduction, class templates); practice 12 (`Stack<T>`) |
-| 10 | What is RAII, and how does it remove the need for `try`/`finally`?<br>Why return a moved object instead of a free-store pointer ("who deletes it?")?<br>What are `unique_ptr` and `shared_ptr` for, and which is the default? | Lesson 18 (RAII) and lesson 22 (Smart Pointers and Ownership) |
+| 10 | What is RAII, and how does it remove the need for `try`/`finally`?<br>Why return a moved object instead of a free-store pointer ("who deletes it?")?<br>What are `unique_ptr` and `shared_ptr` for, and which is the default? | Lesson 18 (RAII) and lesson 27 (Smart Pointers and Ownership) |
 
 The book stops at introductory templates. Variadic templates, forwarding references, specialization and type traits are not in it; use lessons 15 and 17.
 
@@ -93,9 +93,9 @@ The book stops at introductory templates. Variadic templates, forwarding referen
 
 | Topic | Where to learn it |
 |---|---|
-| Threads, mutexes, atomics | the Williams book in `books/`; lessons 23 to 25 |
+| Threads, mutexes, atomics | the Williams book in `books/`; lessons 29 to 31 |
 | Design patterns | not covered by the lessons |
-| The memory model | lesson 25 |
+| The memory model | lesson 31 |
 | Variadic templates, forwarding references, SFINAE | lessons 15 and 17 |
 | A quick revision | the lessons' quizzes and cheat sheets |
 

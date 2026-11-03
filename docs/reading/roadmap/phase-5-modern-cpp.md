@@ -4,7 +4,7 @@
 
 *Move semantics, smart pointers, forwarding, `constexpr`, vocabulary types, concepts.*
 
-**Time:** about **23.8 hours** (20.7 h reading, 2.3 h lessons and quizzes, 0.8 h exercises), plus 11.8 h if you also read the deepen list.
+**Time:** about **27.0 hours** (20.7 h reading, 5.5 h lessons and quizzes, 0.8 h exercises), plus 11.8 h if you also read the deepen list.
 
 ## Big topics
 
@@ -48,10 +48,16 @@
 
 | Lesson | Time |
 |---|---|
-| [19. optional, variant and expected](https://ghaith-hamdi1.github.io/cpp-training/21-vocabulary-types.html) and its [quiz](https://ghaith-hamdi1.github.io/cpp-training/21-vocabulary-types-quiz.html) | 25 min |
-| [20. Move Semantics](https://ghaith-hamdi1.github.io/cpp-training/13-move-semantics.html) and its [quiz](https://ghaith-hamdi1.github.io/cpp-training/13-move-semantics-quiz.html) | 45 min |
-| [21. unique_ptr: Exclusive Ownership](https://ghaith-hamdi1.github.io/cpp-training/24-uniqueptr.html) and its [quiz](https://ghaith-hamdi1.github.io/cpp-training/24-uniqueptr-quiz.html) | 35 min |
-| [22. shared_ptr and weak_ptr](https://ghaith-hamdi1.github.io/cpp-training/14-smart-pointers.html) and its [quiz](https://ghaith-hamdi1.github.io/cpp-training/14-smart-pointers-quiz.html) | 30 min |
+| [19. Values or Errors: optional, variant and expected](https://ghaith-hamdi1.github.io/cpp-training/21-vocabulary-types.html) and its [quiz](https://ghaith-hamdi1.github.io/cpp-training/21-vocabulary-types-quiz.html) | 30 min |
+| [20. Lvalues and Rvalues](https://ghaith-hamdi1.github.io/cpp-training/13-move-semantics.html) and its [quiz](https://ghaith-hamdi1.github.io/cpp-training/13-move-semantics-quiz.html) | 30 min |
+| [21. Copy versus Move, and std::move](https://ghaith-hamdi1.github.io/cpp-training/33-copymove.html) and its [quiz](https://ghaith-hamdi1.github.io/cpp-training/33-copymove-quiz.html) | 35 min |
+| [22. Writing Move Operations](https://ghaith-hamdi1.github.io/cpp-training/34-writemoves.html) and its [quiz](https://ghaith-hamdi1.github.io/cpp-training/34-writemoves-quiz.html) | 35 min |
+| [23. Returning Objects and Copy Elision](https://ghaith-hamdi1.github.io/cpp-training/35-elision.html) and its [quiz](https://ghaith-hamdi1.github.io/cpp-training/35-elision-quiz.html) | 30 min |
+| [24. Sink Parameters and Move Traps](https://ghaith-hamdi1.github.io/cpp-training/36-sinks.html) and its [quiz](https://ghaith-hamdi1.github.io/cpp-training/36-sinks-quiz.html) | 30 min |
+| [25. Perfect Forwarding](https://ghaith-hamdi1.github.io/cpp-training/37-forwarding.html) and its [quiz](https://ghaith-hamdi1.github.io/cpp-training/37-forwarding-quiz.html) | 35 min |
+| [26. unique_ptr: Exclusive Ownership](https://ghaith-hamdi1.github.io/cpp-training/24-uniqueptr.html) and its [quiz](https://ghaith-hamdi1.github.io/cpp-training/24-uniqueptr-quiz.html) | 35 min |
+| [27. shared_ptr: Shared Ownership](https://ghaith-hamdi1.github.io/cpp-training/14-smart-pointers.html) and its [quiz](https://ghaith-hamdi1.github.io/cpp-training/14-smart-pointers-quiz.html) | 35 min |
+| [28. weak_ptr and Reference Cycles](https://ghaith-hamdi1.github.io/cpp-training/32-weakptr.html) and its [quiz](https://ghaith-hamdi1.github.io/cpp-training/32-weakptr-quiz.html) | 35 min |
 
 Exercises: 15 (`optional`/`variant`) and 16 (concepts).
 

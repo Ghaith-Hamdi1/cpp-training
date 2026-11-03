@@ -6,7 +6,7 @@ Each file is a complete program (it has `main` and its own `#include`s) that dem
 g++ -std=c++23 -Wall -Wextra -pthread 01-basics/01_init_and_traps.cpp -o demo && ./demo
 ```
 
-Or build everything with `make` (outputs go to `build/`). The `-pthread` flag is only needed for lessons 23 to 25, but it is harmless elsewhere. Add `-fsanitize=address,undefined` to catch memory bugs; `-fsanitize=thread` finds data races on Linux or WSL (it is not available for MinGW).
+Or build everything with `make` (outputs go to `build/`). The `-pthread` flag is only needed for lessons 29 to 31, but it is harmless elsewhere. Add `-fsanitize=address,undefined` to catch memory bugs; `-fsanitize=thread` finds data races on Linux or WSL (it is not available for MinGW).
 
 The folder names follow the lesson file names (`13-move-semantics` holds the lesson file `13-move-semantics.html`); the Lesson column uses the numbers shown on the site, which follow the study order.
 
@@ -30,20 +30,20 @@ The folder names follow the lesson file names (`13-move-semantics` holds the les
 | 15 and 15 Templates | `05-templates/01_templates_specialization_forwarding.cpp` | templates, specialization, perfect forwarding, variadics, fold expressions |
 |  | `05-templates/03_deduction_and_tools.cpp` | deduction by value, by reference and forwarding reference, class template argument deduction, alias and variable templates, template template parameters, `index_sequence` |
 | 17 Compile-time | `05-templates/02_traits_constexpr_concepts.cpp` | type traits, `if constexpr`, `enable_if`, concepts, `constexpr`, `consteval`, TMP |
-| 18 Core language | `01_raii_move_smart_pointers.cpp` | RAII and stack unwinding, `std::move` on a const, `unique_ptr`, `shared_ptr`, `weak_ptr` and cycles |
-|  | `02_lambdas_exceptions_casts.cpp` | capture by value vs reference, exception handler order, casts, `constexpr`, `optional`, `variant` |
-|  | `03_raii_guards_exception_safety.cpp` | a scope guard with commit and rollback, the strong guarantee by copy and swap, `noexcept` moves in `vector` growth, `optional` instead of exceptions |
-| 19 optional, variant, expected | `21-vocabulary-types/01_optional_variant_expected_span.cpp` | `pair`/`tuple`, `optional`, `variant` with `visit`, `expected` (C++23), `span` |
-| 20 Move semantics | `01_value_categories_moves.cpp` | value categories checked with `decltype`, copy and move counts, elision and `return std::move`, sink parameters, `std::exchange`, copy-and-swap |
-| 21 unique_ptr | `24-uniqueptr/01_unique_ptr.cpp` | the object freed at the closing brace, ownership that moves but never copies, passing and returning, a vector of `unique_ptr`, `unique_ptr<Base>`, sizes with different deleters, `release` and `reset` |
-| 22 Smart pointers | `01_ownership_deleters.cpp` | ownership and custom deleters, `shared_ptr` counts, a cycle that leaks and the `weak_ptr` fix, `enable_shared_from_this` |
-| 23 Multithreading | `01_threads_basics_and_guard.cpp` | `std::thread`, `std::ref`, join guard, `jthread` |
+| 18 RAII and exceptions | `03-core-language/01_raii_move_smart_pointers.cpp` | RAII and stack unwinding, `std::move` on a const, `unique_ptr`, `shared_ptr`, `weak_ptr` and cycles |
+|  | `03-core-language/02_lambdas_exceptions_casts.cpp` | capture by value vs reference, exception handler order, casts, `constexpr`, `optional`, `variant` |
+|  | `03-core-language/03_raii_guards_exception_safety.cpp` | a scope guard with commit and rollback, the strong guarantee by copy and swap, `noexcept` moves in `vector` growth, `optional` instead of exceptions |
+| 19 Values or errors | `21-vocabulary-types/01_optional_variant_expected_span.cpp` | `pair`/`tuple`, `optional`, `variant` with `visit`, `expected` (C++23), `span` |
+| 20 to 25 Move semantics | `13-move-semantics/01_value_categories_moves.cpp` | value categories checked with `decltype`, copy and move counts, elision and `return std::move`, sink parameters, `std::exchange`, copy-and-swap |
+| 26 unique_ptr | `24-uniqueptr/01_unique_ptr.cpp` | the object freed at the closing brace, ownership that moves but never copies, passing and returning, a vector of `unique_ptr`, `unique_ptr<Base>`, sizes with different deleters, `release` and `reset` |
+| 27 and 28 shared_ptr, weak_ptr | `14-smart-pointers/01_ownership_deleters.cpp` | ownership and custom deleters, `shared_ptr` counts, a cycle that leaks and the `weak_ptr` fix, `enable_shared_from_this` |
+| 29 Multithreading | `01_threads_basics_and_guard.cpp` | `std::thread`, `std::ref`, join guard, `jthread` |
 |  | `02_race_mutex_atomic.cpp` | a real lost-update race, fixed with a mutex and with an atomic |
 |  | `03_interface_race_and_deadlock.cpp` | `try_pop`, `scoped_lock` with opposite orders |
 |  | `04_condvar_queue_and_thread_pool.cpp` | condition variable, blocking queue, thread pool |
 |  | `05_async_atomics_spsc.cpp` | `async`, `promise`, `packaged_task`, release/acquire, CAS, lock-free SPSC queue |
 |  | `06_mutex_types.cpp` | `recursive_mutex`, `timed_mutex` with `try_lock_for`, a `shared_mutex` price table, `call_once` |
-| 24 Tasks | `01_futures_coordination_parallel.cpp` | a `promise<void>` start signal through a `shared_future`, `latch`, `barrier`, `counting_semaphore`, `jthread` with `stop_token`, `reduce(par)` |
-| 25 Atomics | `01_atomics_ordering_patterns.cpp` | relaxed counter, release/acquire publication tested 2000 times, CAS weak versus strong, an `atomic_flag` spinlock, a reference count, a lock-free push, a two-lock queue |
+| 30 Tasks | `01_futures_coordination_parallel.cpp` | a `promise<void>` start signal through a `shared_future`, `latch`, `barrier`, `counting_semaphore`, `jthread` with `stop_token`, `reduce(par)` |
+| 31 Atomics | `01_atomics_ordering_patterns.cpp` | relaxed counter, release/acquire publication tested 2000 times, CAS weak versus strong, an `atomic_flag` spinlock, a reference count, a lock-free push, a two-lock queue |
 
 Some outputs vary between runs on purpose: the unsafe counter in `02_race_mutex_atomic.cpp` is a data race (undefined behavior) kept only to show lost updates.

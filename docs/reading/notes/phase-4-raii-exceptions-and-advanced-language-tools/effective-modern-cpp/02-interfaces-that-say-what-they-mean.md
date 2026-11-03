@@ -60,4 +60,4 @@ What surprised me when I ran it:
 
 ## After this session
 
-Lessons 5 and 7 (OOP, polymorphism), Lesson 18 (Core, `noexcept`), Lesson 17 (`constexpr`) and Lesson 23 (Multithreading, mutexes)
+Lessons 5 and 7 (OOP, polymorphism), Lesson 18 (Core, `noexcept`), Lesson 17 (`constexpr`) and Lesson 29 (Multithreading, mutexes)

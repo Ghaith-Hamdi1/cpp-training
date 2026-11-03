@@ -56,16 +56,28 @@ CT.lessons = [
     blurb: 'Class templates and non-type parameters, class template argument deduction, full and partial specialization, alias and variable templates.' },
   { id: 'compiletime', file: '09-compile-time.html', quiz: '09-compile-time-quiz.html', title: 'Type Traits, Concepts and Compile-time C++', time: '50 min', assess: 2, phase: 3,
     blurb: 'Type traits, if constexpr, SFINAE and enable_if, concepts and requires, constexpr and consteval, and classic template metaprogramming.' },
-  { id: 'core', file: '03-core-language.html', quiz: '03-core-language-quiz.html', title: 'Core Language: RAII & Exceptions', time: '35 min', assess: 2, phase: 4,
-    blurb: 'RAII and scope guards, stack unwinding, the exception-safety guarantees, noexcept, and exceptions versus return values.' },
-  { id: 'vocab', file: '21-vocabulary-types.html', quiz: '21-vocabulary-types-quiz.html', title: 'optional, variant and expected', time: '25 min', assess: 2, phase: 5,
-    blurb: 'optional, variant and visit, and expected: the small types that make the contract of a function honest.' },
-  { id: 'moves', file: '13-move-semantics.html', quiz: '13-move-semantics-quiz.html', title: 'Move Semantics', time: '45 min', assess: 2, phase: 5,
-    blurb: 'Value categories, what std::move really does, writing move operations, copy elision, the move traps and perfect forwarding.' },
+  { id: 'core', file: '03-core-language.html', quiz: '03-core-language-quiz.html', title: 'RAII and Exceptions', time: '30 min', assess: 2, phase: 4,
+    blurb: 'RAII and scope guards, stack unwinding, the exception-safety guarantees and noexcept.' },
+  { id: 'vocab', file: '21-vocabulary-types.html', quiz: '21-vocabulary-types-quiz.html', title: 'Values or Errors: optional, variant and expected', time: '30 min', assess: 2, phase: 5,
+    blurb: 'Exceptions versus return values, and optional, variant and visit, and expected: saying no value or failed in the type.' },
+  { id: 'moves', file: '13-move-semantics.html', quiz: '13-move-semantics-quiz.html', title: 'Lvalues and Rvalues', time: '30 min', assess: 2, phase: 5,
+    blurb: 'Names versus temporaries, the value categories, and which references bind to what.' },
+  { id: 'copymove', file: '33-copymove.html', quiz: '33-copymove-quiz.html', title: 'Copy versus Move, and std::move', time: '35 min', assess: 2, phase: 5,
+    blurb: 'What a copy costs, what std::move really does, how a move steals, and what state a moved-from object is left in.' },
+  { id: 'writemoves', file: '34-writemoves.html', quiz: '34-writemoves-quiz.html', title: 'Writing Move Operations', time: '35 min', assess: 2, phase: 5,
+    blurb: 'The move constructor and move assignment step by step, copy-and-swap, why moves must be noexcept, and the Rule of Zero.' },
+  { id: 'elision', file: '35-elision.html', quiz: '35-elision-quiz.html', title: 'Returning Objects and Copy Elision', time: '30 min', assess: 2, phase: 5,
+    blurb: 'Why you return locals plainly: RVO, NRVO, guaranteed elision in C++17, and the few cases where std::move on a return is right.' },
+  { id: 'sinks', file: '36-sinks.html', quiz: '36-sinks-quiz.html', title: 'Sink Parameters and Move Traps', time: '30 min', assess: 2, phase: 5,
+    blurb: 'Taking a parameter you will store: by value and move versus overloads, the move traps, and push_back versus emplace_back.' },
+  { id: 'forwarding', file: '37-forwarding.html', quiz: '37-forwarding-quiz.html', title: 'Perfect Forwarding', time: '35 min', assess: 2, phase: 5,
+    blurb: 'Why a wrapper loses lvalue-ness, how std::forward restores it, reference collapsing and the cases where forwarding fails.' },
   { id: 'uniqueptr', file: '24-uniqueptr.html', quiz: '24-uniqueptr-quiz.html', title: 'unique_ptr: Exclusive Ownership', time: '35 min', assess: 2, phase: 5,
     blurb: 'Ownership in the type: how unique_ptr frees its object, why it is move-only, passing and returning it, deleters, arrays and the usual mistakes.' },
-  { id: 'smartptr', file: '14-smart-pointers.html', quiz: '14-smart-pointers-quiz.html', title: 'shared_ptr and weak_ptr', time: '30 min', assess: 2, phase: 5,
-    blurb: 'shared_ptr and the control block, reference cycles and weak_ptr, make_shared, enable_shared_from_this and the pitfalls.' },
+  { id: 'smartptr', file: '14-smart-pointers.html', quiz: '14-smart-pointers-quiz.html', title: 'shared_ptr: Shared Ownership', time: '35 min', assess: 2, phase: 5,
+    blurb: 'When ownership is shared, the control block, make_shared, thread safety and the pitfalls.' },
+  { id: 'weakptr', file: '32-weakptr.html', quiz: '32-weakptr-quiz.html', title: 'weak_ptr and Reference Cycles', time: '35 min', assess: 2, phase: 5,
+    blurb: 'Why shared_ptr cycles leak, weak_ptr and lock(), and the three places weak_ptr belongs: parent links, caches and observers.' },
   { id: 'threads', file: '07-multithreading.html', quiz: '07-multithreading-quiz.html', title: 'Multithreading', time: '60 min', assess: 2, phase: 6,
     blurb: 'From your first thread to data races, mutexes, deadlocks, condition variables and the other mutex types.' },
   { id: 'tasks', file: '17-tasks-parallelism.html', quiz: '17-tasks-parallelism-quiz.html', title: 'Tasks & Parallelism', time: '45 min', assess: 2, phase: 6,
@@ -80,7 +92,7 @@ CT.lessons = [
 CT.moved = {
   '05-templates.html#s7': '09-compile-time.html#s4',    // Compile-time computation: now Template metaprogramming
   '03-core-language.html#s2': '13-move-semantics.html#values',          // lesson 3 was split into five lessons
-  '03-core-language.html#s3': '13-move-semantics.html#copy-move',
+  '03-core-language.html#s3': '33-copymove.html#stdmove',
   '03-core-language.html#s4': '24-uniqueptr.html#owner',
   '03-core-language.html#s5': '16-types-and-casts.html#deduction',
   '03-core-language.html#s6': '15-lambdas.html#anatomy',
@@ -126,6 +138,13 @@ CT.moved = {
   '05-templates.html#tools': '30-classtemplates.html#tools',
   '05-templates.html#s6': '09-compile-time.html#ifconstexpr',
   '05-templates.html#s9': '05-templates.html#cheat',
+  '13-move-semantics.html#copy-move': '33-copymove.html#stdmove',     // Move Semantics was split into six lessons
+  '13-move-semantics.html#writing': '34-writemoves.html#ctor',
+  '13-move-semantics.html#returning': '35-elision.html#whenmove',
+  '13-move-semantics.html#traps': '36-sinks.html#traps',
+  '13-move-semantics.html#forwarding': '37-forwarding.html#forward',
+  '14-smart-pointers.html#weak': '32-weakptr.html#weak',             // shared_ptr and weak_ptr became two lessons
+  '03-core-language.html#errors': '21-vocabulary-types.html#errors',  // exceptions versus return values went to the values-or-errors lesson
   '04-stl.html#s8': '08-strings-regex-time.html#s1'       // the STL strings section is covered by the Strings lesson
 };
 
@@ -457,6 +476,44 @@ CT.progressMigrations = [
       store.set('weak:' + from, stay);
     });
     var gone = ['stl-', 'vocab-', 'templates-', 'compiletime-'];   // 'assoc-' ids only exist from now on
+    store.set('mock:missed', store.get('mock:missed', []).filter(function (id) { return !gone.some(function (g) { return id.indexOf(g) === 0; }); }));   // the cheat sheets changed
+  } },
+  /* v16: Move Semantics became six lessons, shared_ptr and weak_ptr two, and the exceptions-versus-return-values section of the core
+     lesson moved to the values-or-errors lesson. */
+  { to: 16, run: function (store) {
+    var SECS = {
+      moves: { values: ['moves', ['values', 'binding', 'named']], 'copy-move': ['copymove', ['cost', 'stdmove', 'movedfrom']], writing: ['writemoves', ['ctor', 'assign', 'noexcept', 'zero']],
+        returning: ['elision', ['rvo', 'whenmove']], traps: ['sinks', ['sink', 'choose', 'traps', 'emplace']], forwarding: ['forwarding', ['problem', 'forward', 'collapse']] },
+      smartptr: { weak: ['weakptr', ['cycle', 'weak']] },
+      core: { errors: ['vocab', ['errors']] }
+    };   // old lesson -> old section -> [new lesson, new section ids]
+    var hash = function (s) { var x = 5381, i; for (i = 0; i < s.length; i++) x = ((x * 33) ^ s.charCodeAt(i)) >>> 0; return x.toString(36); };
+    var WHERE = { moves: {'v12hn1': 'copymove', '1j0lv33': 'copymove', 'vjjybz': 'elision', 'bj9033': 'writemoves', '1hybzdt': 'sinks', 'n27cgk': 'writemoves', 'a0tij4': 'writemoves', '1f2arp9': 'elision', 'pr9mmj': 'elision', '1hqv4g8': 'sinks', '1f28stg': 'sinks', 'e401ix': 'forwarding', '131k7yk': 'forwarding'}, smartptr: {'kl74xr': 'weakptr', '1g8ufty': 'weakptr', '153zkxg': 'weakptr', '1w0lydz': 'weakptr'}, core: {'oiyex4': 'vocab', '1u6vy2y': 'vocab'} };
+    Object.keys(SECS).forEach(function (from) {
+      var done = store.get('done:' + from, []), keep = [];
+      done.forEach(function (id) {
+        var t = SECS[from][id];
+        if (!t) { keep.push(id); return; }
+        var d = store.get('done:' + t[0], []);
+        t[1].forEach(function (n) { if (d.indexOf(n) < 0) d.push(n); });
+        store.set('done:' + t[0], d);
+        if (t[0] === from) keep.push.apply(keep, t[1]);
+      });
+      store.set('done:' + from, keep.filter(function (id, i) { return keep.indexOf(id) === i; }));
+      if (SECS[from][store.get('last:' + from, '')]) store.set('last:' + from, '');
+      var li = store.get('lastinfo', null);
+      if (li && li.id === from && SECS[from][li.sec]) store.set('lastinfo', null);
+      var weak = store.get('weak:' + from, {}), stay = {};
+      Object.keys(weak).forEach(function (k) {
+        var to = WHERE[from][hash(k)];
+        if (!to) { stay[k] = weak[k]; return; }
+        var w = store.get('weak:' + to, {});
+        w[k] = weak[k];
+        store.set('weak:' + to, w);
+      });
+      store.set('weak:' + from, stay);
+    });
+    var gone = ['moves-', 'smartptr-', 'core-', 'vocab-'];
     store.set('mock:missed', store.get('mock:missed', []).filter(function (id) { return !gone.some(function (g) { return id.indexOf(g) === 0; }); }));   // the cheat sheets changed
   } }
 ];

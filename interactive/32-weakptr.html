@@ -1,0 +1,162 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>weak_ptr and Reference Cycles</title>
+<script>try{var t=JSON.parse(localStorage.getItem('cpptrain:theme'));if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body data-topic="weakptr" data-kind="lesson">
+<main>
+<h1>weak_ptr and Reference Cycles</h1>
+<p class="lead">Why <code>shared_ptr</code> cycles leak, how <code>weak_ptr</code> and <code>lock()</code> break them, and the three places a non-owning link belongs: parent links, caches and observers. Assumes <a href="14-smart-pointers.html">shared_ptr</a>.</p>
+
+<section id="cycle" data-title="The cycle problem">
+<h2>The cycle problem</h2>
+<p>If <code>A</code> holds a <code>shared_ptr</code> to <code>B</code> and <code>B</code> holds one back to <code>A</code>, each keeps the other alive. When the local variables go away, both counts drop from 2 to 1, never to 0: <b>neither object is destroyed</b>. Compiled: both destructors never ran.</p>
+<figure class="fig"><svg viewBox="0 0 640 160" role="img" aria-label="Parent and child own each other through shared_ptr so neither is ever freed"><defs><marker id="dah3" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path class="ah3" d="M0 0L10 5L0 10z"/></marker><marker id="dah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path class="ah" d="M0 0L10 5L0 10z"/></marker></defs><rect class="wn" x="40" y="30" width="150" height="44" rx="6"/><text class="t" x="115.0" y="49.0" text-anchor="middle">Node A</text><text class="m" x="115.0" y="65.0" text-anchor="middle">count: 2 -&gt; 1 after scope</text><rect class="wn" x="330" y="30" width="150" height="44" rx="6"/><text class="t" x="405.0" y="49.0" text-anchor="middle">Node B</text><text class="m" x="405.0" y="65.0" text-anchor="middle">count: 2 -&gt; 1 after scope</text><path class="ar3" d="M190 44L328 44" marker-end="url(#dah3)"/><path class="ar3" d="M330 62L192 62" marker-end="url(#dah3)"/><text class="m" x="205" y="36" text-anchor="start">owns</text><text class="m" x="250" y="82" text-anchor="start">owns</text><rect class="box" x="40" y="110" width="150" height="30" rx="6"/><text class="t" x="115.0" y="130.0" text-anchor="middle">a (local)</text><rect class="box" x="330" y="110" width="150" height="30" rx="6"/><text class="t" x="405.0" y="130.0" text-anchor="middle">b (local)</text><path class="ar" d="M115 110L115 76" marker-end="url(#dah)" stroke-dasharray="5 4"/><path class="ar" d="M405 110L405 76" marker-end="url(#dah)" stroke-dasharray="5 4"/><text class="m" x="500" y="128" text-anchor="start">locals gone, owners remain: a leak</text></svg><figcaption>Each count stays at 1 after the variables die, so nothing deletes the pair.</figcaption></figure>
+<div id="st-cycle"></div>
+<script type="text/x-cpp">
+struct Node { std::shared_ptr<Node> next; ~Node() { std::cout << "freed\n"; } };
+{
+    auto a = std::make_shared<Node>();
+    auto b = std::make_shared<Node>();
+    a->next = b;
+    b->next = a;           // a cycle: prints nothing when the scope ends
+}
+</script>
+<div class="callout warn"><span class="label">Leaks, not crashes</span>A cycle never crashes. Memory just grows, and the destructors that would release files or sockets never run. Sanitizers with leak detection find it.</div>
+</section>
+
+<section id="weak" data-title="weak_ptr and lock()">
+<h2><code>weak_ptr</code> and <code>lock()</code></h2>
+<p>A <code>weak_ptr</code> points at a shared object <b>without owning it</b>: it does not change the strong count, so it cannot keep the object alive. To use the object, ask for a temporary owner with <code>lock()</code>.</p>
+<figure class="fig"><svg viewBox="0 0 640 150" role="img" aria-label="A weak_ptr watches the control block without owning the object; lock gives a shared_ptr or null"><defs><marker id="eah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path class="ah" d="M0 0L10 5L0 10z"/></marker></defs><rect class="acc" x="10" y="20" width="110" height="34" rx="6"/><text class="t" x="65.0" y="42.0" text-anchor="middle">s: shared</text><rect class="box" x="10" y="96" width="110" height="34" rx="6"/><text class="t" x="65.0" y="118.0" text-anchor="middle">w: weak</text><rect class="wn" x="230" y="40" width="170" height="70" rx="6"/><text class="t" x="315.0" y="72.0" text-anchor="middle">control block</text><text class="m" x="315.0" y="88.0" text-anchor="middle">strong 1, weak 1</text><path class="ar" d="M120 37L228 62" marker-end="url(#eah)"/><path class="ln" d="M120 113L228 90" stroke-dasharray="5 4"/><rect class="gd" x="500" y="54" width="130" height="42" rx="6"/><text class="t" x="565.0" y="80.0" text-anchor="middle">Widget</text><path class="ar" d="M400 75L498 75" marker-end="url(#eah)"/><text class="m" x="10" y="146" text-anchor="start">when the strong count reaches 0 the Widget is destroyed; the control block stays until the last weak_ptr goes.</text></svg><figcaption>weak_ptr observes; lock() turns it into an owner for as long as you need it.</figcaption></figure>
+<script type="text/x-cpp">
+std::shared_ptr<Widget> s = std::make_shared<Widget>();
+std::weak_ptr<Widget> w = s;            // observe only: use_count() is still 1
+
+if (auto sp = w.lock()) {               // a shared_ptr, or null if the Widget is gone
+    sp->draw();                         // safe: sp keeps it alive inside this block
+}
+s.reset();                              // the last owner leaves
+std::cout << w.expired();               // 1 (compiled): lock() would now return null
+</script>
+<table>
+<tr><th>Call</th><th>Meaning</th></tr>
+<tr><td><code>w.lock()</code></td><td>a <code>shared_ptr</code> that owns the object, or an empty one</td></tr>
+<tr><td><code>w.expired()</code></td><td>true once every owner is gone (can change right after you ask)</td></tr>
+<tr><td><code>w.use_count()</code></td><td>the number of owners</td></tr>
+<tr><td><code>w.reset()</code></td><td>stop observing</td></tr>
+</table>
+<div class="callout tip"><span class="label">Always lock, then test</span>Never write <code>if (!w.expired()) w.lock()-&gt;use()</code>: the owner may vanish between the two calls. <code>lock()</code> once, test the result, use that.</div>
+<!-- read-more:start -->
+<div class="callout tip"><span class="label">Read more</span>
+<p><b>Effective Modern C++ (Meyers)</b></p>
+<ul>
+<li>Item 20, Use std::weak_ptr for shared_ptr-like pointers that can dangle (PDF pages 152 to 157)</li>
+</ul>
+</div>
+<!-- read-more:end -->
+</section>
+
+<section id="patterns" data-title="Where weak_ptr belongs">
+<h2>Where weak_ptr belongs</h2>
+<p>Three places where a non-owning link is exactly right.</p>
+<h3>1. Parent links</h3>
+<p>A parent owns its children; a child only needs to find its parent. Make the back link weak and the tree frees itself.</p>
+<script type="text/x-cpp">
+struct Parent;
+struct Child  { std::weak_ptr<Parent> parent; };            // back link: does not own
+struct Parent { std::vector<std::shared_ptr<Child>> kids; };   // forward link: owns
+// p.use_count() is 1 and the child is 2 (compiled): no cycle, both freed
+</script>
+<h3>2. Caches</h3>
+<p>A cache should hand out an object that is still in use, but not keep unused ones alive forever.</p>
+<script type="text/x-cpp">
+std::shared_ptr<Image> load(const std::string& key) {
+    static std::map<std::string, std::weak_ptr<Image>> cache;
+    if (auto sp = cache[key].lock()) return sp;      // still in use: share it
+    auto sp = std::make_shared<Image>(key);          // otherwise load again
+    cache[key] = sp;
+    return sp;
+}
+</script>
+<h3>3. Observers</h3>
+<p>A subject keeps weak pointers to its listeners, so a listener that goes away is simply skipped and never kept alive by the subject.</p>
+<script type="text/x-cpp">
+std::vector<std::weak_ptr<Listener>> subs;
+for (auto& w : subs)
+    if (auto sp = w.lock()) sp->notify();            // expired listeners are skipped
+std::erase_if(subs, [](auto& w) { return w.expired(); });   // tidy up now and then
+</script>
+<table>
+<tr><th>Use</th><th>Strong link</th><th>Weak link</th></tr>
+<tr><td>tree</td><td>parent to children</td><td>child to parent</td></tr>
+<tr><td>cache</td><td>the users of an entry</td><td>the cache itself</td></tr>
+<tr><td>observer</td><td>the listener's real owner</td><td>the subject's list</td></tr>
+</table>
+</section>
+
+<section id="cost" data-title="What a weak_ptr keeps alive">
+<h2>What a weak_ptr keeps alive</h2>
+<p>A <code>weak_ptr</code> keeps the <b>control block</b> alive, not the object. The counts have to outlive the object so that <code>expired()</code> can answer.</p>
+<table>
+<tr><th>State</th><th>Strong count</th><th>Weak count</th><th>Object</th><th>Control block</th></tr>
+<tr><td>all owners alive</td><td>1 or more</td><td>any</td><td>alive</td><td>alive</td></tr>
+<tr><td>last owner gone, a weak_ptr remains</td><td>0</td><td>1 or more</td><td>destroyed</td><td>alive</td></tr>
+<tr><td>last weak_ptr gone too</td><td>0</td><td>0</td><td>destroyed</td><td>freed</td></tr>
+</table>
+<ul>
+<li>With <code>make_shared</code> the object and the control block share one allocation, so the <b>memory of the object is not returned</b> until the last <code>weak_ptr</code> dies (the destructor still runs on time). For a huge object watched by a long-lived <code>weak_ptr</code>, <code>shared_ptr&lt;T&gt;(new T)</code> frees the object's memory earlier.</li>
+<li><code>sizeof(weak_ptr)</code> is 16 bytes, like a <code>shared_ptr</code> (compiled).</li>
+<li>A weak pointer is for <i>observing</i> a shared object. For an object with a single owner use a raw pointer or reference to observe it, not a <code>weak_ptr</code>.</li>
+</ul>
+</section>
+
+<section id="cheat" data-title="Cheat sheet">
+<h2>Cheat sheet</h2>
+<p>Answer aloud, then open.</p>
+<details class="ex"><summary>How do you break a <code>shared_ptr</code> cycle?</summary><div><p>Make one direction (usually the child's link to its parent) a <code>weak_ptr</code>. It does not count toward ownership, so the objects can be destroyed; use <code>lock()</code> to get a temporary <code>shared_ptr</code> when needed.</p></div></details>
+<details class="ex"><summary>Why must you call <code>lock()</code> instead of checking <code>expired()</code> first?</summary><div><p>Another thread can release the last owner between the check and the use. <code>lock()</code> atomically gives you an owner or an empty pointer, so test that result and use it.</p></div></details>
+<details class="ex"><summary>What does a <code>weak_ptr</code> keep alive?</summary><div><p>Only the control block (the counts), never the object. That is what lets <code>expired()</code> answer after the object is gone.</p></div></details>
+<details class="ex"><summary>Why does <code>make_shared</code> delay freeing memory when a <code>weak_ptr</code> remains?</summary><div><p>The object and the control block share one allocation. The object is destroyed on time, but the block of memory is released only when the last weak reference goes.</p></div></details>
+<details class="ex"><summary>Name three uses of <code>weak_ptr</code>.</summary><div><p>Parent back links in a tree, caches that must not keep unused entries alive, and observer lists that must not keep listeners alive.</p></div></details>
+<h3>Keep going</h3>
+<ul>
+<li>Before this lesson: <a href="14-smart-pointers.html">shared_ptr: Shared Ownership</a>.</li>
+</ul>
+</section>
+</main>
+
+<script src="assets/data/lessons.js"></script>
+<script src="assets/app.js"></script>
+<script>
+CT.stepper('#st-cycle', {
+  title: 'A shared_ptr cycle leaks',
+  code: String.raw`
+struct Node { shared_ptr<Node> next; };
+{
+    auto a = make_shared<Node>();
+    auto b = make_shared<Node>();
+    a->next = b;
+    b->next = a;
+}
+`,
+  steps: [
+    { line: 3, mem: [{ n: 'a', t: 'shared_ptr', v: '0x5000', p: 'Node A' }, { n: 'Node A @0x5000', t: 'next, use_count', v: 'null (1)', k: 'heap' }],
+      note: '<b>a</b> owns Node A. Strong count 1.' },
+    { line: 4, mem: [{ n: 'a', t: 'shared_ptr', v: '0x5000', p: 'Node A' }, { n: 'b', t: 'shared_ptr', v: '0x6000', p: 'Node B' }, { n: 'Node A @0x5000', t: 'next, use_count', v: 'null (1)', k: 'heap' }, { n: 'Node B @0x6000', t: 'next, use_count', v: 'null (1)', k: 'heap' }],
+      note: '<b>b</b> owns Node B. Strong count 1.' },
+    { line: 5, mem: [{ n: 'a', t: 'shared_ptr', v: '0x5000', p: 'Node A' }, { n: 'b', t: 'shared_ptr', v: '0x6000', p: 'Node B' }, { n: 'Node A @0x5000', t: 'next, use_count', v: '0x6000 (1)', k: 'heap' }, { n: 'Node B @0x6000', t: 'next, use_count', v: 'null (2)', k: 'heap' }],
+      note: 'A now also owns B through <code>next</code>: the count of B is <b>2</b>.' },
+    { line: 6, mem: [{ n: 'a', t: 'shared_ptr', v: '0x5000', p: 'Node A' }, { n: 'b', t: 'shared_ptr', v: '0x6000', p: 'Node B' }, { n: 'Node A @0x5000', t: 'next, use_count', v: '0x6000 (2)', k: 'heap' }, { n: 'Node B @0x6000', t: 'next, use_count', v: '0x5000 (2)', k: 'heap' }],
+      note: 'B owns A back: the count of A is <b>2</b>. Each node keeps the other alive.' },
+    { line: 7, mem: [{ n: 'a', t: 'shared_ptr', v: 'gone', dead: true }, { n: 'b', t: 'shared_ptr', v: 'gone', dead: true }, { n: 'Node A @0x5000', t: 'next, use_count', v: '0x6000 (1)', k: 'heap' }, { n: 'Node B @0x6000', t: 'next, use_count', v: '0x5000 (1)', k: 'heap' }],
+      note: 'The scope ends and <b>a</b> and <b>b</b> are destroyed, but each count only falls to <b>1</b>: the other node still owns it. Nobody can reach them and nothing frees them: a <b>leak</b>. If <code>next</code> were a <code>weak_ptr</code> in one direction, the count of that node would stay 1, so it would be freed when its variable dies, which then releases the other.' }
+  ]
+});
+</script>
+</body>
+</html>

@@ -1,4 +1,4 @@
-// Lesson 24: shared_future, promise<void> as a signal, std::latch, std::barrier, counting_semaphore, jthread with a
+// Lesson 30: shared_future, promise<void> as a signal, std::latch, std::barrier, counting_semaphore, jthread with a
 // stop_token, and a parallel algorithm. Compile with -std=c++20 -pthread.
 #include <atomic>
 #include <barrier>

@@ -290,17 +290,16 @@
 </section>
 
 <section class="ck-section" data-ck-section id="phase-4" role="tabpanel">
-<h2>Phase 4: RAII, exceptions and advanced language tools (about 7.2 hours) <span class="ck-count"></span></h2>
+<h2>Phase 4: RAII, exceptions and advanced language tools (about 7.1 hours) <span class="ck-count"></span></h2>
 <p class="ck-note">Exceptions and RAII, namespaces, unions and enums, memory control.. <a href="https://github.com/Ghaith-Hamdi1/cpp-training/blob/main/docs/reading/roadmap/phase-4-raii-exceptions-and-advanced-language-tools.md">Roadmap page for this phase</a>.</p>
 <h3 class="ck-sub">Lessons and quizzes</h3>
-<h4>Core Language: RAII &amp; Exceptions</h4>
-<p class="ck-note"><a href="03-core-language.html">Lesson</a> <span class="badge" data-lesson="core"></span> and <a href="03-core-language-quiz.html">quiz</a> (17 questions) <span class="badge" data-quiz="core"></span></p>
+<h4>RAII and Exceptions</h4>
+<p class="ck-note"><a href="03-core-language.html">Lesson</a> <span class="badge" data-lesson="core"></span> and <a href="03-core-language-quiz.html">quiz</a> (15 questions) <span class="badge" data-quiz="core"></span></p>
 <ul class="ck-list">
 <li><label><input type="checkbox" data-ck="core-s1"><span class="t">RAII: the central idea <a href="03-core-language.html#s1">open</a></span></label></li>
 <li><label><input type="checkbox" data-ck="core-s7"><span class="t">Exceptions and stack unwinding <a href="03-core-language.html#s7">open</a></span></label></li>
 <li><label><input type="checkbox" data-ck="core-raii-types"><span class="t">RAII everywhere: guards and standard wrappers <a href="03-core-language.html#raii-types">open</a></span></label></li>
 <li><label><input type="checkbox" data-ck="core-guarantees"><span class="t">Exception-safety guarantees and noexcept <a href="03-core-language.html#guarantees">open</a></span></label></li>
-<li><label><input type="checkbox" data-ck="core-errors"><span class="t">Exceptions, error codes and optional <a href="03-core-language.html#errors">open</a></span></label></li>
 <li><label><input type="checkbox" data-ck="core-s11"><span class="t">Cheat sheet (say each answer aloud) <a href="03-core-language.html#s11">open</a></span></label></li>
 <li><label><input type="checkbox" data-ck="core-quiz"><span class="t">Take the quiz, then retry the missed questions <a href="03-core-language-quiz.html">open</a></span></label></li>
 </ul>
@@ -317,13 +316,14 @@
 </section>
 
 <section class="ck-section" data-ck-section id="phase-5" role="tabpanel">
-<h2>Phase 5: Modern C++ (C++11 to C++20) (about 23.8 hours) <span class="ck-count"></span></h2>
+<h2>Phase 5: Modern C++ (C++11 to C++20) (about 27.0 hours) <span class="ck-count"></span></h2>
 <p class="ck-note">Move semantics, smart pointers, forwarding, `constexpr`, vocabulary types, concepts.. <a href="https://github.com/Ghaith-Hamdi1/cpp-training/blob/main/docs/reading/roadmap/phase-5-modern-cpp.md">Roadmap page for this phase</a>.</p>
 <h3 class="ck-sub">Lessons and quizzes</h3>
-<h4>optional, variant and expected</h4>
-<p class="ck-note"><a href="21-vocabulary-types.html">Lesson</a> <span class="badge" data-lesson="vocab"></span> and <a href="21-vocabulary-types-quiz.html">quiz</a> (9 questions) <span class="badge" data-quiz="vocab"></span></p>
+<h4>Values or Errors: optional, variant and expected</h4>
+<p class="ck-note"><a href="21-vocabulary-types.html">Lesson</a> <span class="badge" data-lesson="vocab"></span> and <a href="21-vocabulary-types-quiz.html">quiz</a> (11 questions) <span class="badge" data-quiz="vocab"></span></p>
 <ul class="ck-list">
 <li><label><input type="checkbox" data-ck="vocab-why"><span class="t">Why vocabulary types <a href="21-vocabulary-types.html#why">open</a></span></label></li>
+<li><label><input type="checkbox" data-ck="vocab-errors"><span class="t">Exceptions, error codes and optional <a href="21-vocabulary-types.html#errors">open</a></span></label></li>
 <li><label><input type="checkbox" data-ck="vocab-optional"><span class="t"><code>optional</code>: a value or nothing <a href="21-vocabulary-types.html#optional">open</a></span></label></li>
 <li><label><input type="checkbox" data-ck="vocab-variant"><span class="t"><code>variant</code> and <code>std::visit</code> <a href="21-vocabulary-types.html#variant">open</a></span></label></li>
 <li><label><input type="checkbox" data-ck="vocab-expected"><span class="t"><code>expected</code>: a value or an error <a href="21-vocabulary-types.html#expected">open</a></span></label></li>
@@ -331,17 +331,70 @@
 <li><label><input type="checkbox" data-ck="vocab-cheat"><span class="t">Cheat sheet (say each answer aloud) <a href="21-vocabulary-types.html#cheat">open</a></span></label></li>
 <li><label><input type="checkbox" data-ck="vocab-quiz"><span class="t">Take the quiz, then retry the missed questions <a href="21-vocabulary-types-quiz.html">open</a></span></label></li>
 </ul>
-<h4>Move Semantics</h4>
-<p class="ck-note"><a href="13-move-semantics.html">Lesson</a> <span class="badge" data-lesson="moves"></span> and <a href="13-move-semantics-quiz.html">quiz</a> (17 questions) <span class="badge" data-quiz="moves"></span></p>
+<h4>Lvalues and Rvalues</h4>
+<p class="ck-note"><a href="13-move-semantics.html">Lesson</a> <span class="badge" data-lesson="moves"></span> and <a href="13-move-semantics-quiz.html">quiz</a> (12 questions) <span class="badge" data-quiz="moves"></span></p>
 <ul class="ck-list">
+<li><label><input type="checkbox" data-ck="moves-names"><span class="t">Names and temporaries <a href="13-move-semantics.html#names">open</a></span></label></li>
 <li><label><input type="checkbox" data-ck="moves-values"><span class="t">Lvalues, rvalues and value categories <a href="13-move-semantics.html#values">open</a></span></label></li>
-<li><label><input type="checkbox" data-ck="moves-copy-move"><span class="t">Copy versus move (step through it; what <code>std::move</code> really does) <a href="13-move-semantics.html#copy-move">open</a></span></label></li>
-<li><label><input type="checkbox" data-ck="moves-writing"><span class="t">Writing move operations <a href="13-move-semantics.html#writing">open</a></span></label></li>
-<li><label><input type="checkbox" data-ck="moves-returning"><span class="t">Returning objects: elision and <code>std::move</code> <a href="13-move-semantics.html#returning">open</a></span></label></li>
-<li><label><input type="checkbox" data-ck="moves-traps"><span class="t">Sink parameters and move traps (the <code>const</code> trap) <a href="13-move-semantics.html#traps">open</a></span></label></li>
-<li><label><input type="checkbox" data-ck="moves-forwarding"><span class="t">Perfect forwarding <a href="13-move-semantics.html#forwarding">open</a></span></label></li>
+<li><label><input type="checkbox" data-ck="moves-binding"><span class="t">Which reference binds to what <a href="13-move-semantics.html#binding">open</a></span></label></li>
+<li><label><input type="checkbox" data-ck="moves-named"><span class="t">A name is always an lvalue <a href="13-move-semantics.html#named">open</a></span></label></li>
+<li><label><input type="checkbox" data-ck="moves-signature"><span class="t">What a parameter type promises <a href="13-move-semantics.html#signature">open</a></span></label></li>
 <li><label><input type="checkbox" data-ck="moves-cheat"><span class="t">Cheat sheet (say each answer aloud) <a href="13-move-semantics.html#cheat">open</a></span></label></li>
 <li><label><input type="checkbox" data-ck="moves-quiz"><span class="t">Take the quiz, then retry the missed questions <a href="13-move-semantics-quiz.html">open</a></span></label></li>
+</ul>
+<h4>Copy versus Move, and std::move</h4>
+<p class="ck-note"><a href="33-copymove.html">Lesson</a> <span class="badge" data-lesson="copymove"></span> and <a href="33-copymove-quiz.html">quiz</a> (10 questions) <span class="badge" data-quiz="copymove"></span></p>
+<ul class="ck-list">
+<li><label><input type="checkbox" data-ck="copymove-cost"><span class="t">What a copy costs <a href="33-copymove.html#cost">open</a></span></label></li>
+<li><label><input type="checkbox" data-ck="copymove-stdmove"><span class="t">What <code>std::move</code> really does <a href="33-copymove.html#stdmove">open</a></span></label></li>
+<li><label><input type="checkbox" data-ck="copymove-movedfrom"><span class="t">Moved-from objects <a href="33-copymove.html#movedfrom">open</a></span></label></li>
+<li><label><input type="checkbox" data-ck="copymove-constmove"><span class="t">When <code>std::move</code> copies anyway <a href="33-copymove.html#constmove">open</a></span></label></li>
+<li><label><input type="checkbox" data-ck="copymove-stdtypes"><span class="t">Which standard types are cheap to move <a href="33-copymove.html#stdtypes">open</a></span></label></li>
+<li><label><input type="checkbox" data-ck="copymove-cheat"><span class="t">Cheat sheet (say each answer aloud) <a href="33-copymove.html#cheat">open</a></span></label></li>
+<li><label><input type="checkbox" data-ck="copymove-quiz"><span class="t">Take the quiz, then retry the missed questions <a href="33-copymove-quiz.html">open</a></span></label></li>
+</ul>
+<h4>Writing Move Operations</h4>
+<p class="ck-note"><a href="34-writemoves.html">Lesson</a> <span class="badge" data-lesson="writemoves"></span> and <a href="34-writemoves-quiz.html">quiz</a> (11 questions) <span class="badge" data-quiz="writemoves"></span></p>
+<ul class="ck-list">
+<li><label><input type="checkbox" data-ck="writemoves-ctor"><span class="t">The move constructor, step by step <a href="34-writemoves.html#ctor">open</a></span></label></li>
+<li><label><input type="checkbox" data-ck="writemoves-assign"><span class="t">Move assignment and copy-and-swap <a href="34-writemoves.html#assign">open</a></span></label></li>
+<li><label><input type="checkbox" data-ck="writemoves-noexcept"><span class="t">Why moves must be <code>noexcept</code> <a href="34-writemoves.html#noexcept">open</a></span></label></li>
+<li><label><input type="checkbox" data-ck="writemoves-zero"><span class="t">Rule of Zero first <a href="34-writemoves.html#zero">open</a></span></label></li>
+<li><label><input type="checkbox" data-ck="writemoves-testing"><span class="t">Testing your move operations <a href="34-writemoves.html#testing">open</a></span></label></li>
+<li><label><input type="checkbox" data-ck="writemoves-cheat"><span class="t">Cheat sheet (say each answer aloud) <a href="34-writemoves.html#cheat">open</a></span></label></li>
+<li><label><input type="checkbox" data-ck="writemoves-quiz"><span class="t">Take the quiz, then retry the missed questions <a href="34-writemoves-quiz.html">open</a></span></label></li>
+</ul>
+<h4>Returning Objects and Copy Elision</h4>
+<p class="ck-note"><a href="35-elision.html">Lesson</a> <span class="badge" data-lesson="elision"></span> and <a href="35-elision-quiz.html">quiz</a> (11 questions) <span class="badge" data-quiz="elision"></span></p>
+<ul class="ck-list">
+<li><label><input type="checkbox" data-ck="elision-rvo"><span class="t">Returning a local: the compiler does the work <a href="35-elision.html#rvo">open</a></span></label></li>
+<li><label><input type="checkbox" data-ck="elision-guaranteed"><span class="t">Guaranteed elision in C++17 <a href="35-elision.html#guaranteed">open</a></span></label></li>
+<li><label><input type="checkbox" data-ck="elision-whenmove"><span class="t">When <code>std::move</code> on a return is right and wrong <a href="35-elision.html#whenmove">open</a></span></label></li>
+<li><label><input type="checkbox" data-ck="elision-limits"><span class="t">When elision does not happen <a href="35-elision.html#limits">open</a></span></label></li>
+<li><label><input type="checkbox" data-ck="elision-cheat"><span class="t">Cheat sheet (say each answer aloud) <a href="35-elision.html#cheat">open</a></span></label></li>
+<li><label><input type="checkbox" data-ck="elision-quiz"><span class="t">Take the quiz, then retry the missed questions <a href="35-elision-quiz.html">open</a></span></label></li>
+</ul>
+<h4>Sink Parameters and Move Traps</h4>
+<p class="ck-note"><a href="36-sinks.html">Lesson</a> <span class="badge" data-lesson="sinks"></span> and <a href="36-sinks-quiz.html">quiz</a> (11 questions) <span class="badge" data-quiz="sinks"></span></p>
+<ul class="ck-list">
+<li><label><input type="checkbox" data-ck="sinks-sink"><span class="t">Taking a parameter you will store <a href="36-sinks.html#sink">open</a></span></label></li>
+<li><label><input type="checkbox" data-ck="sinks-choose"><span class="t">By value, overloads or const reference? <a href="36-sinks.html#choose">open</a></span></label></li>
+<li><label><input type="checkbox" data-ck="sinks-traps"><span class="t">Move traps <a href="36-sinks.html#traps">open</a></span></label></li>
+<li><label><input type="checkbox" data-ck="sinks-emplace"><span class="t"><code>push_back</code>, <code>emplace_back</code> and moving into containers <a href="36-sinks.html#emplace">open</a></span></label></li>
+<li><label><input type="checkbox" data-ck="sinks-moveonly"><span class="t">Move-only sinks <a href="36-sinks.html#moveonly">open</a></span></label></li>
+<li><label><input type="checkbox" data-ck="sinks-cheat"><span class="t">Cheat sheet (say each answer aloud) <a href="36-sinks.html#cheat">open</a></span></label></li>
+<li><label><input type="checkbox" data-ck="sinks-quiz"><span class="t">Take the quiz, then retry the missed questions <a href="36-sinks-quiz.html">open</a></span></label></li>
+</ul>
+<h4>Perfect Forwarding</h4>
+<p class="ck-note"><a href="37-forwarding.html">Lesson</a> <span class="badge" data-lesson="forwarding"></span> and <a href="37-forwarding-quiz.html">quiz</a> (10 questions) <span class="badge" data-quiz="forwarding"></span></p>
+<ul class="ck-list">
+<li><label><input type="checkbox" data-ck="forwarding-problem"><span class="t">Why a wrapper loses the category <a href="37-forwarding.html#problem">open</a></span></label></li>
+<li><label><input type="checkbox" data-ck="forwarding-forward"><span class="t"><code>std::forward</code> restores it <a href="37-forwarding.html#forward">open</a></span></label></li>
+<li><label><input type="checkbox" data-ck="forwarding-collapse"><span class="t">Reference collapsing <a href="37-forwarding.html#collapse">open</a></span></label></li>
+<li><label><input type="checkbox" data-ck="forwarding-limits"><span class="t">Where forwarding fails <a href="37-forwarding.html#limits">open</a></span></label></li>
+<li><label><input type="checkbox" data-ck="forwarding-practice"><span class="t">Forwarding in practice <a href="37-forwarding.html#practice">open</a></span></label></li>
+<li><label><input type="checkbox" data-ck="forwarding-cheat"><span class="t">Cheat sheet (say each answer aloud) <a href="37-forwarding.html#cheat">open</a></span></label></li>
+<li><label><input type="checkbox" data-ck="forwarding-quiz"><span class="t">Take the quiz, then retry the missed questions <a href="37-forwarding-quiz.html">open</a></span></label></li>
 </ul>
 <h4>unique_ptr: Exclusive Ownership</h4>
 <p class="ck-note"><a href="24-uniqueptr.html">Lesson</a> <span class="badge" data-lesson="uniqueptr"></span> and <a href="24-uniqueptr-quiz.html">quiz</a> (16 questions) <span class="badge" data-quiz="uniqueptr"></span></p>
@@ -355,14 +408,26 @@
 <li><label><input type="checkbox" data-ck="uniqueptr-cheat"><span class="t">Cheat sheet (say each answer aloud) <a href="24-uniqueptr.html#cheat">open</a></span></label></li>
 <li><label><input type="checkbox" data-ck="uniqueptr-quiz"><span class="t">Take the quiz, then retry the missed questions <a href="24-uniqueptr-quiz.html">open</a></span></label></li>
 </ul>
-<h4>shared_ptr and weak_ptr</h4>
-<p class="ck-note"><a href="14-smart-pointers.html">Lesson</a> <span class="badge" data-lesson="smartptr"></span> and <a href="14-smart-pointers-quiz.html">quiz</a> (10 questions) <span class="badge" data-quiz="smartptr"></span></p>
+<h4>shared_ptr: Shared Ownership</h4>
+<p class="ck-note"><a href="14-smart-pointers.html">Lesson</a> <span class="badge" data-lesson="smartptr"></span> and <a href="14-smart-pointers-quiz.html">quiz</a> (12 questions) <span class="badge" data-quiz="smartptr"></span></p>
 <ul class="ck-list">
+<li><label><input type="checkbox" data-ck="smartptr-when"><span class="t">When ownership is shared <a href="14-smart-pointers.html#when">open</a></span></label></li>
 <li><label><input type="checkbox" data-ck="smartptr-shared"><span class="t"><code>shared_ptr</code> and the control block (step through the count) <a href="14-smart-pointers.html#shared">open</a></span></label></li>
-<li><label><input type="checkbox" data-ck="smartptr-weak"><span class="t">Reference cycles and <code>weak_ptr</code> (step through the leak) <a href="14-smart-pointers.html#weak">open</a></span></label></li>
+<li><label><input type="checkbox" data-ck="smartptr-make"><span class="t"><code>make_shared</code> and the cost of a copy <a href="14-smart-pointers.html#make">open</a></span></label></li>
+<li><label><input type="checkbox" data-ck="smartptr-threads"><span class="t"><code>shared_ptr</code> and threads <a href="14-smart-pointers.html#threads">open</a></span></label></li>
 <li><label><input type="checkbox" data-ck="smartptr-pitfalls"><span class="t">Pitfalls and <code>enable_shared_from_this</code> <a href="14-smart-pointers.html#pitfalls">open</a></span></label></li>
 <li><label><input type="checkbox" data-ck="smartptr-cheat"><span class="t">Cheat sheet (say each answer aloud) <a href="14-smart-pointers.html#cheat">open</a></span></label></li>
 <li><label><input type="checkbox" data-ck="smartptr-quiz"><span class="t">Take the quiz, then retry the missed questions <a href="14-smart-pointers-quiz.html">open</a></span></label></li>
+</ul>
+<h4>weak_ptr and Reference Cycles</h4>
+<p class="ck-note"><a href="32-weakptr.html">Lesson</a> <span class="badge" data-lesson="weakptr"></span> and <a href="32-weakptr-quiz.html">quiz</a> (12 questions) <span class="badge" data-quiz="weakptr"></span></p>
+<ul class="ck-list">
+<li><label><input type="checkbox" data-ck="weakptr-cycle"><span class="t">The cycle problem <a href="32-weakptr.html#cycle">open</a></span></label></li>
+<li><label><input type="checkbox" data-ck="weakptr-weak"><span class="t"><code>weak_ptr</code> and <code>lock()</code> <a href="32-weakptr.html#weak">open</a></span></label></li>
+<li><label><input type="checkbox" data-ck="weakptr-patterns"><span class="t">Where weak_ptr belongs <a href="32-weakptr.html#patterns">open</a></span></label></li>
+<li><label><input type="checkbox" data-ck="weakptr-cost"><span class="t">What a weak_ptr keeps alive <a href="32-weakptr.html#cost">open</a></span></label></li>
+<li><label><input type="checkbox" data-ck="weakptr-cheat"><span class="t">Cheat sheet (say each answer aloud) <a href="32-weakptr.html#cheat">open</a></span></label></li>
+<li><label><input type="checkbox" data-ck="weakptr-quiz"><span class="t">Take the quiz, then retry the missed questions <a href="32-weakptr-quiz.html">open</a></span></label></li>
 </ul>
 <h3 class="ck-sub">Book reading (core)</h3>
 <ul class="ck-list">

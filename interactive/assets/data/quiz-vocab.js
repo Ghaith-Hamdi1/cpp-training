@@ -2,6 +2,14 @@
 CT.quizData.vocab = {
   id: 'vocab',
   questions: [
+    { sec: 'errors', q: 'Which failure is best reported with a return value (`std::optional` or an error code) rather than an exception?',
+      opts: ['A parser rejecting malformed input, which is routine', 'Running out of memory while allocating', 'A constructor that cannot acquire its resource', 'A broken class invariant detected in a member function'], a: 0,
+      why: 'Expected, frequent failures belong in the return type, where the caller must look at them. Exceptions suit rare failures the local code cannot handle.' },
+
+    { sec: 'errors', q: 'Why are exceptions avoided on a latency-critical hot path?',
+      opts: ['They are forbidden by the standard since C++20', 'A throw is slow and its latency is unpredictable', 'They leak memory when thrown across threads', 'They disable inlining for the whole program'], a: 1,
+      why: 'The no-throw path is cheap, but actually throwing takes orders of magnitude longer than a return and varies from call to call. Hot paths report errors with return values.' },
+
     { sec: 'why', q: 'What is the main point of a "vocabulary type" such as `std::optional`?',
       opts: ['It is usually faster than a raw pointer, because it never allocates', 'It puts the contract (absent, one of several, value or error) in the signature', 'It removes the need for templates in generic code, replacing them with variants', 'It stores its value on the heap so that several owners can share it'], a: 1,
       why: 'These types replace magic values (`-1`), tagged unions and pointer-plus-count pairs. The meaning is in the type, not in a comment. They are ordinary value types: no heap allocation, no virtual functions.' },

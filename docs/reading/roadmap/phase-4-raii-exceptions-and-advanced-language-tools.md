@@ -4,7 +4,7 @@
 
 *Exceptions and RAII, namespaces, unions and enums, memory control.*
 
-**Time:** about **7.2 hours** (6.6 h reading, 0.6 h lessons and quizzes, 0.0 h exercises), plus 2.3 h if you also read the deepen list.
+**Time:** about **7.1 hours** (6.6 h reading, 0.5 h lessons and quizzes, 0.0 h exercises), plus 2.3 h if you also read the deepen list.
 
 ## Big topics
 
@@ -35,7 +35,7 @@
 
 | Lesson | Time |
 |---|---|
-| [18. Core Language: RAII & Exceptions](https://ghaith-hamdi1.github.io/cpp-training/03-core-language.html) and its [quiz](https://ghaith-hamdi1.github.io/cpp-training/03-core-language-quiz.html) | 35 min |
+| [18. RAII and Exceptions](https://ghaith-hamdi1.github.io/cpp-training/03-core-language.html) and its [quiz](https://ghaith-hamdi1.github.io/cpp-training/03-core-language-quiz.html) | 30 min |
 
 Exercises: none (use the lesson's step-throughs and quiz).
 

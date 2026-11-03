@@ -1,0 +1,178 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Perfect Forwarding</title>
+<script>try{var t=JSON.parse(localStorage.getItem('cpptrain:theme'));if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body data-topic="forwarding" data-kind="lesson">
+<main>
+<h1>Perfect Forwarding</h1>
+<p class="lead">Passing arguments through a wrapper without changing their value category: why <code>std::forward</code> is needed, how reference collapsing makes it work, and where it fails. Assumes <a href="36-sinks.html">Sink Parameters and Move Traps</a> and <a href="05-templates.html">Function Templates</a>.</p>
+
+<section id="problem" data-title="Why a wrapper loses the category">
+<h2>Why a wrapper loses the category</h2>
+<p>Suppose you write a wrapper that passes its arguments on to another function (<code>make_unique</code>, <code>emplace_back</code>, a logging wrapper). The caller may pass an lvalue or an rvalue, and the target should copy or move accordingly. But inside the wrapper, the parameter has a <b>name</b>, so it is an lvalue, and the target would <i>always copy</i>.</p>
+<figure class="fig"><svg viewBox="0 0 640 160" role="img" aria-label="Inside a wrapper the parameter has a name so it is an lvalue and the callee would always copy"><defs><marker id="nah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path class="ah" d="M0 0L10 5L0 10z"/></marker><marker id="nah3" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path class="ah3" d="M0 0L10 5L0 10z"/></marker><marker id="nah2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path class="ah2" d="M0 0L10 5L0 10z"/></marker></defs><rect class="acc" x="10" y="20" width="130" height="40" rx="6"/><text class="t" x="75.0" y="37.0" text-anchor="middle">caller: f(tmp)</text><text class="m" x="75.0" y="53.0" text-anchor="middle">an rvalue</text><path class="ar" d="M140 40L208 40" marker-end="url(#nah)"/><rect class="gd" x="210" y="20" width="150" height="40" rx="6"/><text class="t" x="285.0" y="37.0" text-anchor="middle">wrap(T&amp;&amp; a)</text><text class="m" x="285.0" y="53.0" text-anchor="middle">a has a name: lvalue</text><path class="ar3" d="M360 40L428 40" marker-end="url(#nah3)"/><rect class="bd" x="430" y="20" width="200" height="40" rx="6"/><text class="t" x="530.0" y="37.0" text-anchor="middle">target(a)</text><text class="m" x="530.0" y="53.0" text-anchor="middle">copies: sees an lvalue</text><rect class="wn" x="210" y="90" width="150" height="40" rx="6"/><text class="t" x="285.0" y="107.0" text-anchor="middle">std::forward&lt;T&gt;(a)</text><text class="m" x="285.0" y="123.0" text-anchor="middle">rvalue again</text><path class="ar2" d="M360 110L428 110" marker-end="url(#nah2)"/><rect class="gd" x="430" y="90" width="200" height="40" rx="6"/><text class="t" x="530.0" y="107.0" text-anchor="middle">target(...)</text><text class="m" x="530.0" y="123.0" text-anchor="middle">moves: sees an rvalue</text><text class="m" x="10" y="152" text-anchor="start">std::forward restores what the caller passed.</text></svg><figcaption>The wrapper must pass the argument on exactly as it received it.</figcaption></figure>
+<script type="text/x-cpp">
+template <typename T> void wrapMove(T&& a) { f(std::move(a)); }      // always an rvalue
+template <typename T> void wrapFwd (T&& a) { f(std::forward<T>(a)); } // the caller's category
+
+std::string t = "t";
+wrapMove(t);                  // && : moved from t, though the caller passed an lvalue!
+wrapFwd(t);                   // const& : t stays intact
+wrapFwd(std::string("u"));    // && : a temporary is moved
+// prints: && const& &&   (compiled)
+</script>
+</section>
+
+<section id="forward" data-title="std::forward restores it">
+<h2><code>std::forward</code> restores it</h2>
+<p><code>std::forward&lt;T&gt;(a)</code> casts <code>a</code> back to what the caller passed: an rvalue reference if the argument was an rvalue, an lvalue reference if it was an lvalue. It works because the parameter is a <b>forwarding reference</b>: <code>T&amp;&amp;</code> where <code>T</code> is deduced (see <a href="05-templates.html#s4">Function Templates</a>).</p>
+<script type="text/x-cpp">
+template <typename T, typename... Args>
+std::unique_ptr<T> makeUnique(Args&&... args) {                      // forwarding references
+    return std::unique_ptr<T>(new T(std::forward<Args>(args)...));   // each argument keeps its category
+}
+
+std::string s = "abc";
+auto a = makeUnique<Widget>(s);               // lvalue  -> Widget's constructor COPIES it
+auto b = makeUnique<Widget>(std::string("x"));// rvalue  -> Widget's constructor MOVES it
+</script>
+<table>
+<tr><th></th><th><code>std::move(x)</code></th><th><code>std::forward&lt;T&gt;(x)</code></th></tr>
+<tr><td>casts to</td><td>always an rvalue</td><td>an rvalue only if the argument was one</td></tr>
+<tr><td>use on</td><td>a variable you are done with</td><td>a forwarding reference, once</td></tr>
+<tr><td>when wrong</td><td>steals an lvalue the caller wanted</td><td>forgetting it makes every argument a copy</td></tr>
+</table>
+<div class="callout warn"><span class="label">Once only</span>Forward each parameter at most once. After <code>std::forward</code> the object may have been moved from.</div>
+<!-- read-more:start -->
+<div class="callout tip"><span class="label">Read more</span>
+<p><b>Effective Modern C++ (Meyers)</b></p>
+<ul>
+<li>Item 23, Understand std::move and std::forward (PDF pages 176 to 182)</li>
+<li>Item 25, Use std::move on rvalue references, std::forward on universal references (PDF pages 186 to 195)</li>
+</ul>
+<p><b>C++ Move Semantics (Josuttis)</b></p>
+<ul>
+<li>9.1 to 9.3 Perfect forwarding; universal versus rvalue references (PDF pages 159 to 166)</li>
+<li>Chapter 11 Perfect passing with auto&amp;&amp; (PDF pages 191 to 202)</li>
+</ul>
+</div>
+<!-- read-more:end -->
+</section>
+
+<section id="collapse" data-title="Reference collapsing">
+<h2>Reference collapsing</h2>
+<p>Why does <code>T&amp;&amp;</code> sometimes mean an lvalue reference? Because C++ does not allow a reference to a reference, but templates can create one by substitution. The rule for resolving it is <b>reference collapsing</b>: if either side is an lvalue reference, the result is an lvalue reference.</p>
+<figure class="fig"><svg viewBox="0 0 640 170" role="img" aria-label="Reference collapsing: only rvalue reference to rvalue reference stays an rvalue reference"><defs><marker id="oah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path class="ah" d="M0 0L10 5L0 10z"/></marker></defs><text class="t" x="10" y="20" text-anchor="start">what you get</text><text class="t" x="250" y="20" text-anchor="start">becomes</text><rect class="acc" x="10" y="32" width="200" height="26" rx="6"/><text class="mono" x="110.0" y="50.0" text-anchor="middle">T&amp; &amp;</text><path class="ar" d="M210 45L248 45" marker-end="url(#oah)"/><rect class="wn" x="250" y="32" width="120" height="26" rx="6"/><text class="mono" x="310.0" y="50.0" text-anchor="middle">T&amp;</text><rect class="acc" x="10" y="64" width="200" height="26" rx="6"/><text class="mono" x="110.0" y="82.0" text-anchor="middle">T&amp; &amp;&amp;</text><path class="ar" d="M210 77L248 77" marker-end="url(#oah)"/><rect class="wn" x="250" y="64" width="120" height="26" rx="6"/><text class="mono" x="310.0" y="82.0" text-anchor="middle">T&amp;</text><rect class="acc" x="10" y="96" width="200" height="26" rx="6"/><text class="mono" x="110.0" y="114.0" text-anchor="middle">T&amp;&amp; &amp;</text><path class="ar" d="M210 109L248 109" marker-end="url(#oah)"/><rect class="wn" x="250" y="96" width="120" height="26" rx="6"/><text class="mono" x="310.0" y="114.0" text-anchor="middle">T&amp;</text><rect class="acc" x="10" y="128" width="200" height="26" rx="6"/><text class="mono" x="110.0" y="146.0" text-anchor="middle">T&amp;&amp; &amp;&amp;</text><path class="ar" d="M210 141L248 141" marker-end="url(#oah)"/><rect class="gd" x="250" y="128" width="120" height="26" rx="6"/><text class="mono" x="310.0" y="146.0" text-anchor="middle">T&amp;&amp;</text><text class="m" x="400" y="60" text-anchor="start">an lvalue argument deduces T = X&amp;</text><text class="m" x="400" y="80" text-anchor="start">so T&amp;&amp; becomes X&amp;  (lvalue)</text><text class="m" x="400" y="110" text-anchor="start">an rvalue argument deduces T = X</text><text class="m" x="400" y="130" text-anchor="start">so T&amp;&amp; stays X&amp;&amp;  (rvalue)</text></svg><figcaption>A forwarding reference works because T&amp; &amp;&amp; collapses to T&amp;.</figcaption></figure>
+<table>
+<tr><th>Argument</th><th>Deduced <code>T</code></th><th>Parameter <code>T&amp;&amp;</code> becomes</th></tr>
+<tr><td>an lvalue <code>s</code> of type <code>string</code></td><td><code>string&amp;</code></td><td><code>string&amp;</code></td></tr>
+<tr><td>an rvalue <code>string("x")</code></td><td><code>string</code></td><td><code>string&amp;&amp;</code></td></tr>
+</table>
+<div id="st-forward"></div>
+<p><code>std::forward&lt;T&gt;</code> uses exactly that: with <code>T = string&amp;</code> it returns <code>string&amp;</code> (an lvalue), with <code>T = string</code> it returns <code>string&amp;&amp;</code>.</p>
+<!-- read-more:start -->
+<div class="callout tip"><span class="label">Read more</span>
+<p><b>C++ Move Semantics (Josuttis)</b></p>
+<ul>
+<li>9.1 to 9.3 Perfect forwarding; universal versus rvalue references (PDF pages 159 to 166)</li>
+</ul>
+</div>
+<!-- read-more:end -->
+</section>
+
+<section id="limits" data-title="Where forwarding fails">
+<h2>Where forwarding fails</h2>
+<p>Perfect forwarding is not perfect for every argument. Deduction fails or picks the wrong type in a few cases.</p>
+<table>
+<tr><th>Argument</th><th>Why forwarding fails</th></tr>
+<tr><td>a braced list <code>{1, 2}</code></td><td>a braced list has no type, so <code>T</code> cannot be deduced; name the type or pass a <code>std::initializer_list</code></td></tr>
+<tr><td><code>0</code> or <code>NULL</code> as a null pointer</td><td>deduced as <code>int</code>, which does not convert to a pointer; use <code>nullptr</code></td></tr>
+<tr><td>the name of an overloaded or template function</td><td>the compiler cannot choose which overload to deduce; cast to the exact function pointer type or use a lambda</td></tr>
+<tr><td>a bit-field</td><td>a non-const reference cannot bind to a bit-field; copy it into a local first</td></tr>
+<tr><td>a <code>static const</code> data member with no definition</td><td>binding a reference odr-uses it and the linker may fail</td></tr>
+</table>
+<p>These are the cases Effective Modern C++ Item 30 lists. In practice the first two cause most surprises.</p>
+<!-- read-more:start -->
+<div class="callout tip"><span class="label">Read more</span>
+<p><b>C++ Move Semantics (Josuttis)</b></p>
+<ul>
+<li>9.4 to 9.5 Overload resolution with universal references; perfect forwarding in lambdas (PDF pages 167 to 170)</li>
+</ul>
+</div>
+<!-- read-more:end -->
+</section>
+
+<section id="practice" data-title="Forwarding in practice">
+<h2>Forwarding in practice</h2>
+<p>Forwarding is how the standard library builds generic wrappers: <code>make_unique</code>, <code>make_shared</code>, <code>emplace_back</code>, <code>std::thread</code>, <code>std::function</code> and <code>std::invoke</code> all forward their arguments. Here is the shape of a wrapper that calls anything:</p>
+<figure class="fig"><svg viewBox="0 0 640 150" role="img" aria-label="A generic wrapper forwards the function and every argument so it behaves like a direct call"><defs><marker id="uah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path class="ah" d="M0 0L10 5L0 10z"/></marker></defs><rect class="acc" x="10" y="30" width="150" height="44" rx="6"/><text class="mono" x="85.0" y="57.0" text-anchor="middle">call(f, a, b)</text><path class="ar" d="M160 52L218 52" marker-end="url(#uah)"/><rect class="gd" x="220" y="20" width="220" height="64" rx="6"/><text class="mono" x="330.0" y="57.0" text-anchor="middle">forward&lt;F&gt;(f)(args...)</text><path class="ar" d="M440 52L498 52" marker-end="url(#uah)"/><rect class="wn" x="500" y="30" width="130" height="44" rx="6"/><text class="mono" x="565.0" y="49.0" text-anchor="middle">f(a, b)</text><text class="m" x="565.0" y="65.0" text-anchor="middle">same as direct</text></svg><figcaption>decltype(auto) plus forwarding returns exactly what the callee returns.</figcaption></figure>
+<script type="text/x-cpp">
+template <typename F, typename... Args>
+decltype(auto) call(F&& f, Args&&... args) {                // forward the function and every argument
+    return std::forward<F>(f)(std::forward<Args>(args)...);
+}
+
+call(add, 2, 3);          // 5: lvalue and rvalue arguments behave as in a direct call (compiled)
+int n = 0;
+call(bump, n);            // bump takes int&: n really is incremented, so n == 1 (compiled)
+</script>
+<table>
+<tr><th>Part</th><th>Why</th></tr>
+<tr><td><code>Args&amp;&amp;...</code></td><td>a pack of forwarding references: each argument binds to whatever it was</td></tr>
+<tr><td><code>std::forward&lt;Args&gt;(args)...</code></td><td>expands once per argument, restoring each one's category</td></tr>
+<tr><td><code>decltype(auto)</code> return</td><td>returns exactly what the callee returns, including references</td></tr>
+</table>
+<ul>
+<li>If a wrapper passes an argument to <b>two</b> calls, forward only the last one.</li>
+<li>A constrained wrapper (a concept or <code>enable_if</code>) avoids hijacking copy construction: an unconstrained <code>T&amp;&amp;</code> constructor beats the copy constructor for non-const lvalues (Effective Modern C++ Item 26).</li>
+</ul>
+</section>
+
+<section id="cheat" data-title="Cheat sheet">
+<h2>Cheat sheet</h2>
+<p>Answer aloud, then open.</p>
+<details class="ex"><summary>What is perfect forwarding, and why do we need it?</summary><div><p>Passing arguments through a wrapper to another function without changing their value category or constness, so the callee can still choose copy vs move correctly. Without it you would need an overload per combination of lvalue/rvalue/const for every parameter.</p></div></details>
+<details class="ex"><summary>What is the difference between <code>std::move</code> and <code>std::forward</code>?</summary><div><p><code>std::move</code> always casts to an rvalue. <code>std::forward&lt;T&gt;</code> casts to an rvalue only if the argument that was passed was an rvalue, and keeps an lvalue otherwise. Use <code>forward</code> only on a forwarding reference, once.</p></div></details>
+<details class="ex"><summary>What is reference collapsing?</summary><div><p>The rule that resolves a reference to a reference created by templates: <code>T&amp; &amp;&amp;</code>, <code>T&amp;&amp; &amp;</code> and <code>T&amp; &amp;</code> all become <code>T&amp;</code>; only <code>T&amp;&amp; &amp;&amp;</code> stays <code>T&amp;&amp;</code>. It is why a forwarding reference can bind to both lvalues and rvalues.</p></div></details>
+<details class="ex"><summary>Is every <code>T&amp;&amp;</code> a forwarding reference?</summary><div><p>No. It must be <code>T&amp;&amp;</code> where <code>T</code> is deduced for that very function template (or <code>auto&amp;&amp;</code>). <code>std::vector&lt;T&gt;&amp;&amp;</code>, a <code>const T&amp;&amp;</code> and the <code>T&amp;&amp;</code> of a class template's member function are plain rvalue references.</p></div></details>
+<h3>Keep going</h3>
+<ul>
+<li>Before this lesson: <a href="36-sinks.html">Sink Parameters and Move Traps</a>.</li>
+<li>Used for real by <code>make_unique</code>, <code>emplace_back</code> and <code>std::thread</code>.</li>
+</ul>
+</section>
+</main>
+
+<script src="assets/data/lessons.js"></script>
+<script src="assets/app.js"></script>
+<script>
+CT.stepper('#st-forward', {
+  title: 'Perfect forwarding: copy for lvalues, move for rvalues',
+  code: String.raw`
+template <typename T>
+void wrap(T&& arg) { target(std::forward<T>(arg)); }
+
+std::string s = "abc";
+wrap(s);
+wrap(std::string("x"));
+`,
+  steps: [
+    { line: 5, mem: [{ n: 's', t: 'string', v: '"abc"' }], note: 'An ordinary named string: an <b>lvalue</b>.' },
+    { line: 6, mem: [{ n: 's', t: 'string', v: '"abc"' }, { n: 'T', t: 'deduced', v: 'string&' }, { n: 'arg', t: 'string&', v: 'alias', to: 's' }],
+      note: '<code>wrap(s)</code>: s is an lvalue, so <b>T = string&amp;</b>. The parameter <code>T&amp;&amp;</code> collapses to <code>string&amp;</code> and binds to s without copying.' },
+    { line: 2, mem: [{ n: 's', t: 'string', v: '"abc"' }, { n: 'T', t: 'deduced', v: 'string&' }, { n: 'arg', t: 'string&', v: 'alias', to: 's' }], out: 'target(const string&): COPY\n',
+      note: '<code>std::forward&lt;string&amp;&gt;(arg)</code> keeps it an <b>lvalue</b>, so target picks the copying overload. Inside wrap, arg has a name and is always an lvalue; forward restores what the caller passed.' },
+    { line: 7, mem: [{ n: 's', t: 'string', v: '"abc"' }, { n: 'temp', t: 'string', v: '"x"', p: 'unnamed temporary' }, { n: 'T', t: 'deduced', v: 'string' }, { n: 'arg', t: 'string&&', v: 'alias', to: 'temp' }],
+      note: '<code>wrap(std::string("x"))</code>: a temporary is an <b>rvalue</b>, so <b>T = string</b> and the parameter is a true <code>string&amp;&amp;</code> bound to the temporary.' },
+    { line: 2, mem: [{ n: 's', t: 'string', v: '"abc"' }, { n: 'temp', t: 'string', v: 'moved-from', p: 'unnamed temporary' }, { n: 'T', t: 'deduced', v: 'string' }, { n: 'arg', t: 'string&&', v: 'alias', to: 'temp' }], out: 'target(string&&): MOVE\n',
+      note: '<code>std::forward&lt;string&gt;(arg)</code> casts to an <b>rvalue</b>, so target picks the move overload. Same wrapper, correct behaviour for both: that is perfect forwarding. (<code>std::move</code> would have moved in <i>both</i> cases.)' }
+  ]
+});
+</script>
+</body>
+</html>

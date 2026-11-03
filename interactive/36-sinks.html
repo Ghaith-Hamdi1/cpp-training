@@ -1,0 +1,161 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sink Parameters and Move Traps</title>
+<script>try{var t=JSON.parse(localStorage.getItem('cpptrain:theme'));if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body data-topic="sinks" data-kind="lesson">
+<main>
+<h1>Sink Parameters and Move Traps</h1>
+<p class="lead">Taking a parameter that you will store: by value and move versus overloads, the traps that turn a move into a copy, and <code>push_back</code> versus <code>emplace_back</code>. Assumes <a href="35-elision.html">Returning Objects and Copy Elision</a>.</p>
+
+<section id="sink" data-title="Taking a parameter you will store">
+<h2>Taking a parameter you will store</h2>
+<p>A function that <b>stores</b> its argument (usually a constructor) wants to copy an lvalue and move an rvalue. The simplest way to get both: take the parameter <b>by value</b>, then move it into place.</p>
+<figure class="fig"><svg viewBox="0 0 640 190" role="img" aria-label="By value and move costs one copy and one move for an lvalue, and two moves for an rvalue"><defs><marker id="kah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path class="ah" d="M0 0L10 5L0 10z"/></marker></defs><text class="mono" x="10" y="18" text-anchor="start">Person(std::string n) : name_(std::move(n))</text><text class="t" x="10" y="50" text-anchor="start">caller passes an lvalue</text><rect class="wn" x="10" y="58" width="130" height="30" rx="6"/><text class="t" x="75.0" y="78.0" text-anchor="middle">copy into n</text><path class="ar" d="M140 73L178 73" marker-end="url(#kah)"/><rect class="gd" x="180" y="58" width="130" height="30" rx="6"/><text class="t" x="245.0" y="78.0" text-anchor="middle">move into name_</text><text class="t" x="10" y="120" text-anchor="start">caller passes an rvalue</text><rect class="gd" x="10" y="128" width="130" height="30" rx="6"/><text class="t" x="75.0" y="148.0" text-anchor="middle">move into n</text><path class="ar" d="M140 143L178 143" marker-end="url(#kah)"/><rect class="gd" x="180" y="128" width="130" height="30" rx="6"/><text class="t" x="245.0" y="148.0" text-anchor="middle">move into name_</text><text class="m" x="340" y="78" text-anchor="start">1 copy + 1 move</text><text class="m" x="340" y="148" text-anchor="start">2 moves (compiled)</text></svg><figcaption>The by-value sink: a copy only when the caller passes an lvalue.</figcaption></figure>
+<script type="text/x-cpp">
+class Person {
+    std::string name_;
+public:
+    explicit Person(std::string n) : name_(std::move(n)) {}   // by value, then move into the member
+};
+std::string s = "Ana";
+Person a(s);                 // copies s into n, moves n into name_
+Person b(std::string("Bo")); // moves twice, never copies
+</script>
+<p>Compiled with a counting type: one lvalue call and one rvalue call together made <b>1 copy and 2 moves</b>.</p>
+<!-- read-more:start -->
+<div class="callout tip"><span class="label">Read more</span>
+<p><b>C++ Move Semantics (Josuttis)</b></p>
+<ul>
+<li>4.3.1 to 4.3.4 Initializing members with move semantics (PDF pages 79 to 90)</li>
+</ul>
+</div>
+<!-- read-more:end -->
+</section>
+
+<section id="choose" data-title="By value, overloads or const reference?">
+<h2>By value, overloads or const reference?</h2>
+<p>Three ways to write a constructor that stores its argument:</p>
+<table>
+<tr><th>Style</th><th>lvalue argument</th><th>rvalue argument</th><th>Functions to write</th></tr>
+<tr><td>by value, then <code>std::move</code></td><td>1 copy + 1 move</td><td>2 moves</td><td>one</td></tr>
+<tr><td>overloads <code>const T&amp;</code> and <code>T&amp;&amp;</code></td><td>1 copy</td><td>1 move</td><td>two</td></tr>
+<tr><td>only <code>const T&amp;</code></td><td>1 copy</td><td>1 copy</td><td>one (slower for temporaries)</td></tr>
+</table>
+<ul>
+<li>By value costs <b>one extra move</b> compared with two overloads. For cheap-to-move types that is the best trade for the saving in code.</li>
+<li>Two overloads are fastest, and worth it when a move is expensive or the function is on a hot path (compiled: 1 copy, 1 move).</li>
+<li>Do <b>not</b> use by-value sinks for <b>setters</b>: assigning into an existing member can reuse its storage, while a by-value parameter always allocates first.</li>
+<li>For types that are cheap to copy (<code>int</code>, a pointer), just take them by value and do not move.</li>
+</ul>
+<!-- read-more:start -->
+<div class="callout tip"><span class="label">Read more</span>
+<p><b>Effective Modern C++ (Meyers)</b></p>
+<ul>
+<li>Item 41, Consider pass by value for copyable, cheap-to-move parameters that are always copied (PDF pages 299 to 310)</li>
+</ul>
+<p><b>C++ Move Semantics (Josuttis)</b></p>
+<ul>
+<li>4.3.5 to 4.3.6 Member initialization summary; always pass by value and move? (PDF pages 90 to 93)</li>
+</ul>
+</div>
+<!-- read-more:end -->
+</section>
+
+<section id="traps" data-title="Move traps">
+<h2>Move traps</h2>
+<p>The move operations are only used when everything lines up. These are the usual ways they are not:</p>
+<figure class="fig"><svg viewBox="0 0 640 120" role="img" aria-label="std::move on a const object cannot reach the move constructor so it copies"><defs><marker id="lah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path class="ah" d="M0 0L10 5L0 10z"/></marker><marker id="lah3" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path class="ah3" d="M0 0L10 5L0 10z"/></marker></defs><rect class="acc" x="10" y="30" width="180" height="44" rx="6"/><text class="t" x="100.0" y="57.0" text-anchor="middle">const T c</text><path class="ar" d="M190 52L258 52" marker-end="url(#lah)"/><rect class="gd" x="260" y="30" width="180" height="44" rx="6"/><text class="t" x="350.0" y="49.0" text-anchor="middle">std::move(c)</text><text class="m" x="350.0" y="65.0" text-anchor="middle">const T&amp;&amp;</text><path class="ar3" d="M440 52L498 52" marker-end="url(#lah3)"/><rect class="bd" x="500" y="30" width="130" height="44" rx="6"/><text class="t" x="565.0" y="49.0" text-anchor="middle">copy ctor</text><text class="m" x="565.0" y="65.0" text-anchor="middle">chosen instead</text></svg><figcaption>A const rvalue reference does not bind to T&amp;&amp;.</figcaption></figure>
+<table>
+<tr><th>Trap</th><th>What happens</th></tr>
+<tr><td><code>std::move</code> on a <code>const</code> object</td><td><b>copies</b>: a <code>const T&amp;&amp;</code> cannot bind to <code>T&amp;&amp;</code> (compiled: 1 copy, 0 moves)</td></tr>
+<tr><td>a type with no move operations</td><td>silently copies</td></tr>
+<tr><td>using an object after <code>std::move</code></td><td>valid but unspecified; only destroy or assign to it</td></tr>
+<tr><td><code>std::move</code> on a forwarding reference parameter</td><td>moves an lvalue the caller still wanted: use <code>std::forward</code></td></tr>
+<tr><td>moving inside a loop</td><td>the second iteration sees a moved-from object</td></tr>
+<tr><td><code>return std::move(local);</code></td><td>blocks elision: an extra move</td></tr>
+</table>
+<div class="callout warn"><span class="label">Move only the last use</span>After <code>auto b = std::move(a);</code> treat <code>a</code> as empty. Do not assume a move happened: Effective Modern C++ Item 29 says to assume moves may be absent, not cheap and not used.</div>
+<!-- read-more:start -->
+<div class="callout tip"><span class="label">Read more</span>
+<p><b>Effective Modern C++ (Meyers)</b></p>
+<ul>
+<li>Item 29, Assume move operations are not present, not cheap, and not used (PDF pages 221 to 225)</li>
+</ul>
+<p><b>C++ Move Semantics (Josuttis)</b></p>
+<ul>
+<li>4.1 to 4.2 Avoid objects with names; avoid unnecessary std::move (PDF pages 77 to 79)</li>
+</ul>
+</div>
+<!-- read-more:end -->
+</section>
+
+<section id="emplace" data-title="push_back, emplace_back and moving into containers">
+<h2><code>push_back</code>, <code>emplace_back</code> and moving into containers</h2>
+<p>Adding to a container is the most common place to move or copy.</p>
+<table>
+<tr><th>Call</th><th>What it does</th></tr>
+<tr><td><code>v.push_back(lvalue)</code></td><td>copies the object into the container</td></tr>
+<tr><td><code>v.push_back(std::move(x))</code> or <code>push_back(temp)</code></td><td>moves it in</td></tr>
+<tr><td><code>v.emplace_back(args...)</code></td><td>builds the element in place from the arguments, with no temporary</td></tr>
+</table>
+<script type="text/x-cpp">
+std::vector<Loud> v;
+v.reserve(8);
+Loud a(1);
+v.push_back(a);                // 1 copy
+v.push_back(Loud(2));          // 1 move
+v.emplace_back(3);             // 0 copies, 0 moves: constructed in the vector
+</script>
+<ul>
+<li>For a type that is cheap to build from its arguments, <code>emplace_back</code> saves the temporary and the move.</li>
+<li>If you already have an object, <code>push_back(std::move(obj))</code> is just as good.</li>
+<li>Both can reallocate, and reallocation moves or copies the existing elements (see <a href="34-writemoves.html">Writing Move Operations</a>).</li>
+</ul>
+</section>
+
+<section id="moveonly" data-title="Move-only sinks">
+<h2>Move-only sinks</h2>
+<p>For types that cannot be copied (<code>unique_ptr</code>, <code>std::thread</code>, a file handle) a by-value parameter is the natural sink: the caller must write <code>std::move</code>, so the transfer of ownership is visible.</p>
+<figure class="fig"><svg viewBox="0 0 640 140" role="img" aria-label="A move-only parameter is taken by value and the caller moves the object in"><defs><marker id="tah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path class="ah" d="M0 0L10 5L0 10z"/></marker></defs><rect class="acc" x="10" y="30" width="190" height="44" rx="6"/><text class="mono" x="105.0" y="57.0" text-anchor="middle">take(std::move(p))</text><path class="ar" d="M200 52L258 52" marker-end="url(#tah)"/><rect class="gd" x="260" y="30" width="160" height="44" rx="6"/><text class="t" x="340.0" y="49.0" text-anchor="middle">parameter p2</text><text class="m" x="340.0" y="65.0" text-anchor="middle">owns it now</text><path class="ar" d="M420 52L478 52" marker-end="url(#tah)"/><rect class="bd" x="480" y="30" width="150" height="44" rx="6"/><text class="t" x="555.0" y="49.0" text-anchor="middle">p: null</text><text class="m" x="555.0" y="65.0" text-anchor="middle">caller gave it up</text></svg><figcaption>By-value sinks make ownership transfer visible at the call site.</figcaption></figure>
+<script type="text/x-cpp">
+void take(std::unique_ptr<int> p) { std::cout << *p; }   // takes ownership
+
+auto p = std::make_unique<int>(7);
+// take(p);                    // error: unique_ptr cannot be copied
+take(std::move(p));            // p is now null
+take(std::make_unique<int>(8));  // a temporary: no std::move needed
+</script>
+<table>
+<tr><th>Parameter</th><th>Meaning for a move-only type</th></tr>
+<tr><td><code>std::unique_ptr&lt;T&gt;</code></td><td>sink: the function owns it</td></tr>
+<tr><td><code>std::unique_ptr&lt;T&gt;&amp;</code></td><td>the function may reseat the caller's pointer</td></tr>
+<tr><td><code>const std::unique_ptr&lt;T&gt;&amp;</code></td><td>pointless: pass <code>T&amp;</code> or <code>T*</code> to just use the object</td></tr>
+<tr><td><code>std::unique_ptr&lt;T&gt;&amp;&amp;</code></td><td>possible, but the by-value form is clearer</td></tr>
+</table>
+<p>The same pattern is used by <code>std::thread</code>'s constructor and by containers of <code>unique_ptr</code>: <code>v.push_back(std::move(p))</code>.</p>
+</section>
+
+<section id="cheat" data-title="Cheat sheet">
+<h2>Cheat sheet</h2>
+<p>Answer aloud, then open.</p>
+<details class="ex"><summary>How do you write a class that stores a string argument efficiently?</summary><div><p>Take the parameter by value and <code>std::move</code> it into the member. An lvalue costs one copy plus one move, an rvalue costs one move, and there is a single function to write.</p></div></details>
+<details class="ex"><summary>What is the difference between <code>push_back</code> and <code>emplace_back</code>?</summary><div><p><code>push_back</code> takes an existing object (copied or moved into the container). <code>emplace_back</code> forwards its arguments and constructs the element in place, saving a temporary. Both reallocate the same way.</p></div></details>
+<details class="ex"><summary>When should a sink parameter not be taken by value?</summary><div><p>For setters and other functions that assign into an existing object: assignment can reuse existing storage, while a by-value parameter always constructs a new object first. Also when the type is expensive to move, where two overloads are better.</p></div></details>
+<details class="ex"><summary>List three traps that make a move silently a copy.</summary><div><p><code>std::move</code> on a <code>const</code> object, a type without move operations (or whose moves were suppressed by a user-declared destructor), and a forwarding reference passed on with <code>std::move</code> or without <code>std::forward</code>.</p></div></details>
+<h3>Keep going</h3>
+<ul>
+<li>Before this lesson: <a href="35-elision.html">Returning Objects and Copy Elision</a>.</li>
+<li>Next lesson: <a href="37-forwarding.html">Perfect Forwarding</a>.</li>
+</ul>
+</section>
+</main>
+
+<script src="assets/data/lessons.js"></script>
+<script src="assets/app.js"></script>
+</body>
+</html>

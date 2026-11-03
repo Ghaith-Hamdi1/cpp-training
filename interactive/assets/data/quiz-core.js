@@ -81,14 +81,6 @@ void Table::replaceAll(const std::vector<Row>& fresh) {
 
     { sec: 'guarantees', q: 'Which of these is `noexcept` by default?',
       opts: ['A destructor', 'A user-written move constructor', 'A user-written copy constructor', 'Every function that does not contain `throw`'], a: 0,
-      why: 'Destructors are implicitly `noexcept`. Other functions, including your own move constructor, may throw unless you say otherwise.' },
-
-    { sec: 'errors', q: 'Which failure is best reported with a return value (`std::optional` or an error code) rather than an exception?',
-      opts: ['A parser rejecting malformed input, which is routine', 'Running out of memory while allocating', 'A constructor that cannot acquire its resource', 'A broken class invariant detected in a member function'], a: 0,
-      why: 'Expected, frequent failures belong in the return type, where the caller must look at them. Exceptions suit rare failures the local code cannot handle.' },
-
-    { sec: 'errors', q: 'Why are exceptions avoided on a latency-critical hot path?',
-      opts: ['They are forbidden by the standard since C++20', 'A throw is slow and its latency is unpredictable', 'They leak memory when thrown across threads', 'They disable inlining for the whole program'], a: 1,
-      why: 'The no-throw path is cheap, but actually throwing takes orders of magnitude longer than a return and varies from call to call. Hot paths report errors with return values.' }
+      why: 'Destructors are implicitly `noexcept`. Other functions, including your own move constructor, may throw unless you say otherwise.' }
   ]
 };

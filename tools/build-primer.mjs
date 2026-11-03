@@ -36,7 +36,7 @@ const row = (i) => `| **${i.sec}** ${i.title} | ${pp(i.a, i.b)} | ${i.teaches} |
 let g = '';
 g += `# Reading guide: *C++ Primer* (5th Edition)
 
-A reading plan for \`books/Cpp-Primer-5th-Edition-Lippman.pdf\` (Stanley Lippman, Josée Lajoie and Barbara Moo, 2012, about 970 pages, C++11). It is the most complete textbook of the five books: it teaches the whole language and the library in the order a beginner should meet them, with exercises after almost every section. That makes it the **systematic base** for lessons 1 to 18, 20 and 22; it is a good partner to the lessons because it explains every rule in full, and they show what happens in memory.
+A reading plan for \`books/Cpp-Primer-5th-Edition-Lippman.pdf\` (Stanley Lippman, Josée Lajoie and Barbara Moo, 2012, about 970 pages, C++11). It is the most complete textbook of the five books: it teaches the whole language and the library in the order a beginner should meet them, with exercises after almost every section. That makes it the **systematic base** for lessons 1 to 18, 20 and 27; it is a good partner to the lessons because it explains every rule in full, and they show what happens in memory.
 
 **Page numbers.** The tables give *PDF viewer* page numbers, the number your PDF reader shows. The plan and the notes use PDF pages only.
 
@@ -48,7 +48,7 @@ The sections and their summaries come from the book's table of contents and chap
 
 | Covers well | Does not cover |
 |---|---|
-| Types, expressions, statements, functions, classes | Threads, mutexes, atomics (use *C++ Concurrency in Action* and lessons 23 to 25) |
+| Types, expressions, statements, functions, classes | Threads, mutexes, atomics (use *C++ Concurrency in Action* and lessons 29 to 31) |
 | The whole standard library of C++11: strings, containers, algorithms, IO, smart pointers | C++14, C++17 and C++20: \`optional\`, \`variant\`, \`string_view\`, structured bindings, \`if constexpr\`, concepts, ranges, \`std::format\` (lessons 3, 19, 11, 10 and 17) |
 | Copy control, move semantics, operator overloading | Deep move semantics and forwarding (*Effective Modern C++* and *C++ Move Semantics*) |
 | Inheritance and virtual functions, templates, exceptions | Design patterns, performance and memory layout (use other books; the lessons no longer cover them) |
@@ -145,7 +145,7 @@ ${skip.map(([a, b]) => `| ${a} | ${b} |`).join('\n')}
 
 | Topic | Where to learn it |
 |---|---|
-| Threads, mutexes, atomics | *C++ Concurrency in Action* in \`books/\`; lessons 23 to 25 |
+| Threads, mutexes, atomics | *C++ Concurrency in Action* in \`books/\`; lessons 29 to 31 |
 | C++14 to C++20 (\`optional\`, \`variant\`, \`string_view\`, concepts, ranges) | lessons 3, 19, 11, 10 and 17 |
 | Move semantics and forwarding in depth | *C++ Move Semantics* and *Effective Modern C++* in \`books/\` |
 | Design patterns | not covered here; use a dedicated book |

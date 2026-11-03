@@ -138,10 +138,10 @@ export const sessions = [
     after: 'Lesson 12, sections 1 and 2; practice 06 and 17 (`BucketTable`)' },
   { part: 'B', slug: 'dynamic-memory-and-smart-pointers', title: 'Dynamic memory and smart pointers',
     items: [
-      I('12.1', 'Dynamic memory and smart pointers', 450, 475, true, '`shared_ptr`, `new` and `delete` and why raw `new` is dangerous, `unique_ptr`, `weak_ptr`, custom deleters.', '22. Who owns it? The three smart pointers; unique_ptr in detail; shared_ptr and the control block; Reference cycles and weak_ptr'),
+      I('12.1', 'Dynamic memory and smart pointers', 450, 475, true, '`shared_ptr`, `new` and `delete` and why raw `new` is dangerous, `unique_ptr`, `weak_ptr`, custom deleters.', '27. Who owns it? The three smart pointers; unique_ptr in detail; shared_ptr and the control block; Reference cycles and weak_ptr'),
     ],
     q: ['Who owns the object when you write `new` and who deletes it?', 'How is `unique_ptr` different from `shared_ptr`, and which is the default choice?', 'What is a reference cycle, and which pointer breaks it?', 'Why prefer `make_shared` and `make_unique` over `new`?'],
-    after: 'Lesson 22 (Smart Pointers and Ownership) and its quiz' },
+    after: 'Lesson 27 (Smart Pointers and Ownership) and its quiz' },
   { part: 'B', slug: 'dynamic-arrays-and-text-query', title: 'Dynamic arrays and a worked program',
     items: [
       I('12.2', 'Dynamic arrays', 476, 483, true, '`new[]`/`delete[]`, `unique_ptr<T[]>`, the `allocator` class.', '2. Dynamic memory: new and delete'),

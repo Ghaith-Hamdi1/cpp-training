@@ -58,4 +58,4 @@ What surprised me when I ran it:
 
 ## After this session
 
-Lesson 23, "Shared data and data races", "Mutexes" and "Races hidden in interfaces"
+Lesson 29, "Shared data and data races", "Mutexes" and "Races hidden in interfaces"

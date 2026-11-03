@@ -34,8 +34,8 @@ These are the ownership and memory chapters that every other C++ topic builds on
 | 8.7 Class interfaces | 250 to 258 | 5. Classes and encapsulation |
 | 15.3 to 15.5 Memory, addresses and pointers; free store; destructors | 452 to 463 | 2. Pointers from scratch; Dynamic memory: new and delete; 5. Constructors and destructors |
 | 16.1 to 16.2 Arrays, pointers and references | 477 to 483 | 2. Arrays, Pointers, References |
-| 17.4 to 17.5 Copying and moving; essential operations | 501 to 512 | 6. Rule of 3, 5 and 0; 20. Move semantics |
-| 18.4 to 18.5 Resources and exceptions; resource-management pointers (RAII, `unique_ptr`) | 542 to 553 | 18. RAII; Exceptions and stack unwinding; 22. Smart pointers |
+| 17.4 to 17.5 Copying and moving; essential operations | 501 to 512 | 6. Rule of 3, 5 and 0; 22. The move constructor, step by step |
+| 18.4 to 18.5 Resources and exceptions; resource-management pointers (RAII, `unique_ptr`) | 542 to 553 | 18. RAII; Exceptions and stack unwinding; 27. Smart pointers |
 
 ## Tier 2: read next if you have time (about 130 pages)
 
@@ -49,7 +49,7 @@ These are the ownership and memory chapters that every other C++ topic builds on
 | 12.3, 12.5 Base and derived classes; benefits of object-oriented programming | 380 to 387 and 389 to 390 | 5. Inheritance, Polymorphism |
 | 15.6 to 15.8 Element access, an example list, the `this` pointer | 464 to 473 | 5. Member functions: `this` |
 | 16.3 to 16.4 C-style strings; alternatives to pointer use | 484 to 487 | 2. Pointers and arrays |
-| 17.6 to 17.9 Other operations, remaining `Vector` problems, changing size | 513 to 523 | 20. Move semantics; 11. vector: the workhorse |
+| 17.6 to 17.9 Other operations, remaining `Vector` problems, changing size | 513 to 523 | 22. Move assignment and copy-and-swap; 11. vector: the workhorse |
 | 18.1 to 18.3 Templates, generalizing `Vector`, range checking and exceptions | 527 to 541 | 15. Why templates, and function templates; 16. Class templates |
 | 19.1 to 19.3, 19.6 Containers, sequences and iterators, linked lists, `vector`/`list`/`string` | 559 to 572 and 585 to 586 | 13. Iterators; 11. Other sequence containers |
 | 20.1 to 20.6 `map`, `unordered_map`, `set`, container overview | 591 to 609 | 12. Associative and unordered containers; 11. Which container should I use? |
@@ -107,7 +107,7 @@ OOP in this book is spread over chapters 8, 12 and 17, with pieces in 15 and 18.
 
 ## Special focus: templates
 
-The book introduces templates as the tool for building `vector` and the standard library, and it stays at an introductory level. Most of the material is in section 18.1, with a little more in 18.2, 19.4 and chapters 19 to 21. Matching lessons: **22. Templates** and **17. Type Traits and Compile-time C++**.
+The book introduces templates as the tool for building `vector` and the standard library, and it stays at an introductory level. Most of the material is in section 18.1, with a little more in 18.2, 19.4 and chapters 19 to 21. Matching lessons: **27. Templates** and **17. Type Traits and Compile-time C++**.
 
 | Step | Book section | PDF pages | What it teaches | Matching lesson section |
 |---|---|---|---|---|

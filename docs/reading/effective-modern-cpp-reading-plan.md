@@ -55,7 +55,7 @@ After: Lesson 15 (Templates, argument deduction), Lesson 3 (Types, `auto` and br
 2. Why does `std::vector` move its elements on growth only if the move is `noexcept`?
 3. When is a `const` member function a data race, and what does `mutable` have to do with it?
 
-After: Lessons 5 and 7 (OOP, polymorphism), Lesson 18 (Core, `noexcept`), Lesson 17 (`constexpr`) and Lesson 23 (Multithreading, mutexes).
+After: Lessons 5 and 7 (OOP, polymorphism), Lesson 18 (Core, `noexcept`), Lesson 17 (`constexpr`) and Lesson 29 (Multithreading, mutexes).
 
 ## Session 3: special members and smart pointers
 
@@ -70,7 +70,7 @@ After: Lessons 5 and 7 (OOP, polymorphism), Lesson 18 (Core, `noexcept`), Lesson
 2. What is in a `shared_ptr`'s control block, and why is a custom deleter not part of its type?
 3. When should you not use `make_shared`?
 
-After: Lesson 6 (Rule of 3, 5, 0) and Lesson 22 (Smart pointers).
+After: Lesson 6 (Rule of 3, 5, 0) and Lesson 27 (Smart pointers).
 
 ## Session 4: `std::move`, `std::forward` and universal references
 
@@ -129,7 +129,7 @@ After: Lesson 10 (Lambdas) and its quiz.
 2. Why is a joinable `std::thread` destroyed a `std::terminate`?
 3. What is `volatile` for, and why is it not a synchronization tool?
 
-After: Lessons 23 to 25 (Multithreading, Tasks, Atomics) and their quizzes.
+After: Lessons 29 to 31 (Multithreading, Tasks, Atomics) and their quizzes.
 
 ## Skip, and a note on the edition
 

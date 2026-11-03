@@ -3,47 +3,59 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Move Semantics</title>
+<title>Lvalues and Rvalues</title>
 <script>try{var t=JSON.parse(localStorage.getItem('cpptrain:theme'));if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
 <link rel="stylesheet" href="assets/style.css">
 </head>
 <body data-topic="moves" data-kind="lesson">
 <main>
-<h1>Move Semantics</h1>
-<p class="lead">Value categories, what <code>std::move</code> really does, writing move operations, copy elision, and the traps. Assumes <a href="02-oop.html">OOP</a> (the Rule of Five).</p>
+<h1>Lvalues and Rvalues</h1>
+<p class="lead">The idea underneath move semantics: which expressions are named objects and which are temporaries, the three value categories, and which references bind to what. Assumes <a href="26-copying.html">Copy Control and Operators</a>.</p>
+
+<section id="names" data-title="Names and temporaries">
+<h2>Names and temporaries</h2>
+<p>Every expression in C++ is either something with a <b>name and a place in memory</b> that lives on after the statement, or a <b>temporary</b> that is about to vanish. This split is the whole foundation of move semantics: a temporary is safe to steal from, because nobody can look at it afterwards.</p>
+<figure class="fig"><svg viewBox="0 0 640 150" role="img" aria-label="An lvalue has a name and an address; an rvalue is a temporary that is about to disappear"><rect class="gd" x="10" y="20" width="270" height="110" rx="6"/><text class="t" x="145.0" y="80.0" text-anchor="middle"></text><text class="t" x="24" y="42" text-anchor="start">lvalue: has a name and an address</text><text class="mono" x="24" y="66" text-anchor="start">x    v[0]    *p    obj.member</text><text class="m" x="24" y="90" text-anchor="start">&amp;x is fine: the object stays</text><text class="m" x="24" y="108" text-anchor="start">after this line</text><rect class="wn" x="330" y="20" width="300" height="110" rx="6"/><text class="t" x="480.0" y="80.0" text-anchor="middle"></text><text class="t" x="344" y="42" text-anchor="start">rvalue: a temporary, no name</text><text class="mono" x="344" y="66" text-anchor="start">5    a + b    f()    std::string("x")</text><text class="m" x="344" y="90" text-anchor="start">&amp;5 is an error: it vanishes</text><text class="m" x="344" y="108" text-anchor="start">at the end of the statement</text></svg><figcaption>The address test: if you can take its address, it is an lvalue.</figcaption></figure>
+<script type="text/x-cpp">
+int x = 5;
+int* p = &x;              // fine: x has an address
+// int* q = &5;           // error: 5 is a temporary, it has no address
+// int* r = &(x + 1);     // error: x + 1 is a temporary too
+std::string a = "ab", b = "cd";
+// &(a + b);              // error: the concatenation is a temporary
+</script>
+<div class="callout tip"><span class="label">Quick test</span>Can you take its address with <code>&amp;</code>? Then it is an lvalue. If the compiler refuses, it is an rvalue.</div>
+<!-- read-more:start -->
+<div class="callout tip"><span class="label">Read more</span>
+<p><b>C++ Primer (Lippman, Lajoie, Moo)</b></p>
+<ul>
+<li>13.6 Moving objects (PDF pages 560 to 579)</li>
+</ul>
+<p><b>C++ Move Semantics (Josuttis)</b></p>
+<ul>
+<li>Chapter 2 Core features of move semantics (PDF pages 43 to 52)</li>
+</ul>
+</div>
+<!-- read-more:end -->
+</section>
 
 <section id="values" data-title="Lvalues, rvalues and value categories">
 <h2>Lvalues, rvalues and value categories</h2>
-<p>An <b>lvalue</b> has a name and an address (<code>x</code>, <code>v[0]</code>). An <b>rvalue</b> is an unnamed temporary (<code>5</code>, <code>a + b</code>, a returned value): about to vanish, so its contents can be stolen safely.</p>
+<p>Besides lvalue and rvalue there are three precise categories. You rarely need the names, but they explain the compiler messages.</p>
+<figure class="fig"><svg viewBox="0 0 640 170" role="img" aria-label="Value categories: lvalue, xvalue and prvalue, where rvalue means xvalue or prvalue"><rect class="gd" x="10" y="20" width="200" height="44" rx="6"/><text class="t" x="110.0" y="39.0" text-anchor="middle">lvalue</text><text class="m" x="110.0" y="55.0" text-anchor="middle">x, v[0]</text><rect class="acc" x="220" y="20" width="200" height="44" rx="6"/><text class="t" x="320.0" y="39.0" text-anchor="middle">xvalue</text><text class="m" x="320.0" y="55.0" text-anchor="middle">std::move(x)</text><rect class="wn" x="430" y="20" width="200" height="44" rx="6"/><text class="t" x="530.0" y="39.0" text-anchor="middle">prvalue</text><text class="m" x="530.0" y="55.0" text-anchor="middle">5, a + b, f()</text><path class="ln" d="M10 80L420 80"/><text class="m" x="110" y="100" text-anchor="middle">glvalue: has an identity</text><path class="ln" d="M220 118L630 118"/><text class="m" x="425" y="138" text-anchor="middle">rvalue: may be moved from</text><text class="m" x="10" y="160" text-anchor="start">std::move turns an lvalue into an xvalue: a named object marked as 'you may steal from me'.</text></svg><figcaption>Rvalue is the family of expressions you may steal from.</figcaption></figure>
 <table>
 <tr><th>Category</th><th>Roughly</th><th>Examples</th></tr>
 <tr><td><b>lvalue</b></td><td>a named object</td><td><code>x</code>, <code>v[0]</code></td></tr>
 <tr><td><b>prvalue</b></td><td>an unnamed temporary</td><td><code>5</code>, <code>a + b</code>, a call that returns by value</td></tr>
 <tr><td><b>xvalue</b></td><td>an object marked as movable</td><td><code>std::move(x)</code></td></tr>
 </table>
-<p>"Rvalue" means prvalue or xvalue. Which reference a value can bind to:</p>
-<table>
-<tr><th>Reference type</th><th>Binds to</th><th>Typical use</th></tr>
-<tr><td><code>T&amp;</code></td><td>lvalues only</td><td>modify the caller's object</td></tr>
-<tr><td><code>const T&amp;</code></td><td>lvalues <b>and</b> rvalues</td><td>read-only, avoid a copy</td></tr>
-<tr><td><code>T&amp;&amp;</code> (rvalue reference)</td><td>rvalues only</td><td>move constructors and move assignment</td></tr>
-</table>
+<p>You can ask the compiler which one an expression is: wrap the expression in a second pair of parentheses inside <code>decltype</code>.</p>
 <script type="text/x-cpp">
-void f(const std::string& s);   // accepts anything, copies nothing
-void g(std::string&& s);        // accepts only temporaries: "I may take your contents"
-
-std::string name = "abc";
-f(name);              // OK
-// g(name);           // ERROR: name is an lvalue
-g(std::string("x"));  // OK: temporary
-g(std::move(name));   // OK: std::move says "treat name as a temporary"
-
 int x = 0;
-static_assert(std::is_same_v<decltype((x)),            int&>);    // double parentheses report the category:
-static_assert(std::is_same_v<decltype((std::move(x))), int&&>);   // lvalue int&, xvalue int&&, prvalue plain int
-static_assert(std::is_same_v<decltype((x + 1)),        int>);
+static_assert(std::is_same_v<decltype((x)),            int&>);    // lvalue  -> T&
+static_assert(std::is_same_v<decltype((std::move(x))), int&&>);   // xvalue  -> T&&
+static_assert(std::is_same_v<decltype((x + 1)),        int>);     // prvalue -> T
 </script>
-<div class="callout warn"><span class="label">A name is always an lvalue</span>Inside <code>g</code>, <code>s</code> is an lvalue despite its <code>&amp;&amp;</code> type. Pass it on with <code>std::move(s)</code> (or <code>std::forward</code>, see <a href="05-templates.html">Templates</a>).</div>
 <!-- read-more:start -->
 <div class="callout tip"><span class="label">Read more</span>
 <p><b>C++ Primer (Lippman, Lajoie, Moo)</b></p>
@@ -53,6 +65,7 @@ static_assert(std::is_same_v<decltype((x + 1)),        int>);
 </ul>
 <p><b>C++ Move Semantics (Josuttis)</b></p>
 <ul>
+<li>Chapter 2 Core features of move semantics (PDF pages 43 to 52)</li>
 <li>8.1.2 to 8.1.3 and 8.4 to 8.5 Value categories since C++11 and C++17; when lvalues become rvalues and the reverse (PDF pages 145 to 148 and 153 to 154)</li>
 <li>8.2 to 8.3 and 8.6 Special value-category rules; binding references; checking with decltype (PDF pages 148 to 153 and 154 to 156)</li>
 </ul>
@@ -60,243 +73,67 @@ static_assert(std::is_same_v<decltype((x + 1)),        int>);
 <!-- read-more:end -->
 </section>
 
-<section id="copy-move" data-title="Copy versus move">
-<h2>Copy versus move</h2>
-<figure class="fig"><svg viewBox="0 0 640 212" role="img" aria-label="A copy duplicates the buffer; a move hands the pointer over and leaves the source empty"><defs><marker id="d1" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path class="ah" d="M0 0L10 5L0 10z"/></marker></defs><text class="t" x="10" y="22">Copy: b = a</text><rect class="acc" x="10" y="34" width="70" height="30" rx="5"/><text x="45" y="54" text-anchor="middle">a</text><path class="ar" d="M80 49H168" marker-end="url(#d1)"/><rect class="wn" x="170" y="34" width="150" height="30" rx="5"/><text x="245" y="54" text-anchor="middle">1,000,000 ints</text><rect class="acc" x="350" y="34" width="70" height="30" rx="5"/><text x="385" y="54" text-anchor="middle">b</text><path class="ar" d="M420 49H488" marker-end="url(#d1)"/><rect class="wn" x="490" y="34" width="140" height="30" rx="5"/><text x="560" y="54" text-anchor="middle">a second copy</text><text class="m" x="10" y="84">allocates and copies a million elements</text><text class="t" x="10" y="122">Move: b = std::move(a)</text><rect class="bd" x="10" y="134" width="70" height="30" rx="5"/><text x="45" y="154" text-anchor="middle">a: null</text><rect class="acc" x="350" y="134" width="70" height="30" rx="5"/><text x="385" y="154" text-anchor="middle">b</text><path class="ar" d="M420 149H488" marker-end="url(#d1)"/><rect class="wn" x="490" y="134" width="140" height="30" rx="5"/><text x="560" y="154" text-anchor="middle">same buffer</text><text class="m" x="10" y="184">b stole the pointer: two assignments, no copying.</text><text class="m" x="10" y="204">The moved-from object is valid but unspecified: destroy it or assign to it.</text></svg><figcaption>std::move only casts; the move constructor does the stealing.</figcaption></figure>
-<p>Copying a million-element vector copies a million elements. If the source is a dying temporary, that is wasted work. A <b>move</b> just <i>steals the internal pointer</i>.</p>
-<div id="st-move"></div>
-<ul>
-<li><code>std::move(x)</code> <b>moves nothing</b>: it is a cast to an rvalue reference meaning "you may steal". The move constructor or assignment does the stealing.</li>
-<li>Overload resolution only looks at the <i>kind</i> of expression: an lvalue picks the copy, an rvalue picks the move.</li>
-<li>A moved-from object is <b>valid but unspecified</b>: destroy it or assign a new value, do not read it. Compiled: a moved-from <code>std::string</code> had size 0, and assigning to it worked.</li>
-</ul>
-<div class="callout interview"><span class="label">Key point</span>"What does <code>std::move</code> do?" Nothing at runtime: an unconditional cast to an rvalue reference. The move constructor does the work.</div>
-<!-- read-more:start -->
-<div class="callout tip"><span class="label">Read more</span>
-<p><b>C++ Primer (Lippman, Lajoie, Moo)</b></p>
-<ul>
-<li>13.6 Moving objects (PDF pages 560 to 579)</li>
-</ul>
-<p><b>Effective Modern C++ (Meyers)</b></p>
-<ul>
-<li>Item 23, Understand std::move and std::forward (PDF pages 176 to 182)</li>
-</ul>
-<p><b>C++ Move Semantics (Josuttis)</b></p>
-<ul>
-<li>1.1 Motivation for move semantics (PDF pages 21 to 36)</li>
-<li>1.2 to 1.4 Implementing move semantics; copying as a fallback; const objects (PDF pages 36 to 41)</li>
-<li>Chapter 2 Core features of move semantics (PDF pages 43 to 52)</li>
-<li>6.1 to 6.2 Moved-from states (required and guaranteed states; destructible and assignable) (PDF pages 107 to 115)</li>
-</ul>
-</div>
-<!-- read-more:end -->
-</section>
-
-<section id="writing" data-title="Writing move operations">
-<h2>Writing move operations</h2>
-<p>A class that owns a raw resource needs the Rule of Five (<a href="02-oop.html">OOP lesson</a>). The move operations steal and leave the source safely empty:</p>
+<section id="binding" data-title="Which reference binds to what">
+<h2>Which reference binds to what</h2>
+<p>A reference type says which kinds of expression it accepts. That is how a function can <i>tell</i> whether it was given something it may steal from.</p>
+<figure class="fig"><svg viewBox="0 0 640 190" role="img" aria-label="Which references can bind to lvalues and to rvalues"><text class="t" x="160" y="20" text-anchor="middle">lvalue</text><text class="t" x="300" y="20" text-anchor="middle">rvalue</text><text class="mono" x="10" y="58" text-anchor="start">T&amp;</text><rect class="gd" x="110" y="34" width="100" height="34" rx="6"/><text class="t" x="160.0" y="56.0" text-anchor="middle">binds</text><rect class="bd" x="250" y="34" width="100" height="34" rx="6"/><text class="t" x="300.0" y="56.0" text-anchor="middle">error</text><text class="mono" x="10" y="104" text-anchor="start">const T&amp;</text><rect class="gd" x="110" y="80" width="100" height="34" rx="6"/><text class="t" x="160.0" y="102.0" text-anchor="middle">binds</text><rect class="gd" x="250" y="80" width="100" height="34" rx="6"/><text class="t" x="300.0" y="102.0" text-anchor="middle">binds</text><text class="mono" x="10" y="150" text-anchor="start">T&amp;&amp;</text><rect class="bd" x="110" y="126" width="100" height="34" rx="6"/><text class="t" x="160.0" y="148.0" text-anchor="middle">error</text><rect class="gd" x="250" y="126" width="100" height="34" rx="6"/><text class="t" x="300.0" y="148.0" text-anchor="middle">binds</text><text class="m" x="380" y="62" text-anchor="start">modify the caller's object</text><text class="m" x="380" y="108" text-anchor="start">read only, no copy</text><text class="m" x="380" y="154" text-anchor="start">take the contents of a temporary</text></svg><figcaption>const T&amp; binds to everything; T&amp;&amp; only to rvalues; T&amp; only to lvalues.</figcaption></figure>
 <script type="text/x-cpp">
-class Buffer {
-    int* data_; std::size_t n_;
-public:
-    Buffer(Buffer&& o) noexcept                                    // steal and reset, in one line each
-        : data_(std::exchange(o.data_, nullptr)), n_(std::exchange(o.n_, 0)) {}
+void f(const std::string&) { std::cout << "const& "; }    // copy-or-read overload
+void f(std::string&&)      { std::cout << "&& ";    }    // steal-from-a-temporary overload
 
-    Buffer& operator=(Buffer o) noexcept {                         // copy-and-swap: by value covers copy AND move
-        std::swap(data_, o.data_); std::swap(n_, o.n_);
-        return *this;
-    }
-    /* ... constructor, destructor, copy constructor ... */
-};
+std::string s = "a";
+f(s);                   // const&   (s is an lvalue)
+f(std::string("b"));    // &&       (a temporary)
+f(std::move(s));        // &&       (std::move marks s as movable)
+// prints: const& && &&   (compiled)
 </script>
-<ul>
-<li><code>std::exchange(x, v)</code> returns the old <code>x</code> and sets it to <code>v</code>: the idiom for "steal and reset".</li>
-<li><b>Mark moves <code>noexcept</code></b>. <code>std::vector</code> moves its elements on reallocation only if the move cannot throw; otherwise it copies them (<a href="03-core-language.html#guarantees">exception safety</a>).</li>
-<li>The by-value <code>operator=</code> handles self-assignment and gives the strong guarantee. The classic pair <code>operator=(const T&amp;)</code> and <code>operator=(T&amp;&amp;)</code> is faster when you can reuse the existing storage.</li>
-<li>If you can avoid owning a raw resource, do (Rule of Zero): <code>vector</code> and <code>unique_ptr</code> members make the compiler-generated moves correct.</li>
-</ul>
-<!-- read-more:start -->
-<div class="callout tip"><span class="label">Read more</span>
-<p><b>C++ Primer (Lippman, Lajoie, Moo)</b></p>
-<ul>
-<li>13.6 Moving objects (PDF pages 560 to 579)</li>
-</ul>
-<p><b>Programming: Principles and Practice (Stroustrup)</b></p>
-<ul>
-<li>17.4 to 17.5 Copying and moving; essential operations (PDF pages 501 to 512)</li>
-<li>17.6 to 17.9 Other operations, remaining Vector problems, changing size (PDF pages 513 to 523)</li>
-</ul>
-<p><b>Effective Modern C++ (Meyers)</b></p>
-<ul>
-<li>Item 14, Declare functions noexcept if they won't emit exceptions (PDF pages 108 to 115)</li>
-</ul>
-<p><b>C++ Move Semantics (Josuttis)</b></p>
-<ul>
-<li>6.3 Dealing with broken invariants (PDF pages 115 to 124)</li>
-</ul>
-</div>
-<!-- read-more:end -->
+<p>Overload resolution only looks at the <i>kind</i> of the argument: an rvalue prefers the <code>&amp;&amp;</code> overload, everything else takes the <code>const&amp;</code> one. A move constructor is simply the <code>&amp;&amp;</code> overload of the copy constructor.</p>
 </section>
 
-<section id="returning" data-title="Returning objects: elision and std::move">
-<h2>Returning objects: elision and <code>std::move</code></h2>
-<p>Compiled with a counting type (copies / moves performed):</p>
-<table>
-<tr><th>What you write</th><th>Copies</th><th>Moves</th><th>Why</th></tr>
-<tr><td><code>return Counter();</code></td><td>0</td><td>0</td><td>guaranteed elision (C++17): built in the caller's storage</td></tr>
-<tr><td><code>Counter c; return c;</code></td><td>0</td><td>0</td><td>NRVO: allowed, not required, but done in practice</td></tr>
-<tr><td><code>return std::move(c);</code></td><td>0</td><td><b>1</b></td><td>blocks NRVO: an extra move, so never write it</td></tr>
-<tr><td>return a by-value <b>parameter</b></td><td>0</td><td>1</td><td>no elision for parameters, but it is moved, not copied</td></tr>
-<tr><td><code>return member;</code></td><td><b>1</b></td><td>0</td><td>a member is never moved implicitly</td></tr>
-<tr><td><code>return std::move(member);</code></td><td>0</td><td>1</td><td>here <code>std::move</code> is right: the object keeps living, you take its member</td></tr>
-</table>
+<section id="named" data-title="A name is always an lvalue">
+<h2>A name is always an lvalue</h2>
+<p>Inside a function that takes <code>std::string&amp;&amp; s</code>, the name <code>s</code> <b>is an lvalue</b>. The parameter can only <i>bind</i> to a temporary, but once it has a name you can use it twice, so it behaves like any named object.</p>
 <script type="text/x-cpp">
-Buffer make()          { Buffer b(1000); return b; }               // fine: elided or moved automatically
-Buffer take(Source& s) { return std::move(s.buffer); }             // member of an object that outlives the call: move it out
-</script>
-<div class="callout warn"><span class="label">Rule</span>Return locals and temporaries plainly. Use <code>std::move</code> on a <b>member</b>, or on something that is not the local you are returning by name.</div>
-<!-- read-more:start -->
-<div class="callout tip"><span class="label">Read more</span>
-<p><b>Effective Modern C++ (Meyers)</b></p>
-<ul>
-<li>Item 25, Use std::move on rvalue references, std::forward on universal references (PDF pages 186 to 195)</li>
-</ul>
-</div>
-<!-- read-more:end -->
-</section>
-
-<section id="traps" data-title="Sink parameters and move traps">
-<h2>Sink parameters and move traps</h2>
-<h3>Taking a parameter you will store</h3>
-<script type="text/x-cpp">
-class Person {
-    std::string name_;
-public:
-    explicit Person(std::string n) : name_(std::move(n)) {}    // by value, then move into the member
-};
-</script>
-<p>Compiled with a counting type: <code>Holder(lvalue)</code> and <code>Holder(rvalue)</code> together made <b>1 copy and 2 moves</b>: the lvalue is copied once into the parameter, and each call moves once into the member. For a <b>constructor that stores its argument</b>, take it by value and move. Not for setters: the extra construction can cost more than assigning.</p>
-<h3>Traps</h3>
-<table>
-<tr><th>Trap</th><th>What happens</th></tr>
-<tr><td><code>std::move</code> on a <code>const</code> object</td><td><b>copies</b>: a <code>const T&amp;&amp;</code> cannot bind to <code>T&amp;&amp;</code>, so the copy constructor is chosen (compiled: 1 copy, 0 moves)</td></tr>
-<tr><td>a type with no move operations</td><td>silently copies</td></tr>
-<tr><td>using an object after <code>std::move</code></td><td>valid but unspecified; only destroy or assign to it</td></tr>
-<tr><td><code>std::move</code> on a forwarding reference parameter</td><td>moves an lvalue the caller still wanted: use <code>std::forward</code></td></tr>
-<tr><td>moving inside a loop</td><td>the second iteration sees a moved-from object</td></tr>
-</table>
-<p><code>push_back(lvalue)</code> copies, <code>push_back(temporary)</code> moves, <code>emplace_back(args...)</code> builds in place (compiled together: 1 copy, 1 move).</p>
-<div class="callout warn"><span class="label">Move only the last use</span>After <code>auto b = std::move(a);</code> treat <code>a</code> as empty. Never return <code>const</code> values by value: it disables the move.</div>
-<!-- read-more:start -->
-<div class="callout tip"><span class="label">Read more</span>
-<p><b>Effective Modern C++ (Meyers)</b></p>
-<ul>
-<li>Item 29, Assume move operations are not present, not cheap, and not used (PDF pages 221 to 225)</li>
-<li>Item 41, Consider pass by value for copyable, cheap-to-move parameters that are always copied (PDF pages 299 to 310)</li>
-</ul>
-<p><b>C++ Move Semantics (Josuttis)</b></p>
-<ul>
-<li>4.1 to 4.2 Avoid objects with names; avoid unnecessary std::move (PDF pages 77 to 79)</li>
-<li>4.3.1 to 4.3.4 Initializing members with move semantics (PDF pages 79 to 90)</li>
-<li>4.3.5 to 4.3.6 Member initialization summary; always pass by value and move? (PDF pages 90 to 93)</li>
-</ul>
-</div>
-<!-- read-more:end -->
-</section>
-
-<section id="forwarding" data-title="Perfect forwarding">
-<h2>Perfect forwarding</h2>
-<p>This builds on the <a href="05-templates.html#s4">forwarding references</a> of the Templates lesson (<code>T&amp;&amp;</code> with a deduced <code>T</code> binds to anything and remembers whether it was an lvalue or an rvalue) and on <code>std::move</code> above.</p>
-<p>A wrapper's parameter has a <i>name</i>, so it is an lvalue and the callee would always copy. <code>std::forward</code> restores the category:</p>
-<script type="text/x-cpp">
-template <typename T, typename... Args>
-std::unique_ptr<T> makeUnique(Args&&... args) {                  // forwarding references
-    return std::unique_ptr<T>(new T(std::forward<Args>(args)...));  // lvalues stay lvalues, rvalues stay rvalues
+void g(std::string&& s) {
+    f(s);                // const&  : s has a name, so it is an lvalue
+    f(std::move(s));     // &&      : mark it movable again
+    std::cout << '\n';
 }
-
-std::string s = "abc";
-auto a = makeUnique<Widget>(s);              // s is an lvalue  -> Widget copies it
-auto b = makeUnique<Widget>(std::string("x"));// temporary rvalue -> Widget MOVES it
+g(std::string("x"));     // prints: const& &&   (compiled)
 </script>
-<div class="callout warn"><span class="label">std::move vs std::forward</span><code>move</code> <i>always</i> casts to rvalue. <code>forward&lt;T&gt;</code> casts to rvalue <i>only if</i> the argument was one. Use <code>forward</code> only on a forwarding reference, once.</div>
-<p>Step through perfect forwarding:</p>
-<div id="st-forward"></div>
-<!-- read-more:start -->
-<div class="callout tip"><span class="label">Read more</span>
-<p><b>C++ Move Semantics (Josuttis)</b></p>
-<ul>
-<li>9.1 to 9.3 Perfect forwarding; universal versus rvalue references (PDF pages 159 to 166)</li>
-<li>9.4 to 9.5 Overload resolution with universal references; perfect forwarding in lambdas (PDF pages 167 to 170)</li>
-<li>Chapter 11 Perfect passing with auto&amp;&amp; (PDF pages 191 to 202)</li>
-</ul>
-</div>
-<!-- read-more:end -->
+<div class="callout warn"><span class="label">Pass it on explicitly</span>To hand a named rvalue reference to another function as an rvalue, write <code>std::move(s)</code> (or <code>std::forward</code> in a template, see <a href="37-forwarding.html">Perfect Forwarding</a>). Moving is always explicit in C++, so a name never gets stolen from by accident.</div>
+</section>
+
+<section id="signature" data-title="What a parameter type promises">
+<h2>What a parameter type promises</h2>
+<p>Once you know the categories, a function signature becomes a short contract. This table is the whole story for ordinary parameters.</p>
+<figure class="fig"><svg viewBox="0 0 640 190" role="img" aria-label="What each parameter style tells the reader about ownership and cost"><defs><marker id="pah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path class="ah" d="M0 0L10 5L0 10z"/></marker></defs><rect class="gd" x="10" y="14" width="150" height="32" rx="6"/><text class="mono" x="85.0" y="35.0" text-anchor="middle">const T&amp;</text><path class="ar" d="M160 30L218 30" marker-end="url(#pah)"/><text class="t" x="226" y="35" text-anchor="start">reads it, no copy</text><rect class="acc" x="10" y="56" width="150" height="32" rx="6"/><text class="mono" x="85.0" y="77.0" text-anchor="middle">T&amp;</text><path class="ar" d="M160 72L218 72" marker-end="url(#pah)"/><text class="t" x="226" y="77" text-anchor="start">may change the caller's object</text><rect class="wn" x="10" y="98" width="150" height="32" rx="6"/><text class="mono" x="85.0" y="119.0" text-anchor="middle">T by value</text><path class="ar" d="M160 114L218 114" marker-end="url(#pah)"/><text class="t" x="226" y="119" text-anchor="start">gets its own copy (or a moved one)</text><rect class="gd" x="10" y="140" width="150" height="32" rx="6"/><text class="mono" x="85.0" y="161.0" text-anchor="middle">T&amp;&amp;</text><path class="ar" d="M160 156L218 156" marker-end="url(#pah)"/><text class="t" x="226" y="161" text-anchor="start">may steal from a temporary</text></svg><figcaption>A signature is a promise: the parameter type says whether the function reads, changes, copies or steals.</figcaption></figure>
+<table>
+<tr><th>Parameter</th><th>Accepts</th><th>The caller can assume</th><th>Use for</th></tr>
+<tr><td><code>const T&amp;</code></td><td>lvalues and rvalues</td><td>the argument is unchanged and not copied</td><td>reading, the default for non-trivial types</td></tr>
+<tr><td><code>T&amp;</code></td><td>lvalues only</td><td>the argument may be modified</td><td>out-parameters (prefer a return value)</td></tr>
+<tr><td><code>T</code> (by value)</td><td>everything</td><td>the function has its own object</td><td>cheap types, or a sink that stores it</td></tr>
+<tr><td><code>T&amp;&amp;</code></td><td>rvalues only</td><td>the argument will be left moved-from</td><td>move operations, rvalue overloads</td></tr>
+<tr><td><code>const T&amp;&amp;</code></td><td>rvalues</td><td>(nothing useful)</td><td>almost never: it cannot be moved from</td></tr>
+</table>
+<div class="callout tip"><span class="label">Reading code</span>When you see <code>std::move(x)</code> at a call, the rest of that function should not use <code>x</code> again. That is the convention that keeps moved-from objects harmless.</div>
 </section>
 
 <section id="cheat" data-title="Cheat sheet">
 <h2>Cheat sheet</h2>
 <p>Answer aloud, then open.</p>
-<details class="ex"><summary>What does <code>std::move</code> actually do?</summary><div><p>Nothing at runtime: it is an unconditional cast to an rvalue reference. It enables the move constructor or move assignment to be chosen. The moved-from object stays valid but unspecified. On a <code>const</code> object it silently copies, because a <code>const</code> rvalue cannot bind to a move constructor.</p></div></details>
 <details class="ex"><summary>What are lvalues, prvalues and xvalues?</summary><div><p>An lvalue is a named object with an address. A prvalue is an unnamed temporary (a literal, <code>a + b</code>, a call returning by value). An xvalue is an object marked as movable, such as <code>std::move(x)</code>. Rvalue means prvalue or xvalue. A named rvalue-reference parameter is still an lvalue inside the function.</p></div></details>
-<details class="ex"><summary>What is copy elision / RVO?</summary><div><p>The compiler constructs a returned object directly in the caller's storage, skipping the copy or move. In C++17 it is guaranteed when returning a temporary (prvalue). NRVO for a named local is allowed but not required. Do not write <code>return std::move(local)</code>: it prevents it and costs a move.</p></div></details>
-<details class="ex"><summary>Why mark a move constructor <code>noexcept</code>?</summary><div><p><code>std::vector</code> moves its elements on reallocation only if the move cannot throw; otherwise it copies them to keep the strong guarantee. Without <code>noexcept</code> every growth becomes a round of copies.</p></div></details>
-<details class="ex"><summary>What state is a moved-from object in?</summary><div><p>Valid but unspecified: you may destroy it or assign a new value to it, but not rely on its contents. For standard types it is usually empty.</p></div></details>
-<details class="ex"><summary>How do you write a class that stores a string argument efficiently?</summary><div><p>Take the parameter by value and <code>std::move</code> it into the member. An lvalue costs one copy plus one move, an rvalue costs one move, and there is a single function to write.</p></div></details>
-<details class="ex"><summary>What is the difference between <code>push_back</code> and <code>emplace_back</code>?</summary><div><p><code>push_back</code> takes an existing object (copied or moved into the container). <code>emplace_back</code> forwards its arguments and constructs the element in place, saving a temporary. Both reallocate the same way.</p></div></details>
-<details class="ex"><summary>What is perfect forwarding, and why do we need it?</summary><div><p>Passing arguments through a wrapper to another function without changing their value category or constness, so the callee can still choose copy vs move correctly. Without it you would need an overload per combination of lvalue/rvalue/const for every parameter.</p></div></details>
+<details class="ex"><summary>What is the address test for lvalues and rvalues?</summary><div><p>If you can take the address of an expression with <code>&amp;</code>, it is an lvalue. A literal, <code>a + b</code> or the result of a call that returns by value is an rvalue and has no address.</p></div></details>
+<details class="ex"><summary>Which reference types bind to an rvalue?</summary><div><p><code>const T&amp;</code> and <code>T&amp;&amp;</code>. A plain <code>T&amp;</code> binds only to lvalues. When both a <code>const T&amp;</code> and a <code>T&amp;&amp;</code> overload exist, an rvalue chooses <code>T&amp;&amp;</code>.</p></div></details>
+<details class="ex"><summary>Inside <code>void g(std::string&amp;&amp; s)</code>, is <code>s</code> an lvalue or an rvalue?</summary><div><p>An lvalue: it has a name and you can use it more than once. To pass it on as an rvalue you must write <code>std::move(s)</code>.</p></div></details>
+<h3>Keep going</h3>
+<ul>
+<li>Next lesson: <a href="33-copymove.html">Copy versus Move, and std::move</a>.</li>
+</ul>
 </section>
-
 </main>
 
 <script src="assets/data/lessons.js"></script>
 <script src="assets/app.js"></script>
-<script>
-CT.stepper('#st-move', {
-  title: 'Copy vs move: what std::move really does',
-  code: String.raw`
-std::vector<int> a(1000, 7);
-std::vector<int> b = a;
-std::vector<int> c = std::move(a);
-`,
-  steps: [
-    { line: 1, mem: [{ n: 'a.ptr', t: 'int*', v: '0x5000', p: 'buffer A' }, { n: 'a.size', t: 'size_t', v: '1000' }, { n: 'buffer A @0x5000', t: '1000 ints', v: '7, 7, 7 ...', k: 'heap' }],
-      note: '<b>a</b> is a small object (pointer + size + capacity) that owns a big heap buffer. It is an <b>lvalue</b>: it has a name and an address.' },
-    { line: 2, mem: [{ n: 'a.ptr', t: 'int*', v: '0x5000', p: 'buffer A' }, { n: 'a.size', t: 'size_t', v: '1000' }, { n: 'buffer A @0x5000', t: '1000 ints', v: '7, 7, 7 ...', k: 'heap' }],
-      note: 'In <code>b = a</code> the argument <code>a</code> is an <b>lvalue</b>, so it binds to <code>const vector&amp;</code> and the compiler picks the <b>copy constructor</b>. Overload resolution only looks at the <i>kind</i> of expression you pass.' },
-    { line: 2, mem: [{ n: 'a.ptr', t: 'int*', v: '0x5000', p: 'buffer A' }, { n: 'a.size', t: 'size_t', v: '1000' }, { n: 'b.ptr', t: 'int*', v: '0x6000', p: 'buffer B' }, { n: 'b.size', t: 'size_t', v: '1000' }, { n: 'buffer A @0x5000', t: '1000 ints', v: '7, 7, 7 ...', k: 'heap' }, { n: 'buffer B @0x6000', t: '1000 ints', v: '7, 7, 7 ...', k: 'heap' }],
-      note: '<b>Copy:</b> a new buffer is allocated and all 1000 ints are copied. Two independent owners. Correct, but O(n).' },
-    { line: 3, mem: [{ n: 'a.ptr', t: 'int*', v: '0x5000', p: 'buffer A' }, { n: 'a.size', t: 'size_t', v: '1000' }, { n: 'b.ptr', t: 'int*', v: '0x6000', p: 'buffer B' }, { n: 'b.size', t: 'size_t', v: '1000' }, { n: 'std::move(a)', fam: 'a', t: 'vector&&', v: 'refers to a', to: 'a.ptr', p: 'same object, same address' }, { n: 'buffer A @0x5000', t: '1000 ints', v: '7, 7, 7 ...', k: 'heap' }, { n: 'buffer B @0x6000', t: '1000 ints', v: '7, 7, 7 ...', k: 'heap' }],
-      note: '<b>std::move(a) runs first, and it moves nothing.</b> It is just <code>static_cast&lt;vector&lt;int&gt;&amp;&amp;&gt;(a)</code>: it hands back an <b>rvalue reference to the very same object</b> (follow the arrow: same address, no copy, no data touched). The <i>expression</i> changed from "lvalue a" to "xvalue, an rvalue you may steal from".' },
-    { line: 3, mem: [{ n: 'a.ptr', t: 'int*', v: '0x5000', p: 'buffer A' }, { n: 'a.size', t: 'size_t', v: '1000' }, { n: 'b.ptr', t: 'int*', v: '0x6000', p: 'buffer B' }, { n: 'b.size', t: 'size_t', v: '1000' }, { n: 'std::move(a)', fam: 'a', t: 'vector&&', v: 'refers to a', to: 'a.ptr', p: 'same object, same address' }, { n: 'buffer A @0x5000', t: '1000 ints', v: '7, 7, 7 ...', k: 'heap' }, { n: 'buffer B @0x6000', t: '1000 ints', v: '7, 7, 7 ...', k: 'heap' }],
-      note: 'Now overload resolution sees an <b>rvalue</b>. <code>vector(vector&amp;&amp;)</code> (the <b>move constructor</b>) is a better match than <code>vector(const vector&amp;)</code>, so it is chosen. That constructor, not <code>std::move</code>, does the stealing.' },
-    { line: 3, mem: [{ n: 'a.ptr', t: 'int*', v: 'nullptr' }, { n: 'a.size', t: 'size_t', v: '0' }, { n: 'std::move(a)', fam: 'a', t: 'vector&&', v: 'gone (temporary)', dead: true }, { n: 'c.ptr', t: 'int*', v: '0x5000', p: 'buffer A' }, { n: 'c.size', t: 'size_t', v: '1000' }, { n: 'b.ptr', t: 'int*', v: '0x6000', p: 'buffer B' }, { n: 'b.size', t: 'size_t', v: '1000' }, { n: 'buffer A @0x5000', t: '1000 ints', v: '7, 7, 7 ...', k: 'heap' }, { n: 'buffer B @0x6000', t: '1000 ints', v: '7, 7, 7 ...', k: 'heap' }],
-      note: '<b>Move:</b> no allocation, no element copying. <b>c</b> takes over buffer A\'s pointer and size, and <b>a</b> is left empty (valid but unspecified: assign to it or let it die, do not read it). O(1). Had <code>a</code> been <code>const</code>, the cast would give <code>const vector&amp;&amp;</code>, which cannot bind to the move constructor, so it would <b>copy</b> silently.' }
-  ]
-});
-
-CT.stepper('#st-forward', {
-  title: 'Perfect forwarding: copy for lvalues, move for rvalues',
-  code: String.raw`
-template <typename T>
-void wrap(T&& arg) { target(std::forward<T>(arg)); }
-
-std::string s = "abc";
-wrap(s);
-wrap(std::string("x"));
-`,
-  steps: [
-    { line: 5, mem: [{ n: 's', t: 'string', v: '"abc"' }], note: 'An ordinary named string: an <b>lvalue</b>.' },
-    { line: 6, mem: [{ n: 's', t: 'string', v: '"abc"' }, { n: 'T', t: 'deduced', v: 'string&' }, { n: 'arg', t: 'string&', v: 'alias', to: 's' }],
-      note: '<code>wrap(s)</code>: s is an lvalue, so <b>T = string&amp;</b>. The parameter <code>T&amp;&amp;</code> collapses to <code>string&amp;</code> and binds to s without copying.' },
-    { line: 2, mem: [{ n: 's', t: 'string', v: '"abc"' }, { n: 'T', t: 'deduced', v: 'string&' }, { n: 'arg', t: 'string&', v: 'alias', to: 's' }], out: 'target(const string&): COPY\n',
-      note: '<code>std::forward&lt;string&amp;&gt;(arg)</code> keeps it an <b>lvalue</b>, so target picks the copying overload. Inside wrap, arg has a name and is always an lvalue; forward restores what the caller passed.' },
-    { line: 7, mem: [{ n: 's', t: 'string', v: '"abc"' }, { n: 'temp', t: 'string', v: '"x"', p: 'unnamed temporary' }, { n: 'T', t: 'deduced', v: 'string' }, { n: 'arg', t: 'string&&', v: 'alias', to: 'temp' }],
-      note: '<code>wrap(std::string("x"))</code>: a temporary is an <b>rvalue</b>, so <b>T = string</b> and the parameter is a true <code>string&amp;&amp;</code> bound to the temporary.' },
-    { line: 2, mem: [{ n: 's', t: 'string', v: '"abc"' }, { n: 'temp', t: 'string', v: 'moved-from', p: 'unnamed temporary' }, { n: 'T', t: 'deduced', v: 'string' }, { n: 'arg', t: 'string&&', v: 'alias', to: 'temp' }], out: 'target(string&&): MOVE\n',
-      note: '<code>std::forward&lt;string&gt;(arg)</code> casts to an <b>rvalue</b>, so target picks the move overload. Same wrapper, correct behaviour for both: that is perfect forwarding. (<code>std::move</code> would have moved in <i>both</i> cases.)' }
-  ]
-});
-
-</script>
 </body>
 </html>

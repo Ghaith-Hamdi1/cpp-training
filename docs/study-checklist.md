@@ -254,19 +254,18 @@ Streams, containers, iterators, algorithms, templates.. Roadmap page: [phase-3-t
 
 - [ ] Recap check. Explain: how a lambda is compiled (a closure class with `operator()`), when `vector` invalidates iterators, why `map::operator[]` can insert, what a strict weak ordering is, how a template is instantiated, and why `std::sort` does not work on `std::list`.
 
-## Phase 4: RAII, exceptions and advanced language tools (about 7.2 hours)
+## Phase 4: RAII, exceptions and advanced language tools (about 7.1 hours)
 
 Exceptions and RAII, namespaces, unions and enums, memory control.. Roadmap page: [phase-4-raii-exceptions-and-advanced-language-tools.md](reading/roadmap/phase-4-raii-exceptions-and-advanced-language-tools.md).
 
 ### Lessons and quizzes
 
-**Core Language: RAII & Exceptions:** [03-core-language.html](../interactive/03-core-language.html), quiz: [03-core-language-quiz.html](../interactive/03-core-language-quiz.html) (17 questions).
+**RAII and Exceptions:** [03-core-language.html](../interactive/03-core-language.html), quiz: [03-core-language-quiz.html](../interactive/03-core-language-quiz.html) (15 questions).
 
 - [ ] RAII: the central idea
 - [ ] Exceptions and stack unwinding
 - [ ] RAII everywhere: guards and standard wrappers
 - [ ] Exception-safety guarantees and noexcept
-- [ ] Exceptions, error codes and optional
 - [ ] Cheat sheet (say each answer aloud)
 - [ ] Take the quiz, then retry the missed questions
 
@@ -280,15 +279,16 @@ Exceptions and RAII, namespaces, unions and enums, memory control.. Roadmap page
 
 - [ ] Recap check. Explain: what stack unwinding does, why a destructor must not throw, the difference between basic and strong guarantee and how copy-and-swap gives the strong one.
 
-## Phase 5: Modern C++ (C++11 to C++20) (about 23.8 hours)
+## Phase 5: Modern C++ (C++11 to C++20) (about 27.0 hours)
 
 Move semantics, smart pointers, forwarding, `constexpr`, vocabulary types, concepts.. Roadmap page: [phase-5-modern-cpp.md](reading/roadmap/phase-5-modern-cpp.md).
 
 ### Lessons and quizzes
 
-**optional, variant and expected:** [21-vocabulary-types.html](../interactive/21-vocabulary-types.html), quiz: [21-vocabulary-types-quiz.html](../interactive/21-vocabulary-types-quiz.html) (9 questions).
+**Values or Errors: optional, variant and expected:** [21-vocabulary-types.html](../interactive/21-vocabulary-types.html), quiz: [21-vocabulary-types-quiz.html](../interactive/21-vocabulary-types-quiz.html) (11 questions).
 
 - [ ] Why vocabulary types
+- [ ] Exceptions, error codes and optional
 - [ ] `optional`: a value or nothing
 - [ ] `variant` and `std::visit`
 - [ ] `expected`: a value or an error
@@ -296,14 +296,62 @@ Move semantics, smart pointers, forwarding, `constexpr`, vocabulary types, conce
 - [ ] Cheat sheet (say each answer aloud)
 - [ ] Take the quiz, then retry the missed questions
 
-**Move Semantics:** [13-move-semantics.html](../interactive/13-move-semantics.html), quiz: [13-move-semantics-quiz.html](../interactive/13-move-semantics-quiz.html) (17 questions).
+**Lvalues and Rvalues:** [13-move-semantics.html](../interactive/13-move-semantics.html), quiz: [13-move-semantics-quiz.html](../interactive/13-move-semantics-quiz.html) (12 questions).
 
+- [ ] Names and temporaries
 - [ ] Lvalues, rvalues and value categories
-- [ ] Copy versus move (step through it; what `std::move` really does)
-- [ ] Writing move operations
-- [ ] Returning objects: elision and `std::move`
-- [ ] Sink parameters and move traps (the `const` trap)
-- [ ] Perfect forwarding
+- [ ] Which reference binds to what
+- [ ] A name is always an lvalue
+- [ ] What a parameter type promises
+- [ ] Cheat sheet (say each answer aloud)
+- [ ] Take the quiz, then retry the missed questions
+
+**Copy versus Move, and std::move:** [33-copymove.html](../interactive/33-copymove.html), quiz: [33-copymove-quiz.html](../interactive/33-copymove-quiz.html) (10 questions).
+
+- [ ] What a copy costs
+- [ ] What `std::move` really does
+- [ ] Moved-from objects
+- [ ] When `std::move` copies anyway
+- [ ] Which standard types are cheap to move
+- [ ] Cheat sheet (say each answer aloud)
+- [ ] Take the quiz, then retry the missed questions
+
+**Writing Move Operations:** [34-writemoves.html](../interactive/34-writemoves.html), quiz: [34-writemoves-quiz.html](../interactive/34-writemoves-quiz.html) (11 questions).
+
+- [ ] The move constructor, step by step
+- [ ] Move assignment and copy-and-swap
+- [ ] Why moves must be `noexcept`
+- [ ] Rule of Zero first
+- [ ] Testing your move operations
+- [ ] Cheat sheet (say each answer aloud)
+- [ ] Take the quiz, then retry the missed questions
+
+**Returning Objects and Copy Elision:** [35-elision.html](../interactive/35-elision.html), quiz: [35-elision-quiz.html](../interactive/35-elision-quiz.html) (11 questions).
+
+- [ ] Returning a local: the compiler does the work
+- [ ] Guaranteed elision in C++17
+- [ ] When `std::move` on a return is right and wrong
+- [ ] When elision does not happen
+- [ ] Cheat sheet (say each answer aloud)
+- [ ] Take the quiz, then retry the missed questions
+
+**Sink Parameters and Move Traps:** [36-sinks.html](../interactive/36-sinks.html), quiz: [36-sinks-quiz.html](../interactive/36-sinks-quiz.html) (11 questions).
+
+- [ ] Taking a parameter you will store
+- [ ] By value, overloads or const reference?
+- [ ] Move traps
+- [ ] `push_back`, `emplace_back` and moving into containers
+- [ ] Move-only sinks
+- [ ] Cheat sheet (say each answer aloud)
+- [ ] Take the quiz, then retry the missed questions
+
+**Perfect Forwarding:** [37-forwarding.html](../interactive/37-forwarding.html), quiz: [37-forwarding-quiz.html](../interactive/37-forwarding-quiz.html) (10 questions).
+
+- [ ] Why a wrapper loses the category
+- [ ] `std::forward` restores it
+- [ ] Reference collapsing
+- [ ] Where forwarding fails
+- [ ] Forwarding in practice
 - [ ] Cheat sheet (say each answer aloud)
 - [ ] Take the quiz, then retry the missed questions
 
@@ -318,11 +366,22 @@ Move semantics, smart pointers, forwarding, `constexpr`, vocabulary types, conce
 - [ ] Cheat sheet (say each answer aloud)
 - [ ] Take the quiz, then retry the missed questions
 
-**shared_ptr and weak_ptr:** [14-smart-pointers.html](../interactive/14-smart-pointers.html), quiz: [14-smart-pointers-quiz.html](../interactive/14-smart-pointers-quiz.html) (10 questions).
+**shared_ptr: Shared Ownership:** [14-smart-pointers.html](../interactive/14-smart-pointers.html), quiz: [14-smart-pointers-quiz.html](../interactive/14-smart-pointers-quiz.html) (12 questions).
 
+- [ ] When ownership is shared
 - [ ] `shared_ptr` and the control block (step through the count)
-- [ ] Reference cycles and `weak_ptr` (step through the leak)
+- [ ] `make_shared` and the cost of a copy
+- [ ] `shared_ptr` and threads
 - [ ] Pitfalls and `enable_shared_from_this`
+- [ ] Cheat sheet (say each answer aloud)
+- [ ] Take the quiz, then retry the missed questions
+
+**weak_ptr and Reference Cycles:** [32-weakptr.html](../interactive/32-weakptr.html), quiz: [32-weakptr-quiz.html](../interactive/32-weakptr-quiz.html) (12 questions).
+
+- [ ] The cycle problem
+- [ ] `weak_ptr` and `lock()`
+- [ ] Where weak_ptr belongs
+- [ ] What a weak_ptr keeps alive
 - [ ] Cheat sheet (say each answer aloud)
 - [ ] Take the quiz, then retry the missed questions
 

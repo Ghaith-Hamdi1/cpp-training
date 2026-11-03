@@ -1,0 +1,172 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Writing Move Operations</title>
+<script>try{var t=JSON.parse(localStorage.getItem('cpptrain:theme'));if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body data-topic="writemoves" data-kind="lesson">
+<main>
+<h1>Writing Move Operations</h1>
+<p class="lead">How to write the move constructor and move assignment of a class that owns a resource, why they must be <code>noexcept</code>, and why the best answer is often to write nothing. Assumes <a href="33-copymove.html">Copy versus Move</a>.</p>
+
+<section id="ctor" data-title="The move constructor, step by step">
+<h2>The move constructor, step by step</h2>
+<p>A class that owns a raw resource needs its <b>own</b> move constructor, because the compiler-generated one would copy the pointer and leave two owners. Steal the pointer and reset the source, so the source destructor frees nothing.</p>
+<figure class="fig"><svg viewBox="0 0 640 190" role="img" aria-label="The move constructor copies the pointer and size from the source and resets the source to empty"><defs><marker id="gah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path class="ah" d="M0 0L10 5L0 10z"/></marker></defs><text class="t" x="10" y="18" text-anchor="start">before</text><rect class="acc" x="10" y="28" width="100" height="30" rx="6"/><text class="t" x="60.0" y="48.0" text-anchor="middle">o.data_</text><path class="ar" d="M110 43L188 43" marker-end="url(#gah)"/><rect class="wn" x="190" y="28" width="130" height="30" rx="6"/><text class="t" x="255.0" y="48.0" text-anchor="middle">int[1000]</text><rect class="box" x="340" y="28" width="100" height="30" rx="6"/><text class="t" x="390.0" y="48.0" text-anchor="middle">data_</text><text class="m" x="450" y="48" text-anchor="start">(new object, empty)</text><text class="t" x="10" y="100" text-anchor="start">after</text><rect class="bd" x="10" y="110" width="100" height="30" rx="6"/><text class="t" x="60.0" y="130.0" text-anchor="middle">o.data_</text><text class="m" x="120" y="130" text-anchor="start">nullptr</text><rect class="acc" x="340" y="110" width="100" height="30" rx="6"/><text class="t" x="390.0" y="130.0" text-anchor="middle">data_</text><path class="ar" d="M440 125L478 125" marker-end="url(#gah)"/><rect class="wn" x="480" y="110" width="150" height="30" rx="6"/><text class="t" x="555.0" y="130.0" text-anchor="middle">int[1000]</text><text class="m" x="10" y="176" text-anchor="start">The buffer was never touched: only two pointers changed hands.</text></svg><figcaption>Steal, then reset: two steps per member.</figcaption></figure>
+<script type="text/x-cpp">
+class Buffer {
+    int* data_; std::size_t n_;
+public:
+    explicit Buffer(std::size_t n) : data_(new int[n]{}), n_(n) {}
+    ~Buffer() { delete[] data_; }
+    Buffer(const Buffer&) = delete;                         // keep the example short: no copying
+
+    Buffer(Buffer&& o) noexcept                             // steal and reset, one line each
+        : data_(std::exchange(o.data_, nullptr)), n_(std::exchange(o.n_, 0)) {}
+};
+</script>
+<ul>
+<li><code>std::exchange(x, v)</code> returns the old <code>x</code> and sets it to <code>v</code>: exactly "steal and reset".</li>
+<li>After the move, <code>o.data_</code> is <code>nullptr</code>, and <code>delete[] nullptr</code> is harmless, so the source can be destroyed safely.</li>
+<li>A move constructor takes <code>T&amp;&amp;</code> (not <code>const</code>: it must change the source) and should be <code>noexcept</code>.</li>
+</ul>
+<!-- read-more:start -->
+<div class="callout tip"><span class="label">Read more</span>
+<p><b>Programming: Principles and Practice (Stroustrup)</b></p>
+<ul>
+<li>17.4 to 17.5 Copying and moving; essential operations (PDF pages 501 to 512)</li>
+</ul>
+<p><b>C++ Move Semantics (Josuttis)</b></p>
+<ul>
+<li>6.3 Dealing with broken invariants (PDF pages 115 to 124)</li>
+</ul>
+</div>
+<!-- read-more:end -->
+</section>
+
+<section id="assign" data-title="Move assignment and copy-and-swap">
+<h2>Move assignment and copy-and-swap</h2>
+<p>Move assignment must also release what the target already owns. The simplest correct version reuses the move constructor through <b>copy-and-swap</b>: take the parameter by value, then swap.</p>
+<script type="text/x-cpp">
+Buffer& operator=(Buffer o) noexcept {      // by value: an lvalue argument is COPIED, an rvalue is MOVED
+    std::swap(data_, o.data_);              // take the new contents ...
+    std::swap(n_, o.n_);                    // ... and hand ours to o, whose destructor frees them
+    return *this;
+}
+</script>
+<table>
+<tr><th>Style</th><th>Good</th><th>Cost</th></tr>
+<tr><td>copy-and-swap (by value)</td><td>one function, handles self-assignment, strong guarantee</td><td>an extra move or copy even when storage could be reused</td></tr>
+<tr><td><code>operator=(const T&amp;)</code> plus <code>operator=(T&amp;&amp;)</code></td><td>can reuse existing storage, fastest</td><td>two functions to write and keep correct</td></tr>
+</table>
+<ul>
+<li>For a move assignment written by hand, check for self-assignment (<code>if (this != &amp;o)</code>), free your own resource, then steal.</li>
+<li>If you do not own a raw resource, write none of this (see below).</li>
+</ul>
+<!-- read-more:start -->
+<div class="callout tip"><span class="label">Read more</span>
+<p><b>Programming: Principles and Practice (Stroustrup)</b></p>
+<ul>
+<li>17.6 to 17.9 Other operations, remaining Vector problems, changing size (PDF pages 513 to 523)</li>
+</ul>
+</div>
+<!-- read-more:end -->
+</section>
+
+<section id="noexcept" data-title="Why moves must be noexcept">
+<h2>Why moves must be <code>noexcept</code></h2>
+<p><code>std::vector</code> promises that if growth throws, the vector is unchanged (the <b>strong guarantee</b>). Moving elements into the new buffer could throw halfway, so the vector uses <code>std::move_if_noexcept</code>: it moves only if the move is <code>noexcept</code>, and copies otherwise.</p>
+<figure class="fig"><svg viewBox="0 0 640 180" role="img" aria-label="When a vector grows it moves its elements only if the move cannot throw; otherwise it copies them"><rect class="gd" x="10" y="20" width="270" height="60" rx="6"/><text class="t" x="145.0" y="55.0" text-anchor="middle"></text><text class="t" x="24" y="44" text-anchor="start">move marked noexcept</text><text class="m" x="24" y="66" text-anchor="start">growth: move every element</text><rect class="wn" x="350" y="20" width="280" height="60" rx="6"/><text class="t" x="490.0" y="55.0" text-anchor="middle"></text><text class="t" x="364" y="44" text-anchor="start">move NOT noexcept</text><text class="m" x="364" y="66" text-anchor="start">growth: COPY every element</text><text class="m" x="10" y="110" text-anchor="start">Why: if a move threw halfway, the old buffer would be damaged and the strong guarantee lost.</text><text class="m" x="10" y="134" text-anchor="start">Copies keep the old buffer intact, so the vector falls back to copying.</text><text class="m" x="10" y="164" text-anchor="start">Compiled: 8 push_backs of a type whose move is not noexcept made 7 extra copies.</text></svg><figcaption>noexcept decides whether growth is a round of moves or a round of copies.</figcaption></figure>
+<table>
+<tr><th>Element type</th><th>Copies during 8 push_backs</th><th>Moves</th></tr>
+<tr><td>move constructor <b>not</b> noexcept</td><td>7</td><td>8</td></tr>
+<tr><td>move constructor <code>noexcept</code></td><td>0</td><td>15</td></tr>
+</table>
+<script type="text/x-cpp">
+struct Fast { Fast(Fast&&) noexcept { /* ... */ } /* ... */ };   // vector moves on growth
+struct Slow { Slow(Slow&&)          { /* ... */ } /* ... */ };   // vector COPIES on growth
+</script>
+<div class="callout tip"><span class="label">Rule</span>Mark move constructors and move assignments <code>noexcept</code> whenever they cannot throw. Moves that only swap or reset pointers never throw.</div>
+<!-- read-more:start -->
+<div class="callout tip"><span class="label">Read more</span>
+<p><b>Effective Modern C++ (Meyers)</b></p>
+<ul>
+<li>Item 14, Declare functions noexcept if they won't emit exceptions (PDF pages 108 to 115)</li>
+</ul>
+</div>
+<!-- read-more:end -->
+</section>
+
+<section id="zero" data-title="Rule of Zero first">
+<h2>Rule of Zero first</h2>
+<p>The best move operations are the ones you do not write. If every member already knows how to copy and move itself, the compiler-generated operations are correct.</p>
+<table>
+<tr><th>Rule</th><th>You write</th><th>When</th></tr>
+<tr><td><b>Rule of Zero</b></td><td>nothing</td><td>members are <code>vector</code>, <code>string</code>, <code>unique_ptr</code> and so on</td></tr>
+<tr><td><b>Rule of Five</b></td><td>destructor, copy and move constructor, copy and move assignment</td><td>the class owns a raw resource itself</td></tr>
+</table>
+<script type="text/x-cpp">
+class Document {                 // Rule of Zero: the compiler's copy and move are right
+    std::string title_;
+    std::vector<int> pages_;
+    std::unique_ptr<Cache> cache_;   // makes the class move-only automatically
+};
+</script>
+<ul>
+<li>Declare any of the five and the compiler stops generating some of the others: a user-declared destructor or copy operation suppresses the implicit moves, so a move silently becomes a copy.</li>
+<li>To keep the defaults after declaring something, write <code>= default</code> explicitly.</li>
+</ul>
+</section>
+
+<section id="testing" data-title="Testing your move operations">
+<h2>Testing your move operations</h2>
+<p>You cannot see a move in the output, so test for it. A tiny <b>counting type</b> records every copy and move, and a test asserts the numbers you expect.</p>
+<figure class="fig"><svg viewBox="0 0 640 150" role="img" aria-label="A counting type shows copies and moves so you can check your move operations"><defs><marker id="rah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path class="ah" d="M0 0L10 5L0 10z"/></marker></defs><rect class="acc" x="10" y="30" width="180" height="60" rx="6"/><text class="t" x="100.0" y="57.0" text-anchor="middle">Counted</text><text class="m" x="100.0" y="73.0" text-anchor="middle">copies, moves counters</text><path class="ar" d="M190 60L248 60" marker-end="url(#rah)"/><rect class="gd" x="250" y="30" width="190" height="60" rx="6"/><text class="t" x="345.0" y="57.0" text-anchor="middle">your container / function</text><text class="m" x="345.0" y="73.0" text-anchor="middle">the code under test</text><path class="ar" d="M440 60L498 60" marker-end="url(#rah)"/><rect class="wn" x="500" y="30" width="130" height="60" rx="6"/><text class="t" x="565.0" y="57.0" text-anchor="middle">assert</text><text class="m" x="565.0" y="73.0" text-anchor="middle">copies == 0</text></svg><figcaption>Count operations in a test, then assert the numbers.</figcaption></figure>
+<script type="text/x-cpp">
+struct Counted {
+    static inline int copies = 0, moves = 0;
+    Counted() = default;
+    Counted(const Counted&)     { ++copies; }
+    Counted(Counted&&) noexcept { ++moves;  }
+};
+
+std::vector<Counted> v;
+v.reserve(8);
+v.push_back(Counted());          // moves == 1, copies == 0
+</script>
+<table>
+<tr><th>Check</th><th>What it proves</th></tr>
+<tr><td><code>copies == 0</code> after building a vector of temporaries</td><td>the code moves instead of copying</td></tr>
+<tr><td><code>std::is_nothrow_move_constructible_v&lt;T&gt;</code> with <code>static_assert</code></td><td>the move is really <code>noexcept</code>, so <code>vector</code> will use it</td></tr>
+<tr><td>a moved-from object can be destroyed and assigned</td><td>the moved-from state keeps the class invariant</td></tr>
+</table>
+<script type="text/x-cpp">
+static_assert(std::is_nothrow_move_constructible_v<Buffer>);   // fails to compile if you forget noexcept
+static_assert(std::is_nothrow_move_assignable_v<Buffer>);
+</script>
+<div class="callout tip"><span class="label">Invariants</span>A moved-from object must still be safe to destroy and to assign to. If your class promises "never empty", a move that empties it breaks the promise: reset to a valid state, or document that moved-from objects are special.</div>
+</section>
+
+<section id="cheat" data-title="Cheat sheet">
+<h2>Cheat sheet</h2>
+<p>Answer aloud, then open.</p>
+<details class="ex"><summary>Why mark a move constructor <code>noexcept</code>?</summary><div><p><code>std::vector</code> moves its elements on reallocation only if the move cannot throw; otherwise it copies them to keep the strong guarantee. Without <code>noexcept</code> every growth becomes a round of copies.</p></div></details>
+<details class="ex"><summary>What does a move constructor do to the source object?</summary><div><p>It steals the resources (pointers, handles) and resets the source to a safe empty state, for example with <code>std::exchange(o.p, nullptr)</code>, so the source destructor frees nothing.</p></div></details>
+<details class="ex"><summary>What is copy-and-swap assignment?</summary><div><p><code>T&amp; operator=(T o) { swap(*this, o); return *this; }</code>: the parameter is copied or moved depending on the argument, then swapped in. The old contents are destroyed with <code>o</code>. It handles self-assignment and gives the strong guarantee.</p></div></details>
+<details class="ex"><summary>What does the Rule of Zero say?</summary><div><p>Do not write special member functions when members like <code>vector</code>, <code>string</code> and <code>unique_ptr</code> already manage themselves; the compiler's copy and move are then correct.</p></div></details>
+<details class="ex"><summary>Why can declaring a destructor make moves slower?</summary><div><p>A user-declared destructor stops the compiler generating move operations, so moves silently fall back to the copy operations.</p></div></details>
+<h3>Keep going</h3>
+<ul>
+<li>Before this lesson: <a href="33-copymove.html">Copy versus Move, and std::move</a>.</li>
+<li>Next lesson: <a href="35-elision.html">Returning Objects and Copy Elision</a>.</li>
+</ul>
+</section>
+</main>
+
+<script src="assets/data/lessons.js"></script>
+<script src="assets/app.js"></script>
+</body>
+</html>

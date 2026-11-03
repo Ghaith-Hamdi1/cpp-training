@@ -59,15 +59,14 @@ const REPLACE = { tasks: ['cia'], atomics: ['cia'] };
 /* guide rows that name a whole lesson ("Move semantics", "Smart pointers") are placed by a hint on the row's book and label:
    lesson id -> [[regex over "<book> <label>", text of the section title]] */
 const HINTS = {
-  moves: [
-    [/^emc 14 /, 'writing move operations'], [/^emc 23 /, 'copy versus move'], [/^emc 25 /, 'returning objects'], [/^emc (29|41) /, 'sink parameters'],
-    [/^mv (1\.|Chapter 2)/, 'copy versus move'], [/^mv 4\./, 'sink parameters'], [/^mv 6\.1/, 'copy versus move'], [/^mv 6\.3/, 'writing move operations'], [/^ppp 17\./, 'writing move operations']
-  ],
   uniqueptr: [
     [/^emc (18|21|22) /, 'creating a unique ptr'], [/^mv Chapter 13/, 'move only'], [/^ppp 18\.4/, 'ownership who frees it']
   ],
   smartptr: [
-    [/^emc (19|21|22) /, 'shared ptr and the control block'], [/^emc 20 /, 'reference cycles']
+    [/^emc (19|21|22) /, 'shared ptr and the control block']
+  ],
+  weakptr: [
+    [/^emc 20 /, 'weak ptr and lock']
   ],
   strings: [[/^ppp 9\.11/, 'string streams and files']],
   stl: [[/^mv Chapter 15/, 'vector the workhorse']]
