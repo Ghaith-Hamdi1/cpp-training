@@ -162,7 +162,7 @@
 
   function buildHeader(kind) {
     const cur = document.body.dataset.topic;
-    const links = '<a href="study-checklist.html"' + (kind === 'checklist' ? ' class="cur"' : '') + '>Study checklist</a>' +
+    const links = '<a href="today.html"' + (kind === 'today' ? ' class="cur"' : '') + '>Today\'s plan</a>' + '<a href="study-checklist.html"' + (kind === 'checklist' ? ' class="cur"' : '') + '>Study checklist</a>' +
       '<a href="review.html"' + (kind === 'review' ? ' class="cur"' : '') + '>Review my mistakes</a>' +
       '<a href="assess.html"' + (kind === 'assess' ? ' class="cur"' : '') + '>Level check</a>' +
       '<a href="mock-interview.html"' + (kind === 'mock' ? ' class="cur"' : '') + '>Mock questions</a>' +
@@ -211,7 +211,7 @@
     const el = document.createElement('p');
     el.className = 'eyebrow';
     el.innerHTML = '<b>Phase ' + ph.n + ' of ' + CT.phases.length + '</b>: ' + esc(ph.name) + ' &middot; ' + (kind === 'quiz' ? 'quiz for ' : '') + 'lesson ' + t.n + ' of ' + TOPICS.length +
-      ' &middot; <a href="study-checklist.html#phase-' + ph.n + '">checklist</a> &middot; <a href="' + roadmap + '">book reading</a>';
+      ' &middot; <a href="session.html?topic=' + t.id + '">study session</a> &middot; <a href="study-checklist.html#phase-' + ph.n + '">checklist</a> &middot; <a href="' + roadmap + '">book reading</a>';
     h1.parentNode.insertBefore(el, h1);
   }
 
@@ -993,6 +993,14 @@
         $('#qnext', root).focus();
       }));
     }
+    /* the book chapters for the sections the missed questions belong to (not on a session page, which shows them in its own step) */
+    function deeperForMissed() {
+      if (cfg.noDeeper || !missed.length || !(window.CT.readMore)) return '';
+      const by = {};
+      missed.forEach((q) => { const tp = q.topic || cfg.id; if (q.sec) (by[tp] = by[tp] || []).push(q.sec); });
+      const html = Object.keys(by).map((tp) => (cfg.mixed ? '<h4>' + esc((topicOf(tp) || {}).title || tp) + '</h4>' : '') + deeperBlock(tp, by[tp])).join('');
+      return html ? '<h3>Read more on what you missed</h3>' + html : '';
+    }
     function finish() {
       if (onKey) { document.removeEventListener('keydown', onKey); onKey = null; }
       const pct = Math.round((right / order.length) * 100);
@@ -1006,13 +1014,14 @@
         (missed.length ? '<h3>Questions to review</h3>' + missed.map((q) => '<div class="miss"><div class="qq">' + fmt(q.q) + '</div>' + (q.code ? codeHtml(q.code) : '') +
           '<div><b class="ok" style="color:var(--good)">Answer:</b> ' + fmt(q.opts[q.a]) + '</div><div style="color:var(--muted)">' + fmt(q.why) + '</div>' +
           '<div><a href="' + lessonHref(q) + (q.sec ? '#' + q.sec : '') + '">Re-read this in the lesson &rarr;</a></div></div>').join('') : '') +
-        '<div class="pickrow">' + (missed.length ? '<button class="btn" id="qretry" type="button">Retry the ' + missed.length + ' missed</button>' : '') +
+        deeperForMissed() + '<div class="pickrow">' + (missed.length ? '<button class="btn" id="qretry" type="button">Retry the ' + missed.length + ' missed</button>' : '') +
         '<button class="btn ghost" id="qagain" type="button">' + (cfg.mixed ? 'Check what is left' : 'Restart the full quiz') + '</button></div>';
       const r = $('#qretry', root);
       if (r) r.addEventListener('click', () => begin(missed.slice()));
       $('#qagain', root).addEventListener('click', () => { if (cfg.mixed) location.reload(); else begin(cfg.questions); });
+      if (cfg.onFinish) cfg.onFinish({ right, total: order.length, pct, missed, full });
     }
-    if (cfg.mixed && cfg.questions.length) begin(cfg.questions); else intro();
+    if ((cfg.mixed || cfg.auto) && cfg.questions.length) begin(cfg.questions); else intro();
   }
 
   /* ---------------- review: the weak questions of every lesson in one quiz ---------------- */
@@ -1056,8 +1065,13 @@
         '<span class="pill">' + (total ? done + '/' + total + ' sections' : 'not started') + '</span>' + (q ? '<span class="pill">quiz best ' + q.best + '%</span>' : '') +
         (Object.keys(store.get('weak:' + t.id, {})).length ? '<span class="pill hot">' + Object.keys(store.get('weak:' + t.id, {})).length + ' to review</span>' : '') + '</div>' +
         '<div class="bar-track"><span style="width:' + pct + '%"></span></div>' +
-        '<div class="row"><a class="btn sm" href="' + t.file + '">Lesson</a><a class="btn sm ghost" href="' + t.quiz + '">Quiz</a></div></div>';
+        '<div class="row"><a class="btn sm" href="' + t.file + '">Lesson</a><a class="btn sm ghost" href="session.html?topic=' + t.id + '">Session</a><a class="btn sm ghost" href="' + t.quiz + '">Quiz</a></div></div>';
     }).join('');
+    const tb = $('#today-banner');
+    if (tb) {
+      const d = dueCount(), w = weakTotal(), nx = nextLesson();
+      tb.innerHTML = '<a class="resume" href="today.html"><small>Today\'s plan</small><b>' + (d ? d + ' recap card' + (d > 1 ? 's' : '') + ' due' : 'No cards due') + (w ? ', ' + w + ' weak question' + (w > 1 ? 's' : '') : '') + '</b><span>' + (nx ? 'Next lesson: ' + esc(nx.title) : 'All lessons passed') + '</span><i>&rarr;</i></a>';
+    }
     const rc = $('#review-count');
     if (rc) { const n = TOPICS.reduce((c, t) => c + Object.keys(store.get('weak:' + t.id, {})).length, 0); rc.textContent = n ? n + ' question' + (n > 1 ? 's' : '') + ' waiting.' : 'Nothing waiting yet.'; }
     const rs = $('#resume');
@@ -1074,10 +1088,192 @@
     }
   }
 
+  /* ---------------- study sessions: recap cards, quiz, go deeper; and the daily plan ---------------- */
+  /* The recap is the cheat sheet of a lesson as flashcards (CT.mockBank). Each card sits in a Leitner box (0 to 5) and comes back after
+     1, 3, 7, 14 or 30 days; "Again" puts it back at box 0. The quiz is the normal lesson quiz. "Go deeper" lists, for the sections you
+     missed, the book chapters and PDF pages from CT.readMore (generated by tools/build-read-more.mjs). */
+  const DAY = 864e5;
+  const dayNo = () => Math.floor(Date.now() / DAY);
+  const INTERVALS = [0, 1, 3, 7, 14, 30];
+  const allCards = () => window.CT.mockBank || [];
+  const dueCount = () => { const st = store.get('cards', {}); return Object.keys(st).filter((k) => st[k].d <= dayNo()).length; };   // needs no card data
+  const dueCards = () => { const st = store.get('cards', {}); return allCards().filter((c) => st[c.id] && st[c.id].d <= dayNo()); };
+  const weakTotal = () => TOPICS.reduce((n, t) => n + Object.keys(store.get('weak:' + t.id, {})).length, 0);
+  function studyDay() { const s = store.get('study:day', null); return s && s.d === dayNo() ? s : { d: dayNo(), cards: 0, quizzes: 0, sessions: 0 }; }
+  function bump(field, n) { const s = studyDay(); s[field] += n; store.set('study:day', s); }
+  const passed = (id) => { const s = store.get('session:' + id, null), q = store.get('quiz:' + id, null); return !!((s && s.pct >= 70) || (q && q.best >= 70)); };
+  function nextLesson() {
+    const main = TOPICS.filter((t) => !t.optional), opt = TOPICS.filter((t) => t.optional);
+    return main.concat(opt).find((t) => !passed(t.id)) || null;
+  }
+
+  function readMoreRows(rows) {
+    const books = {};
+    rows.forEach((r) => { (books[r[0]] = books[r[0]] || []).push(r); });
+    return Object.keys(books).map((k) => '<p class="rm-book"><b>' + esc((CT.readMore.books || {})[k] || k) + '</b></p><ul>' +
+      books[k].map((r) => '<li>' + esc(r[1]) + ' <span class="rm-pages">(PDF pages ' + esc(r[2]) + ')</span></li>').join('') + '</ul>').join('');
+  }
+  /* the sections of one lesson, each with its book references; `only` limits it to some section ids */
+  function deeperBlock(topicId, only) {
+    const L = window.CT.readMore && window.CT.readMore.lessons[topicId], t = topicOf(topicId);
+    if (!L || !t) return '';
+    const ids = (only ? Array.from(new Set(only)) : Object.keys(L)).filter((s) => L[s]);
+    return ids.map((s) => '<div class="deeper"><h4><a href="' + t.file + '#' + esc(s) + '">' + esc(L[s].t) + '</a>' + (only ? '' : '') + '</h4>' +
+      (L[s].r.length ? readMoreRows(L[s].r) : '<p class="rm-none">No book chapter maps to this section: re-read it in the lesson.</p>') + '</div>').join('');
+  }
+
+  /* flashcards: deck is a list of mock-bank entries; onDone gets { total, again } */
+  function cardsRun(root, deck, onDone) {
+    const st = store.get('cards', {});
+    const failed = {};
+    const queue = shuffle(deck.slice());
+    const total = deck.length;
+    let gotIt = 0, onKey = null;
+    const stop = () => { if (onKey) { document.removeEventListener('keydown', onKey); onKey = null; } };
+    function finish() {
+      stop();
+      store.set('cards', st);
+      bump('cards', total);
+      onDone({ total, again: Object.keys(failed).length });
+    }
+    function show() {
+      if (!queue.length) { finish(); return; }
+      const c = queue[0];
+      const t = topicOf(c.topic);
+      root.innerHTML = '<div class="q-top"><span>Card ' + (gotIt + 1) + ' of ' + total + (t ? ' &middot; ' + esc(t.title) : '') + '</span><span>' + Object.keys(failed).length + ' to repeat</span></div>' +
+        '<div class="q-bar"><span style="width:' + (gotIt / total) * 100 + '%"></span></div>' +
+        '<div class="flash"><p class="q-text">' + fmt(c.q) + '</p><p class="ck-note">Answer it aloud first, then reveal.</p>' +
+        '<div class="flash-a" hidden>' + c.a + '</div></div>' +
+        '<div class="pickrow"><button class="btn" id="creveal" type="button">Show the answer</button>' +
+        '<button class="btn" id="cgot" type="button" hidden>I knew it</button><button class="btn ghost" id="cagain" type="button" hidden>Again</button></div>';
+      const reveal = () => { $('.flash-a', root).hidden = false; $('#creveal', root).hidden = true; $('#cgot', root).hidden = false; $('#cagain', root).hidden = false; $('#cgot', root).focus(); };
+      const grade = (ok) => {
+        const prev = st[c.id];
+        queue.shift();
+        if (ok) {
+          st[c.id] = failed[c.id] ? { b: 1, d: dayNo() + INTERVALS[1] } : (() => { const b = Math.min((prev ? prev.b : 0) + 1, 5); return { b, d: dayNo() + INTERVALS[b] }; })();
+          gotIt++;
+        } else {
+          failed[c.id] = true;
+          st[c.id] = { b: 0, d: dayNo() };
+          queue.push(c);
+        }
+        show();
+      };
+      $('#creveal', root).addEventListener('click', reveal);
+      $('#cgot', root).addEventListener('click', () => grade(true));
+      $('#cagain', root).addEventListener('click', () => grade(false));
+      stop();
+      onKey = (e) => {
+        if (e.ctrlKey || e.metaKey || e.altKey || /^(INPUT|TEXTAREA|SELECT)$/.test((e.target.tagName || ''))) return;
+        const shown = !$('.flash-a', root).hidden;
+        if (!shown && (e.key === ' ' || e.key === 'Enter')) { e.preventDefault(); reveal(); }
+        else if (shown && (e.key === 'g' || e.key === 'ArrowRight')) { e.preventDefault(); grade(true); }
+        else if (shown && (e.key === 'a' || e.key === 'ArrowLeft')) { e.preventDefault(); grade(false); }
+      };
+      document.addEventListener('keydown', onKey);
+    }
+    if (!total) { onDone({ total: 0, again: 0 }); return; }
+    show();
+  }
+
+  function loadScript(src) {
+    return new Promise((resolve, reject) => {
+      const s = document.createElement('script');
+      s.src = src; s.onload = resolve; s.onerror = () => reject(new Error('could not load ' + src));
+      document.head.appendChild(s);
+    });
+  }
+
+  function session(root) {
+    const q = new URLSearchParams(location.search);
+    const id = q.get('topic'), mode = q.get('mode');
+    const links = '<div class="pickrow"><a class="btn ghost" href="today.html">Today\'s plan</a><a class="btn ghost" href="index.html">All lessons</a></div>';
+    if (mode === 'due') {
+      const deck = dueCards();
+      root.innerHTML = '<h1>Cards due today</h1><p class="lead">The recap cards that are due for another look. Answer aloud, then check.</p><div id="stage"></div>';
+      if (!deck.length) { $('#stage', root).innerHTML = '<div class="result good"><p><b>Nothing is due.</b> Cards come back 1, 3, 7, 14 and 30 days after you knew them.</p></div>' + links; return; }
+      cardsRun($('#stage', root), deck, (r) => {
+        $('#stage', root).innerHTML = '<div class="result good"><div class="score">' + r.total + ' card' + (r.total > 1 ? 's' : '') + ' reviewed</div><p>' + (r.again ? r.again + ' needed another go, and will come back tomorrow.' : 'You knew them all.') + '</p></div>' + links;
+      });
+      return;
+    }
+    const t = topicOf(id);
+    if (!t) {
+      root.innerHTML = '<h1>Study session</h1><p class="lead">Pick a lesson: a short recap with flashcards, then the quiz, then pointers to the book chapters for what you missed.</p>' +
+        '<ol class="plan-list">' + TOPICS.map((x) => '<li><a href="session.html?topic=' + x.id + '">' + esc(x.n + '. ' + x.title) + '</a>' + (passed(x.id) ? ' <span class="pill">done</span>' : '') + '</li>').join('') + '</ol>';
+      return;
+    }
+    document.title = 'Study session: ' + t.title;
+    const deck = allCards().filter((c) => c.topic === id);
+    root.innerHTML = '<p class="eyebrow">Study session &middot; lesson ' + t.n + ' of ' + TOPICS.length + '</p><h1>' + esc(t.title) + '</h1>' +
+      '<ol class="steps"><li id="step1">1. Recap</li><li id="step2">2. Quiz</li><li id="step3">3. Go deeper</li></ol>' +
+      '<div id="stage"></div><div id="deeper"></div>';
+    const stage = $('#stage', root), deeper = $('#deeper', root);
+    const setStep = (n) => [1, 2, 3].forEach((i) => { const el = $('#step' + i, root); el.className = i === n ? 'cur' : i < n ? 'done' : ''; });
+    const lessonLink = '<a class="btn ghost" href="' + t.file + '">Read the full lesson</a>';
+    function stageQuiz() {
+      setStep(2);
+      const load = window.CT.quizData[id] ? Promise.resolve() : loadScript('assets/data/' + 'quiz-' + id + '.js');
+      load.then(() => {
+        window.CT.quiz(stage, { id, questions: window.CT.quizData[id].questions, auto: true, noDeeper: true, onFinish: (r) => stageDeeper(r) });
+      }).catch(() => { stage.innerHTML = '<div class="result bad"><p>The quiz could not be loaded. Open it from the <a href="' + t.quiz + '">quiz page</a>.</p></div>'; });
+    }
+    function stageDeeper(r) {
+      setStep(3);
+      store.set('session:' + id, { d: dayNo(), pct: r.pct, cards: deck.length });
+      bump('quizzes', 1); bump('sessions', 1);
+      const secs = r.missed.map((m) => m.sec).filter(Boolean);
+      const next = TOPICS[t.n] || null;
+      deeper.innerHTML = '<h2>Go deeper</h2>' +
+        (secs.length ? '<p>You missed questions in these sections. Re-read each one, then the book chapters listed under it.</p>' + deeperBlock(id, secs) :
+          '<p>' + (r.missed.length ? 'The questions you missed are not tied to one section; re-read the lesson.' : 'No misses. Nothing to review.') + '</p>') +
+        '<details class="deeper-all"><summary>More reading for the whole lesson</summary>' + deeperBlock(id) + '</details>' +
+        '<div class="pickrow"><a class="btn" href="session.html?topic=' + id + '&stage=quiz">Quiz again</a>' + lessonLink +
+        (next ? '<a class="btn ghost" href="session.html?topic=' + next.id + '">Next: ' + esc(next.title) + ' &rarr;</a>' : '') + '<a class="btn ghost" href="today.html">Today\'s plan</a></div>';
+    }
+    function stageRecap() {
+      setStep(1);
+      if (!deck.length) { stageQuiz(); return; }
+      stage.innerHTML = '<p>' + deck.length + ' recap card' + (deck.length > 1 ? 's' : '') + ': the questions an interviewer asks about this lesson. Say the answer, then check it.</p>' +
+        '<div class="pickrow"><button class="btn" id="rstart" type="button">Start the recap</button><button class="btn ghost" id="rskip" type="button">Skip to the quiz</button>' + lessonLink + '</div>';
+      $('#rskip', stage).addEventListener('click', stageQuiz);
+      $('#rstart', stage).addEventListener('click', () => {
+        cardsRun(stage, deck, (r) => {
+          stage.innerHTML = '<div class="result good"><div class="score">Recap done</div><p>' + r.total + ' cards' + (r.again ? ', ' + r.again + ' needed another go' : ', all known') + '. They come back in a day or more.</p></div>' +
+            '<div class="pickrow"><button class="btn" id="rquiz" type="button">Start the quiz</button></div>';
+          $('#rquiz', stage).addEventListener('click', stageQuiz);
+        });
+      });
+    }
+    if (q.get('stage') === 'quiz') stageQuiz(); else stageRecap();
+  }
+
+  function today(root) {
+    const due = dueCount(), weak = weakTotal(), next = nextLesson(), sd = studyDay();
+    const li = store.get('lastinfo', null), lt = li && topicOf(li.id);
+    const step = (n, title, detail, done, href, label) => '<li class="plan-step' + (done ? ' done' : '') + '"><span class="plan-n">' + (done ? '&#10003;' : n) + '</span><div><b>' + title + '</b><p>' + detail + '</p></div>' +
+      (href ? '<a class="btn' + (done ? ' ghost' : '') + '" href="' + href + '">' + label + '</a>' : '') + '</li>';
+    const mins = (n, per) => Math.max(1, Math.round(n * per / 60));
+    const lessons = TOPICS.map((t) => {
+      const s = store.get('session:' + t.id, null), qz = store.get('quiz:' + t.id, null);
+      const cls = passed(t.id) ? 'ok' : (s || qz || store.get('done:' + t.id, []).length) ? 'part' : '';
+      return '<a class="chip ' + cls + '" href="session.html?topic=' + t.id + '" title="' + esc(t.title) + '">' + t.n + '</a>';
+    }).join('');
+    root.innerHTML = '<ul class="plan">' +
+      step(1, 'Review the cards that are due', due ? due + ' card' + (due > 1 ? 's' : '') + ' (about ' + mins(due, 20) + ' min). Recap cards come back 1, 3, 7, 14 and 30 days after you knew them.' : 'None due. Cards appear here after you finish the recap of a lesson.', !due, due ? 'session.html?mode=due' : '', 'Review cards') +
+      step(2, 'Redo your weak questions', weak ? weak + ' question' + (weak > 1 ? 's' : '') + ' you got wrong (about ' + mins(weak, 40) + ' min). A question leaves the list after two right answers.' : 'No weak questions waiting.', !weak, weak ? 'review.html' : '', 'Review mistakes') +
+      step(3, next ? 'Learn something new' : 'Everything is passed', next ? 'Lesson ' + next.n + ': <b>' + esc(next.title) + '</b>, about ' + esc(next.time) + '. A session is a recap, the quiz, then book pointers for what you missed.' + (next.optional ? ' (optional lesson)' : '') : 'Every lesson has a passing quiz score. Retake a quiz to keep it fresh.', !next, next ? 'session.html?topic=' + next.id : 'index.html', next ? 'Start the session' : 'All lessons') +
+      '</ul>' +
+      (lt ? '<p class="ck-note">Or continue reading: <a href="' + lt.file + '#' + esc(li.sec) + '">' + esc(lt.title) + ', ' + esc(li.title) + '</a>.</p>' : '') +
+      '<h3>Today</h3><p>' + sd.cards + ' card' + (sd.cards === 1 ? '' : 's') + ' reviewed, ' + sd.quizzes + ' quiz' + (sd.quizzes === 1 ? '' : 'zes') + ' finished.</p>' +
+      '<h3>Your lessons</h3><div class="chips">' + lessons + '</div><p class="ck-note"><span class="chip ok">1</span> passed (70% or more) &nbsp; <span class="chip part">2</span> started &nbsp; <span class="chip">3</span> not started</p>';
+  }
+
   /* ---------------- export / import of progress ---------------- */
   /* Progress lives in this browser's localStorage only. The code below turns the ticks and best
      scores into a short text code that can be pasted into another browser or machine. */
-  const PROGRESS_KEY = /^(checklist|checklist-off|mock:missed|(done|total|quiz):[a-z][a-z0-9]*)$/;
+  const PROGRESS_KEY = /^(checklist|checklist-off|mock:missed|cards|(done|total|quiz|session):[a-z][a-z0-9]*)$/;
   const hash32 = (s) => {
     let h = 0x811c9dc5;
     for (let i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 0x01000193) >>> 0; }
@@ -1484,6 +1680,8 @@
     else if (kind === 'puzzles' && main) { main.classList.add('solo'); }
     else if (kind === 'assess' && main) { main.classList.add('solo'); }
     else if (kind === 'review' && main) { main.classList.add('solo'); }
+    else if (kind === 'session' && main) { main.classList.add('solo'); const go = () => session($('#session', main)); if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', go); else go(); }
+    else if (kind === 'today' && main) { main.classList.add('solo'); today($('#today', main)); }
     const pt = $('#progress-tools');
     if (pt) progressTools(pt);
   }

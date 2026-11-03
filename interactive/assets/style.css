@@ -645,3 +645,30 @@ details.aq.dk > summary .mark { color: var(--warn); }
   .ck-list .t a, .ck-section .ck-note a { display: inline-block; padding: 8px 6px; margin-left: 0; }
   .callout { font-size: 0.93rem; }
 }
+
+/* study sessions and the daily plan */
+.steps { display: flex; gap: 6px; list-style: none; padding: 0; margin: 10px 0 16px; flex-wrap: wrap; }
+.steps li { border: 1px solid var(--border); border-radius: 999px; padding: 3px 14px; font-size: 0.88rem; color: var(--muted); background: var(--code-bg); }
+.steps li.cur { background: var(--accent); border-color: var(--accent); color: #fff; font-weight: 600; }
+.steps li.done { color: var(--good); border-color: var(--good); }
+.flash { border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 12px 16px; margin: 8px 0; background: var(--code-bg); }
+.flash-a { border-top: 1px dashed var(--border); margin-top: 10px; padding-top: 8px; }
+.deeper { border-left: 3px solid var(--accent); padding: 2px 0 2px 12px; margin: 12px 0; }
+.deeper h4 { margin: 0 0 4px; }
+.deeper ul { margin: 2px 0 8px 18px; padding: 0; }
+.rm-book { margin: 8px 0 2px; }
+.rm-pages, .rm-none { color: var(--muted); font-size: 0.9rem; }
+.deeper-all { margin: 14px 0; }
+.deeper-all summary { cursor: pointer; font-weight: 600; }
+.plan { list-style: none; padding: 0; margin: 12px 0; display: grid; gap: 10px; }
+.plan-step { display: flex; gap: 14px; align-items: center; border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 12px 16px; background: var(--code-bg); }
+.plan-step > div { flex: 1; }
+.plan-step p { margin: 2px 0 0; color: var(--muted); font-size: 0.93rem; }
+.plan-step.done { opacity: 0.7; }
+.plan-n { width: 28px; height: 28px; border-radius: 50%; background: var(--accent); color: #fff; display: grid; place-items: center; font-weight: 700; flex: none; }
+.plan-step.done .plan-n { background: var(--good); }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.chip { display: inline-block; min-width: 30px; text-align: center; padding: 3px 8px; border-radius: 6px; border: 1px solid var(--border); background: var(--code-bg); color: var(--text); text-decoration: none; font-size: 0.85rem; }
+.chip.ok { background: var(--good-soft); border-color: var(--good); }
+.chip.part { background: var(--accent-soft); border-color: var(--accent); }
+.plan-list { line-height: 1.8; }

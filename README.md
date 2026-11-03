@@ -7,6 +7,7 @@ Study material for learning C++ and revising it, in three parts: **Lessons** (in
 | If you want to... | Go to |
 |---|---|
 | **Learn C++ step by step** | [Lesson 1: basics and pointers](https://ghaith-hamdi1.github.io/cpp-training/01-basics.html), then [types and casts](https://ghaith-hamdi1.github.io/cpp-training/16-types-and-casts.html), [classes](https://ghaith-hamdi1.github.io/cpp-training/02-oop.html), [copy control](https://ghaith-hamdi1.github.io/cpp-training/26-copying.html) and [inheritance and the object model](https://ghaith-hamdi1.github.io/cpp-training/27-inherit.html) |
+| **Study a little every day** | [Today's plan](https://ghaith-hamdi1.github.io/cpp-training/today.html): recap cards that are due, your weak questions, then a new lesson as a **session** (recap cards, the quiz, then the book chapters for what you missed) |
 | **Follow a plan** | The [study checklist](https://ghaith-hamdi1.github.io/cpp-training/study-checklist.html), with clickable boxes that remember your progress |
 | **Find one topic** | The [topic map](docs/topic-map.md): where each topic appears in the notes, the recaps and the lessons |
 | **Read the source notes** | The [training notes index](docs/training-notes/README.md) |
