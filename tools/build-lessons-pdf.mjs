@@ -7,6 +7,7 @@
 // a few sections are moved within their lesson where that reads better on paper (see ORDER in pdfPrep).
 // The "Read more" book notes are taken out of the sections and listed per section (book, chapter and PDF pages) on a last page of their own.
 // The files are numbered in study order (lesson 1 upwards, as in the registry), not by the page's own file name.
+// A lesson with `optional: true` in the registry is printed as NN-further-reading-<name>.pdf.
 // Needs Edge or Chrome. Usage: node tools/build-lessons-pdf.mjs
 import { existsSync, mkdirSync, mkdtempSync, readdirSync, rmSync, unlinkSync, writeFileSync } from 'node:fs';
 import { resolve, join } from 'node:path';
@@ -301,7 +302,7 @@ try {
 
   const dir = resolve(repo, 'docs/lessons-pdf');
   mkdirSync(dir, { recursive: true });
-  for (const f of readdirSync(dir)) if (f.endsWith('.pdf')) unlinkSync(join(dir, f));   // the numbering can change, so start clean
+  for (const f of readdirSync(dir)) if (/^\d\d-.*\.pdf$/.test(f)) unlinkSync(join(dir, f));   // the numbering can change, so start clean (only the files this tool names)
   for (const [k, l] of lessons.entries()) {
     events.length = 0;
     await send('Page.navigate', { url: pathToFileURL(join(root, l.file)).href });
@@ -316,7 +317,7 @@ try {
       return big; })()` });
     if (rep.result.value && rep.result.value.length) console.log('taller than a page in', l.file, JSON.stringify(rep.result.value));
     const { data } = await send('Page.printToPDF', { printBackground: true, preferCSSPageSize: false, paperWidth: 8.27, paperHeight: 11.69, marginTop: 0.4, marginBottom: 0.45, marginLeft: 0.5, marginRight: 0.5 });
-    const name = String(k + 1).padStart(2, '0') + '-' + l.file.replace(/^\d+-/, '').replace(/\.html$/, '') + '.pdf';
+    const name = String(k + 1).padStart(2, '0') + '-' + (l.optional ? 'further-reading-' : '') + l.file.replace(/^\d+-/, '').replace(/\.html$/, '') + '.pdf';
     writeFileSync(join(dir, name), Buffer.from(data, 'base64'));
     console.log('printed', name);
   }

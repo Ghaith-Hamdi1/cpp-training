@@ -464,6 +464,20 @@ dialog.search .results a small { display: block; color: var(--muted); }
 .fig .ar { stroke: var(--accent); stroke-width: 2; fill: none; }
 .fig .ah { fill: var(--accent); }
 .fig .t { font-weight: 700; }
+/* visual kit: see docs/maintaining/visual-kit.md */
+.fig .mono { font-family: var(--mono, monospace); }
+.fig .big { font-size: 15px; font-weight: 700; }
+.fig .ar2 { stroke: var(--good); stroke-width: 2; fill: none; }
+.fig .ah2 { fill: var(--good); }
+.fig .ar3 { stroke: var(--bad); stroke-width: 2; fill: none; }
+.fig .ah3 { fill: var(--bad); }
+.fig .dash { stroke-dasharray: 5 4; }
+.fig .cell { fill: var(--card); stroke: var(--fg); stroke-width: 1.5; }
+.fig .addr { fill: var(--muted); font: 11px var(--mono, monospace); }
+.fig .dead { fill: var(--bad-soft); stroke: var(--bad); stroke-width: 1.5; stroke-dasharray: 5 4; }
+.fig .lane { fill: var(--code-bg); stroke: none; }
+.fig .lane-label { fill: var(--muted); font-size: 12px; font-weight: 700; }
+.fig .tick { stroke: var(--muted); stroke-width: 1; }
 main > section[hidden] { display: none; }
 main:not(.last-page) > .pager { display: none; }
 .secnav { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; justify-content: space-between; margin: 30px 0 8px; padding-top: 18px; border-top: 1px solid var(--border); }
