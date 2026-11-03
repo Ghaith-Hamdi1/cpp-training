@@ -10,7 +10,7 @@ Everything that supports the interactive lessons, grouped by what it is for.
 | [`reading/`](reading) | The **[C++ roadmap](reading/roadmap/README.md)** (six phases across all five books, with chapters, pages and time estimates), then reading material for the five reference books in `books/`: a **reading guide** per book (which sections matter and which lesson section each deepens) and a **reading plan** per book (an ordered path in sessions, with checkpoint questions). Session notes templates are in [`notes/`](reading/notes). |
 | [`training-notes/`](training-notes/README.md) | The company training course as per-topic Markdown, in four modules (C++ basics, OOP, the standard library, templates and design patterns), with matching code under [`examples/course/`](../examples/course). |
 | [`learncpp-recaps/`](learncpp-recaps/README.md) | Personal recaps of the learncpp.com chapters, with solved exercises under `solutions/`. Slower and more thorough than the training notes. |
-| [`maintaining/`](maintaining) | For whoever edits the site: the [lesson template](maintaining/lesson-template.md) (how to write a lesson, quiz and example), plus the [content audit](maintaining/content-audit.md) and [rewrite plan](maintaining/content-rewrite-plan.md) that shaped the current lessons. |
+| [`maintaining/`](maintaining) | For whoever edits the site: the [lesson template](maintaining/lesson-template.md) (how to write a lesson, quiz and example), the [visual kit](maintaining/visual-kit.md) for figures, and the current [content size](maintaining/content-audit.md). |
 
 ## The reading folder
 
