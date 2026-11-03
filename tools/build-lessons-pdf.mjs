@@ -20,7 +20,7 @@ import { loadRegistry, root } from './lib/registry.mjs';
 const repo = resolve(fileURLToPath(new URL('..', import.meta.url)));
 const registry = loadRegistry();
 const lessons = registry.lessons;
-const slug = (t) => t.replace(/(.*?)/g, '').toLowerCase().replace(/c++/g, 'cpp').replace(/&/g, 'and').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+const slug = (t) => t.replace(/\(.*?\)/g, '').toLowerCase().replace(/c\+\+/g, 'cpp').replace(/&/g, 'and').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
 /** The theme folder of a lesson: its roadmap phase (01-core-language-foundations ...), or 07-further-reading for the optional lesson. */
 const folderOf = (l) => { if (l.optional) return '07-further-reading'; const ph = registry.phases.find((p) => p.n === l.phase); return String(ph.n).padStart(2, '0') + '-' + slug(ph.name); };
 const exe = process.env.BROWSER || ['C:/Program Files (x86)/Microsoft/Edge/Application/msedge.exe', 'C:/Program Files/Microsoft/Edge/Application/msedge.exe', 'C:/Program Files/Google/Chrome/Application/chrome.exe', '/usr/bin/google-chrome', '/usr/bin/chromium'].find(existsSync);
