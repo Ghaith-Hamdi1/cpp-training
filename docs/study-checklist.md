@@ -12,7 +12,7 @@ A step-by-step plan through the lessons and the books, one phase at a time. The 
 
 ---
 
-## Phase 1: Core language foundations (about 23.4 hours)
+## Phase 1: Core language foundations (about 24.0 hours)
 
 Types, expressions, control flow, functions, pointers, references, strings and vectors.. Roadmap page: [phase-1-core-language-foundations.md](reading/roadmap/phase-1-core-language-foundations.md).
 
@@ -41,14 +41,24 @@ Types, expressions, control flow, functions, pointers, references, strings and v
 - [ ] Cheat sheet (say each answer aloud)
 - [ ] Take the quiz, then retry the missed questions
 
-**Types, Initialization & Casts:** [16-types-and-casts.html](../interactive/16-types-and-casts.html), quiz: [16-types-and-casts-quiz.html](../interactive/16-types-and-casts-quiz.html) (16 questions).
+**Types, Initialization & Constants:** [16-types-and-casts.html](../interactive/16-types-and-casts.html), quiz: [16-types-and-casts-quiz.html](../interactive/16-types-and-casts-quiz.html) (13 questions).
 
 - [ ] Initialization and brace traps
 - [ ] `auto`, `decltype` and modern syntax
-- [ ] Implicit conversions and `enum class`
-- [ ] Casts and type conversion
 - [ ] `const`, `constexpr` and `static`
 - [ ] What C++14, 17 and 20 added
+- [ ] Cheat sheet (say each answer aloud)
+- [ ] Take the quiz, then retry the missed questions
+
+**Casts and Type Conversions:** [25-casts.html](../interactive/25-casts.html), quiz: [25-casts-quiz.html](../interactive/25-casts-quiz.html) (15 questions).
+
+- [ ] What the compiler converts for you
+- [ ] Narrowing and braces
+- [ ] The C-style cast and why to avoid it
+- [ ] `static_cast`: the everyday cast
+- [ ] `dynamic_cast`: checked downcasts
+- [ ] `const_cast`, `reinterpret_cast` and `bit_cast`
+- [ ] Which cast, if any?
 - [ ] Cheat sheet (say each answer aloud)
 - [ ] Take the quiz, then retry the missed questions
 
@@ -68,29 +78,34 @@ Types, expressions, control flow, functions, pointers, references, strings and v
 
 - [ ] Recap check. Explain from memory: what `int* const p` means, why `int{3.7}` is an error, what `v[i]` does that `v.at(i)` does not, why an array parameter is really a pointer, and what the linker error "undefined reference" means.
 
-## Phase 2: Classes, memory and object-oriented design (about 24.5 hours)
+## Phase 2: Classes, memory and object-oriented design (about 25.3 hours)
 
 Class design, copy control, operator overloading, inheritance, virtual functions, the object model.. Roadmap page: [phase-2-classes-memory-and-object-oriented-design.md](reading/roadmap/phase-2-classes-memory-and-object-oriented-design.md).
 
 ### Lessons and quizzes
 
-**Object-Oriented Programming:** [02-oop.html](../interactive/02-oop.html), quiz: [02-oop-quiz.html](../interactive/02-oop-quiz.html) (26 questions).
+**Classes and Objects:** [02-oop.html](../interactive/02-oop.html), quiz: [02-oop-quiz.html](../interactive/02-oop-quiz.html) (13 questions).
 
 - [ ] Classes and encapsulation
 - [ ] Member functions: `this`, `const`, `static`, `friend`
 - [ ] Constructors and destructors
+- [ ] Cheat sheet (say each answer aloud)
+- [ ] Take the quiz, then retry the missed questions
+
+**Copy Control and Operators:** [26-copying.html](../interactive/26-copying.html), quiz: [26-copying-quiz.html](../interactive/26-copying-quiz.html) (12 questions).
+
 - [ ] Copying and the Rule of 3, 5 and 0
 - [ ] `explicit`, conversion operators and copy-and-swap
 - [ ] Operator overloading
+- [ ] Cheat sheet (say each answer aloud)
+- [ ] Take the quiz, then retry the missed questions
+
+**Inheritance, Virtual Functions and the Object Model:** [27-inherit.html](../interactive/27-inherit.html), quiz: [27-inherit-quiz.html](../interactive/27-inherit-quiz.html) (19 questions).
+
 - [ ] Inheritance
 - [ ] Polymorphism and virtual functions
 - [ ] Abstract classes and interfaces
 - [ ] Composition, relationships and design
-- [ ] Cheat sheet (say each answer aloud)
-- [ ] Take the quiz, then retry the missed questions
-
-**The Object Model in Depth:** [19-object-model.html](../interactive/19-object-model.html), quiz: [19-object-model-quiz.html](../interactive/19-object-model-quiz.html) (11 questions).
-
 - [ ] Multiple inheritance and object layout
 - [ ] The diamond problem and virtual inheritance
 - [ ] RTTI: `typeid` and `dynamic_cast`

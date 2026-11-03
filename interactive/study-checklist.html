@@ -31,7 +31,7 @@
 </div>
 
 <section class="ck-section" data-ck-section id="phase-1" role="tabpanel">
-<h2>Phase 1: Core language foundations (about 23.4 hours) <span class="ck-count"></span></h2>
+<h2>Phase 1: Core language foundations (about 24.0 hours) <span class="ck-count"></span></h2>
 <p class="ck-note">Types, expressions, control flow, functions, pointers, references, strings and vectors.. <a href="https://github.com/Ghaith-Hamdi1/cpp-training/blob/main/docs/reading/roadmap/phase-1-core-language-foundations.md">Roadmap page for this phase</a>.</p>
 <h3 class="ck-sub">Lessons and quizzes</h3>
 <h4>C++ Basics</h4>
@@ -59,17 +59,28 @@
 <li><label><input type="checkbox" data-ck="pointers-cheat"><span class="t">Cheat sheet (say each answer aloud) <a href="22-pointers.html#cheat">open</a></span></label></li>
 <li><label><input type="checkbox" data-ck="pointers-quiz"><span class="t">Take the quiz, then retry the missed questions <a href="22-pointers-quiz.html">open</a></span></label></li>
 </ul>
-<h4>Types, Initialization &amp; Casts</h4>
-<p class="ck-note"><a href="16-types-and-casts.html">Lesson</a> <span class="badge" data-lesson="types"></span> and <a href="16-types-and-casts-quiz.html">quiz</a> (16 questions) <span class="badge" data-quiz="types"></span></p>
+<h4>Types, Initialization &amp; Constants</h4>
+<p class="ck-note"><a href="16-types-and-casts.html">Lesson</a> <span class="badge" data-lesson="types"></span> and <a href="16-types-and-casts-quiz.html">quiz</a> (13 questions) <span class="badge" data-quiz="types"></span></p>
 <ul class="ck-list">
 <li><label><input type="checkbox" data-ck="types-init"><span class="t">Initialization and brace traps <a href="16-types-and-casts.html#init">open</a></span></label></li>
 <li><label><input type="checkbox" data-ck="types-deduction"><span class="t"><code>auto</code>, <code>decltype</code> and modern syntax <a href="16-types-and-casts.html#deduction">open</a></span></label></li>
-<li><label><input type="checkbox" data-ck="types-conversions"><span class="t">Implicit conversions and <code>enum class</code> <a href="16-types-and-casts.html#conversions">open</a></span></label></li>
-<li><label><input type="checkbox" data-ck="types-casts"><span class="t">Casts and type conversion <a href="16-types-and-casts.html#casts">open</a></span></label></li>
 <li><label><input type="checkbox" data-ck="types-const"><span class="t"><code>const</code>, <code>constexpr</code> and <code>static</code> <a href="16-types-and-casts.html#const">open</a></span></label></li>
 <li><label><input type="checkbox" data-ck="types-standards"><span class="t">What C++14, 17 and 20 added <a href="16-types-and-casts.html#standards">open</a></span></label></li>
 <li><label><input type="checkbox" data-ck="types-cheat"><span class="t">Cheat sheet (say each answer aloud) <a href="16-types-and-casts.html#cheat">open</a></span></label></li>
 <li><label><input type="checkbox" data-ck="types-quiz"><span class="t">Take the quiz, then retry the missed questions <a href="16-types-and-casts-quiz.html">open</a></span></label></li>
+</ul>
+<h4>Casts and Type Conversions</h4>
+<p class="ck-note"><a href="25-casts.html">Lesson</a> <span class="badge" data-lesson="casts"></span> and <a href="25-casts-quiz.html">quiz</a> (15 questions) <span class="badge" data-quiz="casts"></span></p>
+<ul class="ck-list">
+<li><label><input type="checkbox" data-ck="casts-implicit"><span class="t">What the compiler converts for you <a href="25-casts.html#implicit">open</a></span></label></li>
+<li><label><input type="checkbox" data-ck="casts-narrowing"><span class="t">Narrowing and braces <a href="25-casts.html#narrowing">open</a></span></label></li>
+<li><label><input type="checkbox" data-ck="casts-cstyle"><span class="t">The C-style cast and why to avoid it <a href="25-casts.html#cstyle">open</a></span></label></li>
+<li><label><input type="checkbox" data-ck="casts-static"><span class="t"><code>static_cast</code>: the everyday cast <a href="25-casts.html#static">open</a></span></label></li>
+<li><label><input type="checkbox" data-ck="casts-dynamic"><span class="t"><code>dynamic_cast</code>: checked downcasts <a href="25-casts.html#dynamic">open</a></span></label></li>
+<li><label><input type="checkbox" data-ck="casts-constcast"><span class="t"><code>const_cast</code>, <code>reinterpret_cast</code> and <code>bit_cast</code> <a href="25-casts.html#constcast">open</a></span></label></li>
+<li><label><input type="checkbox" data-ck="casts-choose"><span class="t">Which cast, if any? <a href="25-casts.html#choose">open</a></span></label></li>
+<li><label><input type="checkbox" data-ck="casts-cheat"><span class="t">Cheat sheet (say each answer aloud) <a href="25-casts.html#cheat">open</a></span></label></li>
+<li><label><input type="checkbox" data-ck="casts-quiz"><span class="t">Take the quiz, then retry the missed questions <a href="25-casts-quiz.html">open</a></span></label></li>
 </ul>
 <h3 class="ck-sub">Book reading (core)</h3>
 <ul class="ck-list">
@@ -90,34 +101,40 @@
 </section>
 
 <section class="ck-section" data-ck-section id="phase-2" role="tabpanel">
-<h2>Phase 2: Classes, memory and object-oriented design (about 24.5 hours) <span class="ck-count"></span></h2>
+<h2>Phase 2: Classes, memory and object-oriented design (about 25.3 hours) <span class="ck-count"></span></h2>
 <p class="ck-note">Class design, copy control, operator overloading, inheritance, virtual functions, the object model.. <a href="https://github.com/Ghaith-Hamdi1/cpp-training/blob/main/docs/reading/roadmap/phase-2-classes-memory-and-object-oriented-design.md">Roadmap page for this phase</a>.</p>
 <h3 class="ck-sub">Lessons and quizzes</h3>
-<h4>Object-Oriented Programming</h4>
-<p class="ck-note"><a href="02-oop.html">Lesson</a> <span class="badge" data-lesson="oop"></span> and <a href="02-oop-quiz.html">quiz</a> (26 questions) <span class="badge" data-quiz="oop"></span></p>
+<h4>Classes and Objects</h4>
+<p class="ck-note"><a href="02-oop.html">Lesson</a> <span class="badge" data-lesson="oop"></span> and <a href="02-oop-quiz.html">quiz</a> (13 questions) <span class="badge" data-quiz="oop"></span></p>
 <ul class="ck-list">
 <li><label><input type="checkbox" data-ck="oop-s1"><span class="t">Classes and encapsulation <a href="02-oop.html#s1">open</a></span></label></li>
 <li><label><input type="checkbox" data-ck="oop-s4"><span class="t">Member functions: <code>this</code>, <code>const</code>, <code>static</code>, <code>friend</code> <a href="02-oop.html#s4">open</a></span></label></li>
 <li><label><input type="checkbox" data-ck="oop-s2"><span class="t">Constructors and destructors <a href="02-oop.html#s2">open</a></span></label></li>
-<li><label><input type="checkbox" data-ck="oop-s3"><span class="t">Copying and the Rule of 3, 5 and 0 <a href="02-oop.html#s3">open</a></span></label></li>
-<li><label><input type="checkbox" data-ck="oop-conversions"><span class="t"><code>explicit</code>, conversion operators and copy-and-swap <a href="02-oop.html#conversions">open</a></span></label></li>
-<li><label><input type="checkbox" data-ck="oop-s8"><span class="t">Operator overloading <a href="02-oop.html#s8">open</a></span></label></li>
-<li><label><input type="checkbox" data-ck="oop-s5"><span class="t">Inheritance <a href="02-oop.html#s5">open</a></span></label></li>
-<li><label><input type="checkbox" data-ck="oop-s6"><span class="t">Polymorphism and virtual functions <a href="02-oop.html#s6">open</a></span></label></li>
-<li><label><input type="checkbox" data-ck="oop-s7"><span class="t">Abstract classes and interfaces <a href="02-oop.html#s7">open</a></span></label></li>
-<li><label><input type="checkbox" data-ck="oop-s9"><span class="t">Composition, relationships and design <a href="02-oop.html#s9">open</a></span></label></li>
-<li><label><input type="checkbox" data-ck="oop-s10"><span class="t">Cheat sheet (say each answer aloud) <a href="02-oop.html#s10">open</a></span></label></li>
+<li><label><input type="checkbox" data-ck="oop-cheat"><span class="t">Cheat sheet (say each answer aloud) <a href="02-oop.html#cheat">open</a></span></label></li>
 <li><label><input type="checkbox" data-ck="oop-quiz"><span class="t">Take the quiz, then retry the missed questions <a href="02-oop-quiz.html">open</a></span></label></li>
 </ul>
-<h4>The Object Model in Depth</h4>
-<p class="ck-note"><a href="19-object-model.html">Lesson</a> <span class="badge" data-lesson="objmodel"></span> and <a href="19-object-model-quiz.html">quiz</a> (11 questions) <span class="badge" data-quiz="objmodel"></span></p>
+<h4>Copy Control and Operators</h4>
+<p class="ck-note"><a href="26-copying.html">Lesson</a> <span class="badge" data-lesson="copying"></span> and <a href="26-copying-quiz.html">quiz</a> (12 questions) <span class="badge" data-quiz="copying"></span></p>
 <ul class="ck-list">
-<li><label><input type="checkbox" data-ck="objmodel-multiple"><span class="t">Multiple inheritance and object layout <a href="19-object-model.html#multiple">open</a></span></label></li>
-<li><label><input type="checkbox" data-ck="objmodel-diamond"><span class="t">The diamond problem and virtual inheritance <a href="19-object-model.html#diamond">open</a></span></label></li>
-<li><label><input type="checkbox" data-ck="objmodel-rtti"><span class="t">RTTI: <code>typeid</code> and <code>dynamic_cast</code> <a href="19-object-model.html#rtti">open</a></span></label></li>
-<li><label><input type="checkbox" data-ck="objmodel-private"><span class="t">Private inheritance versus composition <a href="19-object-model.html#private">open</a></span></label></li>
-<li><label><input type="checkbox" data-ck="objmodel-cheat"><span class="t">Cheat sheet (say each answer aloud) <a href="19-object-model.html#cheat">open</a></span></label></li>
-<li><label><input type="checkbox" data-ck="objmodel-quiz"><span class="t">Take the quiz, then retry the missed questions <a href="19-object-model-quiz.html">open</a></span></label></li>
+<li><label><input type="checkbox" data-ck="copying-copy"><span class="t">Copying and the Rule of 3, 5 and 0 <a href="26-copying.html#copy">open</a></span></label></li>
+<li><label><input type="checkbox" data-ck="copying-conversions"><span class="t"><code>explicit</code>, conversion operators and copy-and-swap <a href="26-copying.html#conversions">open</a></span></label></li>
+<li><label><input type="checkbox" data-ck="copying-operators"><span class="t">Operator overloading <a href="26-copying.html#operators">open</a></span></label></li>
+<li><label><input type="checkbox" data-ck="copying-cheat"><span class="t">Cheat sheet (say each answer aloud) <a href="26-copying.html#cheat">open</a></span></label></li>
+<li><label><input type="checkbox" data-ck="copying-quiz"><span class="t">Take the quiz, then retry the missed questions <a href="26-copying-quiz.html">open</a></span></label></li>
+</ul>
+<h4>Inheritance, Virtual Functions and the Object Model</h4>
+<p class="ck-note"><a href="27-inherit.html">Lesson</a> <span class="badge" data-lesson="inherit"></span> and <a href="27-inherit-quiz.html">quiz</a> (19 questions) <span class="badge" data-quiz="inherit"></span></p>
+<ul class="ck-list">
+<li><label><input type="checkbox" data-ck="inherit-inheritance"><span class="t">Inheritance <a href="27-inherit.html#inheritance">open</a></span></label></li>
+<li><label><input type="checkbox" data-ck="inherit-virtual"><span class="t">Polymorphism and virtual functions <a href="27-inherit.html#virtual">open</a></span></label></li>
+<li><label><input type="checkbox" data-ck="inherit-abstract"><span class="t">Abstract classes and interfaces <a href="27-inherit.html#abstract">open</a></span></label></li>
+<li><label><input type="checkbox" data-ck="inherit-design"><span class="t">Composition, relationships and design <a href="27-inherit.html#design">open</a></span></label></li>
+<li><label><input type="checkbox" data-ck="inherit-multiple"><span class="t">Multiple inheritance and object layout <a href="27-inherit.html#multiple">open</a></span></label></li>
+<li><label><input type="checkbox" data-ck="inherit-diamond"><span class="t">The diamond problem and virtual inheritance <a href="27-inherit.html#diamond">open</a></span></label></li>
+<li><label><input type="checkbox" data-ck="inherit-rtti"><span class="t">RTTI: <code>typeid</code> and <code>dynamic_cast</code> <a href="27-inherit.html#rtti">open</a></span></label></li>
+<li><label><input type="checkbox" data-ck="inherit-private"><span class="t">Private inheritance versus composition <a href="27-inherit.html#private">open</a></span></label></li>
+<li><label><input type="checkbox" data-ck="inherit-cheat"><span class="t">Cheat sheet (say each answer aloud) <a href="27-inherit.html#cheat">open</a></span></label></li>
+<li><label><input type="checkbox" data-ck="inherit-quiz"><span class="t">Take the quiz, then retry the missed questions <a href="27-inherit-quiz.html">open</a></span></label></li>
 </ul>
 <h3 class="ck-sub">Book reading (core)</h3>
 <ul class="ck-list">

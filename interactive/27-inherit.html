@@ -1,0 +1,402 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Inheritance, Virtual Functions and the Object Model</title>
+<script>try{var t=JSON.parse(localStorage.getItem('cpptrain:theme'));if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body data-topic="inherit" data-kind="lesson">
+<main>
+<h1>Inheritance, Virtual Functions and the Object Model</h1>
+<p class="lead">Public inheritance as is-a, how a virtual call finds the right function (the vtable and the vptr), abstract classes, composition, and what lies beneath: multiple and virtual inheritance, RTTI and private inheritance. Assumes <a href="26-copying.html">Copy Control and Operators</a>.</p>
+
+<section id="inheritance" data-title="Inheritance">
+<h2>Inheritance</h2>
+<p>Public inheritance models <b>is-a</b>: a <code>Dog</code> works anywhere an <code>Animal</code> is expected.</p>
+<figure class="fig"><svg viewBox="0 0 640 170" role="img" aria-label="A Dog object contains an Animal part and the Dog's own members; an Animal pointer sees only the Animal part"><defs><marker id="o6" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path class="ah" d="M0 0L10 5L0 10z"/></marker></defs>
+<rect class="box" x="150" y="14" width="260" height="108" rx="8"/><text class="t" x="164" y="36">Dog object</text>
+<rect class="gd" x="164" y="46" width="232" height="30" rx="4"/><text class="mono" x="280" y="66" text-anchor="middle">Animal part: name_</text>
+<rect class="acc" x="164" y="80" width="232" height="30" rx="4"/><text class="mono" x="280" y="100" text-anchor="middle">Dog part: tricks_</text>
+<rect class="box" x="10" y="46" width="100" height="30" rx="5"/><text class="mono" x="60" y="66" text-anchor="middle">Animal* p</text><path class="ar" d="M110 61H160" marker-end="url(#o6)"/>
+<text class="m" x="430" y="62">p sees only the Animal part</text><text class="m" x="430" y="96">a Dog* sees all of it</text>
+<text class="m" x="10" y="150">A derived object is the base part plus its own members. That is why a Dog can go wherever an Animal is expected.</text></svg><figcaption>Inheritance is containment with a promise: it behaves like the base.</figcaption></figure>
+<script type="text/x-cpp">
+class Animal {
+public:
+    explicit Animal(std::string name) : name_(std::move(name)) {}
+    const std::string& name() const { return name_; }
+protected:
+    std::string name_;                    // visible to Dog, hidden from the outside world
+};
+
+class Dog : public Animal {
+public:
+    explicit Dog(std::string name) : Animal(std::move(name)) {}   // call the base constructor
+    void fetch() const { std::cout << name_ << " fetches\n"; }
+};
+</script>
+<div class="callout warn"><span class="label">Object slicing</span><code>Animal a = Dog("Rex");</code> chops off the Dog part and its virtual behaviour. Use pointers or references.</div>
+<p><code>final</code> forbids deriving. Prefer <b>composition</b> unless it is truly is-a.</p>
+<p>Step through slicing:</p>
+<div id="st-slice"></div>
+<!-- read-more:start -->
+<div class="callout tip"><span class="label">Read more</span>
+<p><b>C++ Primer (Lippman, Lajoie, Moo)</b></p>
+<ul>
+<li>15.1 to 15.2 OOP overview, defining base and derived classes (PDF pages 621 to 631)</li>
+<li>15.5 Access control and inheritance (PDF pages 640 to 645)</li>
+</ul>
+<p><b>Programming: Principles and Practice (Stroustrup)</b></p>
+<ul>
+<li>12.3 Base and derived classes (object layout, the vptr and vtbl, overriding) (PDF pages 380 to 387)</li>
+<li>15.5 Destructors, including 15.5.2 Virtual destructors (PDF pages 460 to 463)</li>
+</ul>
+<p><b>C++ Move Semantics (Josuttis)</b></p>
+<ul>
+<li>4.4 Move semantics in class hierarchies (PDF pages 93 to 96)</li>
+</ul>
+</div>
+<!-- read-more:end -->
+</section>
+
+<section id="virtual" data-title="Polymorphism and virtual functions">
+<h2>Polymorphism and virtual functions</h2>
+<p><code>p-&gt;speak()</code> through a base pointer reaches the <i>derived</i> behaviour only if <code>speak</code> is <code>virtual</code>. Without it the <b>static type</b> (the type of the pointer, known at compile time) decides; with it the <b>dynamic type</b> (the type of the object, known at run time) decides. Try it:</p>
+<div id="w-virtual"></div>
+<h3>How it works: vtable and vptr</h3>
+<p>The compiler builds one <b>vtable</b> per class that has virtual functions: an array of function pointers, one <b>slot</b> per virtual function. A slot holds the <i>most derived override</i> of that function. A derived class's vtable starts as a copy of its base's, and every function the derived class overrides replaces the matching slot. Every object of such a class carries one hidden pointer, the <b>vptr</b>, normally at the start of the object, set to its class's vtable by the constructor.</p>
+<figure class="fig"><svg viewBox="0 0 640 252" role="img" aria-label="A Dog object whose vptr points to the Dog vtable; the Animal vtable is shown above it; only the overridden slots differ"><defs><marker id="c1" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path class="ah" d="M0 0L10 5L0 10z"/></marker></defs><rect class="acc" x="10" y="50" width="160" height="124" rx="8"/><text class="t" x="90" y="72" text-anchor="middle">Dog object</text><rect class="wn" x="24" y="82" width="132" height="24" rx="4"/><text x="90" y="99" text-anchor="middle">vptr</text><rect class="box" x="24" y="110" width="132" height="22" rx="4"/><text class="m" x="90" y="126" text-anchor="middle">legs (from Animal)</text><rect class="box" x="24" y="136" width="132" height="22" rx="4"/><text class="m" x="90" y="152" text-anchor="middle">tricks (Dog)</text><path class="ar" d="M156 94C210 94 210 190 268 190" marker-end="url(#c1)"/><rect class="box" x="270" y="8" width="200" height="104" rx="8"/><text class="t" x="370" y="28" text-anchor="middle">Animal vtable</text><rect class="box" x="284" y="36" width="172" height="22" rx="4"/><text class="m" x="370" y="52" text-anchor="middle">speak: Animal::speak</text><rect class="box" x="284" y="60" width="172" height="22" rx="4"/><text class="m" x="370" y="76" text-anchor="middle">eat: Animal::eat</text><rect class="box" x="284" y="84" width="172" height="22" rx="4"/><text class="m" x="370" y="100" text-anchor="middle">~Animal: Animal::~Animal</text><rect class="box" x="270" y="136" width="200" height="104" rx="8"/><text class="t" x="370" y="156" text-anchor="middle">Dog vtable</text><rect class="gd" x="284" y="164" width="172" height="22" rx="4"/><text class="m" x="370" y="180" text-anchor="middle">speak: Dog::speak</text><rect class="box" x="284" y="188" width="172" height="22" rx="4"/><text class="m" x="370" y="204" text-anchor="middle">eat: Animal::eat</text><rect class="gd" x="284" y="212" width="172" height="22" rx="4"/><text class="m" x="370" y="228" text-anchor="middle">~Animal: Dog::~Dog</text><text class="m" x="490" y="176">green: overridden</text><text class="m" x="490" y="196">plain: inherited</text><text class="m" x="490" y="216">(same function as base)</text></svg><figcaption>One vtable per class, shared by all its objects; one vptr per object. Only the overridden slots differ.</figcaption></figure>
+<ul>
+<li><b>Cost.</b> A class with virtual functions has a vptr in every object: <code>struct Plain { int legs; }</code> is 4 bytes, the same struct with one virtual function is 16 on a typical 64-bit platform (8 for the vptr, 4 for <code>legs</code>, 4 of padding). The data members come after the vptr.</li>
+<li><b>The call.</b> <code>p-&gt;speak()</code> compiles to three steps: load the vptr from the object, index the vtable at the slot number that <code>speak</code> has in <code>Animal</code>, and jump to the address found there. The slot number is fixed at compile time because every derived vtable keeps the base's slot order. That is also why virtual calls usually cannot be inlined.</li>
+<li><b>Only virtual functions have a slot.</b> Non-virtual functions are called directly, chosen by the static type.</li>
+<li><b>A virtual destructor takes a slot too.</b> That is how <code>delete p</code> through an <code>Animal*</code> runs <code>Dog::~Dog</code>.</li>
+<li><b>A pure virtual function</b> (<code>= 0</code>) still has a slot, but it holds no useful code; that is why the class cannot be instantiated.</li>
+</ul>
+<p>Step through a virtual call. Notice that <code>eat</code> goes through the same mechanism but lands in the base's function, because <code>Dog</code> did not override it:</p>
+<div id="st-vptr"></div>
+<h3>Writing it: <code>override</code>, <code>final</code> and a virtual destructor</h3>
+<script type="text/x-cpp">
+struct Shape {
+    virtual double area() const = 0;
+    virtual ~Shape() = default;           // ALWAYS virtual in a polymorphic base
+};
+struct Circle : Shape {
+    double r;
+    explicit Circle(double r) : r(r) {}
+    double area() const override { return 3.14159 * r * r; }   // `override`: the compiler checks you really override
+};
+struct Ball final : Circle {              // `final` on a class: nothing can derive from it
+    using Circle::Circle;
+};
+// `final` on a function stops further overriding:  double area() const final;
+</script>
+<div class="callout warn"><span class="label">Two famous traps</span>
+<p><b>1.</b> Always write <code>override</code>. If you mistype the signature (forget <code>const</code>), without it you silently create a <i>new</i> function instead of overriding.</p>
+<p><b>2.</b> Virtual calls inside a constructor or destructor do <b>not</b> reach the derived class. The constructor of <code>Base</code> sets the vptr to <code>Base</code>'s vtable, and only <i>after</i> it finishes does the constructor of <code>Derived</code> set it to <code>Derived</code>'s vtable. So while <code>Base</code>'s constructor runs, the object's dynamic type is <code>Base</code>, and <code>Base::init()</code> is called even if <code>Derived</code> overrides it. A destructor does the same in reverse.</p></div>
+<h3>Overloading, overriding and hiding</h3>
+<table>
+<tr><th>Term</th><th>Meaning</th></tr>
+<tr><td><b>Overloading</b></td><td>same name, different parameters, resolved at compile time</td></tr>
+<tr><td><b>Overriding</b></td><td>a derived class replaces a <i>virtual</i> base function with the same signature, resolved at runtime</td></tr>
+<tr><td><b>Hiding</b></td><td>a derived function with the same name (but not virtual / different signature) hides <i>every</i> base function of that name</td></tr>
+</table>
+<script type="text/x-cpp">
+struct B { void f(int); void g(); };
+struct D : B { void f(double); };      // hides B::f(int), it does not overload it
+
+D d;
+d.f(1);       // calls D::f(double): the int overload of B is not even considered
+d.g();        // fine: D has no g, so B::g is found
+d.B::f(1);    // explicit qualification reaches the hidden one
+// or add `using B::f;` inside D to bring B's overloads back into D's scope
+</script>
+<p>Multiple base classes, the diamond problem, <code>dynamic_cast</code> and the exact object layout are in the sections further down this lesson.</p>
+<!-- read-more:start -->
+<div class="callout tip"><span class="label">Read more</span>
+<p><b>C++ Primer (Lippman, Lajoie, Moo)</b></p>
+<ul>
+<li>15.3 Virtual functions (PDF pages 632 to 636)</li>
+<li>15.6 Class scope under inheritance (PDF pages 646 to 650)</li>
+<li>15.8 Containers and inheritance (PDF pages 659 to 662)</li>
+</ul>
+<p><b>Effective Modern C++ (Meyers)</b></p>
+<ul>
+<li>Item 12, Declare overriding functions override (PDF pages 97 to 104)</li>
+</ul>
+<p><b>C++ Move Semantics (Josuttis)</b></p>
+<ul>
+<li>4.4 Move semantics in class hierarchies (PDF pages 93 to 96)</li>
+</ul>
+</div>
+<!-- read-more:end -->
+</section>
+
+<section id="abstract" data-title="Abstract classes and interfaces">
+<h2>Abstract classes and interfaces</h2>
+<p><code>= 0</code> makes a function <b>pure virtual</b>; a class with one is <b>abstract</b> (cannot be instantiated). Only pure virtuals and no data: an <b>interface</b>.</p>
+<script type="text/x-cpp">
+struct Logger {                                   // interface
+    virtual void log(const std::string& msg) = 0;
+    virtual ~Logger() = default;
+};
+struct ConsoleLogger : Logger {
+    void log(const std::string& msg) override { std::cout << msg << '\n'; }
+};
+
+// Code depends on the abstraction, not the concrete class:
+void run(Logger& out) { out.log("started"); }
+
+// Polymorphic collection: unique_ptr owns the objects, no slicing, no manual delete
+std::vector<std::unique_ptr<Shape>> shapes;
+shapes.push_back(std::make_unique<Circle>(2.0));
+for (const auto& s : shapes) std::cout << s->area() << '\n';
+</script>
+<!-- read-more:start -->
+<div class="callout tip"><span class="label">Read more</span>
+<p><b>C++ Primer (Lippman, Lajoie, Moo)</b></p>
+<ul>
+<li>15.4 Abstract base classes (PDF pages 637 to 639)</li>
+</ul>
+</div>
+<!-- read-more:end -->
+</section>
+
+<section id="design" data-title="Composition, relationships and design">
+<h2>Composition, relationships and design</h2>
+<figure class="fig"><svg viewBox="0 0 640 170" role="img" aria-label="Inheritance, composition, aggregation and association drawn as boxes and arrows"><defs><marker id="c2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path class="ah" d="M0 0L10 5L0 10z"/></marker></defs><rect class="box" x="10" y="10" width="110" height="34" rx="6"/><text x="65" y="32" text-anchor="middle">Animal</text><path class="ln" d="M65 100V46"/><path class="ah" d="M65 46L58 58H72z" style="fill:var(--card);stroke:var(--accent);stroke-width:1.5"/><rect class="box" x="10" y="100" width="110" height="34" rx="6"/><text x="65" y="122" text-anchor="middle">Dog</text><text class="m" x="65" y="156" text-anchor="middle">is-a (inherits)</text><rect class="box" x="170" y="10" width="110" height="34" rx="6"/><text x="225" y="32" text-anchor="middle">Car</text><path class="ln" d="M225 44V100"/><path d="M225 44L218 56L225 68L232 56z" style="fill:var(--accent)"/><rect class="box" x="170" y="100" width="110" height="34" rx="6"/><text x="225" y="122" text-anchor="middle">Engine</text><text class="m" x="225" y="156" text-anchor="middle">owns: dies with Car</text><rect class="box" x="330" y="10" width="110" height="34" rx="6"/><text x="385" y="32" text-anchor="middle">Team</text><path class="ln" d="M385 44V100"/><path d="M385 44L378 56L385 68L392 56z" style="fill:var(--card);stroke:var(--accent);stroke-width:1.5"/><rect class="box" x="330" y="100" width="110" height="34" rx="6"/><text x="385" y="122" text-anchor="middle">Player</text><text class="m" x="385" y="156" text-anchor="middle">uses: lives on its own</text><rect class="box" x="490" y="10" width="110" height="34" rx="6"/><text x="545" y="32" text-anchor="middle">Doctor</text><path class="ar" d="M545 44V98" marker-end="url(#c2)"/><rect class="box" x="490" y="100" width="110" height="34" rx="6"/><text x="545" y="122" text-anchor="middle">Patient</text><text class="m" x="545" y="156" text-anchor="middle">association (a pointer)</text></svg><figcaption>Prefer composition; inheritance is the strongest coupling.</figcaption></figure>
+<p>"Is it a, or does it have a?" Prefer <b>composition</b> unless you need polymorphism.</p>
+<table>
+<tr><th>Relationship</th><th>Meaning</th><th>C++ shape</th><th>Lifetime</th></tr>
+<tr><td><b>Inheritance</b> (is-a)</td><td>Dog is an Animal</td><td><code>class Dog : public Animal</code></td><td>one object</td></tr>
+<tr><td><b>Composition</b> (owns)</td><td>Car has an Engine, which dies with the car</td><td>member <code>Engine e;</code></td><td>part dies with whole</td></tr>
+<tr><td><b>Aggregation</b> (uses, shared)</td><td>Team has Players who exist independently</td><td><code>Player*</code> / <code>std::shared_ptr</code> member</td><td>independent</td></tr>
+<tr><td><b>Association</b></td><td>Doctor treats Patients</td><td>reference or pointer parameter</td><td>independent</td></tr>
+</table>
+<div class="callout interview"><span class="label">Liskov Substitution</span>Code using a base must keep working with any derived type. If <code>Square : Rectangle</code> breaks on setting the width, inheritance was the wrong model: it must mean "behaves like", not "shares code".</div>
+<p>Related notes in your repo: <a href="https://github.com/Ghaith-Hamdi1/cpp-training/blob/main/docs/training-notes/02-cpp-oop/README.md">Module 2: C++ OOP</a>, <a href="https://github.com/Ghaith-Hamdi1/cpp-training/blob/main/docs/training-notes/02-cpp-oop/13_objects_relationships.md">objects relationships</a>, and the learncpp.com recaps for chapters 14, 15, 21, 23, 24 and 25.</p>
+</section>
+
+<section id="multiple" data-title="Multiple inheritance and object layout">
+<h2>Multiple inheritance and object layout</h2>
+<p>A class may have several bases. The sensible use is <b>several pure interfaces</b> (abstract classes with no data), as in Java:</p>
+<script type="text/x-cpp">
+struct Reader { virtual int read() = 0;        virtual ~Reader() = default; };
+struct Writer { virtual void write(int) = 0;   virtual ~Writer() = default; };
+struct File : Reader, Writer {                 // implements both interfaces
+    int v = 0;
+    int read() override { return v; }
+    void write(int x) override { v = x; }
+};
+</script>
+<figure class="fig"><svg viewBox="0 0 640 170" role="img" aria-label="A File object holds a Reader subobject with its vptr, a Writer subobject with its own vptr, then its own data; a Reader pointer and a Writer pointer point to different addresses"><defs><marker id="om1" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path class="ah" d="M0 0L10 5L0 10z"/></marker></defs>
+<text class="t" x="170" y="20">One File object in memory (24 bytes)</text>
+<rect class="acc" x="170" y="34" width="150" height="40" rx="5"/><text x="245" y="58" text-anchor="middle">Reader: vptr</text>
+<rect class="gd" x="320" y="34" width="150" height="40" rx="5"/><text x="395" y="58" text-anchor="middle">Writer: vptr</text>
+<rect class="wn" x="470" y="34" width="110" height="40" rx="5"/><text x="525" y="58" text-anchor="middle">int v</text>
+<text class="m" x="10" y="100">Reader* r = &amp;f</text><path class="ar" d="M120 96L210 76" marker-end="url(#om1)"/>
+<text class="m" x="10" y="128">Writer* w = &amp;f</text><path class="ar" d="M120 124L350 76" marker-end="url(#om1)"/>
+<text class="m" x="170" y="160">Converting File* to Writer* adjusts the address: the two pointers differ (compiled).</text></svg><figcaption>Each polymorphic base brings its own vptr, so the pointer value changes when you convert to the second base.</figcaption></figure>
+<ul>
+<li>The object is the bases laid out one after another, then the derived members. Compiled: <code>sizeof(File)</code> is <b>24</b> bytes (two vptrs and an <code>int</code>).</li>
+<li>Converting <code>File*</code> to the <b>second</b> base adjusts the pointer value (<code>static_cast</code> and implicit conversion do it for you). That is why you must not cast with <code>reinterpret_cast</code> or a C cast.</li>
+<li>Both bases are polymorphic, so <code>delete</code> through either needs a <b>virtual destructor</b>.</li>
+<li><b>Name clashes:</b> if both bases have a member <code>f</code>, calling <code>obj.f()</code> is ambiguous. Qualify it (<code>obj.Reader::f()</code>) or override it in the derived class.</li>
+<li>Multiple inheritance of <i>implementation</i> (bases with data) is where trouble starts: the diamond.</li>
+</ul>
+</section>
+
+<section id="diamond" data-title="The diamond problem and virtual inheritance">
+<h2>The diamond problem and virtual inheritance</h2>
+<figure class="fig"><svg viewBox="0 0 640 200" role="img" aria-label="Without virtual inheritance a Diamond contains two Base subobjects, one inside Left and one inside Right; with virtual inheritance Left and Right share a single Base"><defs><marker id="om2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path class="ah" d="M0 0L10 5L0 10z"/></marker></defs>
+<text class="t" x="10" y="18">Plain: two Base copies</text>
+<rect class="acc" x="40" y="30" width="80" height="28" rx="5"/><text x="80" y="49" text-anchor="middle">Base</text>
+<rect class="acc" x="170" y="30" width="80" height="28" rx="5"/><text x="210" y="49" text-anchor="middle">Base</text>
+<rect class="gd" x="40" y="80" width="80" height="28" rx="5"/><text x="80" y="99" text-anchor="middle">Left</text>
+<rect class="gd" x="170" y="80" width="80" height="28" rx="5"/><text x="210" y="99" text-anchor="middle">Right</text>
+<rect class="wn" x="105" y="140" width="100" height="28" rx="5"/><text x="155" y="159" text-anchor="middle">Diamond</text>
+<path class="ar" d="M80 80V60" marker-end="url(#om2)"/><path class="ar" d="M210 80V60" marker-end="url(#om2)"/><path class="ar" d="M120 140L85 110" marker-end="url(#om2)"/><path class="ar" d="M190 140L205 110" marker-end="url(#om2)"/>
+<text class="t" x="340" y="18">Virtual: one shared Base</text>
+<rect class="acc" x="440" y="30" width="80" height="28" rx="5"/><text x="480" y="49" text-anchor="middle">Base</text>
+<rect class="gd" x="370" y="80" width="80" height="28" rx="5"/><text x="410" y="99" text-anchor="middle">Left</text>
+<rect class="gd" x="510" y="80" width="80" height="28" rx="5"/><text x="550" y="99" text-anchor="middle">Right</text>
+<rect class="wn" x="440" y="140" width="100" height="28" rx="5"/><text x="490" y="159" text-anchor="middle">Diamond</text>
+<path class="ar" d="M420 80L460 60" marker-end="url(#om2)"/><path class="ar" d="M540 80L500 60" marker-end="url(#om2)"/><path class="ar" d="M460 140L420 110" marker-end="url(#om2)"/><path class="ar" d="M520 140L545 110" marker-end="url(#om2)"/>
+<text class="m" x="10" y="192">Plain: d.id is ambiguous (two ids). Virtual: one id.</text></svg><figcaption>Virtual inheritance makes the shared base appear once.</figcaption></figure>
+<script type="text/x-cpp">
+struct Base  { int id; };
+struct Left  : virtual Base {};          // "virtual" goes on the MIDDLE classes
+struct Right : virtual Base {};
+struct Diamond : Left, Right {};         // one Base inside; d.id is not ambiguous
+</script>
+<table>
+<tr><th></th><th>Plain inheritance</th><th>Virtual inheritance</th></tr>
+<tr><td>Base subobjects in <code>Diamond</code></td><td>two (compiled <code>sizeof</code> 8: two ids)</td><td>one (compiled <code>sizeof</code> 24: one id plus the machinery)</td></tr>
+<tr><td><code>d.id</code></td><td>ambiguous: write <code>d.Left::id</code></td><td>fine</td></tr>
+<tr><td>Constructor order (compiled)</td><td><code>Base Left Base Right Diamond</code>: Base built twice</td><td><code>VBase VLeft VRight VDiamond</code>: shared base once, <b>first</b></td></tr>
+<tr><td>Who initializes the base?</td><td>each middle class</td><td>the <b>most derived</b> class, directly</td></tr>
+<tr><td>Cost</td><td>none</td><td>extra pointer(s) per object, indirect access to the base, slower casts</td></tr>
+</table>
+<ul>
+<li>The standard library's <code>std::iostream</code> is the classic use: <code>istream</code> and <code>ostream</code> inherit <code>ios</code> virtually, so <code>iostream</code> has one stream state.</li>
+<li><b>Advice:</b> avoid diamonds. Use interfaces without data, or composition. When you need virtual inheritance, put the data in one place and let the most derived class initialize the base.</li>
+</ul>
+<div class="callout interview"><span class="label">Key point</span>"What is the diamond problem and how do you solve it?" Two paths to one base duplicate its members and make access ambiguous. <code>virtual</code> inheritance shares one copy; the most derived class constructs it first. It costs memory and indirection, so prefer interfaces and composition.</div>
+</section>
+
+<section id="rtti" data-title="RTTI: typeid and dynamic_cast">
+<h2>RTTI: <code>typeid</code> and <code>dynamic_cast</code></h2>
+<p><b>RTTI</b> (run-time type information) lets you ask for the <i>dynamic</i> type of an object behind a base pointer. It works only for <b>polymorphic</b> classes (at least one virtual function), because the type information lives next to the vtable.</p>
+<script type="text/x-cpp">
+Animal* a = new Dog;
+typeid(*a) == typeid(Dog);                    // true: the dynamic type (compiled)
+typeid(*a) == typeid(Cat);                    // false
+typeid(*a).name();                            // an implementation-defined name, for debugging only
+
+if (Dog* d = dynamic_cast<Dog*>(a)) { }       // set only if *a really is a Dog (or derived from Dog)
+Cat* c = dynamic_cast<Cat*>(a);               // nullptr: a Dog is not a Cat
+Cat& r = dynamic_cast<Cat&>(*a);              // a reference cannot be null: throws std::bad_cast
+
+Writer* w = dynamic_cast<Writer*>(readerPtr);  // a CROSS-cast: sideways between two bases of the same object
+</script>
+<table>
+<tr><th>Question</th><th>Answer</th></tr>
+<tr><td>What if the class has no virtual function?</td><td><code>typeid</code> gives the <b>static</b> type; <code>dynamic_cast</code> down does not compile</td></tr>
+<tr><td>Cost?</td><td><code>dynamic_cast</code> walks the class hierarchy at run time: slower than a virtual call, avoid it on hot paths</td></tr>
+<tr><td><code>static_cast</code> down instead?</td><td>no check: undefined behaviour if you are wrong</td></tr>
+<tr><td><code>-fno-rtti</code></td><td>compilers can turn RTTI off to save space; <code>typeid</code> and <code>dynamic_cast</code> then disappear (some embedded and low-latency code does this)</td></tr>
+</table>
+<div class="callout warn"><span class="label">A smell</span>Chains of <code>if (dynamic_cast&lt;A*&gt;...) else if (dynamic_cast&lt;B*&gt;...)</code> usually mean a missing virtual function or a Visitor.</div>
+</section>
+
+<section id="private" data-title="Private inheritance versus composition">
+<h2>Private inheritance versus composition</h2>
+<table>
+<tr><th>Kind</th><th>Meaning</th><th>Converts to base outside?</th></tr>
+<tr><td><code>public</code> inheritance</td><td><b>is-a</b>: usable wherever a <code>Base</code> is</td><td>yes</td></tr>
+<tr><td><code>private</code> inheritance</td><td><b>implemented-in-terms-of</b>: an implementation detail</td><td>no (compiled: <code>Car*</code> to <code>Engine*</code> is not convertible)</td></tr>
+<tr><td><code>protected</code> inheritance</td><td>like private, but derived classes of the derived class see the base</td><td>no</td></tr>
+</table>
+<script type="text/x-cpp">
+struct Car : private Engine {
+    void drive() { start(); }                  // uses the base internally
+    using Engine::start;                       // re-export one member if you want to
+};
+// Car c; Engine* e = &c;                      // ERROR: the base is private
+</script>
+<ul>
+<li><b>Prefer composition</b> (a member <code>Engine engine_;</code>): it is simpler and does not expose the base's virtual functions to accidental overriding. Use private inheritance only to override a virtual function of the base, access a <code>protected</code> member, or get the <b>empty base optimisation</b> (an empty base takes no space; a member takes at least 1 byte).</li>
+<li>Never inherit publicly just to reuse code: if it is not <i>is-a</i>, it breaks the Liskov substitution principle.</li>
+</ul>
+</section>
+
+<section id="cheat" data-title="Cheat sheet">
+<h2>Cheat sheet</h2>
+<p>Answer aloud, then open.</p>
+<details class="ex"><summary>Why must a base class destructor be virtual?</summary><div><p>If you <code>delete</code> a derived object through a base pointer and the destructor is not virtual, only the base destructor runs: undefined behavior, and the derived part's resources leak. A virtual destructor makes <code>delete</code> dispatch to the most derived destructor first. Any class meant to be a polymorphic base needs one.</p></div></details>
+<details class="ex"><summary>What is the difference between overloading and overriding?</summary><div><p>Overloading: several functions with the same name and different parameters in the same scope, chosen at compile time. Overriding: a derived class provides its own implementation of a base <i>virtual</i> function with the same signature, chosen at runtime.</p></div></details>
+<details class="ex"><summary>What is a pure virtual function and an abstract class?</summary><div><p>A pure virtual function is declared <code>= 0</code> and has no required implementation. A class with at least one cannot be instantiated; it defines an interface that derived classes must implement.</p></div></details>
+<details class="ex"><summary>What is object slicing?</summary><div><p>Copying a derived object into a base-class value discards the derived members and virtual behaviour. Avoid it by passing polymorphic objects by reference or pointer.</p></div></details>
+<details class="ex"><summary>Can a constructor be virtual? Can a destructor be pure virtual?</summary><div><p>A constructor cannot be virtual: the vptr is set up by the constructor, so there is no dynamic type yet. A destructor <i>can</i> be pure virtual to make a class abstract, but it still needs a body because derived destructors call it.</p></div></details>
+<details class="ex"><summary>Composition or inheritance?</summary><div><p>Prefer composition. Use public inheritance only for a true is-a relationship where you need runtime polymorphism, and make sure it satisfies Liskov substitution.</p></div></details>
+<details class="ex"><summary>What is the diamond problem and how is it solved?</summary><div><p>A class inherits the same base through two paths, so the base's members are duplicated and access is ambiguous. Virtual inheritance (<code>class Left : virtual Base</code>) makes all paths share one base subobject, which the most derived class constructs first. It adds memory and indirection, so prefer interfaces without data or composition.</p></div></details>
+<details class="ex"><summary>Why do <code>Reader*</code> and <code>Writer*</code> to the same <code>File</code> hold different addresses?</summary><div><p>With multiple inheritance the object contains each base subobject at its own offset, each with its own vptr. Converting to the second base adjusts the pointer to that subobject, which is why C casts and <code>reinterpret_cast</code> are wrong here.</p></div></details>
+<details class="ex"><summary>What does <code>dynamic_cast</code> need and what does it cost?</summary><div><p>A polymorphic class (a virtual function) because it reads the type information next to the vtable. It checks the real type at run time: null for pointers, <code>std::bad_cast</code> for references. It is slower than a virtual call, so avoid it on hot paths; repeated use suggests a missing virtual function or a Visitor.</p></div></details>
+<details class="ex"><summary><code>typeid</code> on a polymorphic versus non-polymorphic type?</summary><div><p>On a polymorphic object <code>typeid(*p)</code> gives the dynamic type. On a type with no virtual function it gives the static type, known at compile time. <code>type_info::name()</code> is implementation-defined and only for diagnostics.</p></div></details>
+<details class="ex"><summary>When is private inheritance appropriate?</summary><div><p>For "implemented in terms of": to override a virtual function of the base, access its protected members, or use the empty base optimisation. Otherwise prefer composition. It does not allow conversion to the base outside the class.</p></div></details>
+<h3>Keep going</h3>
+<ul>
+<li>Before this lesson: <a href="26-copying.html">Copy Control and Operators</a>.</li>
+<li>Related: <a href="25-casts.html#dynamic">dynamic_cast</a> in the Casts lesson.</li>
+</ul>
+</section>
+
+</main>
+
+<script src="assets/data/lessons.js"></script>
+<script src="assets/app.js"></script>
+<script>
+(function () {
+  const root = document.getElementById('w-virtual');
+  root.className = 'widget';
+  root.innerHTML = '<div class="w-head"><span class="tag">Try it</span>Does <code>virtual</code> matter?</div><div class="w-body">' +
+    '<div class="pickrow"><label>Object created:</label><select id="vo"><option>Animal</option><option selected>Cat</option></select>' +
+    '<label><input type="checkbox" id="vv" checked> <code>speak()</code> is virtual</label>' +
+    '<label><input type="checkbox" id="vd"> destructor is virtual</label></div>' +
+    '<figure class="code"><pre><code id="vcode"></code></pre></figure><div class="result" id="vres"></div></div>';
+  const $ = (id) => document.getElementById(id);
+  function update() {
+    const obj = $('vo').value, vs = $('vv').checked, vd = $('vd').checked;
+    const code = 'struct Animal {\n' +
+      '    ' + (vs ? 'virtual ' : '') + 'void speak() { std::cout << "..."; }\n' +
+      '    ' + (vd ? 'virtual ' : '') + '~Animal() { std::cout << "~Animal"; }\n};\n' +
+      'struct Cat : Animal { void speak() { std::cout << "Meow"; }  ~Cat() { std::cout << "~Cat "; } };\n\n' +
+      'Animal* p = new ' + obj + ';\np->speak();\ndelete p;';
+    $('vcode').innerHTML = CT.highlight(code);
+    const says = { Animal: '...', Cat: 'Meow' };
+    const spoke = vs ? says[obj] : '...';
+    let html = '<b>p-&gt;speak()</b> prints <code>' + spoke + '</code>. ';
+    html += vs ? 'Virtual dispatch: the call goes to the <b>real object\'s</b> class (' + obj + ').'
+               : 'No <code>virtual</code>: the call is bound at compile time to the <b>pointer\'s</b> type, <code>Animal*</code>, so the derived version is ignored' + (obj === 'Animal' ? ' (here it happens to be an Animal anyway).' : '.');
+    let bad = false;
+    html += '<br><b>delete p</b> runs: ';
+    if (obj === 'Animal' || vd) {
+      html += '<code>' + (obj === 'Animal' ? '~Animal' : '~' + obj + ' ~Animal') + '</code>. ' + (obj !== 'Animal' ? 'Correct: derived destructor first, then the base.' : '');
+    } else {
+      bad = true;
+      html += '<code>~Animal</code> only. <b>Undefined behavior:</b> deleting a ' + obj + ' through an <code>Animal*</code> whose destructor is not virtual. <code>~' + obj + '</code> never ran, so anything it owned leaks.';
+    }
+    const r = $('vres');
+    r.innerHTML = html;
+    r.className = 'result ' + (bad || (!vs && obj !== 'Animal') ? 'bad' : 'good');
+  }
+  ['vo', 'vv', 'vd'].forEach((id) => $(id).addEventListener('change', update));
+  update();
+})();
+
+CT.stepper('#st-vptr', {
+  title: 'How a virtual call finds the right function',
+  code: String.raw`
+struct Animal { virtual void speak(); virtual void eat(); };
+struct Dog : Animal { void speak() override; };
+
+Dog rex;
+Animal* p = &rex;
+p->speak();
+p->eat();
+`,
+  steps: [
+    { line: 5, mem: [{ n: 'Animal vtable @0x6000', t: 'static', v: 'speak -> Animal::speak, eat -> Animal::eat', k: 'static' }, { n: 'Dog vtable @0x7000', t: 'static', v: 'speak -> Dog::speak, eat -> Animal::eat', k: 'static' }, { n: 'rex @0x1000', t: 'Dog', v: 'vptr = 0x7000' }],
+      note: 'The compiler built one <b>vtable</b> per class, once, before the program runs. <b>Dog</b> overrides <code>speak</code>, so its slot points to <code>Dog::speak</code>; <code>eat</code> is not overridden, so its slot still points to <code>Animal::eat</code>. Creating <b>rex</b> stores a hidden <b>vptr</b> in the object, pointing to the <i>Dog</i> vtable.' },
+    { line: 6, mem: [{ n: 'Animal vtable @0x6000', t: 'static', v: 'speak -> Animal::speak, eat -> Animal::eat', k: 'static' }, { n: 'Dog vtable @0x7000', t: 'static', v: 'speak -> Dog::speak, eat -> Animal::eat', k: 'static' }, { n: 'rex @0x1000', t: 'Dog', v: 'vptr = 0x7000' }, { n: 'p @0x1008', t: 'Animal*', v: '0x1000', p: 'static type: Animal' }],
+      note: '<b>p</b> has the static type <code>Animal*</code> but points at a real Dog. The compiler only knows the static type, so it only knows that <code>speak</code> is the first slot and <code>eat</code> the second.' },
+    { line: 7, mem: [{ n: 'Animal vtable @0x6000', t: 'static', v: 'speak -> Animal::speak, eat -> Animal::eat', k: 'static' }, { n: 'Dog vtable @0x7000', t: 'static', v: 'speak -> Dog::speak, eat -> Animal::eat', k: 'static' }, { n: 'rex @0x1000', t: 'Dog', v: 'vptr = 0x7000' }, { n: 'p @0x1008', t: 'Animal*', v: '0x1000', p: 'follow p to the object' }],
+      note: '<b>p->speak(), step 1:</b> follow p to the object and read its <b>vptr</b> (0x7000).' },
+    { line: 7, mem: [{ n: 'Animal vtable @0x6000', t: 'static', v: 'speak -> Animal::speak, eat -> Animal::eat', k: 'static' }, { n: 'Dog vtable @0x7000', t: 'static', v: 'speak -> Dog::speak, eat -> Animal::eat', k: 'static' }, { n: 'rex @0x1000', t: 'Dog', v: 'vptr = 0x7000' }, { n: 'p @0x1008', t: 'Animal*', v: '0x1000', p: 'dynamic type: Dog' }], out: 'Woof\n',
+      note: '<b>Step 2:</b> index that vtable at the <code>speak</code> slot and jump to <b>Dog::speak</b>. The object\'s <i>dynamic</i> type decided, not the pointer\'s.' },
+    { line: 8, mem: [{ n: 'Animal vtable @0x6000', t: 'static', v: 'speak -> Animal::speak, eat -> Animal::eat', k: 'static' }, { n: 'Dog vtable @0x7000', t: 'static', v: 'speak -> Dog::speak, eat -> Animal::eat', k: 'static' }, { n: 'rex @0x1000', t: 'Dog', v: 'vptr = 0x7000' }, { n: 'p @0x1008', t: 'Animal*', v: '0x1000', p: 'same two steps' }], out: 'Woof\nAnimal eats\n',
+      note: '<b>p->eat()</b> does the same two steps: read the vptr, index the <code>eat</code> slot. The Dog vtable\'s slot holds <code>Animal::eat</code>, so the base version runs. Every virtual call costs one extra load and an indirect jump; it never searches.' }
+  ]
+});
+
+CT.stepper('#st-slice', {
+  title: 'Object slicing',
+  code: String.raw`
+Dog rex("Rex");
+Animal a = rex;
+a.speak();
+`,
+  steps: [
+    { line: 1, mem: [{ n: 'rex', t: 'Dog', v: 'Animal part {name} + Dog part {tricks}' }],
+      note: 'A <b>Dog</b> object holds its Animal part (base members and the vptr) <i>and</i> its own Dog part.' },
+    { line: 2, mem: [{ n: 'rex', t: 'Dog', v: 'Animal part {name} + Dog part {tricks}' }, { n: 'a', t: 'Animal', v: 'Animal part {name} only', p: 'Dog part sliced off' }],
+      note: '<code>Animal a = rex;</code> copies into a variable that has room only for an <b>Animal</b>. The Dog part is chopped off, and a\'s vptr is the Animal one.' },
+    { line: 3, mem: [{ n: 'rex', t: 'Dog', v: 'Animal part {name} + Dog part {tricks}' }, { n: 'a', t: 'Animal', v: 'Animal part {name} only', p: 'Dog part sliced off' }], out: '...\n',
+      note: '<code>a.speak()</code> runs <b>Animal::speak</b>: the object really is an Animal now. Fix: keep polymorphic objects behind a <b>pointer or reference</b> (or <code>unique_ptr</code>), never by value.' }
+  ]
+});
+</script>
+</body>
+</html>

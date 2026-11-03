@@ -1,4 +1,4 @@
-// Lesson 17: condition variable, a blocking SafeQueue, and a thread pool built from them. Compile with -pthread.
+// Lesson 19: condition variable, a blocking SafeQueue, and a thread pool built from them. Compile with -pthread.
 #include <condition_variable>
 #include <functional>
 #include <iostream>

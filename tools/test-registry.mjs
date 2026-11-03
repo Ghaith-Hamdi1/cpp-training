@@ -143,10 +143,11 @@ test('the real v6 migration moves the conversions tick and weak question from th
   const key = "What does `explicit` on a single-argument constructor prevent?";
   const s = makeStore({ 'schema': 5, 'done:objmodel': ['multiple', 'conversions'], 'done:oop': ['s1'], 'weak:objmodel': { [key]: 0, 'a question that stayed': 1 }, 'mock:missed': ['objmodel-1', 'oop-2', 'wire-1'] });
   assert.equal(CT.migrate(s), CT.schemaVersion());
-  assert.deepEqual(s.get('done:objmodel'), ['multiple']);
-  assert.deepEqual(s.get('done:oop'), ['s1', 'conversions']);
-  assert.deepEqual(s.get('weak:oop'), { [key]: 0 });
-  assert.deepEqual(s.get('weak:objmodel'), { 'a question that stayed': 1 });
+  assert.deepEqual(s.get('done:inherit'), ['multiple']);                         // v14 then moved the Object Model into Inheritance
+  assert.deepEqual(s.get('done:copying'), ['conversions']);
+  assert.deepEqual(s.get('done:oop'), ['s1']);
+  assert.deepEqual(s.get('weak:copying'), { [key]: 0 });
+  assert.deepEqual(s.get('weak:inherit'), { 'a question that stayed': 1 });
   assert.deepEqual(s.get('mock:missed'), []);
 });
 
@@ -243,6 +244,25 @@ test('the real v12 migration moves the ownership and unique sections from Smart 
   assert.equal(JSON.stringify(s.dump()), before, 'running it again must change nothing');
 });
 
+test('the real v13 migration moves the conversions and casts sections from Types to Casts', () => {
+  const CT = loadRegistry();
+  const q = 'What is `static_cast<int>(-3.9)`?';                  // a question that moved to the casts quiz
+  const s = makeStore({ 'schema': 12, 'done:types': ['init', 'conversions', 'casts', 'const'], 'last:types': 'casts', 'lastinfo': { id: 'types', sec: 'conversions' },
+    'weak:types': { [q]: 0, 'a question that stayed': 1 }, 'mock:missed': ['types-2', 'stl-1'] });
+  assert.equal(CT.migrate(s), CT.schemaVersion());
+  assert.deepEqual(s.get('done:types'), ['init', 'const']);
+  assert.deepEqual(s.get('done:casts').sort(), ['choose', 'constcast', 'cstyle', 'dynamic', 'implicit', 'narrowing', 'static']);
+  assert.equal(s.get('last:types'), '');
+  assert.equal(s.get('lastinfo', 'gone'), null);
+  assert.deepEqual(s.get('weak:types'), { 'a question that stayed': 1 });
+  assert.deepEqual(s.get('weak:casts'), { [q]: 0 });
+  assert.deepEqual(s.get('mock:missed'), ['stl-1']);
+  const before = JSON.stringify(s.dump());
+  s.set('schema', 12);
+  CT.migrate(s);
+  assert.equal(JSON.stringify(s.dump()), before, 'running it again must change nothing');
+});
+
 test('the real v8 migration merges the strings regex sections', () => {
   const CT = loadRegistry();
   const s = makeStore({ 'schema': 7, 'done:strings': ['s1', 's3'], 'last:strings': 's3' });
@@ -253,3 +273,25 @@ test('the real v8 migration merges the strings regex sections', () => {
 });
 
 console.log(passed + ' tests passed');
+
+test('the real v14 migration splits OOP into three lessons and merges the Object Model into Inheritance', () => {
+  const CT = loadRegistry();
+  const qCopy = 'What does the Rule of Three say?';                       // placeholder text, not in the quiz: it stays in oop
+  const s = makeStore({ 'schema': 13, 'done:oop': ['s1', 's3', 'conversions', 's5', 's6', 's8'], 'done:objmodel': ['multiple', 'rtti'],
+    'last:oop': 's6', 'lastinfo': { id: 'oop', sec: 's6' }, 'weak:objmodel': { 'a diamond question': 1 }, 'weak:oop': { [qCopy]: 0 },
+    'quiz:objmodel': { right: 3 }, 'mock:missed': ['oop-1', 'objmodel-2', 'stl-1'] });
+  assert.equal(CT.migrate(s), CT.schemaVersion());
+  assert.deepEqual(s.get('done:oop'), ['s1']);
+  assert.deepEqual(s.get('done:copying').sort(), ['conversions', 'copy', 'operators']);
+  assert.deepEqual(s.get('done:inherit').sort(), ['inheritance', 'multiple', 'rtti', 'virtual']);
+  assert.deepEqual(s.get('done:objmodel'), []);
+  assert.equal(s.get('last:oop'), '');
+  assert.equal(s.get('lastinfo', 'gone'), null);
+  assert.deepEqual(s.get('weak:inherit'), { 'a diamond question': 1 });
+  assert.deepEqual(s.get('weak:oop'), { [qCopy]: 0 });
+  assert.deepEqual(s.get('mock:missed'), ['stl-1']);
+  const before = JSON.stringify(s.dump());
+  s.set('schema', 13);
+  CT.migrate(s);
+  assert.equal(JSON.stringify(s.dump()), before, 'running it again must change nothing');
+});

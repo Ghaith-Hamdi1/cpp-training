@@ -26,12 +26,16 @@ CT.lessons = [
     blurb: 'How a program is built, types and variables, operators, control flow, functions and passing arguments, and the tools that catch mistakes.' },
   { id: 'pointers', file: '22-pointers.html', quiz: '22-pointers-quiz.html', title: 'Pointers and References', time: '50 min', assess: 2, phase: 1,
     blurb: 'Where variables live, what an address is, pointers, arrays and decay, references, const with pointers, new and delete, and the classic memory bugs, in pictures.' },
-  { id: 'types', file: '16-types-and-casts.html', quiz: '16-types-and-casts-quiz.html', title: 'Types, Initialization & Casts', time: '40 min', assess: 2, phase: 1,
-    blurb: 'Initialization forms and brace traps, auto and decltype, implicit conversions, the named casts, const, constexpr and static.' },
-  { id: 'oop', file: '02-oop.html', quiz: '02-oop-quiz.html', title: 'Object-Oriented Programming', time: '60 min', assess: 2, phase: 2,
-    blurb: 'Classes, constructors, rule of 3/5/0, inheritance, virtual functions, abstract classes, operator overloading.' },
-  { id: 'objmodel', file: '19-object-model.html', quiz: '19-object-model-quiz.html', title: 'The Object Model in Depth', time: '40 min', assess: 2, phase: 2,
-    blurb: 'Multiple inheritance and layout, the diamond and virtual inheritance, RTTI and private inheritance.' },
+  { id: 'types', file: '16-types-and-casts.html', quiz: '16-types-and-casts-quiz.html', title: 'Types, Initialization & Constants', time: '30 min', assess: 2, phase: 1,
+    blurb: 'Initialization forms and brace traps, auto and decltype, const, constexpr and static, and what C++14, 17 and 20 added.' },
+  { id: 'casts', file: '25-casts.html', quiz: '25-casts-quiz.html', title: 'Casts and Type Conversions', time: '45 min', assess: 2, phase: 1,
+    blurb: 'What the compiler converts silently, narrowing and braces, why the C-style cast is a trap, and static_cast, dynamic_cast, const_cast, reinterpret_cast and bit_cast.' },
+  { id: 'oop', file: '02-oop.html', quiz: '02-oop-quiz.html', title: 'Classes and Objects', time: '40 min', assess: 2, phase: 2,
+    blurb: 'Encapsulation and invariants, member functions and this, const and static members, constructors, destructors and object lifetime.' },
+  { id: 'copying', file: '26-copying.html', quiz: '26-copying-quiz.html', title: 'Copy Control and Operators', time: '45 min', assess: 2, phase: 2,
+    blurb: 'Shallow and deep copies, the Rule of 3, 5 and 0, explicit and conversion operators, copy-and-swap, and operator overloading.' },
+  { id: 'inherit', file: '27-inherit.html', quiz: '27-inherit-quiz.html', title: 'Inheritance, Virtual Functions and the Object Model', time: '60 min', assess: 2, phase: 2,
+    blurb: 'Is-a inheritance, how virtual calls work with the vtable and vptr, abstract classes, composition, multiple and virtual inheritance, RTTI and private inheritance.' },
   { id: 'strings', file: '08-strings-regex-time.html', quiz: '08-strings-regex-time-quiz.html', title: 'Strings, Regex & Time', time: '40 min', assess: 2, phase: 3,
     blurb: 'string versus string_view, regular expressions with a live tester, and measuring time with chrono clocks and durations.' },
   { id: 'callables', file: '23-callables.html', quiz: '23-callables-quiz.html', title: 'Function Pointers and Functors', time: '35 min', assess: 2, phase: 3,
@@ -72,14 +76,22 @@ CT.moved = {
   '03-core-language.html#s4': '24-uniqueptr.html#owner',
   '03-core-language.html#s5': '16-types-and-casts.html#deduction',
   '03-core-language.html#s6': '15-lambdas.html#anatomy',
-  '03-core-language.html#s8': '16-types-and-casts.html#casts',
+  '03-core-language.html#s8': '25-casts.html#static',
   '03-core-language.html#s9': '16-types-and-casts.html#const',
   '03-core-language.html#s10': '16-types-and-casts.html#standards',
   '08-strings-regex-time.html#s3': '08-strings-regex-time.html#s2',   // the two regex sections were merged
   '07-multithreading.html#s6': '18-atomics-memory-model.html#ops',        // the multithreading lesson was split in three
   '07-multithreading.html#s8': '17-tasks-parallelism.html#futures',
   '07-multithreading.html#s9': '17-tasks-parallelism.html#pool',
-  '19-object-model.html#conversions': '02-oop.html#conversions',          // explicit, conversion operators and copy-and-swap moved to OOP
+  '02-oop.html#s3': '26-copying.html#copy',                       // the OOP lesson was split in three: classes, copy control, inheritance
+  '02-oop.html#conversions': '26-copying.html#conversions',
+  '02-oop.html#s8': '26-copying.html#operators',
+  '02-oop.html#s5': '27-inherit.html#inheritance',
+  '02-oop.html#s6': '27-inherit.html#virtual',
+  '02-oop.html#s7': '27-inherit.html#abstract',
+  '02-oop.html#s9': '27-inherit.html#design',
+  '16-types-and-casts.html#conversions': '25-casts.html#implicit',         // the conversions and casts sections became their own lesson
+  '16-types-and-casts.html#casts': '25-casts.html#static',
   '14-smart-pointers.html#ownership': '24-uniqueptr.html#owner',      // the first two Smart Pointers sections became the unique_ptr lesson
   '14-smart-pointers.html#unique': '24-uniqueptr.html#basics',
   '15-lambdas.html#before': '23-callables.html#fnptr',          // the callable sections of Lambdas became their own lesson
@@ -315,6 +327,76 @@ CT.progressMigrations = [
     });
     store.set('weak:smartptr', stay);
     store.set('mock:missed', store.get('mock:missed', []).filter(function (id) { return id.indexOf('smartptr-') !== 0; }));   // the cheat sheet changed
+  } },
+  /* v13: the conversions and casts sections of the Types lesson became the lesson Casts and Type Conversions (the enum class
+     section was dropped). */
+  { to: 13, run: function (store) {
+    var SECS = { conversions: ['implicit', 'narrowing'], casts: ['cstyle', 'static', 'dynamic', 'constcast', 'choose'] };   // old types section -> new casts sections
+    var done = store.get('done:types', []), keep = [], moved = store.get('done:casts', []);
+    done.forEach(function (id) {
+      if (!SECS[id]) { keep.push(id); return; }
+      SECS[id].forEach(function (n) { if (moved.indexOf(n) < 0) moved.push(n); });
+    });
+    store.set('done:types', keep);
+    if (moved.length) store.set('done:casts', moved);
+    if (SECS[store.get('last:types', '')]) store.set('last:types', '');
+    var li = store.get('lastinfo', null);
+    if (li && li.id === 'types' && SECS[li.sec]) store.set('lastinfo', null);
+    var hash = function (s) { var x = 5381, i; for (i = 0; i < s.length; i++) x = ((x * 33) ^ s.charCodeAt(i)) >>> 0; return x.toString(36); };
+    var WHERE = { '10df3o5': 'casts', '13h63if': 'casts', '1ggqdb0': 'casts', 'inzmcy': 'casts', 'kcswmp': 'casts' };
+    var GONE = { '8eaw0v': 1 };                                   // the enum class question
+    var weak = store.get('weak:types', {}), stay = {};
+    Object.keys(weak).forEach(function (k) {
+      var h = hash(k);
+      if (GONE[h]) return;
+      if (!WHERE[h]) { stay[k] = weak[k]; return; }
+      var w = store.get('weak:casts', {});
+      w[k] = weak[k];
+      store.set('weak:casts', w);
+    });
+    store.set('weak:types', stay);
+    store.set('mock:missed', store.get('mock:missed', []).filter(function (id) { return id.indexOf('types-') !== 0; }));   // the cheat sheet changed
+  } },
+  /* v14: the OOP lesson was split into Classes and Objects, Copy Control and Operators, and Inheritance, Virtual Functions and the
+     Object Model; the Object Model in Depth lesson was merged into the last one. */
+  { to: 14, run: function (store) {
+    var SECS = { s3: ['copying', 'copy'], conversions: ['copying', 'conversions'], s8: ['copying', 'operators'],
+      s5: ['inherit', 'inheritance'], s6: ['inherit', 'virtual'], s7: ['inherit', 'abstract'], s9: ['inherit', 'design'] };   // old oop section -> [new lesson, new section]
+    var done = store.get('done:oop', []), keep = [];
+    done.forEach(function (id) {
+      if (!SECS[id]) { keep.push(id); return; }
+      var d = store.get('done:' + SECS[id][0], []);
+      if (d.indexOf(SECS[id][1]) < 0) d.push(SECS[id][1]);
+      store.set('done:' + SECS[id][0], d);
+    });
+    store.set('done:oop', keep);
+    var om = store.get('done:objmodel', []);
+    if (om.length) {
+      var d2 = store.get('done:inherit', []);
+      om.forEach(function (id) { if (d2.indexOf(id) < 0) d2.push(id); });
+      store.set('done:inherit', d2);
+    }
+    if (SECS[store.get('last:oop', '')]) store.set('last:oop', '');
+    var li = store.get('lastinfo', null);
+    if (li && li.id === 'objmodel') store.set('lastinfo', null);
+    if (li && li.id === 'oop' && SECS[li.sec]) store.set('lastinfo', null);
+    var hash = function (s) { var x = 5381, i; for (i = 0; i < s.length; i++) x = ((x * 33) ^ s.charCodeAt(i)) >>> 0; return x.toString(36); };
+    var WHERE = {'1lci8e8': 'copying', '1iuz060': 'copying', '12rk0wq': 'inherit', '1w60i7u': 'inherit', '73xv3e': 'inherit', '18nvff': 'inherit', '1kgmqwi': 'inherit', 'f5vycw': 'copying', '9xii7h': 'inherit', 'qna1n': 'copying', '6bxs1o': 'inherit', 'uxe5i5': 'copying', 'labf5h': 'copying', '1e726nt': 'copying', 'cwsz48': 'copying', '19icvtn': 'copying'};
+    var moveWeak = function (from, always) {
+      var weak = store.get('weak:' + from, {}), stay = {};
+      Object.keys(weak).forEach(function (k) {
+        var to = always || WHERE[hash(k)];
+        if (!to) { stay[k] = weak[k]; return; }
+        var w = store.get('weak:' + to, {});
+        w[k] = weak[k];
+        store.set('weak:' + to, w);
+      });
+      store.set('weak:' + from, stay);
+    };
+    moveWeak('oop');
+    moveWeak('objmodel', 'inherit');
+    ['done:', 'last:', 'quiz:', 'total:', 'weak:'].forEach(function (p) { store.set(p + 'objmodel', p === 'done:' ? [] : p === 'weak:' ? {} : p === 'last:' ? '' : null); });
+    store.set('mock:missed', store.get('mock:missed', []).filter(function (id) { return id.indexOf('oop-') !== 0 && id.indexOf('objmodel-') !== 0; }));   // the cheat sheets changed
   } }
 ];
 

@@ -1,0 +1,264 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Casts and Type Conversions</title>
+<script>try{var t=JSON.parse(localStorage.getItem('cpptrain:theme'));if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body data-topic="casts" data-kind="lesson">
+<main>
+<h1>Casts and Type Conversions</h1>
+<p class="lead">What the compiler converts for you and where it loses information, why the C-style cast is a trap, and the named casts: <code>static_cast</code>, <code>dynamic_cast</code>, <code>const_cast</code>, <code>reinterpret_cast</code> and <code>bit_cast</code>. Assumes <a href="16-types-and-casts.html">Types, Initialization and Constants</a>.</p>
+
+<section id="implicit" data-title="What the compiler converts for you">
+<h2>What the compiler converts for you</h2>
+<p>You do not have to write a cast for most conversions: the compiler converts between arithmetic types by itself. These <b>implicit conversions</b> follow fixed rules, and the surprises come from not knowing them.</p>
+<figure class="fig"><svg viewBox="0 0 640 170" role="img" aria-label="In arithmetic, types smaller than int become int, then both operands move up to the larger of the two types: int, unsigned, long, float, double"><defs><marker id="k1" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path class="ah" d="M0 0L10 5L0 10z"/></marker></defs>
+<rect class="box" x="10" y="20" width="110" height="40" rx="6"/><text class="mono" x="65" y="44" text-anchor="middle">char, short</text>
+<path class="ar" d="M120 40H152" marker-end="url(#k1)"/><text class="m" x="136" y="30" text-anchor="middle">promote</text>
+<rect class="acc" x="154" y="20" width="70" height="40" rx="6"/><text class="mono" x="189" y="44" text-anchor="middle">int</text>
+<path class="ar" d="M224 40H256" marker-end="url(#k1)"/>
+<rect class="acc" x="258" y="20" width="90" height="40" rx="6"/><text class="mono" x="303" y="44" text-anchor="middle">unsigned</text>
+<path class="ar" d="M348 40H380" marker-end="url(#k1)"/>
+<rect class="acc" x="382" y="20" width="70" height="40" rx="6"/><text class="mono" x="417" y="44" text-anchor="middle">long</text>
+<path class="ar" d="M452 40H484" marker-end="url(#k1)"/>
+<rect class="wn" x="486" y="20" width="70" height="40" rx="6"/><text class="mono" x="521" y="44" text-anchor="middle">float</text>
+<path class="ar" d="M556 40H576" marker-end="url(#k1)"/>
+<rect class="wn" x="578" y="20" width="56" height="40" rx="6"/><text class="mono" x="606" y="44" text-anchor="middle">double</text>
+<text class="m" x="10" y="100">In an expression both operands are converted to the higher of their two types: int + double is a double.</text>
+<text class="m" x="10" y="122">Signed and unsigned of the same size: the signed value becomes unsigned.</text>
+<text class="m" x="10" y="144">Storing a result back into a smaller type truncates it, silently.</text></svg><figcaption>The ladder of arithmetic conversions: operands climb it, never descend.</figcaption></figure>
+<p>Compiled results of the classic surprises:</p>
+<table>
+<tr><th>Expression</th><th>Result</th><th>Why</th></tr>
+<tr><td><code>-1 &lt; 1u</code></td><td><b>false</b></td><td>the signed value is converted to unsigned and becomes huge</td></tr>
+<tr><td><code>uint8_t(200) + uint8_t(100)</code></td><td>300, stored back as 44</td><td>small types are promoted to <code>int</code> before arithmetic; storing back wraps</td></tr>
+<tr><td><code>7 / 2</code></td><td>3</td><td>integer division; <code>7 / 2.0</code> is 3.5</td></tr>
+<tr><td><code>int g = 3.7;</code></td><td>3</td><td>conversion to an integer truncates toward zero (<code>-3.9</code> becomes -3)</td></tr>
+<tr><td><code>char</code> 0xFF widened to <code>int</code></td><td>-1 (signed <code>char</code>)</td><td>whether plain <code>char</code> is signed is implementation-defined</td></tr>
+</table>
+<div id="st-promo"></div>
+<ul>
+<li><b>Never compare signed with unsigned</b> (<code>-Wsign-compare</code>); use <code>std::ssize</code> or cast deliberately.</li>
+<li>Single-argument constructors are implicit conversions too: mark them <code>explicit</code> (see <a href="02-oop.html#conversions">explicit and conversion operators</a>).</li>
+</ul>
+<!-- read-more:start -->
+<div class="callout tip"><span class="label">Read more</span>
+<p><b>C++ Primer (Lippman, Lajoie, Moo)</b></p>
+<ul>
+<li>2.1 Primitive built-in types (PDF pages 61 to 69)</li>
+<li>4.11 Type conversions (PDF pages 188 to 194)</li>
+</ul>
+</div>
+<!-- read-more:end -->
+</section>
+
+<section id="narrowing" data-title="Narrowing and braces">
+<h2>Narrowing and braces</h2>
+<p>A conversion that can <b>lose information</b> is called <b>narrowing</b>: double to int, a wide integer to a narrower one, a value that does not fit. With <code>=</code> it compiles quietly. With braces the language requires the compiler to complain, so braces are a free safety check.</p>
+<script type="text/x-cpp">
+int a = 3.7;              // compiles: a is 3, the .7 is lost without a word
+// int b{3.7};            // ERROR: narrowing double -> int
+// unsigned char c{300};  // ERROR: 300 does not fit in an unsigned char
+unsigned char d{200};     // fine: a constant that fits
+float f{0.1};             // fine: a constant double that fits in a float
+</script>
+<table>
+<tr><th>Conversion in braces</th><th>Allowed?</th></tr>
+<tr><td>a constant that fits the target (<code>unsigned char c{200}</code>)</td><td>yes</td></tr>
+<tr><td>a constant that does not fit (<code>unsigned char c{300}</code>)</td><td>no: compile error</td></tr>
+<tr><td>floating point to integer (<code>int b{3.0}</code>)</td><td>no: even when the value would fit</td></tr>
+<tr><td>a wider integer variable to a narrower one</td><td>must be diagnosed; some compilers only warn, so turn warnings on</td></tr>
+<tr><td>integer to <code>double</code> where every value fits</td><td>yes</td></tr>
+</table>
+<div class="callout tip"><span class="label">Habit</span>Initialize with braces. When you really want the loss, say so with a cast (next sections), so the next reader knows it is intentional.</div>
+<!-- read-more:start -->
+<div class="callout tip"><span class="label">Read more</span>
+<p><b>C++ Primer (Lippman, Lajoie, Moo)</b></p>
+<ul>
+<li>4.11 Type conversions (PDF pages 188 to 194)</li>
+</ul>
+</div>
+<!-- read-more:end -->
+</section>
+
+<section id="cstyle" data-title="The C-style cast and why to avoid it">
+<h2>The C-style cast and why to avoid it</h2>
+<p>C has one cast, <code>(T)x</code>. In C++ it is a trap: it tries the C++ casts in a fixed order and uses the <b>first one that compiles</b>, so a small mistake silently becomes a dangerous conversion.</p>
+<figure class="fig"><svg viewBox="0 0 640 150" role="img" aria-label="A C-style cast tries static_cast, then static_cast plus const_cast, then reinterpret_cast, and uses the first that compiles"><defs><marker id="k2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path class="ah" d="M0 0L10 5L0 10z"/></marker></defs>
+<rect class="box" x="10" y="50" width="90" height="40" rx="6"/><text class="mono" x="55" y="75" text-anchor="middle">(T)x</text>
+<path class="ar" d="M100 70H132" marker-end="url(#k2)"/>
+<rect class="gd" x="134" y="50" width="130" height="40" rx="6"/><text class="mono" x="199" y="75" text-anchor="middle">static_cast</text>
+<path class="ar dash" d="M264 70H296" marker-end="url(#k2)"/><text class="m" x="280" y="60" text-anchor="middle">fails?</text>
+<rect class="wn" x="298" y="50" width="150" height="40" rx="6"/><text class="mono" x="373" y="75" text-anchor="middle">+ const_cast</text>
+<path class="ar dash" d="M448 70H480" marker-end="url(#k2)"/><text class="m" x="464" y="60" text-anchor="middle">fails?</text>
+<rect class="bd" x="482" y="50" width="150" height="40" rx="6"/><text class="mono" x="557" y="75" text-anchor="middle">reinterpret_cast</text>
+<text class="m" x="10" y="124">The first that compiles wins. You do not see which one you got.</text></svg><figcaption>A C-style cast can quietly drop const or reinterpret raw bytes.</figcaption></figure>
+<script type="text/x-cpp">
+const int k = 5;
+int* p = (int*)&k;                  // compiles: silently removed the const (a const_cast)
+char* q = (char*)p;                 // compiles: reinterpret the same address as another type
+double d = (double)7 / 2;           // fine, but a static_cast says so: static_cast<double>(7)
+</script>
+<p>C++ replaces it with four named casts. Each states its intent, and you can search for it (<code>grep static_cast</code>). A C-style cast never turns into <code>dynamic_cast</code>.</p>
+<table>
+<tr><th>Cast</th><th>Use for</th><th>Danger</th></tr>
+<tr><td><code>static_cast&lt;T&gt;(x)</code></td><td>well-defined conversions you can see are fine</td><td>low</td></tr>
+<tr><td><code>dynamic_cast&lt;T&gt;(x)</code></td><td>a checked downcast in a class hierarchy</td><td>runtime cost</td></tr>
+<tr><td><code>const_cast&lt;T&gt;(x)</code></td><td>add or remove <code>const</code></td><td>writing to a truly const object is undefined</td></tr>
+<tr><td><code>reinterpret_cast&lt;T&gt;(x)</code></td><td>reinterpret raw bits</td><td>very high, rarely correct</td></tr>
+</table>
+<!-- read-more:start -->
+<div class="callout tip"><span class="label">Read more</span>
+<p><b>C++ Primer (Lippman, Lajoie, Moo)</b></p>
+<ul>
+<li>4.11 Type conversions (PDF pages 188 to 194)</li>
+</ul>
+</div>
+<!-- read-more:end -->
+</section>
+
+<section id="static" data-title="static_cast: the everyday cast">
+<h2><code>static_cast</code>: the everyday cast</h2>
+<p><code>static_cast</code> does the conversions the compiler already knows how to do, but <b>explicitly</b>. It is checked at compile time and refuses nonsense such as int to pointer.</p>
+<figure class="fig"><svg viewBox="0 0 640 140" role="img" aria-label="static_cast of 7 to double before dividing by 2 gives 3.5, without the cast the integer division gives 3"><defs><marker id="k3" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path class="ah" d="M0 0L10 5L0 10z"/></marker></defs>
+<text class="t" x="10" y="20">7 / 2</text><rect class="box" x="10" y="30" width="120" height="34" rx="5"/><text class="mono" x="70" y="52" text-anchor="middle">int / int</text><path class="ar" d="M130 47H192" marker-end="url(#k3)"/><rect class="bd" x="194" y="30" width="70" height="34" rx="5"/><text class="mono" x="229" y="52" text-anchor="middle">3</text><text class="m" x="276" y="52">the .5 is gone</text>
+<text class="t" x="10" y="94">static_cast&lt;double&gt;(7) / 2</text><rect class="box" x="10" y="104" width="150" height="30" rx="5"/><text class="mono" x="85" y="124" text-anchor="middle">double / int</text><path class="ar" d="M160 119H222" marker-end="url(#k3)"/><rect class="gd" x="224" y="104" width="70" height="30" rx="5"/><text class="mono" x="259" y="124" text-anchor="middle">3.5</text></svg><figcaption>Convert one operand first and the whole division is done in floating point.</figcaption></figure>
+<script type="text/x-cpp">
+double avg = static_cast<double>(total) / count;       // avoids integer division
+
+int n = static_cast<int>(-3.9);                        // -3: truncates toward zero, on purpose
+void* v = &n;
+int* p = static_cast<int*>(v);                         // void* back to the real type
+
+Base* b = getBase();
+Derived* d = static_cast<Derived*>(b);                 // downcast: YOU promise it is a Derived
+</script>
+<table>
+<tr><th>Use</th><th>Example</th></tr>
+<tr><td>number to number</td><td><code>static_cast&lt;double&gt;(i)</code>, <code>static_cast&lt;int&gt;(x)</code></td></tr>
+<tr><td><code>void*</code> back to a typed pointer</td><td><code>static_cast&lt;Widget*&gt;(userData)</code></td></tr>
+<tr><td>derived to base, base to derived</td><td>the base-to-derived direction is unchecked</td></tr>
+<tr><td>enum to integer and back</td><td><code>static_cast&lt;int&gt;(level)</code></td></tr>
+<tr><td>call an <code>explicit</code> conversion</td><td><code>static_cast&lt;std::string&gt;(sv)</code></td></tr>
+</table>
+<div class="callout warn"><span class="label">A downcast is a promise</span>If <code>b</code> is not really a <code>Derived</code>, the behavior is undefined and nothing checks it. When you are not sure, use <code>dynamic_cast</code>.</div>
+<!-- read-more:start -->
+<div class="callout tip"><span class="label">Read more</span>
+<p><b>C++ Primer (Lippman, Lajoie, Moo)</b></p>
+<ul>
+<li>4.11 Type conversions (PDF pages 188 to 194)</li>
+</ul>
+</div>
+<!-- read-more:end -->
+</section>
+
+<section id="dynamic" data-title="dynamic_cast: checked downcasts">
+<h2><code>dynamic_cast</code>: checked downcasts</h2>
+<p><code>dynamic_cast</code> asks the object what it <b>really is</b> at run time. If the answer is not the type you asked for, the cast fails safely instead of lying.</p>
+<figure class="fig"><svg viewBox="0 0 640 160" role="img" aria-label="dynamic_cast to Derived succeeds for a Base pointer that points to a Derived and returns nullptr for one that points to an Other"><defs><marker id="k4" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path class="ah2" d="M0 0L10 5L0 10z"/></marker><marker id="k5" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path class="ah3" d="M0 0L10 5L0 10z"/></marker></defs>
+<rect class="acc" x="10" y="20" width="110" height="34" rx="5"/><text class="mono" x="65" y="42" text-anchor="middle">Base* bd</text><path class="ar2" d="M120 37H190" marker-end="url(#k4)"/><rect class="gd" x="192" y="20" width="110" height="34" rx="5"/><text class="mono" x="247" y="42" text-anchor="middle">a Derived</text>
+<text class="mono" x="320" y="42">dynamic_cast&lt;Derived*&gt;(bd)</text><text class="t" x="520" y="42">a valid pointer</text>
+<rect class="acc" x="10" y="96" width="110" height="34" rx="5"/><text class="mono" x="65" y="118" text-anchor="middle">Base* bo</text><path class="ar3 dash" d="M120 113H190" marker-end="url(#k5)"/><rect class="wn" x="192" y="96" width="110" height="34" rx="5"/><text class="mono" x="247" y="118" text-anchor="middle">an Other</text>
+<text class="mono" x="320" y="118">dynamic_cast&lt;Derived*&gt;(bo)</text><text class="t" x="520" y="118">nullptr</text></svg><figcaption>The check looks at the real object, not at the pointer type.</figcaption></figure>
+<script type="text/x-cpp">
+if (auto* d = dynamic_cast<Derived*>(base)) {   // nullptr if base is not a Derived
+    d->fetch();                                 // only reached when it really is
+}
+
+try { auto& r = dynamic_cast<Derived&>(*base); }
+catch (const std::bad_cast&) { }                // a reference cannot be null, so it throws
+</script>
+<ul>
+<li>A pointer cast returns <code>nullptr</code> on failure; a reference cast throws <code>std::bad_cast</code>. Compiled: the Derived object passed, the Other object gave null and, as a reference, <code>bad_cast</code>.</li>
+<li>It needs a <b>polymorphic</b> base: at least one <code>virtual</code> function. That is how the object carries its real type (<a href="02-oop.html">see the vtable</a>).</li>
+<li>It costs a lookup at run time. <code>typeid(*p) == typeid(Derived)</code> asks for an exact match instead.</li>
+<li>A chain of <code>if (dynamic_cast&lt;A*&gt;...) else if (dynamic_cast&lt;B*&gt;...)</code> usually means a virtual function is missing.</li>
+</ul>
+</section>
+
+<section id="constcast" data-title="const_cast, reinterpret_cast and bit_cast">
+<h2><code>const_cast</code>, <code>reinterpret_cast</code> and <code>bit_cast</code></h2>
+<h3><code>const_cast</code>: only for old APIs</h3>
+<script type="text/x-cpp">
+void legacy(char* s);                        // an old C API: takes char* but only reads
+const char* msg = "hello";
+legacy(const_cast<char*>(msg));              // ok: legacy never writes through it
+</script>
+<p>It removes <code>const</code> from the <b>type</b>, not from the object. Writing through the result is only defined if the object was not <code>const</code> to begin with; writing to a truly <code>const</code> object (a string literal, a <code>const int</code>) is undefined behavior.</p>
+<h3><code>reinterpret_cast</code>: look at the bytes</h3>
+<figure class="fig"><svg viewBox="0 0 640 130" role="img" aria-label="An int 0x01020304 seen as four bytes: the first byte is 04 on a little endian machine"><text class="t" x="10" y="20">int x = 0x01020304;   read it as bytes:</text><g class="mono"><rect class="cell" x="40" y="34" width="80" height="36"/><text x="80" y="58" text-anchor="middle">04</text><rect class="cell" x="120" y="34" width="80" height="36"/><text x="160" y="58" text-anchor="middle">03</text><rect class="cell" x="200" y="34" width="80" height="36"/><text x="240" y="58" text-anchor="middle">02</text><rect class="cell" x="280" y="34" width="80" height="36"/><text x="320" y="58" text-anchor="middle">01</text></g><text class="addr" x="40" y="88">bytes[0]</text><text class="addr" x="120" y="88">bytes[1]</text><text class="addr" x="200" y="88">bytes[2]</text><text class="addr" x="280" y="88">bytes[3]</text><text class="m" x="10" y="116">On a little-endian machine the lowest byte comes first. Compiled: bytes[0] was 4.</text></svg><figcaption>reinterpret_cast does not convert anything; it reads the same memory as another type.</figcaption></figure>
+<script type="text/x-cpp">
+int x = 0x01020304;
+auto* bytes = reinterpret_cast<const unsigned char*>(&x);   // allowed: any object may be read as bytes
+bytes[0];                                                   // 4 on a little-endian machine
+
+auto addr = reinterpret_cast<std::uintptr_t>(&x);           // pointer to integer and back is allowed
+</script>
+<p>Reading an object as <b>another</b> type through such a pointer (an <code>int</code> as a <code>float</code>, for example) breaks the aliasing rules and is undefined. To reinterpret the bits of a value safely:</p>
+<script type="text/x-cpp">
+float f = 1.0f;
+std::uint32_t u1;  std::memcpy(&u1, &f, sizeof u1);        // always correct
+auto u2 = std::bit_cast<std::uint32_t>(f);                 // C++20: the same, in one line
+// both give 0x3f800000
+</script>
+</section>
+
+<section id="choose" data-title="Which cast, if any?">
+<h2>Which cast, if any?</h2>
+<figure class="fig"><svg viewBox="0 0 640 210" role="img" aria-label="Decision chart: no cast needed if the compiler does it; static_cast for a plain conversion; dynamic_cast for an unsure downcast; const_cast for an old API; bit_cast or memcpy for the bits"><defs><marker id="k6" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path class="ah" d="M0 0L10 5L0 10z"/></marker></defs>
+<rect class="box" x="10" y="80" width="130" height="44" rx="6"/><text class="t" x="75" y="107" text-anchor="middle">what do you want?</text>
+<path class="ar" d="M140 94L190 24" marker-end="url(#k6)"/><path class="ar" d="M140 98L190 62" marker-end="url(#k6)"/><path class="ar" d="M140 102L190 102" marker-end="url(#k6)"/><path class="ar" d="M140 106L190 142" marker-end="url(#k6)"/><path class="ar" d="M140 110L190 180" marker-end="url(#k6)"/>
+<rect class="gd" x="192" y="8" width="440" height="32" rx="5"/><text x="202" y="29">an ordinary conversion: static_cast (or none at all)</text>
+<rect class="acc" x="192" y="46" width="440" height="32" rx="5"/><text x="202" y="67">a downcast you are not sure about: dynamic_cast</text>
+<rect class="wn" x="192" y="86" width="440" height="32" rx="5"/><text x="202" y="107">an old API wants a non-const pointer it will not write: const_cast</text>
+<rect class="wn" x="192" y="126" width="440" height="32" rx="5"/><text x="202" y="147">the bits of a value as another type: std::bit_cast or memcpy</text>
+<rect class="bd" x="192" y="164" width="440" height="32" rx="5"/><text x="202" y="185">raw bytes or an address as an integer: reinterpret_cast</text></svg><figcaption>Reach for them in this order; the lower the box, the rarer it should be.</figcaption></figure>
+<div class="callout tip"><span class="label">Rule</span>Many casts in one place mean a design problem: prefer virtual functions to <code>dynamic_cast</code> chains, templates to <code>void*</code>, and never write a C-style cast.</div>
+</section>
+
+<section id="cheat" data-title="Cheat sheet">
+<h2>Cheat sheet</h2>
+<p>Answer aloud, then open.</p>
+<details class="ex"><summary>When would you use <code>dynamic_cast</code>?</summary><div><p>For a checked downcast from a polymorphic base to a derived type when you cannot express the need through a virtual function. It returns null (pointers) or throws <code>bad_cast</code> (references) on failure. Frequent use suggests a design problem.</p></div></details>
+<details class="ex"><summary>The four named casts?</summary><div><p><code>static_cast</code> for well-defined conversions, <code>dynamic_cast</code> for checked downcasts, <code>const_cast</code> to add or remove <code>const</code> (modifying a truly const object is UB), <code>reinterpret_cast</code> to reinterpret bits (rarely correct). Never a C cast: it can silently pick any of them.</p></div></details>
+<details class="ex"><summary>What is wrong with <code>if (-1 &lt; 1u)</code>?</summary><div><p>The signed operand is converted to unsigned, becoming a huge value, so the comparison is false. Avoid mixing signed and unsigned; compile with <code>-Wsign-compare</code>.</p></div></details>
+<details class="ex"><summary>What does a C-style cast <code>(T)x</code> do?</summary><div><p>It tries <code>static_cast</code>, then <code>static_cast</code> plus <code>const_cast</code>, then <code>reinterpret_cast</code>, and uses the first that compiles. It can silently remove <code>const</code> or reinterpret bytes, and it never becomes <code>dynamic_cast</code>. Use the named casts so the intent is visible and searchable.</p></div></details>
+<details class="ex"><summary>What is narrowing, and how do braces help?</summary><div><p>A conversion that can lose information, such as double to int or a value that does not fit. With <code>=</code> it compiles silently; with braces the compiler must diagnose it, for example <code>int b{3.7}</code> is an error.</p></div></details>
+<details class="ex"><summary>How do you reinterpret the bits of a float as an integer safely?</summary><div><p>With <code>std::memcpy</code> or <code>std::bit_cast</code> (C++20). A <code>reinterpret_cast</code> of the pointer and a read through it as another type violates the aliasing rules.</p></div></details>
+<h3>Keep going</h3>
+<ul>
+<li>Before this lesson: <a href="16-types-and-casts.html">Types, Initialization and Constants</a>.</li>
+<li>Next: <a href="02-oop.html">Object-Oriented Programming</a>, where <code>dynamic_cast</code> and <code>explicit</code> matter.</li>
+</ul>
+</section>
+
+</main>
+
+<script src="assets/data/lessons.js"></script>
+<script src="assets/app.js"></script>
+<script>
+CT.stepper('#st-promo', {
+  title: 'Promotion and the signed/unsigned trap',
+  code: String.raw`
+unsigned char a = 200, b = 100;
+auto s = a + b;
+unsigned char t = a + b;
+bool lt = (-1 < 1u);
+`,
+  steps: [
+    { line: 1, mem: [{ n: 'a', t: 'unsigned char', v: '200' }, { n: 'b', t: 'unsigned char', v: '100' }],
+      note: 'Two one-byte variables.' },
+    { line: 2, mem: [{ n: 'a', t: 'unsigned char', v: '200' }, { n: 'b', t: 'unsigned char', v: '100' }, { n: 's', t: 'int', v: '300', p: 'a + b was done in int' }],
+      note: 'Types smaller than <code>int</code> are <b>promoted to <code>int</code></b> before arithmetic, so <code>a + b</code> is an <code>int</code> and nothing overflows: <b>300</b>.' },
+    { line: 3, mem: [{ n: 'a', t: 'unsigned char', v: '200' }, { n: 'b', t: 'unsigned char', v: '100' }, { n: 's', t: 'int', v: '300' }, { n: 't', t: 'unsigned char', v: '44', p: '300 mod 256' }],
+      note: 'Storing the <code>int</code> 300 back into a one-byte unsigned type <b>wraps</b>: 300 mod 256 = <b>44</b>. The promotion is silent and so is the truncation.' },
+    { line: 4, mem: [{ n: 'a', t: 'unsigned char', v: '200' }, { n: 'b', t: 'unsigned char', v: '100' }, { n: 's', t: 'int', v: '300' }, { n: 't', t: 'unsigned char', v: '44' }, { n: '-1 (as unsigned)', t: 'unsigned int', v: '4294967295', p: 'converted for the comparison' }, { n: 'lt', t: 'bool', v: 'false' }],
+      note: 'Comparing a signed with an unsigned value converts the <b>signed</b> one to unsigned: <code>-1</code> becomes 4294967295, which is not less than 1, so <code>lt</code> is <b>false</b>. This is what <code>-Wsign-compare</code> warns about.' }
+  ]
+});
+</script>
+</body>
+</html>

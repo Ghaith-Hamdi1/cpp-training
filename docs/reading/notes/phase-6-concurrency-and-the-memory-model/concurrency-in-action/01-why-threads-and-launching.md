@@ -60,4 +60,4 @@ What surprised me when I ran it:
 
 ## After this session
 
-Lesson 17, sections "Why threads" and "Your first thread"
+Lesson 19, sections "Why threads" and "Your first thread"

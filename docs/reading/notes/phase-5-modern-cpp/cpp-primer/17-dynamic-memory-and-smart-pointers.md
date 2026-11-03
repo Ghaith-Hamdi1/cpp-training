@@ -66,4 +66,4 @@ What I got wrong when I compared it with the book:
 
 ## After this session
 
-Lesson 15 (Smart Pointers and Ownership) and its quiz
+Lesson 17 (Smart Pointers and Ownership) and its quiz

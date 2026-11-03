@@ -54,4 +54,4 @@ What surprised me when I ran it:
 
 ## After this session
 
-Lesson 18, "Thread pools and producer/consumer" and "Work stealing and sizing a pool"
+Lesson 20, "Thread pools and producer/consumer" and "Work stealing and sizing a pool"

@@ -62,4 +62,4 @@ What I got wrong when I compared it with the book:
 
 ## After this session
 
-Lesson 6 (Strings, Regex and Time), sections 4 and 5
+Lesson 8 (Strings, Regex and Time), sections 4 and 5

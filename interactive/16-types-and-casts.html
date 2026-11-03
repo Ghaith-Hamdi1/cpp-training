@@ -3,17 +3,22 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Types, Initialization and Casts</title>
+<title>Types, Initialization and Constants</title>
 <script>try{var t=JSON.parse(localStorage.getItem('cpptrain:theme'));if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
 <link rel="stylesheet" href="assets/style.css">
 </head>
 <body data-topic="types" data-kind="lesson">
 <main>
-<h1>Types, Initialization and Casts</h1>
-<p class="lead">Initialization forms and brace traps, <code>auto</code> and <code>decltype</code>, implicit conversions, <code>enum class</code>, the four named casts, <code>const</code>/<code>constexpr</code>/<code>static</code> and what C++14 to 20 added.</p>
+<h1>Types, Initialization and Constants</h1>
+<p class="lead">Initialization forms and brace traps, <code>auto</code> and <code>decltype</code>, <code>const</code>, <code>constexpr</code> and <code>static</code>, and what C++14 to 20 added. <a href="25-casts.html">Casts and Type Conversions</a> is the next lesson.</p>
 
 <section id="init" data-title="Initialization and brace traps">
 <h2>Initialization and brace traps</h2>
+<p>Every variable should start with a value. C++ has several syntaxes for it, and they differ in what they leave behind and in what they refuse to convert.</p>
+<figure class="fig"><svg viewBox="0 0 640 150" role="img" aria-label="Three variables: an uninitialized int holds leftover bytes, a value-initialized int holds zero, a copy-initialized int holds 5"><text class="t" x="10" y="20">int a;</text><rect class="bd" x="10" y="30" width="170" height="36" rx="5"/><text class="mono" x="95" y="53" text-anchor="middle">?  leftover bytes</text><text class="m" x="10" y="88">indeterminate: reading it is undefined</text>
+<text class="t" x="230" y="20">int b{};</text><rect class="gd" x="230" y="30" width="170" height="36" rx="5"/><text class="mono" x="315" y="53" text-anchor="middle">0</text><text class="m" x="230" y="88">value-initialized: zero</text>
+<text class="t" x="450" y="20">int c{5};</text><rect class="gd" x="450" y="30" width="170" height="36" rx="5"/><text class="mono" x="535" y="53" text-anchor="middle">5</text><text class="m" x="450" y="88">list-initialized: 5</text>
+<text class="m" x="10" y="130">Without an initializer a local int is not zero. Always give it a value.</text></svg><figcaption>The first line is the only one that leaves the variable undefined.</figcaption></figure>
 <script type="text/x-cpp">
 int a;            // default-initialized: INDETERMINATE value, never read it
 int b{};          // value-initialized: zero
@@ -46,12 +51,20 @@ If a class has an <code>initializer_list</code> constructor, <code>{...}</code> 
 <ul>
 <li>2.2 Variables (PDF pages 70 to 78)</li>
 </ul>
+<p><b>Programming: Principles and Practice (Stroustrup)</b></p>
+<ul>
+<li>8.4 to 8.6 Evolving a class (Date), enumerations, operator overloading (PDF pages 238 to 249)</li>
+</ul>
 </div>
 <!-- read-more:end -->
 </section>
 
 <section id="deduction" data-title="auto, decltype and modern syntax">
 <h2><code>auto</code>, <code>decltype</code> and modern syntax</h2>
+<p><code>auto</code> lets the compiler write the type from the initializer, and <code>decltype</code> asks for the exact type of an expression. They agree less often than you would expect.</p>
+<figure class="fig"><svg viewBox="0 0 640 150" role="img" aria-label="For a const int reference r: auto deduces plain int and copies, decltype keeps const int reference"><text class="t" x="10" y="20">const int&amp; r = x;</text>
+<rect class="box" x="10" y="32" width="130" height="34" rx="5"/><text class="mono" x="75" y="54" text-anchor="middle">auto a = r;</text><path class="ar" d="M140 49H220"/><path class="ah" d="M230 49l-10-5v10z"/><rect class="wn" x="232" y="32" width="150" height="34" rx="5"/><text class="mono" x="307" y="54" text-anchor="middle">int  (a copy)</text><text class="m" x="400" y="54">const and the reference are dropped</text>
+<rect class="box" x="10" y="84" width="170" height="34" rx="5"/><text class="mono" x="95" y="106" text-anchor="middle">decltype(r) b = x;</text><path class="ar" d="M180 101H220"/><path class="ah" d="M230 101l-10-5v10z"/><rect class="gd" x="232" y="84" width="150" height="34" rx="5"/><text class="mono" x="307" y="106" text-anchor="middle">const int&amp;</text><text class="m" x="400" y="106">the exact declared type</text></svg><figcaption>auto copies by default; decltype keeps everything.</figcaption></figure>
 <script type="text/x-cpp">
 int x = 0;
 const int& r = x;
@@ -89,76 +102,6 @@ auto t = {1, 2, 3};       // std::initializer_list<int>, NOT a vector
 <ul>
 <li>Item 2, Understand auto type deduction (PDF pages 36 to 41)</li>
 <li>Item 5, Prefer auto to explicit type declarations (PDF pages 55 to 61)</li>
-</ul>
-</div>
-<!-- read-more:end -->
-</section>
-
-<section id="conversions" data-title="Implicit conversions and enum class">
-<h2>Implicit conversions and <code>enum class</code></h2>
-<p>The compiler converts silently between arithmetic types. Compiled results of the classic surprises:</p>
-<table>
-<tr><th>Expression</th><th>Result</th><th>Why</th></tr>
-<tr><td><code>-1 &lt; 1u</code></td><td><b>false</b></td><td>the signed value is converted to unsigned and becomes huge</td></tr>
-<tr><td><code>uint8_t(200) + uint8_t(100)</code></td><td>300, stored back as 44</td><td>small types are promoted to <code>int</code> before arithmetic; storing back wraps</td></tr>
-<tr><td><code>7 / 2</code></td><td>3</td><td>integer division; <code>7 / 2.0</code> is 3.5</td></tr>
-<tr><td><code>static_cast&lt;int&gt;(-3.9)</code></td><td>-3</td><td>conversion to an integer truncates toward zero</td></tr>
-<tr><td><code>char</code> 0xFF widened to <code>int</code></td><td>-1 (signed <code>char</code>)</td><td>whether plain <code>char</code> is signed is implementation-defined</td></tr>
-</table>
-<div id="st-promo"></div>
-<ul>
-<li><b>Usual arithmetic conversions:</b> smaller than <code>int</code> becomes <code>int</code>; mixing signed and unsigned of the same rank converts to unsigned; <code>int</code> with <code>double</code> becomes <code>double</code>.</li>
-<li><b>Never compare signed with unsigned</b> (<code>-Wsign-compare</code>); use <code>std::ssize</code> or cast deliberately.</li>
-<li>Single-argument constructors are implicit conversions: mark them <code>explicit</code> (<a href="02-oop.html">OOP lesson</a>).</li>
-</ul>
-<script type="text/x-cpp">
-enum Color { Red, Green };               // plain enum: leaks names into the scope, converts to int silently
-int n = Green;                           // compiles
-
-enum class Level { Info = 1, Error = 2 };// scoped: Level::Error, no implicit conversion
-int m = static_cast<int>(Level::Error);  // an explicit cast is required (compiled: 2)
-</script>
-<p>Prefer <code>enum class</code>, with an explicit underlying type when the size matters: <code>enum class Side : std::uint8_t { Buy, Sell };</code></p>
-<!-- read-more:start -->
-<div class="callout tip"><span class="label">Read more</span>
-<p><b>C++ Primer (Lippman, Lajoie, Moo)</b></p>
-<ul>
-<li>2.1 Primitive built-in types (PDF pages 61 to 69)</li>
-<li>4.11 Type conversions (PDF pages 188 to 194)</li>
-<li>19.3 Enumerations (PDF pages 861 to 863)</li>
-</ul>
-<p><b>Programming: Principles and Practice (Stroustrup)</b></p>
-<ul>
-<li>8.4 to 8.6 Evolving a class (Date), enumerations, operator overloading (PDF pages 238 to 249)</li>
-</ul>
-</div>
-<!-- read-more:end -->
-</section>
-
-<section id="casts" data-title="Casts and type conversion">
-<h2>Casts and type conversion</h2>
-<p>Four named casts replace the C cast <code>(T)x</code>: each states intent and is searchable.</p>
-<table>
-<tr><th>Cast</th><th>Use for</th><th>Danger</th></tr>
-<tr><td><code>static_cast&lt;T&gt;(x)</code></td><td>well-defined conversions: <code>int</code> to <code>double</code>, base to derived pointer when you are sure</td><td>low</td></tr>
-<tr><td><code>dynamic_cast&lt;T&gt;(x)</code></td><td>checked downcast in a polymorphic hierarchy. Returns <code>nullptr</code> (pointer) or throws <code>std::bad_cast</code> (reference) on failure</td><td>runtime cost; base needs a virtual function</td></tr>
-<tr><td><code>const_cast&lt;T&gt;(x)</code></td><td>add or remove <code>const</code> (legacy APIs)</td><td>modifying a truly const object is UB</td></tr>
-<tr><td><code>reinterpret_cast&lt;T&gt;(x)</code></td><td>reinterpret raw bits (pointer to integer, unrelated pointer types)</td><td>very high, rarely correct</td></tr>
-</table>
-<script type="text/x-cpp">
-double avg = static_cast<double>(total) / count;       // avoids integer division
-
-Animal* a = getAnimal();
-if (auto* d = dynamic_cast<Dog*>(a)) {                 // safe downcast: null if it is not a Dog
-    d->fetch();
-}
-</script>
-<div class="callout tip"><span class="label">Rule</span>Many casts mean a design problem. Prefer virtual functions to <code>dynamic_cast</code> chains; no C casts.</div>
-<!-- read-more:start -->
-<div class="callout tip"><span class="label">Read more</span>
-<p><b>C++ Primer (Lippman, Lajoie, Moo)</b></p>
-<ul>
-<li>4.11 Type conversions (PDF pages 188 to 194)</li>
 </ul>
 </div>
 <!-- read-more:end -->
@@ -232,12 +175,8 @@ extern "C" {                                                    // a whole heade
 <section id="cheat" data-title="Cheat sheet">
 <h2>Cheat sheet</h2>
 <p>Answer aloud, then open.</p>
-<details class="ex"><summary>When would you use <code>dynamic_cast</code>?</summary><div><p>For a checked downcast from a polymorphic base to a derived type when you cannot express the need through a virtual function. It returns null (pointers) or throws <code>bad_cast</code> (references) on failure. Frequent use suggests a design problem.</p></div></details>
-<details class="ex"><summary>The four named casts?</summary><div><p><code>static_cast</code> for well-defined conversions, <code>dynamic_cast</code> for checked downcasts, <code>const_cast</code> to add or remove <code>const</code> (modifying a truly const object is UB), <code>reinterpret_cast</code> to reinterpret bits (rarely correct). Never a C cast: it can silently pick any of them.</p></div></details>
 <details class="ex"><summary>Difference between <code>const</code> and <code>constexpr</code>?</summary><div><p><code>const</code> means read-only after initialization (the value may be determined at runtime). <code>constexpr</code> means the value or function can be evaluated at compile time and used in constant expressions.</p></div></details>
 <details class="ex"><summary>What does <code>auto</code> deduce, and what are its traps?</summary><div><p>The type of the initializer with top-level <code>const</code> and references dropped. <code>auto x = {1,2,3}</code> is an <code>initializer_list</code>. <code>auto y = v[0]</code> copies; use <code>const auto&amp;</code>. <code>decltype(expr)</code> keeps the exact type.</p></div></details>
-<details class="ex"><summary>What is wrong with <code>if (-1 &lt; 1u)</code>?</summary><div><p>The signed operand is converted to unsigned, becoming a huge value, so the comparison is false. Avoid mixing signed and unsigned; compile with <code>-Wsign-compare</code>.</p></div></details>
-<details class="ex"><summary>Why prefer <code>enum class</code>?</summary><div><p>Its names are scoped (<code>Level::Error</code>) so they do not pollute the enclosing scope, and it does not convert implicitly to an integer. You can also fix its underlying type.</p></div></details>
 <details class="ex"><summary><code>std::vector&lt;int&gt; v{3, 7}</code> versus <code>v(3, 7)</code>?</summary><div><p>Braces prefer the <code>initializer_list</code> constructor: two elements, 3 and 7. Parentheses call the (count, value) constructor: three elements, each 7.</p></div></details>
 <details class="ex"><summary>What are the three meanings of <code>static</code>?</summary><div><p>A local variable that lives for the whole program and keeps its value between calls; internal linkage for a global (visible only in this <code>.cpp</code>); a class member shared by all objects.</p></div></details>
 <details class="ex"><summary>Which C++17 features do you use?</summary><div><p><code>std::optional</code>, <code>std::variant</code>, <code>std::string_view</code>, structured bindings, <code>if constexpr</code>, <code>if</code> with initializer, fold expressions and <code>[[nodiscard]]</code>: vocabulary types and clearer code.</p></div></details>
@@ -248,25 +187,6 @@ extern "C" {                                                    // a whole heade
 <script src="assets/data/lessons.js"></script>
 <script src="assets/app.js"></script>
 <script>
-CT.stepper('#st-promo', {
-  title: 'Promotion and the signed/unsigned trap',
-  code: String.raw`
-unsigned char a = 200, b = 100;
-auto s = a + b;
-unsigned char t = a + b;
-bool lt = (-1 < 1u);
-`,
-  steps: [
-    { line: 1, mem: [{ n: 'a', t: 'unsigned char', v: '200' }, { n: 'b', t: 'unsigned char', v: '100' }],
-      note: 'Two one-byte variables.' },
-    { line: 2, mem: [{ n: 'a', t: 'unsigned char', v: '200' }, { n: 'b', t: 'unsigned char', v: '100' }, { n: 's', t: 'int', v: '300', p: 'a + b was done in int' }],
-      note: 'Types smaller than <code>int</code> are <b>promoted to <code>int</code></b> before arithmetic, so <code>a + b</code> is an <code>int</code> and nothing overflows: <b>300</b>.' },
-    { line: 3, mem: [{ n: 'a', t: 'unsigned char', v: '200' }, { n: 'b', t: 'unsigned char', v: '100' }, { n: 's', t: 'int', v: '300' }, { n: 't', t: 'unsigned char', v: '44', p: '300 mod 256' }],
-      note: 'Storing the <code>int</code> 300 back into a one-byte unsigned type <b>wraps</b>: 300 mod 256 = <b>44</b>. The promotion is silent and so is the truncation.' },
-    { line: 4, mem: [{ n: 'a', t: 'unsigned char', v: '200' }, { n: 'b', t: 'unsigned char', v: '100' }, { n: 's', t: 'int', v: '300' }, { n: 't', t: 'unsigned char', v: '44' }, { n: '-1 (as unsigned)', t: 'unsigned int', v: '4294967295', p: 'converted for the comparison' }, { n: 'lt', t: 'bool', v: 'false' }],
-      note: 'Comparing a signed with an unsigned value converts the <b>signed</b> one to unsigned: <code>-1</code> becomes 4294967295, which is not less than 1, so <code>lt</code> is <b>false</b>. This is what <code>-Wsign-compare</code> warns about.' }
-  ]
-});
 </script>
 </body>
 </html>

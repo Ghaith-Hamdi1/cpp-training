@@ -35,7 +35,7 @@ Read 1.1 What is concurrency (25 to 30), 1.2.3 When not to use concurrency (32 t
 2. Why must a `std::thread` be joined or detached on every path, including when an exception is thrown?
 3. Why does `std::thread t(f, 3, buffer)` with a `char` array dangle?
 
-After: Lesson 17, sections "Why threads" and "Your first thread".
+After: Lesson 19, sections "Why threads" and "Your first thread".
 
 ## Session 2: sharing data and mutexes
 
@@ -45,7 +45,7 @@ Read 3.1 Problems with sharing data (60 to 63) and 3.2.1 to 3.2.3 Mutexes, struc
 2. Why is a mutex in every member function not enough?
 3. Why does `std::stack` split `top()` and `pop()`?
 
-After: Lesson 17, "Shared data and data races", "Mutexes" and "Races hidden in interfaces".
+After: Lesson 19, "Shared data and data races", "Mutexes" and "Races hidden in interfaces".
 
 ## Session 3: deadlock and locking
 
@@ -55,7 +55,7 @@ Read 3.2.4 to 3.2.5 Deadlock (74 to 82), 3.2.6 to 3.2.8 `unique_lock`, transferr
 2. When do you need `unique_lock` instead of `lock_guard`?
 3. How does `call_once` differ from a hand-written double-checked lock?
 
-After: Lesson 17, "Deadlock" and "Other mutex types and call_once".
+After: Lesson 19, "Deadlock" and "Other mutex types and call_once".
 
 ## Session 4: waiting for events and results
 
@@ -65,7 +65,7 @@ Read 4.1 Condition variables and a thread-safe queue (96 to 104) and 4.2.1 to 4.
 2. What is the difference between a `promise`, a `packaged_task` and `async`?
 3. How does an exception thrown in a task reach the caller?
 
-After: Lesson 17, "Condition variables"; Lesson 18, "Futures and async" and "promise, shared_future and packaged_task".
+After: Lesson 19, "Condition variables"; Lesson 20, "Futures and async" and "promise, shared_future and packaged_task".
 
 ## Session 5: how many threads, and a thread pool
 
@@ -74,7 +74,7 @@ Read 2.4 Choosing the number of threads at runtime (54 to 57) and 9.1.1 The simp
 1. Why does adding threads beyond the core count slow CPU-bound work down?
 2. In the simple pool, why must the task run outside the lock?
 
-After: Lesson 18, "Thread pools and producer/consumer" and "Work stealing and sizing a pool".
+After: Lesson 20, "Thread pools and producer/consumer" and "Work stealing and sizing a pool".
 
 ## Session 6: the memory model and data structures
 
@@ -84,7 +84,7 @@ Read 5.1 Memory model basics (148 to 151), the 5.3 overview of synchronizing ope
 2. What does a release store together with an acquire load guarantee?
 3. How does the queue with a condition variable avoid the `top()` / `pop()` race?
 
-After: Lesson 19 (Atomics), "Memory orders and happens-before" and "Thread-safe data structures".
+After: Lesson 21 (Atomics), "Memory orders and happens-before" and "Thread-safe data structures".
 
 ## Session 7: performance and bugs
 
@@ -93,7 +93,7 @@ Read 8.2 Factors affecting the performance of concurrent code (283 to 289) and 1
 1. What are cache ping-pong and false sharing, and how do you avoid them?
 2. Which bugs does ThreadSanitizer find, and which does it miss?
 
-After: Lesson 17, "Debugging and common bugs".
+After: Lesson 19, "Debugging and common bugs".
 
 ## Skip
 

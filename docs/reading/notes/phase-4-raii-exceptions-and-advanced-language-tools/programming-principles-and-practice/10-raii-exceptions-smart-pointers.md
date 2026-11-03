@@ -57,4 +57,4 @@ What I got wrong when I compared it with the book:
 
 ## After this session
 
-Lesson 11 (RAII) and lesson 15 (Smart Pointers and Ownership)
+Lesson 13 (RAII) and lesson 17 (Smart Pointers and Ownership)

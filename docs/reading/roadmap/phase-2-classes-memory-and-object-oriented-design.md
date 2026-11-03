@@ -4,7 +4,7 @@
 
 *Class design, copy control, operator overloading, inheritance, virtual functions, the object model.*
 
-**Time:** about **24.5 hours** (22.0 h reading, 1.7 h lessons and quizzes, 0.8 h exercises), plus 8.4 h if you also read the deepen list.
+**Time:** about **25.3 hours** (22.0 h reading, 2.4 h lessons and quizzes, 0.8 h exercises), plus 8.4 h if you also read the deepen list.
 
 ## Big topics
 
@@ -42,8 +42,9 @@
 
 | Lesson | Time |
 |---|---|
-| [4. Object-Oriented Programming](https://ghaith-hamdi1.github.io/cpp-training/02-oop.html) and its [quiz](https://ghaith-hamdi1.github.io/cpp-training/02-oop-quiz.html) | 60 min |
-| [5. The Object Model in Depth](https://ghaith-hamdi1.github.io/cpp-training/19-object-model.html) and its [quiz](https://ghaith-hamdi1.github.io/cpp-training/19-object-model-quiz.html) | 40 min |
+| [5. Classes and Objects](https://ghaith-hamdi1.github.io/cpp-training/02-oop.html) and its [quiz](https://ghaith-hamdi1.github.io/cpp-training/02-oop-quiz.html) | 40 min |
+| [6. Copy Control and Operators](https://ghaith-hamdi1.github.io/cpp-training/26-copying.html) and its [quiz](https://ghaith-hamdi1.github.io/cpp-training/26-copying-quiz.html) | 45 min |
+| [7. Inheritance, Virtual Functions and the Object Model](https://ghaith-hamdi1.github.io/cpp-training/27-inherit.html) and its [quiz](https://ghaith-hamdi1.github.io/cpp-training/27-inherit-quiz.html) | 60 min |
 
 Exercises: 10 (`MyString`) and 11 (Shapes).
 

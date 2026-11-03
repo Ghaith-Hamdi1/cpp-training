@@ -1,4 +1,4 @@
-// Lesson 17: check-then-act race fixed by a whole-operation interface (try_pop), and deadlock avoidance:
+// Lesson 19: check-then-act race fixed by a whole-operation interface (try_pop), and deadlock avoidance:
 // scoped_lock with opposite lock order.
 #include <iostream>
 #include <mutex>

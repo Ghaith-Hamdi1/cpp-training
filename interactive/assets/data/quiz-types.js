@@ -2,14 +2,6 @@
 CT.quizData.types = {
   id: 'types',
   questions: [
-    { sec: 'casts', q: 'What does `dynamic_cast<Dog*>(animalPtr)` return when the object is not a Dog?',
-      opts: ['The same pointer', 'nullptr', 'It throws std::bad_cast', 'Undefined behavior'], a: 1,
-      why: 'The pointer form returns null on failure; the reference form throws `std::bad_cast`. It requires the base class to be polymorphic (have a virtual function).' },
-
-    { sec: 'casts', q: 'Which cast is the most dangerous and rarely correct?',
-      opts: ['static_cast', 'dynamic_cast', 'reinterpret_cast', 'They are equally safe'], a: 2,
-      why: '`reinterpret_cast` reinterprets raw bits between unrelated types and bypasses the type system. Prefer `static_cast`, and avoid C-style casts, which can silently act as any of them.' },
-
     { sec: 'deduction', q: 'What does `auto x = {1, 2, 3};` deduce?',
       opts: ['std::vector<int>, because braces build a vector', 'int[3], a built-in array of three ints', 'std::initializer_list<int>, not a vector', 'A compile error, since auto cannot take a braced list'], a: 2,
       why: 'A braced list with `auto =` deduces `std::initializer_list`. It is a famous gotcha: write the type explicitly if you want a vector.' },
@@ -46,24 +38,20 @@ CT.quizData.types = {
       opts: ['`int` and `const int`', 'both `const int`', 'both `int`', '`const int` and `int`'], a: 0,
       why: '`auto` drops top-level `const` and references; `decltype` reports the declared type exactly.' },
 
-    { sec: 'conversions', q: 'What is the value of `-1 < 1u`?',
-      opts: ['`true`', '`false`', 'Compile error', 'Undefined'], a: 1,
-      why: 'The signed -1 is converted to unsigned, becoming a huge number, so the comparison is false. This is why `-Wsign-compare` exists.' },
-
-    { sec: 'conversions', q: 'For `std::uint8_t a = 200, b = 100;`, what is the type and value of `a + b`?',
-      opts: ['`uint8_t`, 44', '`int`, 300', '`uint8_t`, runtime error', '`unsigned`, 300'], a: 1,
-      why: 'Types smaller than `int` are promoted to `int` before arithmetic, so the sum is 300. Only storing it back into a `uint8_t` wraps it to 44.' },
-
-    { sec: 'conversions', q: 'Why does `int m = Level::Error;` fail when `Level` is an `enum class`?',
-      opts: ['Scoped enums have no underlying integer value, only names', 'A scoped enum does not convert implicitly; use static_cast<int>', 'Error is a reserved word, so it cannot be used as an enum member', 'Enums can never be assigned to an int variable in C++'], a: 1,
-      why: 'That is a feature of `enum class`: no silent conversion to integers and no names leaking into the enclosing scope.' },
-
-    { sec: 'casts', q: 'What is `static_cast<int>(-3.9)`?',
-      opts: ['-4', '-3', '-3.9', '4'], a: 1,
-      why: 'Converting a floating-point value to an integer truncates toward zero.' },
-
     { sec: 'standards', q: 'Which of these needs C++20?',
       opts: ['`std::optional`', 'Structured bindings', 'Concepts', '`std::string_view`'], a: 2,
-      why: '`optional`, structured bindings and `string_view` arrived in C++17. Concepts, ranges, `std::span`, coroutines and `operator<=>` are C++20.' }
+      why: '`optional`, structured bindings and `string_view` arrived in C++17. Concepts, ranges, `std::span`, coroutines and `operator<=>` are C++20.' },
+
+    { sec: 'init', q: 'Which declaration leaves a local variable with an undefined value?',
+      opts: ['int a{};', 'int a = 0;', 'int a;', 'int a{0};'], a: 2,
+      why: 'A local variable of a built-in type with no initializer is not set to zero: its value is indeterminate, and reading it is undefined behavior. The other three give it a value.' },
+
+    { sec: 'deduction', q: 'Given `const int& r = x;`, what is the type of `auto a = r;`?',
+      opts: ['const int&', 'const int', 'int&', 'int'], a: 3,
+      why: '`auto` drops top-level const and references, so `a` is a plain `int` holding a copy. Write `const auto&` to keep a reference.' },
+
+    { sec: 'const', q: 'Which line is a compile-time constant that can be used as an array size?',
+      opts: ['const int n = std::rand();', 'int n = 4;', 'constexpr int n = 4;', 'static int n = std::rand();'], a: 2,
+      why: '`constexpr` requires a value the compiler can compute. A `const` initialized at run time, or a plain variable, cannot size an array.' }
   ]
 };

@@ -4,7 +4,7 @@
 
 *Types, expressions, control flow, functions, pointers, references, strings and vectors.*
 
-**Time:** about **23.4 hours** (19.0 h reading, 2.2 h lessons and quizzes, 2.3 h exercises), plus 8.6 h if you also read the deepen list.
+**Time:** about **24.0 hours** (19.0 h reading, 2.8 h lessons and quizzes, 2.3 h exercises), plus 8.6 h if you also read the deepen list.
 
 ## Big topics
 
@@ -44,7 +44,8 @@
 |---|---|
 | [1. C++ Basics](https://ghaith-hamdi1.github.io/cpp-training/01-basics.html) and its [quiz](https://ghaith-hamdi1.github.io/cpp-training/01-basics-quiz.html) | 40 min |
 | [2. Pointers and References](https://ghaith-hamdi1.github.io/cpp-training/22-pointers.html) and its [quiz](https://ghaith-hamdi1.github.io/cpp-training/22-pointers-quiz.html) | 50 min |
-| [3. Types, Initialization & Casts](https://ghaith-hamdi1.github.io/cpp-training/16-types-and-casts.html) and its [quiz](https://ghaith-hamdi1.github.io/cpp-training/16-types-and-casts-quiz.html) | 40 min |
+| [3. Types, Initialization & Constants](https://ghaith-hamdi1.github.io/cpp-training/16-types-and-casts.html) and its [quiz](https://ghaith-hamdi1.github.io/cpp-training/16-types-and-casts-quiz.html) | 30 min |
+| [4. Casts and Type Conversions](https://ghaith-hamdi1.github.io/cpp-training/25-casts.html) and its [quiz](https://ghaith-hamdi1.github.io/cpp-training/25-casts-quiz.html) | 45 min |
 
 Exercises: 01 to 09 (C strings, pointers, `trim`, `parseUnsigned`).
 

@@ -23,7 +23,7 @@ const norm = (s) => s.replace(/\([^)]*\)/g, ' ').replace(/<[^>]+>/g, '').toLower
 
 /* rows the guides do not carry: lesson id -> [{ book, label, pages, deepens }] */
 const EXTRA = {
-  objmodel: [
+  inherit: [
     { book: 'ppp', label: '12.3 Base and derived classes (object layout, the vptr and vtbl, overriding)', pages: '380 to 387', deepens: ['Multiple inheritance and object layout'] },
     { book: 'ppp', label: '15.5 Destructors, including 15.5.2 Virtual destructors', pages: '460 to 463', deepens: ['The diamond problem and virtual inheritance'] }
   ],
