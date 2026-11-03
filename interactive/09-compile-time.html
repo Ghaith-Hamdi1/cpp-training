@@ -3,16 +3,16 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Type Traits and Compile-time C++</title>
+<title>Type Traits, Concepts and Compile-time C++</title>
 <script>try{var t=JSON.parse(localStorage.getItem('cpptrain:theme'));if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
 <link rel="stylesheet" href="assets/style.css">
 </head>
 <body data-topic="compiletime" data-kind="lesson">
 <main>
-<h1>Type Traits and Compile-time C++</h1>
-<p class="lead">Ask questions about types and compute values while compiling: <code>&lt;type_traits&gt;</code>, <code>enable_if</code>, <code>if constexpr</code>, <code>constexpr</code> and template metaprogramming.</p>
+<h1>Type Traits, Concepts and Compile-time C++</h1>
+<p class="lead">Ask questions about types and compute values while compiling: <code>&lt;type_traits&gt;</code>, <code>if constexpr</code>, <code>enable_if</code>, concepts, <code>constexpr</code> and template metaprogramming. Assumes <a href="30-classtemplates.html">Class Templates</a>.</p>
 
-<section data-title="Type traits">
+<section id="s1" data-title="Type traits">
 <h2>Type traits</h2>
 <p>A <b>type trait</b> answers a question about a type at compile time (<code>::value</code> / <code>_v</code>) or transforms one (<code>::type</code> / <code>_t</code>).</p>
 <script type="text/x-cpp">
@@ -39,11 +39,33 @@ T multiply(T a, T b) {
 <li>18.1.3 Concepts (PDF pages 531 to 533)</li>
 <li>19.4 and 21.1 Generalizing Vector again; standard algorithms (PDF pages 573 to 578 and 617 to 622)</li>
 </ul>
+<p><b>Effective Modern C++ (Meyers)</b></p>
+<ul>
+<li>Items 26 to 27, and 30 Overloading on universal references; perfect forwarding failure cases (PDF pages 195 to 215 and 225 to 232)</li>
+</ul>
+<p><b>C++ Move Semantics (Josuttis)</b></p>
+<ul>
+<li>Chapter 12 Perfect returning with decltype(auto) (PDF pages 203 to 210)</li>
+</ul>
 </div>
 <!-- read-more:end -->
 </section>
 
-<section data-title="enable_if and SFINAE">
+<section id="ifconstexpr" data-title="Type traits and if constexpr">
+<h2>Type traits and <code>if constexpr</code></h2>
+<figure class="fig"><svg viewBox="0 0 640 130" role="img" aria-label="if constexpr keeps only the branch that matches T and discards the others"><defs><marker id="f3" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path class="ah" d="M0 0L10 5L0 10z"/></marker></defs><rect class="acc" x="10" y="45" width="110" height="40" rx="8"/><text class="t" x="65" y="70" text-anchor="middle">describe&lt;int&gt;</text><path class="ar" d="M120 58L218 28" marker-end="url(#f3)"/><rect class="gd" x="220" y="10" width="250" height="32" rx="6"/><text x="345" y="31" text-anchor="middle">is_integral: compiled and kept</text><path class="ln" d="M120 65H218" stroke-dasharray="5 4"/><rect class="box" x="220" y="49" width="250" height="32" rx="6" stroke-dasharray="5 4"/><text class="m" x="345" y="70" text-anchor="middle">is_floating_point: discarded</text><path class="ln" d="M120 75L218 108" stroke-dasharray="5 4"/><rect class="box" x="220" y="88" width="250" height="32" rx="6" stroke-dasharray="5 4"/><text class="m" x="345" y="109" text-anchor="middle">else: discarded</text><text class="m" x="484" y="60">not even compiled, so</text><text class="m" x="484" y="76">they may use code that</text><text class="m" x="484" y="92">is invalid for T</text></svg><figcaption>A normal if would fail to compile as soon as one branch is invalid for T.</figcaption></figure>
+<p>A template often needs to ask about its type. <code>&lt;type_traits&gt;</code> answers at compile time (<code>std::is_integral_v&lt;T&gt;</code>), and <code>if constexpr</code> (C++17) keeps only the matching branch:</p>
+<script type="text/x-cpp">
+template <typename T>
+std::string describe(const T& v) {
+    if constexpr (std::is_integral_v<T>)            return "integer "   + std::to_string(v);
+    else if constexpr (std::is_floating_point_v<T>) return "float "     + std::to_string(v);
+    else                                            return "something else";
+}
+</script>
+</section>
+
+<section id="s2" data-title="enable_if and SFINAE">
 <h2><code>enable_if</code> and SFINAE</h2>
 <p><b>SFINAE</b>: an invalid substitution drops that overload instead of erroring. <code>std::enable_if</code> uses it to switch overloads by a condition.</p>
 <script type="text/x-cpp">
@@ -77,7 +99,7 @@ T twice(T v) { return v * 2; }
 <div class="callout tip"><span class="label">Read more</span>
 <p><b>Effective Modern C++ (Meyers)</b></p>
 <ul>
-<li>Items 26 to 27, Overloading on universal references and its alternatives (tag dispatch, enable_if) (PDF pages 195 to 215)</li>
+<li>Items 26 to 27, and 30 Overloading on universal references; perfect forwarding failure cases (PDF pages 195 to 215 and 225 to 232)</li>
 </ul>
 </div>
 <!-- read-more:end -->

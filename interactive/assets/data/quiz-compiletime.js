@@ -85,6 +85,14 @@ twice(2.5);`,
 
     { sec: 'concepts', q: 'In `requires(T a, T b) { { a + b } -> std::convertible_to<T>; }`, what does the part in braces express?',
       opts: ['That a + b must compile and give a result convertible to T', 'That a and b must be equal for the expression to compile', 'That + must be commutative for all pairs of values', 'That T must be an integer type, not a class type'], a: 0,
-      why: 'A requires-expression lists operations that must be valid; `{ expr } -> Concept` also constrains the type of the result. It checks syntax and types only, not mathematical properties such as commutativity.' }
+      why: 'A requires-expression lists operations that must be valid; `{ expr } -> Concept` also constrains the type of the result. It checks syntax and types only, not mathematical properties such as commutativity.' },
+
+    { sec: 'ifconstexpr', q: 'What is special about `if constexpr`?',
+      opts: ['It evaluates its condition at run time, only a little faster than if', 'The condition is evaluated at compile time and the other branch is discarded', 'It can only be used outside of templates, in ordinary functions', 'It compiles and executes both branches in the order written'], a: 1,
+      why: 'That is what lets one template body use operations that are valid for some types only, with a different branch chosen for each instantiation.' },
+
+    { sec: 'ifconstexpr', q: 'What is the main advantage of C++20 concepts over `enable_if`?',
+      opts: ['They make the generated code run faster than enable_if code', 'They state requirements directly and give clear, early error messages', 'They remove the need for templates altogether in generic code', 'They are evaluated at run time, not at compile time'], a: 1,
+      why: '`template <std::integral T>` documents the constraint in the signature and produces "constraint not satisfied" instead of a wall of instantiation errors.' }
   ]
 };

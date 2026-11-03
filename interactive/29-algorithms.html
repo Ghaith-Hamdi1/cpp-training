@@ -1,0 +1,210 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Algorithms and Ranges</title>
+<script>try{var t=JSON.parse(localStorage.getItem('cpptrain:theme'));if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body data-topic="algorithms" data-kind="lesson">
+<main>
+<h1>Algorithms and Ranges</h1>
+<p class="lead">Prefer named algorithms to hand-written loops. sort, find and transform with lambdas, the erase-remove idiom, binary search, C++20 ranges and views, and the random library. Assumes <a href="28-iterators.html">Iterators</a>.</p>
+
+<section id="s7" data-title="Algorithms">
+<h2>Algorithms</h2>
+<p>Over a hundred generic functions in <code>&lt;algorithm&gt;</code>/<code>&lt;numeric&gt;</code>. Prefer them to loops: named, tested, often faster. Most take a lambda.</p>
+<figure class="fig"><svg viewBox="0 0 640 120" role="img" aria-label="An algorithm takes a range and a lambda and works through iterators only"><defs><marker id="aa" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path class="ah" d="M0 0L10 5L0 10z"/></marker><marker id="ab" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path class="ah2" d="M0 0L10 5L0 10z"/></marker></defs><rect class="acc" x="10" y="30" width="150" height="56" rx="8"/><text class="t" x="85" y="54" text-anchor="middle">range</text><text class="mono" x="85" y="74" text-anchor="middle">[first, last)</text><rect class="wn" x="245" y="30" width="150" height="56" rx="8"/><text class="t" x="320" y="54" text-anchor="middle">algorithm</text><text class="mono" x="320" y="74" text-anchor="middle">find_if, sort...</text><rect class="gd" x="480" y="30" width="150" height="56" rx="8"/><text class="t" x="555" y="54" text-anchor="middle">result</text><text class="m" x="555" y="74" text-anchor="middle">an iterator or a value</text><path class="ar" d="M160 58H243M395 58H478" marker-end="url(#aa)"/><rect class="box" x="255" y="96" width="130" height="20" rx="4"/><text class="mono" x="320" y="110" text-anchor="middle">[](int x){...}</text><path class="ar2" d="M320 96V88" marker-end="url(#ab)"/></svg><figcaption>The lambda decides what counts as a match, an order or a transformation.</figcaption></figure>
+<p>Try some on <code>{5, 2, 9, 2, 7, 4}</code>:</p>
+<div id="w-algo"></div>
+<script type="text/x-cpp">
+std::sort(v.begin(), v.end(), [](const P& a, const P& b) { return a.age < b.age; });   // custom order
+auto it = std::find_if(v.begin(), v.end(), [](int x) { return x > 6; });
+int n  = std::count_if(v.begin(), v.end(), [](int x) { return x % 2 == 0; });
+bool any = std::any_of(v.begin(), v.end(), [](int x) { return x < 0; });
+int sum  = std::accumulate(v.begin(), v.end(), 0);         // <numeric>
+std::transform(v.begin(), v.end(), v.begin(), [](int x) { return x * x; });
+auto pos = std::lower_bound(sorted.begin(), sorted.end(), 5);   // binary search: range MUST be sorted
+</script>
+<details class="ex"><summary><span class="ex-tag">Predict</span>The remove surprise</summary><div>
+<script type="text/x-cpp">
+std::vector<int> v{1, 2, 3, 4, 5};
+std::remove(v.begin(), v.end(), 3);
+std::cout << v.size();
+</script>
+<script type="text/x-out">
+5
+</script>
+<p>Algorithms cannot change a container's size. <code>std::remove</code> shifts kept elements forward and returns the new logical end. Use the <b>erase-remove idiom</b>:</p>
+<script type="text/x-cpp">
+v.erase(std::remove(v.begin(), v.end(), 3), v.end());   // classic
+std::erase(v, 3);                                       // C++20: one call
+</script>
+</div></details>
+<figure class="fig"><svg viewBox="0 0 640 190" role="img" aria-label="remove shifts kept elements to the front and returns the new end; erase then shrinks the vector"><text class="t" x="10" y="18">start: {1, 2, 3, 4, 5}, remove the 3</text><rect class="acc" x="10" y="26" width="52" height="26" rx="4"/><text class="mono" x="36.0" y="44.0" text-anchor="middle">1</text><rect class="acc" x="66" y="26" width="52" height="26" rx="4"/><text class="mono" x="92.0" y="44.0" text-anchor="middle">2</text><rect class="acc" x="122" y="26" width="52" height="26" rx="4"/><text class="mono" x="148.0" y="44.0" text-anchor="middle">3</text><rect class="acc" x="178" y="26" width="52" height="26" rx="4"/><text class="mono" x="204.0" y="44.0" text-anchor="middle">4</text><rect class="acc" x="234" y="26" width="52" height="26" rx="4"/><text class="mono" x="260.0" y="44.0" text-anchor="middle">5</text><text class="t" x="10" y="84">after std::remove: size is still 5</text><rect class="acc" x="10" y="92" width="52" height="26" rx="4"/><text class="mono" x="36.0" y="110.0" text-anchor="middle">1</text><rect class="acc" x="66" y="92" width="52" height="26" rx="4"/><text class="mono" x="92.0" y="110.0" text-anchor="middle">2</text><rect class="acc" x="122" y="92" width="52" height="26" rx="4"/><text class="mono" x="148.0" y="110.0" text-anchor="middle">4</text><rect class="acc" x="178" y="92" width="52" height="26" rx="4"/><text class="mono" x="204.0" y="110.0" text-anchor="middle">5</text><rect class="acc" x="234" y="92" width="52" height="26" rx="4"/><text class="mono" x="260.0" y="110.0" text-anchor="middle">5</text><rect class="bd" x="214" y="92" width="52" height="26" rx="4"/><rect class="bd" x="270" y="92" width="52" height="26" rx="4" opacity=".0"/><text class="m" x="10" y="136">the last slot is a leftover; the iterator returned points just after the 5 kept values (index 4)</text><text class="t" x="10" y="164">after v.erase(newEnd, v.end()): {1, 2, 4, 5}</text><rect class="gd" x="300" y="148" width="52" height="22" rx="4"/><text class="mono" x="326.0" y="164.0" text-anchor="middle">1</text><rect class="gd" x="356" y="148" width="52" height="22" rx="4"/><text class="mono" x="382.0" y="164.0" text-anchor="middle">2</text><rect class="gd" x="412" y="148" width="52" height="22" rx="4"/><text class="mono" x="438.0" y="164.0" text-anchor="middle">4</text><rect class="gd" x="468" y="148" width="52" height="22" rx="4"/><text class="mono" x="494.0" y="164.0" text-anchor="middle">5</text></svg><figcaption>The algorithm cannot change the size of a container, only the container can.</figcaption></figure>
+<figure class="fig"><svg viewBox="0 0 640 110" role="img" aria-label="lower_bound halves the sorted range at each step"><defs><marker id="ba" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path class="ah" d="M0 0L10 5L0 10z"/></marker></defs><rect class="acc" x="10" y="26" width="60" height="28" rx="4"/><text class="mono" x="40.0" y="45.0" text-anchor="middle">1</text><rect class="acc" x="76" y="26" width="60" height="28" rx="4"/><text class="mono" x="106.0" y="45.0" text-anchor="middle">3</text><rect class="acc" x="142" y="26" width="60" height="28" rx="4"/><text class="mono" x="172.0" y="45.0" text-anchor="middle">5</text><rect class="acc" x="208" y="26" width="60" height="28" rx="4"/><text class="mono" x="238.0" y="45.0" text-anchor="middle">7</text><rect class="acc" x="274" y="26" width="60" height="28" rx="4"/><text class="mono" x="304.0" y="45.0" text-anchor="middle">9</text><rect class="acc" x="340" y="26" width="60" height="28" rx="4"/><text class="mono" x="370.0" y="45.0" text-anchor="middle">11</text><rect class="acc" x="406" y="26" width="60" height="28" rx="4"/><text class="mono" x="436.0" y="45.0" text-anchor="middle">13</text><rect class="acc" x="472" y="26" width="60" height="28" rx="4"/><text class="mono" x="502.0" y="45.0" text-anchor="middle">15</text><text class="t" x="10" y="18">sorted: first element not less than 7</text><path class="ar" d="M36 76V58" marker-end="url(#ba)"/><text class="m" x="10" y="94">1. look at the middle; 2. keep one half; 3. repeat: log2(n) steps, but only if the range is sorted</text></svg><figcaption>A binary search on unsorted data returns nonsense.</figcaption></figure>
+<div class="callout warn"><span class="label">Strict weak ordering</span>Use <code>&lt;</code>, never <code>&lt;=</code>: a comparator true for equal elements can crash <code>sort</code> or corrupt a <code>set</code>. <code>sort</code> is not stable; use <code>stable_sort</code>.</div>
+<!-- read-more:start -->
+<div class="callout tip"><span class="label">Read more</span>
+<p><b>C++ Primer (Lippman, Lajoie, Moo)</b></p>
+<ul>
+<li>10.1 to 10.2 Overview and a first look (PDF pages 405 to 413)</li>
+</ul>
+<p><b>Programming: Principles and Practice (Stroustrup)</b></p>
+<ul>
+<li>21.1 to 21.2, 21.5 Standard algorithms, function objects, sorting and searching (PDF pages 617 to 626 and 633 to 635)</li>
+</ul>
+<p><b>C++ Move Semantics (Josuttis)</b></p>
+<ul>
+<li>Chapter 14 Moving algorithms and iterators (PDF pages 219 to 228)</li>
+</ul>
+</div>
+<!-- read-more:end -->
+</section>
+
+<section id="families" data-title="Which algorithm do I need?">
+<h2>Which algorithm do I need?</h2>
+<p>There are over a hundred algorithms, but they fall into a few families. Ask what you want from the range, then pick the family.</p>
+<figure class="fig"><svg viewBox="0 0 640 150" role="img" aria-label="Algorithm families: look, count, change, reorder, shrink, combine"><rect class="acc" x="10" y="10" width="200" height="60" rx="8"/><text class="t" x="110" y="34" text-anchor="middle">Look at it</text><text class="m" x="110" y="54" text-anchor="middle">find, any_of, count, min_element</text>
+<rect class="gd" x="220" y="10" width="200" height="60" rx="8"/><text class="t" x="320" y="34" text-anchor="middle">Change it</text><text class="m" x="320" y="54" text-anchor="middle">transform, for_each, fill, replace</text>
+<rect class="wn" x="430" y="10" width="200" height="60" rx="8"/><text class="t" x="530" y="34" text-anchor="middle">Reorder it</text><text class="m" x="530" y="54" text-anchor="middle">sort, partition, reverse, rotate</text>
+<rect class="acc" x="10" y="80" width="200" height="60" rx="8"/><text class="t" x="110" y="104" text-anchor="middle">Shrink it</text><text class="m" x="110" y="124" text-anchor="middle">remove_if, unique + erase</text>
+<rect class="gd" x="220" y="80" width="200" height="60" rx="8"/><text class="t" x="320" y="104" text-anchor="middle">Search sorted data</text><text class="m" x="320" y="124" text-anchor="middle">lower_bound, binary_search</text>
+<rect class="wn" x="430" y="80" width="200" height="60" rx="8"/><text class="t" x="530" y="104" text-anchor="middle">Reduce it</text><text class="m" x="530" y="124" text-anchor="middle">accumulate, reduce, inner_product</text></svg><figcaption>Name the question first; the algorithm usually has the obvious name.</figcaption></figure>
+<table>
+<tr><th>You want to...</th><th>Use</th><th>Notes</th></tr>
+<tr><td>know if any, all or none match</td><td><code>any_of</code>, <code>all_of</code>, <code>none_of</code></td><td>stop at the first answer</td></tr>
+<tr><td>find the first match</td><td><code>find</code>, <code>find_if</code></td><td>returns <code>end()</code> when nothing matches</td></tr>
+<tr><td>apply a function to every element</td><td><code>for_each</code>, <code>transform</code></td><td><code>transform</code> writes results to an output range</td></tr>
+<tr><td>put matching elements first</td><td><code>partition</code>, <code>stable_partition</code></td><td>returns the split point</td></tr>
+<tr><td>get the k largest in order</td><td><code>partial_sort</code>, <code>nth_element</code></td><td>cheaper than a full sort</td></tr>
+<tr><td>remove duplicates</td><td><code>sort</code>, then <code>unique</code> and <code>erase</code></td><td><code>unique</code> only removes <b>neighbouring</b> duplicates</td></tr>
+<tr><td>sum or fold</td><td><code>accumulate</code></td><td>the start value decides the result type: write <code>0.0</code> for doubles</td></tr>
+</table>
+<script type="text/x-cpp">
+std::vector<int> v{5, 2, 9, 2, 7, 4}, sq;
+std::transform(v.begin(), v.end(), std::back_inserter(sq), [](int x) { return x * x; });   // sq: 25 4 81 4 49 16
+
+auto mid = std::partition(v.begin(), v.end(), [](int x) { return x % 2 == 0; });
+// the evens come first; mid - v.begin() is 3 here (compiled)
+
+std::sort(v.begin(), v.end());
+v.erase(std::unique(v.begin(), v.end()), v.end());          // {2, 4, 5, 7, 9}
+double avg = std::accumulate(v.begin(), v.end(), 0.0) / v.size();   // 5.4 (compiled)
+</script>
+</section>
+
+<section id="ranges" data-title="Ranges and views (C++20)">
+<h2>Ranges and views (C++20)</h2>
+<script type="text/x-cpp">
+#include <ranges>
+
+std::ranges::sort(v);                                         // pass the container, not begin() and end()
+std::ranges::sort(v, std::greater<>{});                       // descending (compiled: first element 6)
+
+auto evenSquares = v | std::views::filter([](int x) { return x % 2 == 0; })
+                     | std::views::transform([](int x) { return x * x; });   // a LAZY view: nothing is computed yet
+for (int x : evenSquares) use(x);                             // computed on demand, no temporary vector (compiled: sum 56)
+</script>
+<ul>
+<li>A <b>range</b> is anything with <code>begin()</code> and <code>end()</code>. The <code>std::ranges::</code> algorithms take the whole range and support <b>projections</b>: <code>std::ranges::sort(people, {}, &amp;Person::age)</code>.</li>
+<li>A <b>view</b> is a lightweight, non-owning, lazy window (<code>filter</code>, <code>transform</code>, <code>take</code>, <code>drop</code>, <code>reverse</code>, <code>iota</code>). Pipe them with <code>|</code>.</li>
+<li>A view does not own its data: if the container dies or reallocates, the view dangles, like <code>string_view</code>.</li>
+<li>Ranges make pipelines readable; you do not need to know every view.</li>
+</ul>
+</section>
+
+<section id="pitfalls" data-title="Common algorithm pitfalls">
+<h2>Common algorithm pitfalls</h2>
+<table>
+<tr><th>Pitfall</th><th>Why</th><th>Fix</th></tr>
+<tr><td><code>remove</code> without <code>erase</code></td><td>algorithms cannot change the size of a container</td><td>erase-remove, or <code>std::erase_if</code> (C++20)</td></tr>
+<tr><td>writing into an empty output with <code>begin()</code></td><td>the algorithm assigns into slots that do not exist</td><td><code>std::back_inserter(out)</code></td></tr>
+<tr><td><code>binary_search</code> or <code>lower_bound</code> on unsorted data</td><td>the halving logic assumes order</td><td>sort first, with the same comparison</td></tr>
+<tr><td><code>unique</code> on unsorted data</td><td>it removes only neighbouring duplicates</td><td><code>sort</code> first</td></tr>
+<tr><td>comparator using <code>&lt;=</code></td><td>not a strict weak ordering: undefined behavior</td><td>use <code>&lt;</code></td></tr>
+<tr><td><code>accumulate(..., 0)</code> over doubles</td><td>the int start value truncates every partial sum</td><td>start with <code>0.0</code></td></tr>
+<tr><td>a lambda that captures a dangling reference</td><td>the algorithm runs while the lambda is alive, but a stored one may outlive its data</td><td>capture by value when the lambda is stored</td></tr>
+<tr><td><code>std::find</code> on a <code>map</code></td><td>it walks every pair in O(n)</td><td>use the member <code>m.find(key)</code></td></tr>
+</table>
+</section>
+
+<section id="random" data-title="Random numbers">
+<h2>Random numbers: <code>&lt;random&gt;</code></h2>
+<script type="text/x-cpp">
+std::mt19937 gen(12345);                          // an ENGINE: produces raw random bits (here seeded for repeatability)
+std::uniform_int_distribution<int> dice(1, 6);    // a DISTRIBUTION: shapes the bits into the numbers you want
+int roll = dice(gen);
+
+std::random_device rd;                            // a non-deterministic seed source (hardware or OS)
+std::mt19937 gen2(rd());
+std::normal_distribution<double> noise(0.0, 1.0);
+</script>
+<ul>
+<li><b>Engine plus distribution</b>: never use <code>rand() % n</code> (poor quality, biased, global state). Same seed gives the <b>same sequence</b> (compiled: true), which is what you want in tests and simulations.</li>
+<li>Compiled: 6000 rolls of the dice gave every face between 850 and 1150 times; 10,000 normal samples had a mean near 0.</li>
+<li>Keep one engine per thread; engines are not thread-safe.</li>
+</ul>
+<p>Notes: <a href="https://github.com/Ghaith-Hamdi1/cpp-training/blob/main/docs/training-notes/03-cpp-standard-library/README.md">Module 3</a>.</p>
+<!-- read-more:start -->
+<div class="callout tip"><span class="label">Read more</span>
+<p><b>C++ Primer (Lippman, Lajoie, Moo)</b></p>
+<ul>
+<li>17.4 Random numbers (PDF pages 774 to 780)</li>
+</ul>
+</div>
+<!-- read-more:end -->
+</section>
+
+<section id="cheat" data-title="Cheat sheet">
+<h2>Cheat sheet</h2>
+<p>Answer aloud, then open.</p>
+<details class="ex"><summary>What are C++20 ranges and views?</summary><div><p>Ranges algorithms take a whole container (<code>std::ranges::sort(v)</code>) and support projections. Views are lazy, non-owning pipelines (<code>v | views::filter(f) | views::transform(g)</code>) that compute on demand without temporaries. Like <code>string_view</code>, a view dangles if its container dies.</p></div></details>
+<details class="ex"><summary>What is the erase-remove idiom?</summary><div><p><code>std::remove</code>/<code>remove_if</code> only moves the elements to keep to the front and returns the new end; it cannot shrink the container. Pass that to the container's <code>erase</code> to actually delete the tail: <code>v.erase(std::remove_if(...), v.end())</code>. C++20 has <code>std::erase_if</code>.</p></div></details>
+<details class="ex"><summary>Why must a comparator for <code>sort</code> be a strict weak ordering?</summary><div><p>The algorithm assumes that "less" is irreflexive (<code>comp(a, a)</code> is false) and transitive. A comparator such as <code>&lt;=</code> is true for equal elements, so <code>sort</code> can run past the end of the range or crash. Use <code>&lt;</code>, and <code>stable_sort</code> when equal elements must keep their order.</p></div></details>
+<details class="ex"><summary>Why does <code>lower_bound</code> need a sorted range?</summary><div><p>It is a binary search: it compares with the middle element and discards half the range each step. That is only correct if the elements are ordered by the same comparison. On unsorted data the answer is meaningless. It is O(log n) on random-access iterators.</p></div></details>
+<details class="ex"><summary>Why use <code>&lt;random&gt;</code> instead of <code>rand() % n</code>?</summary><div><p><code>rand()</code> has poor quality, global state, and the modulo skews the distribution. An engine (<code>mt19937</code>) produces bits and a distribution (<code>uniform_int_distribution</code>) shapes them; one engine per thread, seeded from <code>random_device</code> or a fixed value for repeatable tests.</p></div></details>
+<h3>Keep going</h3>
+<ul>
+<li>Before this lesson: <a href="28-iterators.html">Iterators</a>.</li>
+<li>Lambdas for the predicates: <a href="15-lambdas.html">Lambdas</a>.</li>
+</ul>
+</section>
+</main>
+
+<script src="assets/data/lessons.js"></script>
+<script src="assets/app.js"></script>
+<script>
+(function () {
+  const root = document.getElementById('w-algo');
+  root.className = 'widget';
+  const base = [5, 2, 9, 2, 7, 4];
+  const ops = [
+    ['sort ascending', 'std::sort(v.begin(), v.end());', (v) => ({ v: v.slice().sort((a, b) => a - b) })],
+    ['sort descending', 'std::sort(v.begin(), v.end(), std::greater<int>());', (v) => ({ v: v.slice().sort((a, b) => b - a) })],
+    ['find_if x > 6', 'auto it = std::find_if(v.begin(), v.end(), [](int x) { return x > 6; });', (v) => { const i = v.findIndex((x) => x > 6); return { msg: i < 0 ? 'returns v.end()' : 'finds ' + v[i] + ' at index ' + i }; }],
+    ['count_if even', 'int n = std::count_if(v.begin(), v.end(), [](int x) { return x % 2 == 0; });', (v) => ({ msg: 'n = ' + v.filter((x) => x % 2 === 0).length })],
+    ['accumulate (sum)', 'int s = std::accumulate(v.begin(), v.end(), 0);', (v) => ({ msg: 's = ' + v.reduce((a, b) => a + b, 0) })],
+    ['transform (square)', 'std::transform(v.begin(), v.end(), v.begin(), [](int x) { return x * x; });', (v) => ({ v: v.map((x) => x * x) })],
+    ['remove_if odd + erase', 'v.erase(std::remove_if(v.begin(), v.end(), [](int x) { return x % 2 != 0; }), v.end());', (v) => ({ v: v.filter((x) => x % 2 === 0) })],
+    ['sort then unique + erase', 'std::sort(v.begin(), v.end());\nv.erase(std::unique(v.begin(), v.end()), v.end());', (v) => ({ v: Array.from(new Set(v.slice().sort((a, b) => a - b))) })],
+    ['reverse', 'std::reverse(v.begin(), v.end());', (v) => ({ v: v.slice().reverse() })],
+    ['lower_bound(5) on the sorted array', 'std::sort(v.begin(), v.end());\nauto it = std::lower_bound(v.begin(), v.end(), 5);', (v) => { const s = v.slice().sort((a, b) => a - b); const i = s.findIndex((x) => x >= 5); return { v: s, msg: 'first element not less than 5 is ' + s[i] + ' at index ' + i + ' (binary search, O(log n))' }; }],
+    ['max_element', 'auto it = std::max_element(v.begin(), v.end());', (v) => { const m = Math.max.apply(null, v); return { msg: '*it = ' + m + ' at index ' + v.indexOf(m) }; }]
+  ];
+  root.innerHTML = '<div class="w-head"><span class="tag">Playground</span>STL algorithms on {5, 2, 9, 2, 7, 4}</div><div class="w-body">' +
+    '<div class="pickrow"><label for="as">Algorithm:</label><select id="as">' + ops.map((o, i) => '<option value="' + i + '">' + CT.esc(o[0]) + '</option>').join('') + '</select></div>' +
+    '<figure class="code"><pre><code id="ac"></code></pre></figure><div class="result" id="ar"></div></div>';
+  function show() {
+    const o = ops[+document.getElementById('as').value];
+    document.getElementById('ac').innerHTML = CT.highlight(o[1]);
+    const r = o[2](base);
+    document.getElementById('ar').innerHTML = 'Before: <code>{' + base.join(', ') + '}</code>' + (r.v ? '<br>After: <code>{' + r.v.join(', ') + '}</code>' : '') + (r.msg ? '<br>' + CT.esc(r.msg) : '');
+  }
+  document.getElementById('as').addEventListener('change', show);
+  show();
+})();
+</script>
+</body>
+</html>

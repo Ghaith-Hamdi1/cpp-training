@@ -4,7 +4,7 @@
 
 *Move semantics, smart pointers, forwarding, `constexpr`, vocabulary types, concepts.*
 
-**Time:** about **24.7 hours** (20.7 h reading, 3.2 h lessons and quizzes, 0.8 h exercises), plus 11.8 h if you also read the deepen list.
+**Time:** about **23.8 hours** (20.7 h reading, 2.3 h lessons and quizzes, 0.8 h exercises), plus 11.8 h if you also read the deepen list.
 
 ## Big topics
 
@@ -48,11 +48,10 @@
 
 | Lesson | Time |
 |---|---|
-| [14. Vocabulary Types](https://ghaith-hamdi1.github.io/cpp-training/21-vocabulary-types.html) and its [quiz](https://ghaith-hamdi1.github.io/cpp-training/21-vocabulary-types-quiz.html) | 35 min |
-| [15. Move Semantics](https://ghaith-hamdi1.github.io/cpp-training/13-move-semantics.html) and its [quiz](https://ghaith-hamdi1.github.io/cpp-training/13-move-semantics-quiz.html) | 45 min |
-| [16. unique_ptr: Exclusive Ownership](https://ghaith-hamdi1.github.io/cpp-training/24-uniqueptr.html) and its [quiz](https://ghaith-hamdi1.github.io/cpp-training/24-uniqueptr-quiz.html) | 35 min |
-| [17. shared_ptr and weak_ptr](https://ghaith-hamdi1.github.io/cpp-training/14-smart-pointers.html) and its [quiz](https://ghaith-hamdi1.github.io/cpp-training/14-smart-pointers-quiz.html) | 30 min |
-| [18. Type Traits & Compile-time C++](https://ghaith-hamdi1.github.io/cpp-training/09-compile-time.html) and its [quiz](https://ghaith-hamdi1.github.io/cpp-training/09-compile-time-quiz.html) | 45 min |
+| [19. optional, variant and expected](https://ghaith-hamdi1.github.io/cpp-training/21-vocabulary-types.html) and its [quiz](https://ghaith-hamdi1.github.io/cpp-training/21-vocabulary-types-quiz.html) | 25 min |
+| [20. Move Semantics](https://ghaith-hamdi1.github.io/cpp-training/13-move-semantics.html) and its [quiz](https://ghaith-hamdi1.github.io/cpp-training/13-move-semantics-quiz.html) | 45 min |
+| [21. unique_ptr: Exclusive Ownership](https://ghaith-hamdi1.github.io/cpp-training/24-uniqueptr.html) and its [quiz](https://ghaith-hamdi1.github.io/cpp-training/24-uniqueptr-quiz.html) | 35 min |
+| [22. shared_ptr and weak_ptr](https://ghaith-hamdi1.github.io/cpp-training/14-smart-pointers.html) and its [quiz](https://ghaith-hamdi1.github.io/cpp-training/14-smart-pointers-quiz.html) | 30 min |
 
 Exercises: 15 (`optional`/`variant`) and 16 (concepts).
 

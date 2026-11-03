@@ -59,4 +59,4 @@ What surprised me when I ran it:
 
 ## After this session
 
-Lesson 19, "Deadlock" and "Other mutex types and call_once"
+Lesson 23, "Deadlock" and "Other mutex types and call_once"

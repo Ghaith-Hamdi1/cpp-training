@@ -130,7 +130,7 @@ Class design, copy control, operator overloading, inheritance, virtual functions
 
 - [ ] Recap check. Explain aloud how `virtual` works in memory (vptr, vtable, slot), why a base destructor must be virtual, what the Rule of Zero says, and why `Animal a = dog;` slices.
 
-## Phase 3: The standard library and generic programming (about 27.4 hours)
+## Phase 3: The standard library and generic programming (about 30.1 hours)
 
 Streams, containers, iterators, algorithms, templates.. Roadmap page: [phase-3-the-standard-library-and-generic-programming.md](reading/roadmap/phase-3-the-standard-library-and-generic-programming.md).
 
@@ -168,33 +168,71 @@ Streams, containers, iterators, algorithms, templates.. Roadmap page: [phase-3-t
 - [ ] Cheat sheet (say each answer aloud)
 - [ ] Take the quiz, then retry the missed questions
 
-**The STL:** [04-stl.html](../interactive/04-stl.html), quiz: [04-stl-quiz.html](../interactive/04-stl-quiz.html) (33 questions).
+**STL Containers:** [04-stl.html](../interactive/04-stl.html), quiz: [04-stl-quiz.html](../interactive/04-stl-quiz.html) (13 questions).
 
 - [ ] The big picture
 - [ ] `vector`: the workhorse
-- [ ] Iterators
 - [ ] Other sequence containers
+- [ ] Container adaptors
+- [ ] Which container should I use?
+- [ ] Common pitfalls
+- [ ] Cheat sheet (say each answer aloud)
+- [ ] Take the quiz, then retry the missed questions
+
+**Maps, Sets and Hashing:** [31-assoc.html](../interactive/31-assoc.html), quiz: [31-assoc-quiz.html](../interactive/31-assoc-quiz.html) (13 questions).
+
 - [ ] Associative and unordered containers
 - [ ] Custom keys: comparators and hashes
-- [ ] Which container should I use?
+- [ ] `pair`, `tuple` and structured bindings
+- [ ] Cheat sheet (say each answer aloud)
+- [ ] Take the quiz, then retry the missed questions
+
+**Iterators:** [28-iterators.html](../interactive/28-iterators.html), quiz: [28-iterators-quiz.html](../interactive/28-iterators-quiz.html) (12 questions).
+
+- [ ] Iterators
+- [ ] Inserters and iterator adaptors
+- [ ] Iterator invalidation
+- [ ] `span` and `string_view`: non-owning views
+- [ ] Cheat sheet (say each answer aloud)
+- [ ] Take the quiz, then retry the missed questions
+
+**Algorithms and Ranges:** [29-algorithms.html](../interactive/29-algorithms.html), quiz: [29-algorithms-quiz.html](../interactive/29-algorithms-quiz.html) (16 questions).
+
 - [ ] Algorithms
+- [ ] Which algorithm do I need?
 - [ ] Ranges and views (C++20)
-- [ ] Common pitfalls
+- [ ] Common algorithm pitfalls
 - [ ] Random numbers: `<random>`
 - [ ] Cheat sheet (say each answer aloud)
 - [ ] Take the quiz, then retry the missed questions
 
-**Templates:** [05-templates.html](../interactive/05-templates.html), quiz: [05-templates-quiz.html](../interactive/05-templates-quiz.html) (26 questions).
+**Function Templates:** [05-templates.html](../interactive/05-templates.html), quiz: [05-templates-quiz.html](../interactive/05-templates-quiz.html) (17 questions).
 
 - [ ] Why templates, and function templates
 - [ ] Template argument deduction
-- [ ] Class templates
-- [ ] Specialization
 - [ ] Variadic templates and fold expressions (step through the recursion)
 - [ ] Forwarding references (use the explorer, step through it)
-- [ ] Alias templates, variable templates and more
-- [ ] Type traits and `if constexpr`
 - [ ] Pitfalls and good practice
+- [ ] Cheat sheet (say each answer aloud)
+- [ ] Take the quiz, then retry the missed questions
+
+**Class Templates:** [30-classtemplates.html](../interactive/30-classtemplates.html), quiz: [30-classtemplates-quiz.html](../interactive/30-classtemplates-quiz.html) (12 questions).
+
+- [ ] Class templates
+- [ ] Class template argument deduction (C++17)
+- [ ] Specialization
+- [ ] Alias templates, variable templates and more
+- [ ] Cheat sheet (say each answer aloud)
+- [ ] Take the quiz, then retry the missed questions
+
+**Type Traits, Concepts and Compile-time C++:** [09-compile-time.html](../interactive/09-compile-time.html), quiz: [09-compile-time-quiz.html](../interactive/09-compile-time-quiz.html) (20 questions).
+
+- [ ] Type traits
+- [ ] Type traits and `if constexpr`
+- [ ] `enable_if` and SFINAE
+- [ ] Concepts and `requires` (C++20)
+- [ ] `constexpr`, `consteval`, `constinit`
+- [ ] Template metaprogramming (TMP)
 - [ ] Cheat sheet (say each answer aloud)
 - [ ] Take the quiz, then retry the missed questions
 
@@ -242,20 +280,18 @@ Exceptions and RAII, namespaces, unions and enums, memory control.. Roadmap page
 
 - [ ] Recap check. Explain: what stack unwinding does, why a destructor must not throw, the difference between basic and strong guarantee and how copy-and-swap gives the strong one.
 
-## Phase 5: Modern C++ (C++11 to C++20) (about 24.7 hours)
+## Phase 5: Modern C++ (C++11 to C++20) (about 23.8 hours)
 
 Move semantics, smart pointers, forwarding, `constexpr`, vocabulary types, concepts.. Roadmap page: [phase-5-modern-cpp.md](reading/roadmap/phase-5-modern-cpp.md).
 
 ### Lessons and quizzes
 
-**Vocabulary Types:** [21-vocabulary-types.html](../interactive/21-vocabulary-types.html), quiz: [21-vocabulary-types-quiz.html](../interactive/21-vocabulary-types-quiz.html) (13 questions).
+**optional, variant and expected:** [21-vocabulary-types.html](../interactive/21-vocabulary-types.html), quiz: [21-vocabulary-types-quiz.html](../interactive/21-vocabulary-types-quiz.html) (9 questions).
 
 - [ ] Why vocabulary types
-- [ ] `pair`, `tuple` and structured bindings
 - [ ] `optional`: a value or nothing
 - [ ] `variant` and `std::visit`
 - [ ] `expected`: a value or an error
-- [ ] `span` and `string_view`: non-owning views
 - [ ] Which one when
 - [ ] Cheat sheet (say each answer aloud)
 - [ ] Take the quiz, then retry the missed questions
@@ -287,16 +323,6 @@ Move semantics, smart pointers, forwarding, `constexpr`, vocabulary types, conce
 - [ ] `shared_ptr` and the control block (step through the count)
 - [ ] Reference cycles and `weak_ptr` (step through the leak)
 - [ ] Pitfalls and `enable_shared_from_this`
-- [ ] Cheat sheet (say each answer aloud)
-- [ ] Take the quiz, then retry the missed questions
-
-**Type Traits & Compile-time C++:** [09-compile-time.html](../interactive/09-compile-time.html), quiz: [09-compile-time-quiz.html](../interactive/09-compile-time-quiz.html) (18 questions).
-
-- [ ] Type traits
-- [ ] `enable_if` and SFINAE
-- [ ] Concepts and `requires` (C++20)
-- [ ] `constexpr`, `consteval`, `constinit`
-- [ ] Template metaprogramming (TMP)
 - [ ] Cheat sheet (say each answer aloud)
 - [ ] Take the quiz, then retry the missed questions
 

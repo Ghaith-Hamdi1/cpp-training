@@ -42,22 +42,30 @@ CT.lessons = [
     blurb: 'Function pointers, functors, std::function and std::invoke: the things you can call, what each can hold, and when to use which.' },
   { id: 'lambdas', file: '15-lambdas.html', quiz: '15-lambdas-quiz.html', title: 'Lambdas', time: '35 min', assess: 2, phase: 3,
     blurb: 'What a lambda is, captures and their lifetime traps, init-capture, generic lambdas and where lambdas are used.' },
-  { id: 'stl', file: '04-stl.html', quiz: '04-stl-quiz.html', title: 'The STL', time: '60 min', assess: 2, phase: 3,
-    blurb: 'Containers, iterators, algorithms, complexity, iterator invalidation and how to choose the right container.' },
-  { id: 'templates', file: '05-templates.html', quiz: '05-templates-quiz.html', title: 'Templates', time: '60 min', assess: 2, phase: 3,
-    blurb: 'Function and class templates, specialization, forwarding references, variadic templates, type traits, if constexpr.' },
+  { id: 'stl', file: '04-stl.html', quiz: '04-stl-quiz.html', title: 'STL Containers', time: '35 min', assess: 2, phase: 3,
+    blurb: 'vector, array, deque, list and the container adaptors: memory layout, operation costs, growth, and how to choose the right container.' },
+  { id: 'assoc', file: '31-assoc.html', quiz: '31-assoc-quiz.html', title: 'Maps, Sets and Hashing', time: '40 min', assess: 2, phase: 3,
+    blurb: 'map, set and the unordered containers: trees and hash tables, operator[] versus find, try_emplace, multimap, custom comparators and hashes, pair and tuple.' },
+  { id: 'iterators', file: '28-iterators.html', quiz: '28-iterators-quiz.html', title: 'Iterators', time: '35 min', assess: 2, phase: 3,
+    blurb: 'Iterators as generalised pointers, the half-open range, iterator categories, inserters, invalidation, and span and string_view as non-owning views.' },
+  { id: 'algorithms', file: '29-algorithms.html', quiz: '29-algorithms-quiz.html', title: 'Algorithms and Ranges', time: '40 min', assess: 2, phase: 3,
+    blurb: 'sort, find, transform and accumulate with lambdas, the erase-remove idiom, binary search, C++20 ranges and views, and random numbers.' },
+  { id: 'templates', file: '05-templates.html', quiz: '05-templates-quiz.html', title: 'Function Templates', time: '45 min', assess: 2, phase: 3,
+    blurb: 'Instantiation, argument deduction, variadic templates and fold expressions, and forwarding references.' },
+  { id: 'classtemplates', file: '30-classtemplates.html', quiz: '30-classtemplates-quiz.html', title: 'Class Templates', time: '40 min', assess: 2, phase: 3,
+    blurb: 'Class templates and non-type parameters, class template argument deduction, full and partial specialization, alias and variable templates.' },
+  { id: 'compiletime', file: '09-compile-time.html', quiz: '09-compile-time-quiz.html', title: 'Type Traits, Concepts and Compile-time C++', time: '50 min', assess: 2, phase: 3,
+    blurb: 'Type traits, if constexpr, SFINAE and enable_if, concepts and requires, constexpr and consteval, and classic template metaprogramming.' },
   { id: 'core', file: '03-core-language.html', quiz: '03-core-language-quiz.html', title: 'Core Language: RAII & Exceptions', time: '35 min', assess: 2, phase: 4,
     blurb: 'RAII and scope guards, stack unwinding, the exception-safety guarantees, noexcept, and exceptions versus return values.' },
-  { id: 'vocab', file: '21-vocabulary-types.html', quiz: '21-vocabulary-types-quiz.html', title: 'Vocabulary Types', time: '35 min', assess: 2, phase: 5,
-    blurb: 'pair and tuple, optional, variant and visit, expected, span and string_view: the small types that make interfaces honest.' },
+  { id: 'vocab', file: '21-vocabulary-types.html', quiz: '21-vocabulary-types-quiz.html', title: 'optional, variant and expected', time: '25 min', assess: 2, phase: 5,
+    blurb: 'optional, variant and visit, and expected: the small types that make the contract of a function honest.' },
   { id: 'moves', file: '13-move-semantics.html', quiz: '13-move-semantics-quiz.html', title: 'Move Semantics', time: '45 min', assess: 2, phase: 5,
     blurb: 'Value categories, what std::move really does, writing move operations, copy elision, the move traps and perfect forwarding.' },
   { id: 'uniqueptr', file: '24-uniqueptr.html', quiz: '24-uniqueptr-quiz.html', title: 'unique_ptr: Exclusive Ownership', time: '35 min', assess: 2, phase: 5,
     blurb: 'Ownership in the type: how unique_ptr frees its object, why it is move-only, passing and returning it, deleters, arrays and the usual mistakes.' },
   { id: 'smartptr', file: '14-smart-pointers.html', quiz: '14-smart-pointers-quiz.html', title: 'shared_ptr and weak_ptr', time: '30 min', assess: 2, phase: 5,
     blurb: 'shared_ptr and the control block, reference cycles and weak_ptr, make_shared, enable_shared_from_this and the pitfalls.' },
-  { id: 'compiletime', file: '09-compile-time.html', quiz: '09-compile-time-quiz.html', title: 'Type Traits & Compile-time C++', time: '45 min', assess: 2, phase: 5,
-    blurb: 'Type traits, SFINAE, concepts and requires, if constexpr, constexpr and consteval, and classic template metaprogramming.' },
   { id: 'threads', file: '07-multithreading.html', quiz: '07-multithreading-quiz.html', title: 'Multithreading', time: '60 min', assess: 2, phase: 6,
     blurb: 'From your first thread to data races, mutexes, deadlocks, condition variables and the other mutex types.' },
   { id: 'tasks', file: '17-tasks-parallelism.html', quiz: '17-tasks-parallelism-quiz.html', title: 'Tasks & Parallelism', time: '45 min', assess: 2, phase: 6,
@@ -103,6 +111,21 @@ CT.moved = {
   '01-basics.html#s9': '22-pointers.html#dynamic',
   '01-basics.html#s10': '22-pointers.html#arrays',
   '01-basics.html#s11': '22-pointers.html#bugs',
+  '04-stl.html#s4': '31-assoc.html#s4',                        // associative containers, custom keys and pair/tuple became their own lesson
+  '04-stl.html#keys': '31-assoc.html#keys',
+  '04-stl.html#s6': '28-iterators.html#s6',                   // the STL lesson was split in three: containers, iterators, algorithms
+  '04-stl.html#s7': '29-algorithms.html#s7',
+  '04-stl.html#ranges': '29-algorithms.html#ranges',
+  '04-stl.html#random': '29-algorithms.html#random',
+  '04-stl.html#s9': '04-stl.html#pitfalls',
+  '04-stl.html#s10': '04-stl.html#cheat',
+  '21-vocabulary-types.html#pairs': '31-assoc.html#pairs',      // pair and tuple went to containers, span and string_view to iterators
+  '21-vocabulary-types.html#views': '28-iterators.html#views',
+  '05-templates.html#s2': '30-classtemplates.html#s2',        // the Templates lesson was split into function templates and class templates
+  '05-templates.html#s3': '30-classtemplates.html#s3',
+  '05-templates.html#tools': '30-classtemplates.html#tools',
+  '05-templates.html#s6': '09-compile-time.html#ifconstexpr',
+  '05-templates.html#s9': '05-templates.html#cheat',
   '04-stl.html#s8': '08-strings-regex-time.html#s1'       // the STL strings section is covered by the Strings lesson
 };
 
@@ -397,6 +420,44 @@ CT.progressMigrations = [
     moveWeak('objmodel', 'inherit');
     ['done:', 'last:', 'quiz:', 'total:', 'weak:'].forEach(function (p) { store.set(p + 'objmodel', p === 'done:' ? [] : p === 'weak:' ? {} : p === 'last:' ? '' : null); });
     store.set('mock:missed', store.get('mock:missed', []).filter(function (id) { return id.indexOf('oop-') !== 0 && id.indexOf('objmodel-') !== 0; }));   // the cheat sheets changed
+  } },
+  /* v15: the STL lesson became STL Containers, Iterators, and Algorithms and Ranges; pair/tuple and span/string_view moved out of the
+     vocabulary-types lesson; the Templates lesson became Function Templates and Class Templates, and its traits section joined the
+     compile-time lesson. */
+  { to: 15, run: function (store) {
+    var SECS = {
+      stl: { s4: ['assoc', ['s4']], keys: ['assoc', ['keys']], s6: ['iterators', ['s6', 'adaptors', 'invalidation']], s7: ['algorithms', ['s7']], ranges: ['algorithms', ['ranges']], random: ['algorithms', ['random']], s9: ['stl', ['pitfalls']], s10: ['stl', ['cheat']] },
+      vocab: { pairs: ['assoc', ['pairs']], views: ['iterators', ['views']] },
+      templates: { s2: ['classtemplates', ['s2']], s3: ['classtemplates', ['s3']], tools: ['classtemplates', ['tools']], s6: ['compiletime', ['ifconstexpr']], s9: ['templates', ['cheat']] }
+    };   // old lesson -> old section -> [new lesson, new section ids]
+    var hash = function (s) { var x = 5381, i; for (i = 0; i < s.length; i++) x = ((x * 33) ^ s.charCodeAt(i)) >>> 0; return x.toString(36); };
+    var WHERE = { stl: {'12rk0wq': 'algorithms', 'jlcsy': 'iterators', 'nu1uji': 'assoc', '1pw8gum': 'iterators', 'b1zvow': 'assoc', '13ikhrm': 'algorithms', '49g3nb': 'algorithms', '88ygc5': 'assoc', 'x7h99w': 'iterators', '17hn921': 'assoc', 'hsrt9i': 'assoc', '1ki4g6j': 'assoc', '1e7nyhw': 'assoc', 'ko6xpa': 'assoc', '1qsn1a2': 'assoc', '1u7mfqk': 'assoc', 'vv9780': 'iterators', '799bam': 'algorithms', '1xkqtt4': 'algorithms', 'n6mxl4': 'algorithms', '1c4l6xi': 'algorithms', 'p4q63z': 'algorithms'}, vocab: {'xar4d9': 'assoc', '24zj67': 'assoc', 'x55o0f': 'iterators', '1qwpi8j': 'iterators'}, templates: {'1fft48l': 'classtemplates', '2momso': 'classtemplates', 'dsv88v': 'classtemplates', '1fb048j': 'compiletime', 'sef9pz': 'compiletime', '1si2x4g': 'classtemplates', '1t8z3jb': 'classtemplates', '1xfrar0': 'classtemplates', 'q6m83n': 'classtemplates'} };
+    Object.keys(SECS).forEach(function (from) {
+      var done = store.get('done:' + from, []), keep = [];
+      done.forEach(function (id) {
+        var t = SECS[from][id];
+        if (!t) { keep.push(id); return; }
+        var d = store.get('done:' + t[0], []);
+        t[1].forEach(function (n) { if (d.indexOf(n) < 0) d.push(n); });
+        store.set('done:' + t[0], d);
+        if (t[0] === from) keep.push.apply(keep, t[1]);
+      });
+      store.set('done:' + from, keep.filter(function (id, i) { return keep.indexOf(id) === i; }));
+      if (SECS[from][store.get('last:' + from, '')]) store.set('last:' + from, '');
+      var li = store.get('lastinfo', null);
+      if (li && li.id === from && SECS[from][li.sec]) store.set('lastinfo', null);
+      var weak = store.get('weak:' + from, {}), stay = {};
+      Object.keys(weak).forEach(function (k) {
+        var to = WHERE[from][hash(k)];
+        if (!to) { stay[k] = weak[k]; return; }
+        var w = store.get('weak:' + to, {});
+        w[k] = weak[k];
+        store.set('weak:' + to, w);
+      });
+      store.set('weak:' + from, stay);
+    });
+    var gone = ['stl-', 'vocab-', 'templates-', 'compiletime-'];   // 'assoc-' ids only exist from now on
+    store.set('mock:missed', store.get('mock:missed', []).filter(function (id) { return !gone.some(function (g) { return id.indexOf(g) === 0; }); }));   // the cheat sheets changed
   } }
 ];
 

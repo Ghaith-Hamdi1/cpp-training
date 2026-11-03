@@ -1,0 +1,173 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Iterators</title>
+<script>try{var t=JSON.parse(localStorage.getItem('cpptrain:theme'));if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body data-topic="iterators" data-kind="lesson">
+<main>
+<h1>Iterators</h1>
+<p class="lead">Iterators are generalised pointers: they connect containers to algorithms. The half-open range, the iterator categories, inserters and invalidation, plus span and string_view as non-owning views. Assumes <a href="04-stl.html">STL Containers</a>.</p>
+
+<section id="s6" data-title="Iterators">
+<h2>Iterators</h2>
+<p>An iterator acts like a pointer: <code>*it</code>, <code>++it</code>, <code>it == end</code>. <code>end()</code> is <b>one past the last</b>; ranges are half-open <code>[begin, end)</code>.</p>
+<figure class="fig"><svg viewBox="0 0 640 150" role="img" aria-label="An iterator range runs from begin, the first element, up to but not including end, one past the last"><defs><marker id="ia" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path class="ah" d="M0 0L10 5L0 10z"/></marker></defs><rect class="acc" x="60" y="40" width="70" height="34" rx="4"/><text class="mono" x="95.0" y="62.0" text-anchor="middle">10</text><rect class="acc" x="134" y="40" width="70" height="34" rx="4"/><text class="mono" x="169.0" y="62.0" text-anchor="middle">20</text><rect class="acc" x="208" y="40" width="70" height="34" rx="4"/><text class="mono" x="243.0" y="62.0" text-anchor="middle">30</text><rect class="acc" x="282" y="40" width="70" height="34" rx="4"/><text class="mono" x="317.0" y="62.0" text-anchor="middle">40</text><rect class="box" x="344" y="40" width="70" height="34" rx="4" stroke-dasharray="4 3"/><text class="m" x="379" y="62" text-anchor="middle">(no element)</text><path class="ar" d="M95 112V78" marker-end="url(#ia)"/><text class="mono" x="95" y="128" text-anchor="middle">begin()</text><path class="ar" d="M379 112V78" marker-end="url(#ia)"/><text class="mono" x="379" y="128" text-anchor="middle">end()</text><text class="t" x="60" y="26">[begin, end): half-open</text><text class="m" x="440" y="62">end() is never dereferenced</text><text class="m" x="440" y="82">empty range: begin == end</text></svg><figcaption>A loop runs while it != end; end() is a marker, not an element.</figcaption></figure>
+<script type="text/x-cpp">
+std::vector<int> v{1, 2, 3};
+for (auto it = v.begin(); it != v.end(); ++it) std::cout << *it;   // use != not <, it works for every container
+for (int x : v) std::cout << x;           // range-for is exactly this loop in disguise
+for (auto it = v.rbegin(); it != v.rend(); ++it) { }   // reverse iterators
+for (auto it = v.cbegin(); it != v.cend(); ++it) { }   // cbegin/cend: read-only, *it cannot be modified
+auto it2 = std::next(v.begin(), 2);       // advance without assuming random access
+</script>
+<figure class="fig"><svg viewBox="0 0 640 150" role="img" aria-label="Iterator categories nest: random access includes bidirectional which includes forward"><rect class="wn" x="10" y="10" width="620" height="130" rx="10"/><text class="t" x="24" y="30">random access: it + n, it[i], it1 - it2, &lt;    (vector, deque, array, string)</text><rect class="gd" x="30" y="42" width="580" height="88" rx="10"/><text class="t" x="44" y="62">bidirectional: also --it    (list, map, set)</text><rect class="acc" x="50" y="74" width="540" height="46" rx="10"/><text class="t" x="64" y="94">forward: ++it, read it many times    (forward_list, unordered_*)</text><text class="m" x="64" y="112">input and output iterators are the one-pass cases (streams)</text></svg><figcaption>An algorithm asks for the weakest category it can work with; std::sort needs the biggest one.</figcaption></figure>
+<table>
+<tr><th>Category</th><th>Can do</th><th>Containers</th></tr>
+<tr><td>Forward</td><td><code>++</code>, read (multi-pass)</td><td><code>forward_list</code>, unordered containers</td></tr>
+<tr><td>Bidirectional</td><td>also <code>--</code></td><td><code>list</code>, <code>map</code>, <code>set</code></td></tr>
+<tr><td>Random access</td><td>also <code>it + n</code>, <code>it[i]</code>, <code>it1 - it2</code>, <code>&lt;</code></td><td><code>vector</code>, <code>deque</code>, <code>array</code>, <code>string</code></td></tr>
+</table>
+<p>So <code>std::sort</code> needs random access and fails on <code>std::list</code> (use <code>list.sort()</code>).</p>
+<!-- read-more:start -->
+<div class="callout tip"><span class="label">Read more</span>
+<p><b>C++ Primer (Lippman, Lajoie, Moo)</b></p>
+<ul>
+<li>3.4 Introducing iterators (PDF pages 135 to 141)</li>
+<li>10.4 Revisiting iterators (PDF pages 430 to 438)</li>
+<li>10.5 Structure of generic algorithms (PDF pages 439 to 443)</li>
+</ul>
+<p><b>Programming: Principles and Practice (Stroustrup)</b></p>
+<ul>
+<li>19.1 to 19.3, 19.6 Containers, sequences and iterators, linked lists, vector/list/string (PDF pages 559 to 572 and 585 to 586)</li>
+</ul>
+</div>
+<!-- read-more:end -->
+</section>
+
+<section id="adaptors" data-title="Inserters and iterator adaptors">
+<h2>Inserters and iterator adaptors</h2>
+<p>An algorithm like <code>std::copy</code> <b>assigns</b> through its output iterator, so the destination must already be big enough. An <b>inserter</b> turns each assignment into an insertion instead:</p>
+<figure class="fig"><svg viewBox="0 0 640 150" role="img" aria-label="copy through begin of an empty vector writes past the end; copy through back_inserter calls push_back for each element"><defs><marker id="ih3" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path class="ah3" d="M0 0L10 5L0 10z"/></marker><marker id="ih2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path class="ah2" d="M0 0L10 5L0 10z"/></marker></defs><text class="t" x="10" y="20">out.begin(): assignment into slots that do not exist</text><rect class="box" x="10" y="30" width="50" height="26" rx="4"/><text class="mono" x="35.0" y="48.0" text-anchor="middle"></text><rect class="box" x="64" y="30" width="50" height="26" rx="4"/><text class="mono" x="89.0" y="48.0" text-anchor="middle"></text><rect class="box" x="118" y="30" width="50" height="26" rx="4"/><text class="mono" x="143.0" y="48.0" text-anchor="middle"></text><path class="ar3" d="M60 43H120" marker-end="url(#ih3)"/><text class="mono" x="130" y="48">*it = x  (writes past the end)</text><text class="t" x="10" y="92">back_inserter(out): each assignment is push_back</text><rect class="gd" x="10" y="102" width="50" height="26" rx="4"/><text class="mono" x="35.0" y="120.0" text-anchor="middle">3</text><rect class="gd" x="64" y="102" width="50" height="26" rx="4"/><text class="mono" x="89.0" y="120.0" text-anchor="middle">1</text><rect class="gd" x="118" y="102" width="50" height="26" rx="4"/><text class="mono" x="143.0" y="120.0" text-anchor="middle">2</text><path class="ar2" d="M170 115H230" marker-end="url(#ih2)"/><text class="mono" x="240" y="120">out.push_back(x): it grows</text></svg><figcaption>An inserter turns assignment into insertion, so the destination does not need to be big enough first.</figcaption></figure>
+<table>
+<tr><th>Adaptor</th><th>Each assignment does</th></tr>
+<tr><td><code>std::back_inserter(c)</code></td><td><code>c.push_back(x)</code></td></tr>
+<tr><td><code>std::front_inserter(c)</code></td><td><code>c.push_front(x)</code> (so the order reverses; needs <code>deque</code>/<code>list</code>)</td></tr>
+<tr><td><code>std::inserter(c, pos)</code></td><td><code>c.insert(pos, x)</code> (works for <code>set</code> and <code>map</code>)</td></tr>
+</table>
+<script type="text/x-cpp">
+std::vector<int> src{3, 1, 2}, out;
+std::copy(src.begin(), src.end(), std::back_inserter(out));      // out is {3, 1, 2}: it grew
+// std::copy(src.begin(), src.end(), out.begin());               // BUG if out is empty: writes past the end
+
+std::set<int> sorted;
+std::copy(src.begin(), src.end(), std::inserter(sorted, sorted.begin()));
+</script>
+<p><code>std::reverse_iterator</code> (what <code>rbegin()</code> returns) and <code>std::move_iterator</code> (moves instead of copying) are the other two adaptors worth knowing.</p>
+</section>
+
+<section id="invalidation" data-title="Iterator invalidation">
+<h2>Iterator invalidation</h2>
+<p>Changing a container can <b>invalidate</b> iterators, pointers and references; using one is UB.</p>
+<figure class="fig"><svg viewBox="0 0 640 190" role="img" aria-label="After push_back reallocates, an iterator or pointer into the old buffer dangles"><defs><marker id="ja" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path class="ah" d="M0 0L10 5L0 10z"/></marker><marker id="jb" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path class="ah3" d="M0 0L10 5L0 10z"/></marker></defs><text class="t" x="10" y="18">before: size 2, capacity 2</text><rect class="acc" x="10" y="26" width="60" height="28" rx="4"/><text class="mono" x="40.0" y="45.0" text-anchor="middle">10</text><rect class="acc" x="74" y="26" width="60" height="28" rx="4"/><text class="mono" x="104.0" y="45.0" text-anchor="middle">20</text><path class="ar" d="M40 80V58" marker-end="url(#ja)"/><text class="mono" x="40" y="96" text-anchor="middle">it</text><text class="t" x="300" y="18">after push_back(30): a new, bigger buffer</text><rect class="gd" x="300" y="26" width="60" height="28" rx="4"/><text class="mono" x="330.0" y="45.0" text-anchor="middle">10</text><rect class="gd" x="364" y="26" width="60" height="28" rx="4"/><text class="mono" x="394.0" y="45.0" text-anchor="middle">20</text><rect class="gd" x="428" y="26" width="60" height="28" rx="4"/><text class="mono" x="458.0" y="45.0" text-anchor="middle">30</text><rect class="gd" x="492" y="26" width="60" height="28" rx="4"/><text class="mono" x="522.0" y="45.0" text-anchor="middle"></text><text class="m" x="10" y="130">the old buffer is freed:</text><rect class="bd" x="10" y="138" width="60" height="28" rx="4"/><text class="mono" x="40.0" y="157.0" text-anchor="middle">x</text><rect class="bd" x="74" y="138" width="60" height="28" rx="4"/><text class="mono" x="104.0" y="157.0" text-anchor="middle">x</text><path class="ar3" d="M40 80L300 120" marker-end="url(#jb)" stroke-dasharray="5 4"/><text class="m" x="320" y="132">it still holds the OLD address: using it is undefined behavior</text><text class="m" x="320" y="152">fix: reserve first, or refetch begin() after growing</text></svg><figcaption>The same thing happens to pointers and references into the vector.</figcaption></figure>
+<table>
+<tr><th>Container</th><th>Operation</th><th>What is invalidated</th></tr>
+<tr><td><code>vector</code></td><td><code>push_back</code>, <code>insert</code></td><td><b>all</b> if it reallocated; otherwise those at or after the insertion point</td></tr>
+<tr><td><code>vector</code></td><td><code>erase</code></td><td>the erased element and everything after it</td></tr>
+<tr><td><code>deque</code></td><td>insert/erase in the middle</td><td>everything; push at either end invalidates iterators but not references</td></tr>
+<tr><td><code>list</code>, <code>map</code>, <code>set</code></td><td>insert</td><td>nothing</td></tr>
+<tr><td><code>list</code>, <code>map</code>, <code>set</code></td><td>erase</td><td>only the erased element</td></tr>
+<tr><td><code>unordered_*</code></td><td>insert that triggers a rehash</td><td>all iterators (references stay valid)</td></tr>
+</table>
+<details class="ex"><summary><span class="ex-tag">Spot the bug</span>Erasing inside a loop</summary><div>
+<script type="text/x-cpp">
+std::vector<int> v{1, 2, 3, 4};
+for (auto it = v.begin(); it != v.end(); ++it)
+    if (*it % 2 == 0) v.erase(it);          // BUG
+</script>
+<p><code>erase</code> invalidates <code>it</code>, and the loop then does <code>++it</code> on a dead iterator. The correct idiom uses the iterator <code>erase</code> returns:</p>
+<script type="text/x-cpp">
+for (auto it = v.begin(); it != v.end(); ) {
+    if (*it % 2 == 0) it = v.erase(it);     // erase returns the next valid iterator
+    else ++it;
+}
+// or, in C++20:
+std::erase_if(v, [](int x) { return x % 2 == 0; });
+</script>
+</div></details>
+<p>Step through a correct erase loop:</p>
+<div id="st-erase"></div>
+</section>
+
+<section id="views" data-title="span and string_view: non-owning views">
+<h2><code>span</code> and <code>string_view</code>: non-owning views</h2>
+<p>A <b>view</b> is a pointer plus a length: it looks at elements that someone else owns. <code>std::span&lt;T&gt;</code> (C++20) views any contiguous run of <code>T</code>; <code>std::string_view</code> (C++17) is the same idea for characters.</p>
+<script type="text/x-cpp">
+long sum(std::span<const int> xs) { long t = 0; for (int x : xs) t += x; return t; }
+
+std::vector<int> vec{1, 2, 3, 4, 5};
+int arr[3] = {10, 20, 30};
+sum(vec);                              // 15: a vector converts to a span with no copy
+sum(arr);                              // 60: so does a C array, and its size is remembered
+sum(std::span(vec).subspan(1, 3));     // 9:  elements 2, 3, 4: a slice is just a new pointer and length
+sum(std::span(vec).first(2));          // 3
+</script>
+<ul>
+<li>A span is two words (compiled: 16 bytes on a 64-bit machine). Pass it <b>by value</b>.</li>
+<li><code>span&lt;const int&gt;</code> is read-only; <code>span&lt;int&gt;</code> lets the function modify the elements in place. It still cannot grow or shrink the container.</li>
+<li>It replaces the <code>(T* data, size_t n)</code> pair. Overflows are easier to spot, and a function written against <code>span</code> accepts a vector, an array, a <code>std::array</code> or a part of any of them.</li>
+<li><b>Dangling.</b> A view must not outlive what it looks at. A <code>span</code> of a vector that then reallocates (<code>push_back</code>), or a <code>string_view</code> of a temporary string, points at freed memory. Use views for parameters and short-lived local use, not for members that live longer than the data.</li>
+</ul>
+<div class="callout warn"><span class="label">Rule of thumb</span>Take a view to <i>read or modify</i> existing elements; take or return the owning type (<code>vector</code>, <code>string</code>) to <i>keep</i> them.</div>
+</section>
+
+<section id="cheat" data-title="Cheat sheet">
+<h2>Cheat sheet</h2>
+<p>Answer aloud, then open.</p>
+<details class="ex"><summary>What does <code>std::back_inserter</code> do and when do you need it?</summary><div><p>It is an output iterator whose assignment calls <code>push_back</code>. Algorithms such as <code>copy</code> and <code>transform</code> write through iterators and do not grow the destination, so with an empty target you would write past the end; <code>back_inserter</code> makes them grow it instead.</p></div></details>
+<details class="ex"><summary>Why can't I <code>std::sort</code> a <code>std::list</code>?</summary><div><p><code>sort</code> needs random-access iterators (it jumps around by index). A list only provides bidirectional iterators, so it has its own member function <code>list::sort</code>.</p></div></details>
+<details class="ex"><summary>What does <code>std::span</code> replace, and what is its danger?</summary><div><p>It replaces a <code>(pointer, count)</code> pair: a non-owning view of contiguous elements that remembers its size and accepts a vector, an array or a part of either, without copying. Like <code>string_view</code> it dangles if the data is destroyed or reallocated while the view is alive.</p></div></details>
+<details class="ex"><summary>What is iterator invalidation, and when does <code>push_back</code> cause it?</summary><div><p>A change to the container can leave existing iterators, pointers and references pointing at memory that no longer holds the element: using them is undefined behavior. <code>vector::push_back</code> invalidates all of them when it reallocates, otherwise only <code>end()</code>. Node-based containers (<code>list</code>, <code>map</code>, <code>set</code>) keep them valid except for an erased element.</p></div></details>
+<details class="ex"><summary>Why is a range written <code>[begin, end)</code>, and why compare with <code>!=</code>?</summary><div><p><code>end()</code> is one past the last element, so an empty range is simply <code>begin == end</code> and the length is <code>end - begin</code>. Only <code>!=</code> works for every container; <code>&lt;</code> exists only for random-access iterators.</p></div></details>
+<h3>Keep going</h3>
+<ul>
+<li>Before this lesson: <a href="04-stl.html">STL Containers</a>.</li>
+<li>Next lesson: <a href="29-algorithms.html">Algorithms and Ranges</a>.</li>
+</ul>
+</section>
+</main>
+
+<script src="assets/data/lessons.js"></script>
+<script src="assets/app.js"></script>
+<script>
+CT.stepper('#st-erase', {
+  title: 'Erasing inside a loop: use the iterator erase returns',
+  code: String.raw`
+std::vector<int> v{1, 2, 3, 4};
+for (auto it = v.begin(); it != v.end(); ) {
+    if (*it % 2 == 0) it = v.erase(it);
+    else ++it;
+}
+`,
+  steps: [
+    { line: 1, mem: [{ n: 'v[0]', v: '1' }, { n: 'v[1]', v: '2' }, { n: 'v[2]', v: '3' }, { n: 'v[3]', v: '4' }], note: 'The vector holds 1, 2, 3, 4. We want to remove the even numbers.' },
+    { line: 2, mem: [{ n: 'v[0]', v: '1' }, { n: 'v[1]', v: '2' }, { n: 'v[2]', v: '3' }, { n: 'v[3]', v: '4' }, { n: 'it', t: 'iterator', v: '-> v[0]', to: 'v[0]' }],
+      note: '<b>it</b> starts at the first element.' },
+    { line: 5, mem: [{ n: 'v[0]', v: '1' }, { n: 'v[1]', v: '2' }, { n: 'v[2]', v: '3' }, { n: 'v[3]', v: '4' }, { n: 'it', t: 'iterator', v: '-> v[1]', to: 'v[1]' }],
+      note: '1 is odd, so <code>++it</code>. Now it points at 2.' },
+    { line: 3, mem: [{ n: 'v[0]', v: '1' }, { n: 'v[1]', v: '3', }, { n: 'v[2]', v: '4' }, { n: 'v[3]', v: 'gone', dead: true }, { n: 'it', t: 'iterator', v: '-> v[1]', to: 'v[1]' }],
+      note: '2 is even: <code>v.erase(it)</code> shifts the later elements down and <b>returns an iterator to the next element</b> (now 3). The old <code>it</code> is invalid, so we must overwrite it with the return value.' },
+    { line: 5, mem: [{ n: 'v[0]', v: '1' }, { n: 'v[1]', v: '3' }, { n: 'v[2]', v: '4' }, { n: 'it', t: 'iterator', v: '-> v[2]', to: 'v[2]' }],
+      note: '3 is odd: <code>++it</code>. Note that after an erase we did <b>not</b> advance: the next element had already moved into that slot.' },
+    { line: 3, mem: [{ n: 'v[0]', v: '1' }, { n: 'v[1]', v: '3' }, { n: 'v[2]', v: 'gone', dead: true }, { n: 'it', t: 'iterator', v: 'end()' }],
+      note: '4 is even: erase it. The returned iterator is <code>end()</code>, so the loop stops. Result: <b>1, 3</b>.' },
+    { line: 3, mem: [{ n: 'v[0]', v: '1' }, { n: 'v[1]', v: '3' }, { n: 'it', t: 'iterator', v: 'end()' }],
+      note: 'The buggy version <code>v.erase(it)</code> followed by <code>++it</code> uses a dead iterator (undefined behavior) and also skips an element. C++20 shortcut: <code>std::erase_if(v, pred)</code>.' }
+  ]
+});
+</script>
+</body>
+</html>

@@ -1,6 +1,6 @@
 # Reading guide: *C++ Primer* (5th Edition)
 
-A reading plan for `books/Cpp-Primer-5th-Edition-Lippman.pdf` (Stanley Lippman, Josée Lajoie and Barbara Moo, 2012, about 970 pages, C++11). It is the most complete textbook of the five books: it teaches the whole language and the library in the order a beginner should meet them, with exercises after almost every section. That makes it the **systematic base** for lessons 1 to 13, 15 and 17; it is a good partner to the lessons because it explains every rule in full, and they show what happens in memory.
+A reading plan for `books/Cpp-Primer-5th-Edition-Lippman.pdf` (Stanley Lippman, Josée Lajoie and Barbara Moo, 2012, about 970 pages, C++11). It is the most complete textbook of the five books: it teaches the whole language and the library in the order a beginner should meet them, with exercises after almost every section. That makes it the **systematic base** for lessons 1 to 18, 20 and 22; it is a good partner to the lessons because it explains every rule in full, and they show what happens in memory.
 
 **Page numbers.** The tables give *PDF viewer* page numbers, the number your PDF reader shows. The plan and the notes use PDF pages only.
 
@@ -12,8 +12,8 @@ The sections and their summaries come from the book's table of contents and chap
 
 | Covers well | Does not cover |
 |---|---|
-| Types, expressions, statements, functions, classes | Threads, mutexes, atomics (use *C++ Concurrency in Action* and lessons 19 to 21) |
-| The whole standard library of C++11: strings, containers, algorithms, IO, smart pointers | C++14, C++17 and C++20: `optional`, `variant`, `string_view`, structured bindings, `if constexpr`, concepts, ranges, `std::format` (lessons 3, 14, 11, 10 and 18) |
+| Types, expressions, statements, functions, classes | Threads, mutexes, atomics (use *C++ Concurrency in Action* and lessons 23 to 25) |
+| The whole standard library of C++11: strings, containers, algorithms, IO, smart pointers | C++14, C++17 and C++20: `optional`, `variant`, `string_view`, structured bindings, `if constexpr`, concepts, ranges, `std::format` (lessons 3, 19, 11, 10 and 17) |
 | Copy control, move semantics, operator overloading | Deep move semantics and forwarding (*Effective Modern C++* and *C++ Move Semantics*) |
 | Inheritance and virtual functions, templates, exceptions | Design patterns, performance and memory layout (use other books; the lessons no longer cover them) |
 
@@ -28,11 +28,11 @@ The sections that teach what the lessons rely on: types and `const`, strings and
 | **2.4** const qualifier | 88 to 95 | Top-level versus low-level `const`, `const` references, `constexpr`. | 2. const and pointers |
 | **3.2** Library string type | 113 to 124 | Initializing and reading strings, `getline`, range-for, character functions. | 2. Pointers and arrays |
 | **3.3** Library vector type | 125 to 134 | `vector` as the default container, `push_back`, subscript does not add elements. | 11. vector: the workhorse |
-| **3.4** Introducing iterators | 135 to 141 | `begin`/`end`, dereferencing, iterator arithmetic, invalidation. | 11. Iterators |
+| **3.4** Introducing iterators | 135 to 141 | `begin`/`end`, dereferencing, iterator arithmetic, invalidation. | 13. Iterators |
 | **3.5** Arrays | 142 to 153 | Built-in arrays, decay to pointers, pointer arithmetic, C-style strings; why to prefer `vector` and `string`. | 2. Pointers and arrays |
-| **4.1** Fundamentals | 163 to 167 | Lvalues and rvalues, precedence, evaluation order and what is unspecified. | 15. Lvalues, rvalues and value categories |
+| **4.1** Fundamentals | 163 to 167 | Lvalues and rvalues, precedence, evaluation order and what is unspecified. | 20. Lvalues, rvalues and value categories |
 | **4.11** Type conversions | 188 to 194 | Every implicit conversion, the usual arithmetic conversions, and the named casts. | 4. What the compiler converts for you; Narrowing and braces; The C-style cast and why to avoid it; static_cast: the everyday cast |
-| **5.6** try blocks and exception handling | 222 to 229 | `throw`, `try`/`catch`, the standard exception classes, stack unwinding. | 13. Exceptions and stack unwinding |
+| **5.6** try blocks and exception handling | 222 to 229 | `throw`, `try`/`catch`, the standard exception classes, stack unwinding. | 18. Exceptions and stack unwinding |
 | **6.2** Argument passing | 237 to 250 | By value, by reference, by `const` reference, array parameters, `initializer_list`. | 1. Functions and passing arguments |
 | **6.3** Return types and the return statement | 251 to 258 | Returning references (never to a local), returning lists, `decltype` and trailing return types. | 1. Functions and passing arguments |
 | **6.4** Overloaded functions | 259 to 264 | What counts as a different signature, `const` and overloading, scope and overloading. | 1. Functions and passing arguments |
@@ -42,17 +42,17 @@ The sections that teach what the lessons rely on: types and `const`, strings and
 | **7.5** Constructors revisited | 317 to 328 | The initializer list (and why order matters), delegating constructors, implicit conversions, `explicit`, aggregate classes. | 5. Constructors and destructors; 6. explicit, conversion operators and copy-and-swap |
 | **9.3** Sequential container operations | 370 to 383 | Insert, erase, `emplace`, access, resizing and which operations invalidate iterators. | 11. vector: the workhorse; Common pitfalls |
 | **9.4** How a vector grows | 384 to 388 | `size` versus `capacity`, `reserve`, `shrink_to_fit`, amortized growth. | 11. vector: the workhorse |
-| **10.1 to 10.2** Overview and a first look | 405 to 413 | Read, write and reordering algorithms, `sort`, `unique`, the erase-remove idiom. | 11. Algorithms |
+| **10.1 to 10.2** Overview and a first look | 405 to 413 | Read, write and reordering algorithms, `sort`, `unique`, the erase-remove idiom. | 14. Algorithms |
 | **10.3** Customizing operations | 414 to 429 | Predicates, lambda expressions, captures, `bind`. | 10. What a lambda is; Captures: by value and by reference |
-| **10.5** Structure of generic algorithms | 439 to 443 | The five iterator categories and which algorithms need which. | 11. Iterators |
-| **11.3** Operations on associative containers | 457 to 471 | Insert, erase, access, `operator[]` inserting a default value, the strict weak ordering rule. | 11. Associative and unordered containers; Custom keys: comparators and hashes |
-| **11.4** The unordered containers | 472 to 477 | Hash tables, buckets and how to give your own type a hash. | 11. Custom keys: comparators and hashes |
-| **12.1** Dynamic memory and smart pointers | 479 to 504 | `shared_ptr`, `new` and `delete` and why raw `new` is dangerous, `unique_ptr`, `weak_ptr`, custom deleters. | 17. Who owns it? The three smart pointers; unique_ptr in detail; shared_ptr and the control block; Reference cycles and weak_ptr |
+| **10.5** Structure of generic algorithms | 439 to 443 | The five iterator categories and which algorithms need which. | 13. Iterators |
+| **11.3** Operations on associative containers | 457 to 471 | Insert, erase, access, `operator[]` inserting a default value, the strict weak ordering rule. | 12. Associative and unordered containers; Custom keys: comparators and hashes |
+| **11.4** The unordered containers | 472 to 477 | Hash tables, buckets and how to give your own type a hash. | 12. Custom keys: comparators and hashes |
+| **12.1** Dynamic memory and smart pointers | 479 to 504 | `shared_ptr`, `new` and `delete` and why raw `new` is dangerous, `unique_ptr`, `weak_ptr`, custom deleters. | 22. Who owns it? The three smart pointers; unique_ptr in detail; shared_ptr and the control block; Reference cycles and weak_ptr |
 | **12.2** Dynamic arrays | 505 to 512 | `new[]`/`delete[]`, `unique_ptr<T[]>`, the `allocator` class. | 2. Dynamic memory: new and delete |
 | **13.1** Copy, assign and destroy | 525 to 538 | The copy constructor, copy assignment, destructor, `= default` and `= delete`, the Rule of Three. | 6. Copying and the Rule of 3, 5 and 0 |
 | **13.2** Copy control and resource management | 539 to 544 | Value-like versus pointer-like classes. | 6. Copying and the Rule of 3, 5 and 0 |
 | **13.5** Classes that manage dynamic memory | 553 to 559 | A `StrVec` built by hand with `allocator`: the model for `vector`. | 6. Copying and the Rule of 3, 5 and 0 |
-| **13.6** Moving objects | 560 to 579 | Rvalue references, `std::move`, move constructor and assignment, `noexcept`, reference qualifiers. | 15. Lvalues, rvalues and value categories; Copy versus move; Writing move operations |
+| **13.6** Moving objects | 560 to 579 | Rvalue references, `std::move`, move constructor and assignment, `noexcept`, reference qualifiers. | 20. Lvalues, rvalues and value categories; Copy versus move; Writing move operations |
 | **14.8** The function-call operator | 600 to 607 | Function objects, lambdas as function objects, library functors, `std::function`. | 9. Functors: objects you can call; std::function and std::invoke; 10. What a lambda is |
 | **14.9** Overloading, conversions and operators | 608 to 619 | Conversion operators, `explicit` conversions, ambiguity. | 6. explicit, conversion operators and copy-and-swap |
 | **15.1 to 15.2** OOP overview, defining base and derived classes | 621 to 631 | Inheritance, `virtual`, derived-to-base conversion, how a derived object is laid out. | 7. Inheritance |
@@ -61,12 +61,12 @@ The sections that teach what the lessons rely on: types and `const`, strings and
 | **15.6** Class scope under inheritance | 646 to 650 | Name lookup and hiding. | 7. Polymorphism and virtual functions |
 | **15.7** Constructors and copy control | 651 to 658 | Virtual destructors, derived-class constructors, synthesized copy control and deleted copy operations. | 5. Constructors and destructors; 6. Copying and the Rule of 3, 5 and 0 |
 | **15.8** Containers and inheritance | 659 to 662 | Containers of pointers instead of objects, slicing, the virtual-copy (`clone`) idiom. | 7. Polymorphism and virtual functions |
-| **16.1** Defining a template | 681 to 706 | Function and class templates, template parameters, member templates, instantiation, why templates live in headers. | 12. Why templates, and function templates; Class templates |
-| **16.2** Template argument deduction | 707 to 722 | Conversions allowed during deduction, explicit arguments, trailing returns, `std::move` and forwarding references, reference collapsing. | 12. Template argument deduction; Forwarding references |
-| **16.4** Variadic templates | 728 to 734 | Parameter packs, `sizeof...`, pack expansion and recursion. | 12. Variadic templates and fold expressions |
+| **16.1** Defining a template | 681 to 706 | Function and class templates, template parameters, member templates, instantiation, why templates live in headers. | 15. Why templates, and function templates; 16. Class templates |
+| **16.2** Template argument deduction | 707 to 722 | Conversions allowed during deduction, explicit arguments, trailing returns, `std::move` and forwarding references, reference collapsing. | 15. Template argument deduction; Forwarding references |
+| **16.4** Variadic templates | 728 to 734 | Parameter packs, `sizeof...`, pack expansion and recursion. | 15. Variadic templates and fold expressions |
 | **17.3** Regular expressions | 757 to 773 | `regex`, `regex_search`, `regex_match`, `sregex_iterator`, match results. | 8. Regular expressions |
-| **17.4** Random numbers | 774 to 780 | Engines, distributions and why `rand()` is not good enough. | 11. Random numbers |
-| **18.1** Exception handling | 801 to 813 | Stack unwinding, destructors and exceptions, `noexcept`, exception class hierarchies, RAII for exception safety. | 13. Exceptions and stack unwinding; Exception-safety guarantees and noexcept |
+| **17.4** Random numbers | 774 to 780 | Engines, distributions and why `rand()` is not good enough. | 14. Random numbers |
+| **18.1** Exception handling | 801 to 813 | Stack unwinding, destructors and exceptions, `noexcept`, exception class hierarchies, RAII for exception safety. | 18. Exceptions and stack unwinding; Exception-safety guarantees and noexcept |
 | **18.3** Multiple and virtual inheritance | 831 to 847 | Constructing multiple bases, name ambiguity, the diamond, `virtual` base classes. | Not in the lessons |
 | **19.2** Run-time type identification | 854 to 860 | `dynamic_cast`, `typeid`, `type_info`. | Not in the lessons |
 
@@ -93,22 +93,22 @@ The sections that teach what the lessons rely on: types and `const`, strings and
 | **9.1 to 9.2** Overview and the container library | 355 to 369 | Which container to choose, the common members, `array` and `forward_list`, assignment and `swap`. | 11. Other sequence containers |
 | **9.5** Additional string operations | 389 to 396 | `substr`, `find`, `replace`, numeric conversions. | 8. std::string and std::string_view |
 | **9.6** Container adaptors | 397 to 402 | `stack`, `queue`, `priority_queue`. | 11. Other sequence containers |
-| **10.4** Revisiting iterators | 430 to 438 | Insert, stream, reverse and move iterators. | 11. Iterators |
+| **10.4** Revisiting iterators | 430 to 438 | Insert, stream, reverse and move iterators. | 13. Iterators |
 | **10.6** Container-specific algorithms | 444 to 447 | `list::sort` and `merge`. | 11. Other sequence containers |
-| **11.1 to 11.2** Using an associative container, overview | 449 to 456 | `map`, `set`, their `multi` variants, key requirements. | 11. Associative and unordered containers |
+| **11.1 to 11.2** Using an associative container, overview | 449 to 456 | `map`, `set`, their `multi` variants, key requirements. | 12. Associative and unordered containers |
 | **12.3** Using the library: a text-query program | 513 to 521 | A complete program that combines `vector`, `map`, `set` and `shared_ptr` (optional). | Not in the lessons |
 | **13.3** Swap | 545 to 547 | A custom `swap` and copy-and-swap assignment. | 6. explicit, conversion operators and copy-and-swap |
 | **13.4** A copy-control example | 548 to 552 | Two classes that cooperate via a shared object (optional). | Not in the lessons |
 | **14.1 to 14.7** Basic concepts through member access | 581 to 599 | Which operators to overload, `<<` and `>>`, `==` and `<`, assignment, `[]`, `++`, `->`. | 6. Operator overloading |
 | **15.5** Access control and inheritance | 640 to 645 | `protected`, `public`/`private` inheritance, `using` declarations. | 7. Inheritance |
-| **16.3** Overloading and templates | 723 to 727 | How templates take part in overload resolution. | 12. Template argument deduction |
-| **16.5** Template specializations | 735 to 743 | Full and partial specialization. | 12. Specialization |
-| **17.1** The tuple type | 747 to 751 | `tuple`, `get`, `tie` and returning several values. | 14. pair, tuple and structured bindings |
+| **16.3** Overloading and templates | 723 to 727 | How templates take part in overload resolution. | 15. Template argument deduction |
+| **16.5** Template specializations | 735 to 743 | Full and partial specialization. | 16. Specialization |
+| **17.1** The tuple type | 747 to 751 | `tuple`, `get`, `tie` and returning several values. | 12. pair, tuple and structured bindings |
 | **18.2** Namespaces | 814 to 830 | Definitions, aliases, `using` directives, argument-dependent lookup, overloading. | 1. How a C++ program is built |
 | **19.1** Controlling memory allocation | 849 to 853 | Overloading `operator new`, placement `new`. | Not in the lessons |
 | **19.3** Enumerations | 861 to 863 | Scoped `enum class` and the underlying type. | Not in the lessons |
 | **19.4** Pointer to class member | 864 to 871 | Pointers to data and function members, and how `std::function` and `std::invoke` handle them. | Not in the lessons |
-| **19.5 to 19.6** Nested classes and unions | 872 to 880 | Nested classes, `union`, discriminated unions (the idea behind `variant`). | 14. variant and std::visit |
+| **19.5 to 19.6** Nested classes and unions | 872 to 880 | Nested classes, `union`, discriminated unions (the idea behind `variant`). | 19. variant and std::visit |
 | **17.2** The bitset type | 752 to 756 | Fixed-size bit sets. | Not in the lessons |
 | **19.7 to 19.8** Local classes and nonportable features | 881 to 893 | Bit-fields, `volatile`, `extern "C"`. | Not in the lessons |
 

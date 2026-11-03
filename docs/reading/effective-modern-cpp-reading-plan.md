@@ -40,7 +40,7 @@ About 220 pages and 22 hours, at roughly 10 pages an hour plus the checkpoint wo
 2. How does `auto` differ from template deduction for a braced initializer?
 3. Why can `{}` pick an `initializer_list` constructor you did not expect?
 
-After: Lesson 12 (Templates, argument deduction), Lesson 3 (Types, `auto` and braces) and their quizzes.
+After: Lesson 15 (Templates, argument deduction), Lesson 3 (Types, `auto` and braces) and their quizzes.
 
 ## Session 2: interfaces that say what they mean
 
@@ -55,7 +55,7 @@ After: Lesson 12 (Templates, argument deduction), Lesson 3 (Types, `auto` and br
 2. Why does `std::vector` move its elements on growth only if the move is `noexcept`?
 3. When is a `const` member function a data race, and what does `mutable` have to do with it?
 
-After: Lessons 5 and 7 (OOP, polymorphism), Lesson 13 (Core, `noexcept`), Lesson 18 (`constexpr`) and Lesson 19 (Multithreading, mutexes).
+After: Lessons 5 and 7 (OOP, polymorphism), Lesson 18 (Core, `noexcept`), Lesson 17 (`constexpr`) and Lesson 23 (Multithreading, mutexes).
 
 ## Session 3: special members and smart pointers
 
@@ -70,7 +70,7 @@ After: Lessons 5 and 7 (OOP, polymorphism), Lesson 13 (Core, `noexcept`), Lesson
 2. What is in a `shared_ptr`'s control block, and why is a custom deleter not part of its type?
 3. When should you not use `make_shared`?
 
-After: Lesson 6 (Rule of 3, 5, 0) and Lesson 17 (Smart pointers).
+After: Lesson 6 (Rule of 3, 5, 0) and Lesson 22 (Smart pointers).
 
 ## Session 4: `std::move`, `std::forward` and universal references
 
@@ -85,7 +85,7 @@ After: Lesson 6 (Rule of 3, 5, 0) and Lesson 17 (Smart pointers).
 2. How do you tell a universal reference from an rvalue reference?
 3. Why does `return std::move(local)` hurt?
 
-After: Lesson 15 (Move semantics and Perfect forwarding) and Lesson 12 (forwarding references).
+After: Lesson 20 (Move semantics and Perfect forwarding) and Lesson 15 (forwarding references).
 
 ## Session 5: overloading and moves in practice
 
@@ -100,7 +100,7 @@ After: Lesson 15 (Move semantics and Perfect forwarding) and Lesson 12 (forwardi
 2. Name two ways to avoid overloading on universal references.
 3. When is `emplace_back` really faster than `push_back`?
 
-After: Lesson 15, Lesson 18 (tag dispatch, `enable_if`, concepts) and Lesson 11 (vector).
+After: Lesson 20, Lesson 17 (tag dispatch, `enable_if`, concepts) and Lesson 11 (vector).
 
 ## Session 6: lambdas
 
@@ -129,7 +129,7 @@ After: Lesson 10 (Lambdas) and its quiz.
 2. Why is a joinable `std::thread` destroyed a `std::terminate`?
 3. What is `volatile` for, and why is it not a synchronization tool?
 
-After: Lessons 19 to 21 (Multithreading, Tasks, Atomics) and their quizzes.
+After: Lessons 23 to 25 (Multithreading, Tasks, Atomics) and their quizzes.
 
 ## Skip, and a note on the edition
 

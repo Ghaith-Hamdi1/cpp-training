@@ -1,0 +1,163 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Class Templates</title>
+<script>try{var t=JSON.parse(localStorage.getItem('cpptrain:theme'));if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body data-topic="classtemplates" data-kind="lesson">
+<main>
+<h1>Class Templates</h1>
+<p class="lead">The same idea for classes: one blueprint, one class per set of arguments. Non-type parameters, class template argument deduction, full and partial specialization, alias and variable templates. Assumes <a href="05-templates.html">Function Templates</a>.</p>
+
+<section id="s2" data-title="Class templates">
+<h2>Class templates</h2>
+<p>Same idea for classes: <code>vector&lt;T&gt;</code>, <code>map&lt;K,V&gt;</code>, <code>unique_ptr&lt;T&gt;</code>.</p>
+<figure class="fig"><svg viewBox="0 0 640 150" role="img" aria-label="Stack of int and Stack of string with capacity 100 are two unrelated classes generated from one template"><defs><marker id="ka" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path class="ah" d="M0 0L10 5L0 10z"/></marker></defs><rect class="wn" x="10" y="45" width="210" height="60" rx="8"/><text class="t" x="115" y="70" text-anchor="middle">template&lt;T, N&gt; Stack</text><text class="m" x="115" y="90" text-anchor="middle">a blueprint, no code yet</text><path class="ar" d="M220 62L338 38M220 88L338 112" marker-end="url(#ka)"/><rect class="gd" x="340" y="16" width="200" height="44" rx="6"/><text class="mono" x="440" y="36" text-anchor="middle">Stack&lt;int, 8&gt;</text><text class="m" x="440" y="52" text-anchor="middle">array&lt;int, 8&gt; items_</text><rect class="gd" x="340" y="92" width="200" height="44" rx="6"/><text class="mono" x="440" y="112" text-anchor="middle">Stack&lt;string, 100&gt;</text><text class="m" x="440" y="128" text-anchor="middle">array&lt;string, 100&gt; items_</text><text class="m" x="548" y="76">different types:</text><text class="m" x="548" y="92">no conversion</text></svg><figcaption>Each combination of arguments is its own class; members are generated only when used.</figcaption></figure>
+<script type="text/x-cpp">
+template <typename T, std::size_t Capacity = 8>      // a type parameter, a NON-TYPE parameter, with a default
+class Stack {
+    std::array<T, Capacity> items_;
+    std::size_t size_ = 0;
+public:
+    bool push(const T& v) {
+        if (size_ == Capacity) return false;
+        items_[size_++] = v;
+        return true;
+    }
+    T pop() { return items_[--size_]; }
+    bool empty() const { return size_ == 0; }
+};
+
+Stack<int> a;               // Stack<int, 8>
+Stack<std::string, 100> b;  // a different, unrelated type
+
+std::pair p{1, 2.5};        // C++17 CTAD: class template argument deduction -> std::pair<int, double>
+std::vector v{1, 2, 3};     // std::vector<int>
+</script>
+<ul>
+<li><b>Non-type parameters</b> are compile-time constants (how <code>std::array&lt;int,5&gt;</code> knows its size).</li>
+<li>Each instantiation is a separate, unrelated class. Members are instantiated only if called.</li>
+</ul>
+<div class="callout warn"><span class="label">Why templates live in headers</span>The compiler needs the body at instantiation. In a <code>.cpp</code>, others see only a declaration: linker errors. Use headers, or explicit instantiation (<code>template class Stack&lt;int&gt;;</code>).</div>
+<!-- read-more:start -->
+<div class="callout tip"><span class="label">Read more</span>
+<p><b>C++ Primer (Lippman, Lajoie, Moo)</b></p>
+<ul>
+<li>16.1 Defining a template (PDF pages 681 to 706)</li>
+</ul>
+<p><b>Programming: Principles and Practice (Stroustrup)</b></p>
+<ul>
+<li>18.1 to 18.3 Templates, generalizing Vector, range checking and exceptions (PDF pages 527 to 541)</li>
+</ul>
+</div>
+<!-- read-more:end -->
+</section>
+
+<section id="ctad" data-title="Class template argument deduction">
+<h2>Class template argument deduction (C++17)</h2>
+<figure class="fig"><svg viewBox="0 0 640 110" role="img" aria-label="The compiler deduces the class template arguments from the constructor call"><defs><marker id="kb" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path class="ah" d="M0 0L10 5L0 10z"/></marker></defs><text class="mono" x="10" y="30">std::pair p{1, 2.5};</text><path class="ar" d="M210 26H270" marker-end="url(#kb)"/><rect class="gd" x="276" y="10" width="260" height="30" rx="5"/><text class="mono" x="406" y="30" text-anchor="middle">std::pair&lt;int, double&gt;</text><text class="mono" x="10" y="74">std::vector v{1, 2, 3};</text><path class="ar" d="M210 70H270" marker-end="url(#kb)"/><rect class="gd" x="276" y="54" width="260" height="30" rx="5"/><text class="mono" x="406" y="74" text-anchor="middle">std::vector&lt;int&gt;</text><text class="m" x="10" y="100">When constructors are not enough, write a deduction guide: template &lt;class T&gt; Box(T) -&gt; Box&lt;T&gt;;</text></svg><figcaption>Class template argument deduction (C++17) removes the angle brackets you can infer.</figcaption></figure>
+<script type="text/x-cpp">
+std::pair p{1, 2.5};                    // std::pair<int, double>
+std::vector v{1, 2, 3};                 // std::vector<int>
+std::array a{1, 2, 3};                  // std::array<int, 3>
+
+template <typename T> struct Box { T value; };
+template <typename T> Box(T) -> Box<T>; // a user-defined deduction guide (needed for aggregates before C++20)
+Box b{std::string("x")};                // Box<std::string>
+</script>
+<p>The compiler deduces the class's arguments from the constructor call. A <b>deduction guide</b> tells it how when the constructors alone are not enough. All of the above was compiled and checked.</p>
+</section>
+
+<section id="s3" data-title="Specialization">
+<h2>Specialization</h2>
+<p>A <b>specialization</b> replaces the generic template for specific arguments.</p>
+<figure class="fig"><svg viewBox="0 0 640 170" role="img" aria-label="The compiler picks the most specialized match: full specialization, then partial, then the primary template"><rect class="acc" x="10" y="14" width="620" height="40" rx="6"/><text class="mono" x="24" y="38">template &lt;class T&gt; struct Info          // primary: any T</text><rect class="gd" x="10" y="62" width="620" height="40" rx="6"/><text class="mono" x="24" y="86">template &lt;class T&gt; struct Info&lt;T*&gt;       // partial: any pointer</text><rect class="wn" x="10" y="110" width="620" height="40" rx="6"/><text class="mono" x="24" y="134">template &lt;&gt; struct Info&lt;char*&gt;           // full: exactly char*</text><text class="m" x="470" y="38">Info&lt;int&gt; uses this</text><text class="m" x="470" y="86">Info&lt;int*&gt; uses this</text><text class="m" x="470" y="134">Info&lt;char*&gt; uses this</text></svg><figcaption>Functions cannot be partially specialized; overload them instead.</figcaption></figure>
+<script type="text/x-cpp">
+template <typename T>
+struct Printer {                           // primary template
+    static void print(const T& v) { std::cout << v << '\n'; }
+};
+
+template <>                                // full specialization for bool
+struct Printer<bool> {
+    static void print(bool v) { std::cout << (v ? "yes" : "no") << '\n'; }
+};
+
+template <typename T>
+struct Printer<T*> {                       // PARTIAL specialization: any pointer type
+    static void print(T* p) { std::cout << "ptr to " << *p << '\n'; }
+};
+</script>
+<table>
+<tr><th>Kind</th><th>Meaning</th><th>Allowed for</th></tr>
+<tr><td><b>Full</b> specialization</td><td>all parameters fixed: <code>template&lt;&gt; ... Printer&lt;bool&gt;</code></td><td>class and function templates</td></tr>
+<tr><td><b>Partial</b> specialization</td><td>a pattern: <code>Printer&lt;T*&gt;</code></td><td><b>class templates only</b></td></tr>
+</table>
+<div class="callout tip"><span class="label">Functions: prefer overloads</span>No partial specialization for function templates. Overload instead; an exact non-template match wins. Function specializations do not take part in overload resolution.</div>
+<!-- read-more:start -->
+<div class="callout tip"><span class="label">Read more</span>
+<p><b>C++ Primer (Lippman, Lajoie, Moo)</b></p>
+<ul>
+<li>16.5 Template specializations (PDF pages 735 to 743)</li>
+</ul>
+</div>
+<!-- read-more:end -->
+</section>
+
+<section id="tools" data-title="Alias, variable and template template parameters">
+<h2>Alias templates, variable templates and more</h2>
+<table>
+<tr><th>Tool</th><th>Example</th><th>Use</th></tr>
+<tr><td><b>Alias template</b></td><td><code>template &lt;typename T&gt; using Table = std::map&lt;std::string, std::vector&lt;T&gt;&gt;;</code></td><td>a shorter name that still takes a parameter; unlike <code>typedef</code> it can be templated</td></tr>
+<tr><td><b>Variable template</b> (C++14)</td><td><code>template &lt;typename T&gt; constexpr T zero = T{};</code></td><td>a constant per type: <code>zero&lt;int&gt;</code>, <code>zero&lt;double&gt;</code>. The standard's <code>std::is_integral_v&lt;T&gt;</code> is one</td></tr>
+<tr><td><b>Template template parameter</b></td><td><code>template &lt;template &lt;typename...&gt; class C, typename T&gt;</code></td><td>pass a <i>template</i> (<code>std::vector</code>) rather than a type: <code>makeTwo&lt;std::vector&gt;(3, 4)</code></td></tr>
+<tr><td><b>Non-type parameter</b></td><td><code>template &lt;typename T, std::size_t N&gt;</code></td><td>a value as parameter; <code>auto</code> accepts any type of value in C++17: <code>template &lt;auto V&gt;</code></td></tr>
+<tr><td><b>Abbreviated template</b> (C++20)</td><td><code>void f(auto x)</code></td><td>each <code>auto</code> parameter is an implicit template parameter</td></tr>
+</table>
+<script type="text/x-cpp">
+template <typename T> using Table = std::map<std::string, std::vector<T>>;
+Table<int> t;                                        // std::map<std::string, std::vector<int>>
+
+template <typename T> constexpr T zero = T{};        // zero<int> is 0, zero<double> is 0.0
+
+template <template <typename...> class Container, typename T>
+Container<T> makeTwo(T a, T b) { Container<T> c; c.push_back(a); c.push_back(b); return c; }
+auto v = makeTwo<std::vector>(3, 4);                 // a vector<int> with two elements
+</script>
+<h3>Unpacking with <code>std::index_sequence</code></h3>
+<p>To call a function with the elements of a <code>std::tuple</code> you need the indices <code>0, 1, 2...</code> as a pack. <code>std::make_index_sequence&lt;N&gt;</code> generates it:</p>
+<script type="text/x-cpp">
+template <typename F, typename Tuple, std::size_t... I>
+auto applyImpl(F f, const Tuple& t, std::index_sequence<I...>) { return f(std::get<I>(t)...); }   // expands to get<0>, get<1>, ...
+
+template <typename F, typename Tuple>
+auto applyTuple(F f, const Tuple& t) { return applyImpl(f, t, std::make_index_sequence<std::tuple_size_v<Tuple>>{}); }
+
+applyTuple([](int x, int y, int z) { return x + y + z; }, std::tuple{1, 2, 3});   // 6 (compiled)
+</script>
+<p>C++17 ships this as <code>std::apply</code>. Know the idea: a pack of integers lets you expand an expression once per element.</p>
+</section>
+
+<section id="cheat" data-title="Cheat sheet">
+<h2>Cheat sheet</h2>
+<p>Answer aloud, then open.</p>
+<details class="ex"><summary>What are alias templates and variable templates?</summary><div><p>An alias template is a parameterised <code>using</code> (<code>template&lt;class T&gt; using Vec = std::vector&lt;T&gt;;</code>), which a <code>typedef</code> cannot be. A variable template is a constant or variable per type (<code>template&lt;class T&gt; constexpr T zero = T{};</code>); <code>std::is_integral_v</code> is one.</p></div></details>
+<details class="ex"><summary>Full vs partial specialization?</summary><div><p>Full: all template arguments fixed. Partial: a pattern with some parameters still free (<code>Foo&lt;T*&gt;</code>), allowed for class templates and variable templates but not for function templates (use overloading).</p></div></details>
+<details class="ex"><summary>Why must template definitions be in headers?</summary><div><p>The compiler needs the body to instantiate it in each translation unit that uses a particular type. If only the declaration is visible, no instantiation happens and the linker cannot find the function. Alternative: explicit instantiation in one <code>.cpp</code>.</p></div></details>
+<details class="ex"><summary>What is a non-type template parameter?</summary><div><p>A template parameter that is a compile-time value instead of a type, such as the <code>N</code> in <code>std::array&lt;int, N&gt;</code>. Each value gives a different type, which is why <code>Stack&lt;int, 8&gt;</code> and <code>Stack&lt;int, 9&gt;</code> are unrelated.</p></div></details>
+<details class="ex"><summary>What is class template argument deduction?</summary><div><p>Since C++17 the compiler can deduce the arguments of a class template from the constructor call: <code>std::vector v{1, 2, 3}</code> is a <code>vector&lt;int&gt;</code>. A deduction guide tells it how when the constructors alone are not enough.</p></div></details>
+<h3>Keep going</h3>
+<ul>
+<li>Before this lesson: <a href="05-templates.html">Function Templates</a>.</li>
+<li>Next lesson: <a href="09-compile-time.html">Type Traits, Concepts and Compile-time C++</a>.</li>
+</ul>
+</section>
+</main>
+
+<script src="assets/data/lessons.js"></script>
+<script src="assets/app.js"></script>
+</body>
+</html>

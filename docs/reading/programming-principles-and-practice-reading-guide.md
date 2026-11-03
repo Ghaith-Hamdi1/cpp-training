@@ -34,8 +34,8 @@ These are the ownership and memory chapters that every other C++ topic builds on
 | 8.7 Class interfaces | 250 to 258 | 5. Classes and encapsulation |
 | 15.3 to 15.5 Memory, addresses and pointers; free store; destructors | 452 to 463 | 2. Pointers from scratch; Dynamic memory: new and delete; 5. Constructors and destructors |
 | 16.1 to 16.2 Arrays, pointers and references | 477 to 483 | 2. Arrays, Pointers, References |
-| 17.4 to 17.5 Copying and moving; essential operations | 501 to 512 | 6. Rule of 3, 5 and 0; 15. Move semantics |
-| 18.4 to 18.5 Resources and exceptions; resource-management pointers (RAII, `unique_ptr`) | 542 to 553 | 13. RAII; 13. Exceptions and stack unwinding; 17. Smart pointers |
+| 17.4 to 17.5 Copying and moving; essential operations | 501 to 512 | 6. Rule of 3, 5 and 0; 20. Move semantics |
+| 18.4 to 18.5 Resources and exceptions; resource-management pointers (RAII, `unique_ptr`) | 542 to 553 | 18. RAII; Exceptions and stack unwinding; 22. Smart pointers |
 
 ## Tier 2: read next if you have time (about 130 pages)
 
@@ -43,22 +43,22 @@ These are the ownership and memory chapters that every other C++ topic builds on
 |---|---|---|
 | 2.5 Assignment and initialization | 49 to 52 | 1. Variables and types |
 | 3.5 to 3.6 Functions; `vector` introduced | 81 to 89 | 1. Functions; 11. `vector` |
-| 4.5 to 4.6 Run-time errors and exceptions | 102 to 111 | 13. Exceptions and stack unwinding |
+| 4.5 to 4.6 Run-time errors and exceptions | 102 to 111 | 18. Exceptions and stack unwinding |
 | 7.2 to 7.3 Declarations and definitions; scope | 194 to 202 | 1. Functions; where variables live |
 | 8.4 to 8.6 Evolving a class (`Date`), enumerations, operator overloading | 238 to 249 | 6. Operator overloading; 3. `enum class` |
 | 12.3, 12.5 Base and derived classes; benefits of object-oriented programming | 380 to 387 and 389 to 390 | 5. Inheritance, Polymorphism |
 | 15.6 to 15.8 Element access, an example list, the `this` pointer | 464 to 473 | 5. Member functions: `this` |
 | 16.3 to 16.4 C-style strings; alternatives to pointer use | 484 to 487 | 2. Pointers and arrays |
-| 17.6 to 17.9 Other operations, remaining `Vector` problems, changing size | 513 to 523 | 15. Move semantics; 11. vector: the workhorse |
-| 18.1 to 18.3 Templates, generalizing `Vector`, range checking and exceptions | 527 to 541 | 12. Function and class templates |
-| 19.1 to 19.3, 19.6 Containers, sequences and iterators, linked lists, `vector`/`list`/`string` | 559 to 572 and 585 to 586 | 11. Iterators, Sequence containers |
-| 20.1 to 20.6 `map`, `unordered_map`, `set`, container overview | 591 to 609 | 11. Associative and unordered containers; Which container should I use? |
-| 21.1 to 21.2, 21.5 Standard algorithms, function objects, sorting and searching | 617 to 626 and 633 to 635 | 11. Algorithms; 10. Lambdas |
+| 17.6 to 17.9 Other operations, remaining `Vector` problems, changing size | 513 to 523 | 20. Move semantics; 11. vector: the workhorse |
+| 18.1 to 18.3 Templates, generalizing `Vector`, range checking and exceptions | 527 to 541 | 15. Why templates, and function templates; 16. Class templates |
+| 19.1 to 19.3, 19.6 Containers, sequences and iterators, linked lists, `vector`/`list`/`string` | 559 to 572 and 585 to 586 | 13. Iterators; 11. Other sequence containers |
+| 20.1 to 20.6 `map`, `unordered_map`, `set`, container overview | 591 to 609 | 12. Associative and unordered containers; 11. Which container should I use? |
+| 21.1 to 21.2, 21.5 Standard algorithms, function objects, sorting and searching | 617 to 626 and 633 to 635 | 14. Algorithms; 10. Lambdas |
 | 9.11 String streams | 296 to 297 | 8. Strings, Regex & Time |
 
 ## Special focus: pointers
 
-Pointers run through Part III of the book. It introduces them to explain how `vector` works underneath, then steers you toward safer alternatives. Most of these sections are already in the tiers above. This is the same material in the order that builds the pointer story, with what each part teaches. Matching lesson: **1. C++ Basics and Pointers** (Pointers from scratch, References, `const` and pointers, Dynamic memory) and **10. Core Language** (RAII) and **12. Smart Pointers and Ownership**.
+Pointers run through Part III of the book. It introduces them to explain how `vector` works underneath, then steers you toward safer alternatives. Most of these sections are already in the tiers above. This is the same material in the order that builds the pointer story, with what each part teaches. Matching lesson: **1. C++ Basics and Pointers** (Pointers from scratch, References, `const` and pointers, Dynamic memory) and **10. Core Language** (RAII) and **15. Smart Pointers and Ownership**.
 
 | Step | Book section | PDF pages | What it teaches |
 |---|---|---|---|
@@ -107,7 +107,7 @@ OOP in this book is spread over chapters 8, 12 and 17, with pieces in 15 and 18.
 
 ## Special focus: templates
 
-The book introduces templates as the tool for building `vector` and the standard library, and it stays at an introductory level. Most of the material is in section 18.1, with a little more in 18.2, 19.4 and chapters 19 to 21. Matching lessons: **17. Templates** and **18. Type Traits and Compile-time C++**.
+The book introduces templates as the tool for building `vector` and the standard library, and it stays at an introductory level. Most of the material is in section 18.1, with a little more in 18.2, 19.4 and chapters 19 to 21. Matching lessons: **22. Templates** and **17. Type Traits and Compile-time C++**.
 
 | Step | Book section | PDF pages | What it teaches | Matching lesson section |
 |---|---|---|---|---|
@@ -140,7 +140,7 @@ The lessons cover these topics well, so they are the main source.
 
 ## Special focus: the STL
 
-The STL is Part III of the book (chapters 19 to 21). It is taught from the idea down rather than as a reference. It starts with a worked example that generalizes a loop until iterators appear, then covers containers, then algorithms. Matching lesson: **15. The STL**.
+The STL is Part III of the book (chapters 19 to 21). It is taught from the idea down rather than as a reference. It starts with a worked example that generalizes a loop until iterators appear, then covers containers, then algorithms. Matching lesson: **20. The STL**.
 
 | Step | Book section | PDF pages | What it teaches | Matching lesson section |
 |---|---|---|---|---|
@@ -153,7 +153,7 @@ The STL is Part III of the book (chapters 19 to 21). It is taught from the idea 
 | 7 | 20.3 and 20.5 `unordered_map` and `set` | 598 to 599 and 602 to 604 | Hash tables, and sets for tracking individual values. | Associative and unordered containers |
 | 8 | 20.4 Timing | 599 to 602 | Measuring a linear `find` in a `vector` against a `map` lookup with `<chrono>`. Make no efficiency claim without measuring, and use the result so the optimizer cannot delete the code. | Which container should I use? |
 | 9 | **21.1 Standard algorithms** | 617 to 622 | About 125 algorithms; a summary table (`find`, `find_if`, `count`, `count_if`, `sort`, `copy`, `merge`, `equal_range`, `accumulate`, `max_element`, `iota`). Input sequences are iterator pairs, and failure is reported by returning `end()`. | Algorithms |
-| 10 | 21.2 Function objects and lambdas | 623 to 626 | Function objects, predicates on class members, lambda expressions. | 11. Algorithms; 10. Lambdas |
+| 10 | 21.2 Function objects and lambdas | 623 to 626 | Function objects, predicates on class members, lambda expressions. | 14. Algorithms; 10. Lambdas |
 | 11 | 21.5 Sorting and searching | 633 to 635 | `sort` with a custom comparator. `binary_search` and `equal_range`, which require a sorted sequence and are much faster than `find` on long ones. | Algorithms |
 | optional | 19.3, 19.4, 19.6 Linked lists, making `Vector` act like an STL container, `vector`/`list`/`string` | 568 to 572, 573 to 578 and 585 to 586 | Building a list and a container that fits the STL. | Other sequence containers |
 | optional | 21.3 to 21.4 Numerical algorithms and copying | 627 to 632 | `accumulate`, `inner_product`, `copy` and `copy_if`. | Algorithms |

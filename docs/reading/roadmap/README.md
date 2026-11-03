@@ -24,13 +24,13 @@ Time = core reading at about 10 pages an hour (pages with code you type in and r
 |---|---|---|---|---|---|---|
 | [1](phase-1-core-language-foundations.md) | Core language foundations | 190 pages, 19.0 h | 2.8 h | 2.3 h | **24.0 h** | 86 pages, 8.6 h |
 | [2](phase-2-classes-memory-and-object-oriented-design.md) | Classes, memory and object-oriented design | 220 pages, 22.0 h | 2.4 h | 0.8 h | **25.3 h** | 84 pages, 8.4 h |
-| [3](phase-3-the-standard-library-and-generic-programming.md) | The standard library and generic programming | 231 pages, 23.1 h | 3.8 h | 0.4 h | **27.4 h** | 67 pages, 6.7 h |
+| [3](phase-3-the-standard-library-and-generic-programming.md) | The standard library and generic programming | 231 pages, 23.1 h | 6.6 h | 0.4 h | **30.1 h** | 67 pages, 6.7 h |
 | [4](phase-4-raii-exceptions-and-advanced-language-tools.md) | RAII, exceptions and advanced language tools | 66 pages, 6.6 h | 0.6 h | 0.0 h | **7.2 h** | 23 pages, 2.3 h |
-| [5](phase-5-modern-cpp.md) | Modern C++ (C++11 to C++20) | 207 pages, 20.7 h | 3.2 h | 0.8 h | **24.7 h** | 118 pages, 11.8 h |
+| [5](phase-5-modern-cpp.md) | Modern C++ (C++11 to C++20) | 207 pages, 20.7 h | 2.3 h | 0.8 h | **23.8 h** | 118 pages, 11.8 h |
 | [6](phase-6-concurrency-and-the-memory-model.md) | Concurrency and the memory model | 109 pages, 10.9 h | 2.7 h | 0.8 h | **14.4 h** | 39 pages, 3.9 h |
-| | **Total** | 1023 pages | | | **122.9 h** | 417 pages, 41.7 h |
+| | **Total** | 1023 pages | | | **124.7 h** | 417 pages, 41.7 h |
 
-The core path is about **123 hours**: roughly 20 weeks at 6 hours a week, or 10 weeks at 12. Adding every deepen list brings it to about **165 hours**. If you only want a refresher on what you already know, skim the "core reading" at 25 pages an hour and spend your time on the lessons, quizzes and recap questions.
+The core path is about **125 hours**: roughly 21 weeks at 6 hours a week, or 10 weeks at 12. Adding every deepen list brings it to about **166 hours**. If you only want a refresher on what you already know, skim the "core reading" at 25 pages an hour and spend your time on the lessons, quizzes and recap questions.
 
 Do the phases in order, because each builds on the one before. Phase 6 (concurrency) needs move semantics, lambdas and RAII from the earlier phases.
 
@@ -55,24 +55,28 @@ A one-page reminder: every big topic, the lesson that teaches it and the book ch
 | Functions and argument passing | [1. C++ Basics](https://ghaith-hamdi1.github.io/cpp-training/01-basics.html) | Primer ch. 6 (231 to 281) |
 | Pointers, references, `const` | [1. C++ Basics](https://ghaith-hamdi1.github.io/cpp-training/01-basics.html) | Primer 2.3 to 2.4 (79 to 95); PPP 15.3 to 15.5 (452 to 463) |
 | Strings, vectors, arrays | [1. C++ Basics](https://ghaith-hamdi1.github.io/cpp-training/01-basics.html) | Primer ch. 3 (113 to 161) |
-| Vocabulary types (`optional`, `variant`, `span`) | [14. Vocabulary Types](https://ghaith-hamdi1.github.io/cpp-training/21-vocabulary-types.html) | Primer 17.1 tuple (747 to 751); EMC Item 5 (55 to 61) |
+| Vocabulary types (`optional`, `variant`, `span`) | [19. optional, variant and expected](https://ghaith-hamdi1.github.io/cpp-training/21-vocabulary-types.html) | Primer 17.1 tuple (747 to 751); EMC Item 5 (55 to 61) |
 | Classes and invariants | [5. Classes and Objects](https://ghaith-hamdi1.github.io/cpp-training/02-oop.html) | Primer ch. 7 (283 to 335); PPP 8.1 to 8.7 (235 to 258) |
 | Copy control, Rule of 3/5/0 | [6. Copy Control and Operators](https://ghaith-hamdi1.github.io/cpp-training/26-copying.html) | Primer 13.1 to 13.5 (525 to 559); Move Semantics 3.3 to 3.4 (66 to 76) |
 | Operator overloading, conversions | [6. Copy Control and Operators](https://ghaith-hamdi1.github.io/cpp-training/26-copying.html) | Primer ch. 14 (581 to 619) |
 | Inheritance, virtual functions | [7. Inheritance, Virtual Functions and the Object Model](https://ghaith-hamdi1.github.io/cpp-training/27-inherit.html) | Primer ch. 15 (621 to 679); PPP 12.3 (380 to 387) |
 | Object model, multiple inheritance, RTTI | [7. Inheritance, Virtual Functions and the Object Model](https://ghaith-hamdi1.github.io/cpp-training/27-inherit.html) | Primer 18.3, 19.2 (831 to 847; 854 to 860) |
-| RAII and exceptions | [13. Core Language: RAII & Exceptions](https://ghaith-hamdi1.github.io/cpp-training/03-core-language.html) | Primer 18.1 (801 to 813); PPP 18.4 to 18.5 (542 to 553) |
-| Move semantics and value categories | [15. Move Semantics](https://ghaith-hamdi1.github.io/cpp-training/13-move-semantics.html) | Primer 13.6 (560 to 579); EMC Items 23, 25 (176 to 195); Move Semantics ch. 2 (43 to 52) |
-| Smart pointers | [17. shared_ptr and weak_ptr](https://ghaith-hamdi1.github.io/cpp-training/14-smart-pointers.html) | Primer 12.1 (479 to 504); EMC Items 18 to 22 (136 to 174) |
+| RAII and exceptions | [18. Core Language: RAII & Exceptions](https://ghaith-hamdi1.github.io/cpp-training/03-core-language.html) | Primer 18.1 (801 to 813); PPP 18.4 to 18.5 (542 to 553) |
+| Move semantics and value categories | [20. Move Semantics](https://ghaith-hamdi1.github.io/cpp-training/13-move-semantics.html) | Primer 13.6 (560 to 579); EMC Items 23, 25 (176 to 195); Move Semantics ch. 2 (43 to 52) |
+| Smart pointers | [22. shared_ptr and weak_ptr](https://ghaith-hamdi1.github.io/cpp-training/14-smart-pointers.html) | Primer 12.1 (479 to 504); EMC Items 18 to 22 (136 to 174) |
 | Lambdas and callables | [10. Lambdas](https://ghaith-hamdi1.github.io/cpp-training/15-lambdas.html) | Primer 10.3, 14.8 (414 to 429; 600 to 607); EMC Items 31 to 32 (234 to 247) |
 | Strings, regex, time | [8. Strings, Regex & Time](https://ghaith-hamdi1.github.io/cpp-training/08-strings-regex-time.html) | Primer 9.5, 17.3 (389 to 396; 757 to 773) |
-| The STL: containers, iterators, algorithms | [11. The STL](https://ghaith-hamdi1.github.io/cpp-training/04-stl.html) | Primer ch. 9 to 11 (355 to 477); PPP 19 to 21 (559 to 635) |
-| Templates | [12. Templates](https://ghaith-hamdi1.github.io/cpp-training/05-templates.html) | Primer ch. 16 (681 to 743); EMC Item 1 (27 to 36) |
-| Forwarding and variadics | [12. Templates](https://ghaith-hamdi1.github.io/cpp-training/05-templates.html) | Primer 16.2.5 to 16.4 (716 to 734); EMC Item 28 (215 to 221) |
-| Type traits, `constexpr`, concepts | [18. Type Traits & Compile-time C++](https://ghaith-hamdi1.github.io/cpp-training/09-compile-time.html) | EMC Item 15 (115 to 121); PPP 18.1.2 to 18.1.4 (530 to 534) |
-| Threads, mutexes, deadlock | [19. Multithreading](https://ghaith-hamdi1.github.io/cpp-training/07-multithreading.html) | Concurrency in Action ch. 2 to 4 (40 to 113) |
-| Futures, pools, tasks | [20. Tasks & Parallelism](https://ghaith-hamdi1.github.io/cpp-training/17-tasks-parallelism.html) | Concurrency in Action 4.2, 9.1.1 (105 to 113; 324 to 326); EMC Items 35 to 39 (259 to 289) |
-| Atomics and the memory model | [21. Atomics & the Memory Model](https://ghaith-hamdi1.github.io/cpp-training/18-atomics-memory-model.html) | Concurrency in Action 5.1, 5.3 (148 to 151; 165 to 170); EMC Item 40 (289 to 297) |
+| STL containers | [11. STL Containers](https://ghaith-hamdi1.github.io/cpp-training/04-stl.html) | Primer ch. 9 (355 to 388); PPP 20 (591 to 609) |
+| Maps, sets and hashing | [12. Maps, Sets and Hashing](https://ghaith-hamdi1.github.io/cpp-training/31-assoc.html) | Primer ch. 11 (449 to 477); PPP 20 (591 to 609) |
+| Iterators | [13. Iterators](https://ghaith-hamdi1.github.io/cpp-training/28-iterators.html) | Primer 3.4 and 10.4 (135 to 141; 430 to 438); PPP 19 (559 to 586) |
+| Algorithms and ranges | [14. Algorithms and Ranges](https://ghaith-hamdi1.github.io/cpp-training/29-algorithms.html) | Primer ch. 10 (405 to 447); PPP 21 (617 to 635) |
+| Function templates | [15. Function Templates](https://ghaith-hamdi1.github.io/cpp-training/05-templates.html) | Primer 16.1 to 16.2 (681 to 722); EMC Item 1 (27 to 36) |
+| Class templates and specialization | [16. Class Templates](https://ghaith-hamdi1.github.io/cpp-training/30-classtemplates.html) | Primer 16.1, 16.5 (681 to 706; 735 to 743); PPP 18.1 to 18.3 (527 to 541) |
+| Forwarding and variadics | [15. Function Templates](https://ghaith-hamdi1.github.io/cpp-training/05-templates.html) | Primer 16.2.5 to 16.4 (716 to 734); EMC Item 28 (215 to 221) |
+| Type traits, `constexpr`, concepts | [17. Type Traits, Concepts and Compile-time C++](https://ghaith-hamdi1.github.io/cpp-training/09-compile-time.html) | EMC Item 15 (115 to 121); PPP 18.1.2 to 18.1.4 (530 to 534) |
+| Threads, mutexes, deadlock | [23. Multithreading](https://ghaith-hamdi1.github.io/cpp-training/07-multithreading.html) | Concurrency in Action ch. 2 to 4 (40 to 113) |
+| Futures, pools, tasks | [24. Tasks & Parallelism](https://ghaith-hamdi1.github.io/cpp-training/17-tasks-parallelism.html) | Concurrency in Action 4.2, 9.1.1 (105 to 113; 324 to 326); EMC Items 35 to 39 (259 to 289) |
+| Atomics and the memory model | [25. Atomics & the Memory Model](https://ghaith-hamdi1.github.io/cpp-training/18-atomics-memory-model.html) | Concurrency in Action 5.1, 5.3 (148 to 151; 165 to 170); EMC Item 40 (289 to 297) |
 
 ## Notes on the books
 

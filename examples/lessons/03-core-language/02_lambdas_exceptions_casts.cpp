@@ -1,4 +1,4 @@
-// Lesson 13: lambda captures, exceptions and catch order, named casts, constexpr, std::optional / variant / string_view.
+// Lesson 18: lambda captures, exceptions and catch order, named casts, constexpr, std::optional / variant / string_view.
 #include <algorithm>
 #include <iostream>
 #include <optional>

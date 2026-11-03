@@ -53,4 +53,4 @@ What surprised me when I ran it:
 
 ## After this session
 
-Lesson 12 (Templates), "Forwarding references", and Lesson 15, "Perfect forwarding"
+Lesson 15 (Templates), "Forwarding references", and Lesson 20, "Perfect forwarding"

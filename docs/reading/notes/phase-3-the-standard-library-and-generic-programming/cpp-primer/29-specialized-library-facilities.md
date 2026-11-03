@@ -64,4 +64,4 @@ What I got wrong when I compared it with the book:
 
 ## After this session
 
-Lesson 14, section 2; lesson 8, section 6; lesson 11, section 11; practice 15 (`parse-value`)
+Lesson 12, section 3 (pair and tuple); lesson 8, section 6; lesson 14, section 3 (Random numbers); practice 15 (`parse-value`)

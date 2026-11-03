@@ -62,4 +62,4 @@ What I got wrong when I compared it with the book:
 
 ## After this session
 
-Lesson 15 (Move Semantics); practice exercise 10 (`MyString`, Rule of Five), written fully from memory
+Lesson 20 (Move Semantics); practice exercise 10 (`MyString`, Rule of Five), written fully from memory
