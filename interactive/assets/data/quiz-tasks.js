@@ -13,14 +13,6 @@ doOtherWork();`,
       opts: ['The program terminates immediately', 'get() rethrows the exception in the calling thread', 'The exception is silently dropped by the future', 'get() returns a default-constructed value'], a: 1,
       why: 'The exception is stored in the shared state and rethrown by `get()`. That makes futures the clean way to propagate errors out of worker threads.' },
 
-    { sec: 'pool', q: 'In a thread pool worker loop, why is the task executed after releasing the queue mutex?',
-      opts: ['It is only a style preference with no effect on the behavior', 'Otherwise the lock is held during the task, so only one task runs at a time', 'A mutex cannot be locked twice by the same worker thread in a row', 'Tasks must never use any locks of their own while they are running'], a: 1,
-      why: 'Hold the lock only to pop the task. Running it outside the lock keeps workers parallel and avoids deadlocks if the task itself submits more work.' },
-
-    { sec: 'pool', q: 'About how many worker threads should a pool for purely CPU-bound tasks have?',
-      opts: ['One thread per queued task, however many there are', 'About std::thread::hardware_concurrency(), the core count', 'Exactly 100, as a round and reasonable number', 'Always exactly 1, so that tasks never overlap'], a: 1,
-      why: 'More threads than cores only adds context switching (oversubscription). Threads that mostly wait on I/O can usefully outnumber the cores.' },
-
     { sec: 'signals', q: 'A `std::promise<int>` is destroyed without `set_value` or `set_exception` ever being called. What does `get()` on its future do?',
       opts: ['It blocks forever, waiting for a value that never comes', 'It throws std::future_error with broken_promise', 'It returns 0, the default value of the int', 'It terminates the program through std::terminate'], a: 1,
       why: 'The promise breaks and the future is made ready with an error, so the waiting thread is not left hanging.' },
@@ -33,36 +25,36 @@ doOtherWork();`,
       opts: ['Runs a function on a new thread immediately when it is created', 'Wraps a callable and delivers its result into a future, to run later', 'Caches the return value of a function for repeated calls to it', 'Creates a whole thread pool around the given function object'], a: 1,
       why: 'It is a callable plus a future. A pool queues the task, a worker runs it, and the caller reads the result from the future.' },
 
-    { sec: 'pool', q: 'A pool task submits a subtask to the same pool and blocks waiting for it. With N workers all doing this, what can happen?',
-      opts: ['Nothing: the OS adds threads when the pool needs more', 'Deadlock: all workers wait for subtasks no free worker can run', 'The pool grows automatically to make room for the subtasks', 'The subtasks run first, so everything finishes normally'], a: 1,
-      why: 'Blocking a pool thread on work that needs the same pool can use up every worker. Avoid waiting inside pool tasks, or use a separate pool.' },
+    { sec: 'why', q: 'What happens to an exception thrown inside a plain `std::thread` function that escapes?',
+      opts: ['`std::terminate` is called', 'It is rethrown in main automatically', 'It is silently ignored by the library', 'It is stored so that you can read it later'], a: 0,
+      why: 'A task with a future is the way to carry it back.' },
 
-    { sec: 'stealing', q: 'How does work stealing reduce lock contention compared with one shared queue?',
-      opts: ['It uses more threads than a single shared queue would', 'Each worker pops its own deque; only idle workers steal from others', 'It removes the need for any synchronization between workers', 'It sorts the tasks by size before running any of them'], a: 1,
-      why: 'Owners and thieves work at opposite ends of per-worker deques. The common case touches only local data, and stealing balances the load.' },
+    { sec: 'futures', q: 'Which launch policy guarantees that `std::async` runs on a new thread?',
+      opts: ['`std::launch::async`', '`std::launch::deferred`', 'The default policy', '`std::launch::lazy`'], a: 0,
+      why: 'The default may defer the call until get().' },
 
-    { sec: 'stealing', q: 'How many worker threads suit I/O-bound tasks compared with CPU-bound ones?',
-      opts: ['The same number: hardware_concurrency() for every workload', 'More than the core count, because threads mostly wait', 'Always exactly one, since I/O is sequential anyway', 'Fewer than the core count, to save memory on stacks'], a: 1,
-      why: 'A blocked thread does not use a core, so more threads keep the cores busy. For CPU-bound work extra threads only add context switches.' },
+    { sec: 'futures', q: 'What does `future::get()` do?',
+      opts: ['Waits for the result and returns it, once', 'Starts the task if it has not started yet', 'Returns at once with a copy of the value', 'Cancels the task and discards its result'], a: 0,
+      why: 'get() blocks until ready and can be called only once.' },
 
-    { sec: 'coordination', q: 'What is the difference between `std::latch` and `std::barrier`?',
-      opts: ['There is no difference between them, only the name', 'A latch counts down once; a barrier is reusable every phase', 'A barrier is one-shot, while a latch can be reused', 'A latch is for processes, while a barrier is for threads'], a: 1,
-      why: 'Once a latch reaches zero it stays open. A barrier resets itself for the next phase.' },
+    { sec: 'destructor', q: 'What happens at the end of the statement `std::async(std::launch::async, work);` with the result discarded?',
+      opts: ['The temporary future blocks until work() finishes', 'work() is cancelled before it has finished', 'The program terminates with an error message', 'work() keeps running quietly in the background'], a: 0,
+      why: 'The future from async waits in its destructor.' },
 
-    { sec: 'coordination', q: 'A `std::counting_semaphore` is created with 2 permits and six threads each `acquire()`, work and `release()`. What is the maximum number of threads working at once?',
-      opts: ['1', '2', '6', 'Unspecified'], a: 1,
-      why: 'The semaphore counts permits: two threads get through and the others wait until a permit is released.' },
+    { sec: 'exceptions', q: 'Where is an exception thrown inside an `async` task rethrown?',
+      opts: ['From `future::get()`', 'From the `async` call', 'In the worker thread again', 'Nowhere'], a: 0,
+      why: 'The exception is stored in the shared state and rethrown by get().' },
 
-    { sec: 'coordination', q: 'What is the right way to stop a running `std::jthread`?',
-      opts: ['Call kill() on the thread object, as one would with a process', 'Request a stop; the thread checks its stop_token and returns', 'detach() it and let it keep running until the program ends', 'Call std::terminate from some other thread to stop just it'], a: 1,
-      why: 'Stopping is cooperative. The destructor of a `jthread` calls `request_stop()` and then joins.' },
+    { sec: 'promise', q: 'What does a `std::promise` give you?',
+      opts: ['The writing end of a one-shot channel to a future', 'A second thread that runs your function for you', 'A mutex that protects the shared result value', 'A repeating signal that you can send many times'], a: 0,
+      why: 'set_value or set_exception once.' },
 
-    { sec: 'parallel', q: 'Why must the operation given to `std::reduce` be associative?',
-      opts: ['It does not have to be: reduce always keeps the original order', 'The library may regroup operands across threads, so grouping must not matter', 'Only so that the call compiles when an execution policy is given', 'Because reduce always runs on a graphics card, never on a CPU'], a: 1,
-      why: 'Unlike `std::accumulate`, `reduce` is free to combine partial results in any grouping. (For floating-point sums the result may differ slightly.)' },
+    { sec: 'promise', q: 'What does the future see if the promise is destroyed without a value?',
+      opts: ['A `broken_promise` exception', 'A default constructed value of the type', 'It waits forever without ever returning', 'A null pointer that the caller must check'], a: 0,
+      why: 'The library reports the broken promise instead of waiting forever.' },
 
-    { sec: 'parallel', q: 'What must be true of the callback passed to `std::for_each(std::execution::par, ...)`?',
-      opts: ['It must be written as a lambda expression', 'It must be safe to call from several threads at once', 'It must be both noexcept and constexpr to be accepted', 'Nothing: the library adds all the locking itself'], a: 1,
-      why: 'The library runs it on several threads, so an unsynchronised write to shared state is a data race (undefined behaviour).' }
+    { sec: 'timeouts', q: 'What does `wait_for` return when the task has not finished within the time?',
+      opts: ['`future_status::timeout`', '`future_status::ready`, as if it had finished', 'It throws an exception to the caller', 'It cancels the task and returns the status'], a: 0,
+      why: 'timeout means not ready yet; ask again or do other work.' }
   ]
 };

@@ -65,7 +65,7 @@ Read 4.1 Condition variables and a thread-safe queue (96 to 104) and 4.2.1 to 4.
 2. What is the difference between a `promise`, a `packaged_task` and `async`?
 3. How does an exception thrown in a task reach the caller?
 
-After: Lesson 29, "Condition variables"; Lesson 30, "Futures and async" and "promise, shared_future and packaged_task".
+After: Lesson 29, "Condition variables"; Lesson 34, "Futures and async" and "promise, shared_future and packaged_task".
 
 ## Session 5: how many threads, and a thread pool
 
@@ -74,7 +74,7 @@ Read 2.4 Choosing the number of threads at runtime (54 to 57) and 9.1.1 The simp
 1. Why does adding threads beyond the core count slow CPU-bound work down?
 2. In the simple pool, why must the task run outside the lock?
 
-After: Lesson 30, "Thread pools and producer/consumer" and "Work stealing and sizing a pool".
+After: Lesson 34, "Thread pools and producer/consumer" and "Work stealing and sizing a pool".
 
 ## Session 6: the memory model and data structures
 
@@ -84,7 +84,7 @@ Read 5.1 Memory model basics (148 to 151), the 5.3 overview of synchronizing ope
 2. What does a release store together with an acquire load guarantee?
 3. How does the queue with a condition variable avoid the `top()` / `pop()` race?
 
-After: Lesson 31 (Atomics), "Memory orders and happens-before" and "Thread-safe data structures".
+After: Lesson 36 (Atomics), "Memory orders and happens-before" and "Thread-safe data structures".
 
 ## Session 7: performance and bugs
 

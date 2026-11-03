@@ -134,7 +134,7 @@ Optional.
 
 | Topic | Where to learn it |
 |---|---|
-| Threads, mutexes, atomics | *C++ Concurrency in Action* in `books/`; lessons 29 to 31 |
+| Threads, mutexes, atomics | *C++ Concurrency in Action* in `books/`; lessons 29 to 36 |
 | C++14 to C++20 (`optional`, `variant`, `string_view`, concepts, ranges) | lessons 3, 19, 11, 10 and 17 |
 | Move semantics and forwarding in depth | *C++ Move Semantics* and *Effective Modern C++* in `books/` |
 | Design patterns | not covered here; use a dedicated book |

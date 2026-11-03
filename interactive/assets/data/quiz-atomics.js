@@ -10,75 +10,52 @@ CT.quizData.atomics = {
       opts: ['Yes: it guarantees that other threads will see the new value at once', 'No: it gives no atomicity or ordering between threads; use std::atomic', 'Yes, but only for variables of type bool or char on most targets', 'Yes, but only on x86 processors with their strong memory ordering'], a: 1,
       why: 'Concurrent access to a `volatile` variable is still a data race. `volatile` is for memory-mapped hardware, not thread synchronization.' },
 
-    { sec: 'ordering', q: 'What is the default memory order of `std::atomic` operations, and what does it mean?',
-      opts: ['relaxed: there is no ordering between the threads', 'seq_cst: one global order for all threads (strongest, simplest)', 'acquire, which is applied to loads only by default in C++', 'release, which is applied to stores only by default in C++'], a: 1,
-      why: 'Sequential consistency is the default because it is the easiest to reason about. Weaker orders are an optimisation that needs justification.' },
-
-    { sec: 'ordering', q: 'What does this guarantee?',
-      code: String.raw`
-int data = 0;
-std::atomic<bool> ready{false};
-
-// thread 1
-data = 42;
-ready.store(true, std::memory_order_release);
-
-// thread 2
-while (!ready.load(std::memory_order_acquire)) {}
-std::cout << data;`,
-      opts: ['It may print 0 or 42, depending on how the threads are scheduled', 'It prints 42: the release store publishes earlier writes to the acquire load', 'It is a data race with undefined behavior on the shared data', 'It prints nothing because the consumer loop never ends'], a: 1,
-      why: 'A release store paired with an acquire load that observes it creates a happens-before edge, so the write to `data` is visible. With relaxed ordering this would not be guaranteed.' },
-
-    { sec: 'ops', q: 'What does `compare_exchange_weak(expected, desired)` do when the current value is not equal to `expected`?',
+    { sec: 'cas', q: 'What does `compare_exchange_weak(expected, desired)` do when the current value is not equal to `expected`?',
       opts: ['Sets the value to desired anyway and returns true', 'Returns false and loads the current value into expected', 'Throws an exception to report the mismatch to the caller', 'Returns true and leaves expected completely unchanged'], a: 1,
       why: 'On failure it refreshes `expected` with the value it actually saw, so a retry loop can recompute from it.' },
 
-    { sec: 'ops', q: 'Why is `compare_exchange_weak` normally used inside a loop?',
+    { sec: 'cas', q: 'Why is `compare_exchange_weak` normally used inside a loop?',
       opts: ['It is faster than a mutex, so it is preferred', 'It may fail spuriously even when the values match', 'It cannot be called more than once on the same atomic object', 'It blocks until the swap finally succeeds, like a lock does'], a: 1,
       why: '`weak` is allowed to fail spuriously (cheaper on some CPUs). `compare_exchange_strong` fails only on a real mismatch.' },
 
-    { sec: 'ops', q: 'What is the ABA problem?',
+    { sec: 'aba', q: 'What is the ABA problem?',
       opts: ['A CAS succeeds because the value is A again, though it went through B', 'Two threads sharing the same atomic variable at the same moment', 'A deadlock between two mutexes locked in opposite orders', 'A compiler bug that is triggered by the volatile keyword'], a: 0,
       why: 'The value looks unchanged, so the CAS succeeds, but a node may have been freed and reused in between. Fix with a version counter or hazard pointers.' },
 
-    { sec: 'ops', q: 'Which standard atomic type is guaranteed to be lock-free?',
+    { sec: 'spin', q: 'Which standard atomic type is guaranteed to be lock-free?',
       opts: ['`std::atomic<std::string>`', '`std::atomic_flag`', '`std::atomic<std::vector<int>>`', 'All of them'], a: 1,
       why: '`std::atomic_flag` is the only type the standard requires to be lock-free. Others depend on the type and platform (`is_lock_free()`).' },
 
-    { sec: 'ordering', q: 'Which pair of orders publishes data written before a store to a thread that reads the stored value?',
-      opts: ['Both operations use relaxed', 'A release store and an acquire load', 'An acquire store and a release load', 'Only volatile reads and writes'], a: 1,
-      why: 'The release store and acquire load synchronize-with each other, so earlier writes happen-before the reader\'s later reads.' },
+    { sec: 'ops', q: 'What is the difference between `x++` on an int and on a `std::atomic<int>` shared by two threads?',
+      opts: ['The atomic increment is one indivisible step', 'The atomic one is slower and still races as before', 'There is no difference, since both are the same', 'The plain int increment is atomic on x86 anyway'], a: 0,
+      why: 'An atomic read-modify-write cannot be interleaved.' },
 
-    { sec: 'ordering', q: 'A producer stores the flag with `release`, but the consumer loads it with `relaxed`. What is guaranteed about the data written before the store?',
-      opts: ['It is visible, because the store was a release operation on the flag', 'Nothing: without an acquire on the reading side there is no ordering', 'It is guaranteed visible only if the data is declared volatile', 'The program does not compile when memory orders are mixed like this'], a: 1,
-      why: 'Both sides must take part. A relaxed load does not synchronize, so reading the data afterwards can be a data race.' },
+    { sec: 'cas', q: 'What does `compare_exchange` do on failure?',
+      opts: ['Loads the current value into `expected`', 'Throws an exception that the caller must handle', 'Stores `desired` anyway, to force the update', 'Resets the variable to zero so it can start over'], a: 0,
+      why: 'That is what makes the retry loop easy to write.' },
 
-    { sec: 'ordering', q: 'What does "A happens-before B" mean?',
-      opts: ['A starts earlier than B in wall-clock time', 'A\'s effects are guaranteed to be visible to B', 'A and B run on the same processor core', 'A runs faster than B on the same machine'], a: 1,
-      why: 'It is the memory model\'s visibility relation: program order within a thread, plus the edges created by synchronization (atomics, mutexes, join, futures).' },
+    { sec: 'spin', q: 'When is a spinlock a bad idea?',
+      opts: ['When the lock holder can be descheduled', 'For very short critical sections of a few lines', 'On cores that are dedicated to the spinning threads', 'For protecting a single increment of a counter'], a: 0,
+      why: 'Spinners burn CPU while the holder is not running.' },
 
-    { sec: 'ordering', q: 'Why can code with a wrong memory order seem to work on x86 and fail on ARM?',
-      opts: ['x86 has no caches that could reorder the memory accesses', 'x86 already gives release/acquire ordering; ARM reorders more', 'ARM does not support atomic operations', 'Compilers only optimise code aggressively for ARM targets'], a: 1,
-      why: 'The C++ memory model, not the machine you test on, defines correctness. x86 hides some missing orderings.' },
+    { sec: 'ops', q: 'What does `counter.exchange(9)` return?',
+      opts: ['The previous value', '9', 'The new value of counter', 'Nothing'], a: 0,
+      why: 'exchange writes and returns the old value in one step.' },
 
-    { sec: 'patterns', q: 'Which orders suit the decrement of a reference count where the thread that drops it to zero deletes the object?',
-      opts: ['relaxed on both the increment and the decrement of the count', 'acq_rel, so the last thread sees all other writes before deleting', 'release only, applied to the load of the counter value', 'No atomic is needed for a reference count in C++'], a: 1,
-      why: 'Increments can be relaxed, but the decrement must acquire what the other owners released before the object is destroyed.' },
+    { sec: 'ops', q: 'Which operation is NOT made safe by `std::atomic<int>` alone?',
+      opts: ['Keeping two atomics consistent with each other', 'A single increment of one atomic integer variable', 'A load of one atomic integer variable', 'A store to one atomic integer variable'], a: 0,
+      why: 'An atomic protects one variable; an invariant over several needs a mutex.' },
 
-    { sec: 'patterns', q: 'Which memory order is normally enough for a statistics counter that nothing else depends on?',
-      opts: ['`seq_cst`', '`relaxed`', '`acquire`', '`release`'], a: 1,
-      why: 'Only atomicity is needed: the final total is right and no other data is published through the counter.' },
+    { sec: 'cas', q: 'Why is the `expected` argument passed by reference to `compare_exchange`?',
+      opts: ['A failed attempt can write the current value back into it', 'To avoid a copy of a large object on each call', 'So that the function can change the desired value', 'It is not passed by reference in the standard'], a: 0,
+      why: 'The failure path updates expected so the loop can recompute.' },
 
-    { sec: 'structures', q: 'Why does the two-lock queue keep a dummy node?',
-      opts: ['To save memory when the queue is empty most of the time', 'A push touches only the tail and a pop only the head', 'To make the queue lock-free without any other change', 'To keep the elements stored in the queue sorted'], a: 1,
-      why: 'With a permanent dummy node, head and tail never point at the same real node, so each end can have its own mutex.' },
+    { sec: 'spin', q: 'What does `atomic_flag::test_and_set` return?',
+      opts: ['The previous value of the flag', 'Whether the flag type is lock-free', 'The new value', 'Nothing'], a: 0,
+      why: 'A spinlock loops until it sees that the flag was previously clear.' },
 
-    { sec: 'structures', q: 'Why is a lock-free pop much harder to write than a lock-free push?',
-      opts: ['Pop needs more arguments than push does, so it is slower', 'Another thread may free the node you read, and ABA can corrupt the list', 'Pop cannot use atomic operations, so it must use a mutex', 'Push is not lock-free either in this design, only pop is'], a: 1,
-      why: 'Push only links a node you own. Pop reads and frees nodes other threads may still be using, which needs hazard pointers, epochs or counted pointers.' },
-
-    { sec: 'structures', q: 'What is the difference between lock-free and wait-free?',
-      opts: ['There is no difference between the two terms, both mean lock-free', 'Lock-free: some thread always progresses; wait-free: all do, in bounded steps', 'Wait-free algorithms use mutexes to bound the waiting time for threads', 'Lock-free means that no atomic operations are used by the algorithm'], a: 1,
-      why: 'Wait-free is the stronger guarantee: no thread can be starved indefinitely by others.' }
+    { sec: 'practice', q: 'Which order is enough for `nextId.fetch_add(1)` used as a unique id generator?',
+      opts: ['`relaxed`', '`release`', '`acquire`', 'None: atomics cannot do it'], a: 0,
+      why: 'Only atomicity matters; no other data depends on the value.' }
   ]
 };

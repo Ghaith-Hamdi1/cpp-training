@@ -1,0 +1,287 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mutexes and Locking</title>
+<script>try{var t=JSON.parse(localStorage.getItem('cpptrain:theme'));if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body data-topic="mutexes" data-kind="lesson">
+<main>
+<h1>Mutexes and Locking</h1>
+<p class="lead">How a mutex makes threads take turns: RAII locks, protecting a class, the other mutex types, <code>call_once</code> and the races that hide in interfaces. Assumes <a href="38-races.html">Shared Data and Data Races</a>.</p>
+
+<section id="s4" data-title="Mutexes: taking turns">
+<h2>Mutexes: taking turns</h2>
+<figure class="fig"><svg viewBox="0 0 640 150" role="img" aria-label="Thread 2 waits while thread 1 holds the lock">
+<text class="m" x="10" y="16">time</text><path class="ln" d="M45 12H110"/>
+<text class="t" x="10" y="52">Thread 1</text><rect class="gd" x="90" y="32" width="200" height="30" rx="6"/><text x="190" y="52" text-anchor="middle">lock, critical section, unlock</text>
+<text class="t" x="10" y="102">Thread 2</text><rect class="wn" x="130" y="82" width="160" height="30" rx="6" stroke-dasharray="5 4"/><text x="210" y="102" text-anchor="middle">blocked, waiting</text><rect class="gd" x="290" y="82" width="200" height="30" rx="6"/><text x="390" y="102" text-anchor="middle">lock, critical section, unlock</text>
+<text class="m" x="10" y="140">Only one thread is inside the protected region at any moment, so the updates cannot overlap.</text></svg><figcaption>Cost: thread 2 does nothing while it waits. Keep critical sections short.</figcaption></figure>
+<p>A <b>mutex</b> lets one thread at a time into the <b>critical section</b>; others <b>wait</b> at <code>lock()</code>. Same two threads, now locked:</p>
+<div id="sim-mutex"></div>
+<p>Run 500 random schedules: <b>always 4</b>.</p>
+<script type="text/x-cpp">
+std::mutex m;
+int counter = 0;
+
+void work() {
+    for (int i = 0; i < 1000; ++i) {
+        std::lock_guard<std::mutex> lock(m);   // locks now, unlocks automatically at the end of the block
+        ++counter;
+    }
+}
+</script>
+<!-- read-more:start -->
+<div class="callout tip"><span class="label">Read more</span>
+<p><b>Effective Modern C++ (Meyers)</b></p>
+<ul>
+<li>Item 16, Make const member functions thread safe (PDF pages 121 to 127)</li>
+</ul>
+<p><b>C++ Concurrency in Action (Williams)</b></p>
+<ul>
+<li>3.2.1 to 3.2.3 Mutexes in C++, structuring code to protect data, race conditions inherent in interfaces (PDF pages 64 to 74)</li>
+<li>3.2.6 to 3.2.8 std::unique_lock, transferring mutex ownership, locking granularity (PDF pages 82 to 87)</li>
+</ul>
+</div>
+<!-- read-more:end -->
+</section>
+
+<section id="raii" data-title="Use RAII locks, never raw lock and unlock">
+<h2>Use RAII locks, never raw <code>lock()</code>/<code>unlock()</code></h2>
+<p>An exception or early return between <code>lock()</code> and <code>unlock()</code> leaves the mutex locked forever.</p>
+<table>
+<tr><th>Type</th><th>Use it when</th></tr>
+<tr><td><code>std::lock_guard&lt;std::mutex&gt;</code></td><td>default: lock for the whole scope</td></tr>
+<tr><td><code>std::unique_lock&lt;std::mutex&gt;</code></td><td>unlock early, relock, defer; required by <code>cv.wait</code></td></tr>
+<tr><td><code>std::scoped_lock</code> (C++17)</td><td>several mutexes at once, deadlock-free</td></tr>
+<tr><td><code>std::shared_mutex</code> + <code>shared_lock</code></td><td>many readers or one writer</td></tr>
+</table>
+</section>
+
+<section id="protect" data-title="Protecting a class">
+<h2>Protecting a class</h2>
+<script type="text/x-cpp">
+class SafeCounter {
+    mutable std::mutex m_;        // mutable: so const getters can still lock it
+    int value_ = 0;
+public:
+    void increment()   { std::lock_guard<std::mutex> lk(m_); ++value_; }
+    int  get() const   { std::lock_guard<std::mutex> lk(m_); return value_; }
+};
+</script>
+<div class="callout tip"><span class="label">Good locking</span>
+<ul>
+<li>Keep critical sections <b>short</b>; do slow work (I/O, computation) outside.</li>
+<li>Mutex <b>next to its data</b>; never hand out references to that data.</li>
+<li>Never call unknown code (callbacks, virtuals) while locked.</li>
+<li>Too much locking means <b>contention</b>: the program becomes serial.</li>
+</ul></div>
+</section>
+
+<section id="granularity" data-title="How long to hold a lock">
+<h2>How long to hold a lock</h2>
+<p>A mutex serializes the code under it, so every extra line under the lock is time other threads spend waiting. The pattern is: do the slow parts first or after, and keep the lock for the shared access only.</p>
+<figure class="fig"><svg viewBox="0 0 640 150" role="img" aria-label="A lock should cover the shared access only: short critical sections let other threads in sooner"><text class="t" x="10" y="18" text-anchor="start">too long: slow work inside the lock</text><rect class="acc" x="10" y="28" width="120" height="26" rx="6"/><text class="t" x="70.0" y="46.0" text-anchor="middle">prepare</text><rect class="bd" x="134" y="28" width="330" height="26" rx="6"/><text class="t" x="299.0" y="46.0" text-anchor="middle">lock held: read shared + compute + print + sleep</text><text class="t" x="10" y="84" text-anchor="start">short: only the shared access is locked</text><rect class="acc" x="10" y="94" width="330" height="26" rx="6"/><text class="t" x="175.0" y="112.0" text-anchor="middle">prepare and compute (no lock)</text><rect class="gd" x="344" y="94" width="100" height="26" rx="6"/><text class="t" x="394.0" y="112.0" text-anchor="middle">lock held</text><rect class="acc" x="448" y="94" width="130" height="26" rx="6"/><text class="t" x="513.0" y="112.0" text-anchor="middle">print (no lock)</text></svg><figcaption>Hold a lock for as short a time as possible, and never while doing slow work.</figcaption></figure>
+<script type="text/x-cpp">
+int total;                          // shared
+std::mutex m;
+
+int part = expensiveWork();         // no lock: private data
+{
+    std::lock_guard<std::mutex> lk(m);
+    total += part;                  // the only shared access: lock it
+}                                   // unlocked here
+log(part);                          // slow output, outside the lock
+</script>
+<table>
+<tr><th>Do under the lock</th><th>Do not do under the lock</th></tr>
+<tr><td>read or write the shared data</td><td>I/O, printing, sleeping</td></tr>
+<tr><td>restore the invariant before unlocking</td><td>calling unknown code or callbacks</td></tr>
+<tr><td>copy out what you need</td><td>waiting for another lock or a future</td></tr>
+</table>
+</section>
+
+<section id="mutex-types" data-title="Other mutex types and call_once">
+<h2>Other mutex types and <code>call_once</code></h2>
+<table>
+<tr><th>Type</th><th>What it adds</th><th>Use when</th></tr>
+<tr><td><code>std::mutex</code></td><td>nothing: one owner, not re-lockable</td><td>the default</td></tr>
+<tr><td><code>std::recursive_mutex</code></td><td>the <b>same thread</b> may lock it again; it must unlock as many times</td><td>almost never: see below</td></tr>
+<tr><td><code>std::timed_mutex</code></td><td><code>try_lock_for(d)</code> and <code>try_lock_until(t)</code>: give up after a time</td><td>a thread must not wait forever (watchdogs, real-time deadlines)</td></tr>
+<tr><td><code>std::shared_mutex</code> (C++17)</td><td><b>shared</b> mode for readers, <b>exclusive</b> mode for writers</td><td>reads dominate and the critical section is not tiny</td></tr>
+</table>
+<!-- read-more:start -->
+<div class="callout tip"><span class="label">Read more</span>
+<p><b>C++ Concurrency in Action (Williams)</b></p>
+<ul>
+<li>3.3.1 Protecting shared data during initialization (std::call_once) (PDF pages 88 to 91)</li>
+</ul>
+</div>
+<!-- read-more:end -->
+</section>
+
+<section id="recursive" data-title="recursive_mutex is a design smell">
+<h2><code>recursive_mutex</code> is a design smell</h2>
+<script type="text/x-cpp">
+class Account {
+    std::recursive_mutex m_;
+    int balance_ = 0;
+public:
+    void deposit(int n)      { std::lock_guard lk(m_); balance_ += n; }
+    void depositTwice(int n) { std::lock_guard lk(m_); deposit(n); deposit(n); }   // locks the SAME mutex again
+};
+</script>
+<p>It works (compiled: balance 10), but it hides a design problem: <code>depositTwice</code> does not know what state <code>deposit</code> assumes. Prefer a <b>public</b> method that locks once and a <b>private</b> <code>depositLocked()</code> that assumes the lock is held. A plain <code>std::mutex</code> locked twice by one thread is undefined behaviour (usually a deadlock).</p>
+</section>
+
+<section id="rw" data-title="Reader-writer lock">
+<h2>Reader-writer lock</h2>
+<script type="text/x-cpp">
+class PriceTable {
+    mutable std::shared_mutex m_;
+    std::map<std::string, double> px_;
+public:
+    void set(const std::string& k, double v) { std::unique_lock lk(m_); px_[k] = v; }   // exclusive: one writer, no readers
+    double get(const std::string& k) const {
+        std::shared_lock lk(m_);                                                       // shared: any number of readers together
+        auto it = px_.find(k); return it == px_.end() ? -1 : it->second;
+    }
+};
+</script>
+<ul>
+<li>A <code>shared_mutex</code> costs more than a <code>mutex</code> per lock. It pays off only when there are <b>many readers</b> and each read holds the lock for a while.</li>
+<li>Writers can starve if readers never leave (implementation-defined fairness).</li>
+<li><code>try_lock()</code> returns immediately with true or false: compiled, a second thread's <code>try_lock</code> on a held mutex returned false; <code>try_lock_for(20 ms)</code> on one held for 200 ms returned false after 20 ms.</li>
+</ul>
+</section>
+
+<section id="once" data-title="call_once">
+<h2><code>std::call_once</code></h2>
+<script type="text/x-cpp">
+std::once_flag flag;
+void init() { std::call_once(flag, [] { loadConfig(); }); }   // eight threads may call init(): loadConfig runs exactly once
+</script>
+<p>Use it (or a function-local <code>static</code>) for lazy initialization shared by several threads, instead of a hand-written double-checked lock.</p>
+<div class="callout interview"><span class="label">Key point</span>"When would you use a recursive mutex?" Rarely, and say so: it usually means a method that locks calls another that also locks. Restructure into a locking public method and a lock-assuming private one.</div>
+</section>
+
+<section id="interface-races" data-title="Races hidden in interfaces">
+<h2>Races hidden in interfaces</h2>
+<p>A mutex in every member function is necessary but <b>not sufficient</b>. Two threads run this on a shared stack whose methods all lock internally:</p>
+<script type="text/x-cpp">
+SafeStack<int> s;                  // shared by several threads; push, pop, top, empty all lock internally
+
+if (!s.empty()) {                  // 1. is there anything to take?
+    int v = s.top();               // 2. read the top element
+    s.pop();                       // 3. remove it
+    use(v);
+}
+</script>
+<p>Each call is atomic, the <b>sequence is not</b>. Play A and B on a one-element stack:</p>
+<div id="st-iface"></div>
+<p>Two failures, neither preventable by internal locking:</p>
+<ul>
+<li>B calls <code>top()</code> on an empty stack: undefined behavior (the <code>empty()</code> answer went stale).</li>
+<li>Both read <code>top()</code> before either pops: one element processed <b>twice</b>.</li>
+</ul>
+<p>This <b>check-then-act</b> race also hits lock-free structures. The cause is the interface, so change the interface.</p>
+<!-- read-more:start -->
+<div class="callout tip"><span class="label">Read more</span>
+<p><b>C++ Concurrency in Action (Williams)</b></p>
+<ul>
+<li>3.2.1 to 3.2.3 Mutexes in C++, structuring code to protect data, race conditions inherent in interfaces (PDF pages 64 to 74)</li>
+<li>6.1 to 6.2.2 Designing for concurrency, a thread-safe stack and a queue with condition variables (PDF pages 197 to 206)</li>
+</ul>
+</div>
+<!-- read-more:end -->
+</section>
+
+<section id="whole" data-title="Fix: offer whole operations">
+<h2>Fix: offer whole operations</h2>
+<script type="text/x-cpp">
+template <typename T>
+class SafeStack {
+    std::stack<T> s_;
+    mutable std::mutex m_;
+public:
+    void push(T v) {
+        std::lock_guard<std::mutex> lk(m_);
+        s_.push(std::move(v));
+    }
+    std::optional<T> try_pop() {                 // check + read + remove as ONE atomic operation
+        std::lock_guard<std::mutex> lk(m_);
+        if (s_.empty()) return std::nullopt;
+        T v = std::move(s_.top());
+        s_.pop();
+        return v;
+    }
+    // empty() may still exist, but treat its answer as a hint only: it can be stale the moment it returns.
+};
+
+if (auto v = s.try_pop()) use(*v);               // no window between the check and the removal
+</script>
+<div class="callout tip"><span class="label">Why does std::stack split top() and pop()?</span>
+If <code>pop()</code> returned by value and the copy threw after removal, the element would be lost. A concurrent version must merge them: out-parameter, <code>std::optional</code>, <code>shared_ptr&lt;T&gt;</code>, or a non-throwing move.</div>
+<p>Same pattern elsewhere:</p>
+<table>
+<tr><th>Racy sequence</th><th>Whole-operation fix</th></tr>
+<tr><td><code>if (!m.contains(k)) m[k] = v;</code></td><td>one <code>insert</code>/<code>try_emplace</code> call that does both under the lock</td></tr>
+<tr><td><code>if (q.size() &lt; max) q.push(x);</code></td><td>a <code>try_push</code> that checks and pushes under one lock</td></tr>
+<tr><td><code>if (!file_exists(p)) create(p);</code></td><td>an atomic "create if absent" call (for example the OS <code>O_EXCL</code> flag)</td></tr>
+<tr><td><code>if (counter.load() &gt; 0) counter--;</code></td><td>a <code>compare_exchange</code> loop</td></tr>
+</table>
+<div class="callout interview"><span class="label">Key point</span>"Mutex in every method, so thread-safe?" No: each call is safe, the caller's <i>sequence</i> is not. Provide combined operations like <code>try_pop</code> and protect the <b>whole invariant</b>.</div>
+</section>
+
+<section id="cheat" data-title="Cheat sheet">
+<h2>Cheat sheet</h2>
+<p>Answer aloud, then open.</p>
+<details class="ex"><summary><code>lock_guard</code> vs <code>unique_lock</code> vs <code>scoped_lock</code>?</summary><div><p><code>lock_guard</code>: simplest RAII lock for a scope. <code>unique_lock</code>: flexible (unlock/relock, deferred, movable) and needed by condition variables. <code>scoped_lock</code> (C++17): locks multiple mutexes at once with deadlock avoidance.</p></div></details>
+<details class="ex"><summary>My class locks a mutex in every method. Is it thread-safe?</summary><div><p>Not necessarily. Each call is safe on its own, but a caller's <i>sequence</i> of calls is not atomic. The classic case is a shared stack: <code>if (!s.empty()) { v = s.top(); s.pop(); }</code> races, because another thread can pop between the check and the use. The cause is the interface (it is also true of a lock-free stack), so the fix is to provide whole operations such as <code>std::optional&lt;T&gt; try_pop()</code> that check and remove under one lock.</p></div></details>
+<details class="ex"><summary>What does <code>std::scoped_lock</code> do?</summary><div><p>It locks several mutexes in one step with a deadlock-avoidance algorithm and unlocks them in its destructor. Use it whenever you need more than one lock.</p></div></details>
+<details class="ex"><summary>When would you use <code>std::shared_mutex</code>?</summary><div><p>For read-mostly data: many readers take a <code>shared_lock</code> at the same time, a writer takes a <code>unique_lock</code> and excludes everyone. It only pays when reads greatly outnumber writes.</p></div></details>
+<h3>Keep going</h3>
+<ul>
+<li>Before this lesson: <a href="38-races.html">Shared Data and Data Races</a>.</li>
+<li>Next lesson: <a href="40-deadlock.html">Deadlock</a>.</li>
+</ul>
+</section>
+</main>
+
+<script src="assets/data/lessons.js"></script>
+<script src="assets/app.js"></script>
+<script>
+CT.threadsim('#sim-mutex', {
+  title: 'Same threads, each increment protected by mutex m',
+  threads: [{ name: 'A', prog: INC2_LOCKED }, { name: 'B', prog: INC2_LOCKED }],
+  vars: { counter: 0 }, mutexes: ['m'], show: 'counter', expect: 4,
+  help: 'Try to interleave them: once one thread holds m, the other cannot pass m.lock() until it is released.'
+});
+
+CT.stepper('#st-iface', {
+  title: 'Two threads running check-then-act on a stack that holds one element',
+  code: String.raw`
+if (!s.empty()) {
+    int v = s.top();
+    s.pop();
+    use(v);
+}
+`,
+  steps: [
+    { line: 1, mem: [{ n: 'stack s', t: '1 element', v: '[ 7 ]' }, { n: 'thread A', v: 'empty() -> false' }, { n: 'thread B', v: 'waiting to run' }],
+      note: '<b>Thread A</b> calls <code>empty()</code>. The call locks, checks and unlocks correctly: the stack has an element, so the answer is false (not empty).' },
+    { line: 1, mem: [{ n: 'stack s', t: '1 element', v: '[ 7 ]' }, { n: 'thread A', v: 'empty() -> false' }, { n: 'thread B', v: 'empty() -> false' }],
+      note: 'The scheduler switches. <b>Thread B</b> runs the same check. The stack is still untouched, so B also gets "not empty". Each call was perfectly protected, yet both threads now believe they may take an element.' },
+    { line: 2, mem: [{ n: 'stack s', t: '1 element', v: '[ 7 ]' }, { n: 'thread A', v: 'v = top() = 7' }, { n: 'thread B', v: 'empty() -> false' }],
+      note: '<b>Thread A</b> reads the top element: 7.' },
+    { line: 3, mem: [{ n: 'stack s', t: 'EMPTY', v: '[ ]' }, { n: 'thread A', v: 'pop() done, has 7' }, { n: 'thread B', v: 'still believes: not empty' }],
+      note: '<b>Thread A</b> pops. The stack is now empty. B\'s earlier answer is <b>stale</b>: it was true when given and false a moment later.' },
+    { line: 2, mem: [{ n: 'stack s', t: 'EMPTY', v: '[ ]' }, { n: 'thread A', v: 'using 7' }, { n: 'thread B', v: 'top() on EMPTY stack: UNDEFINED BEHAVIOR', dead: true }],
+      note: '<b>Thread B</b> calls <code>top()</code> on an empty stack: undefined behavior. (In a slightly different interleaving, B reads 7 before A pops, and both threads process the same element.) No amount of locking inside <code>empty()</code>, <code>top()</code> and <code>pop()</code> can prevent this. The interface forces callers to do three separate steps. Fix: one <code>try_pop()</code> that does all three under a single lock.' }
+  ]
+});
+</script>
+</body>
+</html>

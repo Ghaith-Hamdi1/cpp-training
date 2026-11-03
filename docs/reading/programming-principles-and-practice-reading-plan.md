@@ -93,9 +93,9 @@ The book stops at introductory templates. Variadic templates, forwarding referen
 
 | Topic | Where to learn it |
 |---|---|
-| Threads, mutexes, atomics | the Williams book in `books/`; lessons 29 to 31 |
+| Threads, mutexes, atomics | the Williams book in `books/`; lessons 29 to 36 |
 | Design patterns | not covered by the lessons |
-| The memory model | lesson 31 |
+| The memory model | lesson 36 |
 | Variadic templates, forwarding references, SFINAE | lessons 15 and 17 |
 | A quick revision | the lessons' quizzes and cheat sheets |
 

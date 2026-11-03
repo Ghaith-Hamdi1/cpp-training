@@ -1,0 +1,161 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Deadlock</title>
+<script>try{var t=JSON.parse(localStorage.getItem('cpptrain:theme'));if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body data-topic="deadlock" data-kind="lesson">
+<main>
+<h1>Deadlock</h1>
+<p class="lead">Why threads can wait for each other forever, the four conditions, the wait-for graph, a global lock order, <code>scoped_lock</code> and the guidelines that prevent it. Assumes <a href="39-mutexes.html">Mutexes and Locking</a>.</p>
+
+<section id="s5" data-title="Deadlock">
+<h2>Deadlock</h2>
+<p>A <b>deadlock</b>: threads wait for each other forever. A holds <code>a</code> wants <code>b</code>; B holds <code>b</code> wants <code>a</code>. Step A once, B once, then try to go on:</p>
+<div id="sim-deadlock"></div>
+<figure class="fig"><svg viewBox="0 0 640 170" role="img" aria-label="A wait-for graph: thread A holds a and waits for b while thread B holds b and waits for a"><defs><marker id="eah2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path class="ah2" d="M0 0L10 5L0 10z"/></marker><marker id="eah3" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path class="ah3" d="M0 0L10 5L0 10z"/></marker></defs><rect class="acc" x="10" y="20" width="130" height="40" rx="6"/><text class="t" x="75.0" y="45.0" text-anchor="middle">Thread A</text><rect class="acc" x="500" y="20" width="130" height="40" rx="6"/><text class="t" x="565.0" y="45.0" text-anchor="middle">Thread B</text><rect class="wn" x="10" y="110" width="130" height="40" rx="6"/><text class="t" x="75.0" y="135.0" text-anchor="middle">mutex a</text><rect class="wn" x="500" y="110" width="130" height="40" rx="6"/><text class="t" x="565.0" y="135.0" text-anchor="middle">mutex b</text><path class="ar2" d="M75 110L75 62" marker-end="url(#eah2)"/><text class="m" x="85" y="90" text-anchor="start">A holds a</text><path class="ar2" d="M565 110L565 62" marker-end="url(#eah2)"/><text class="m" x="430" y="90" text-anchor="start">B holds b</text><path class="ar3" d="M140 40L498 130" marker-end="url(#eah3)"/><text class="m" x="240" y="70" text-anchor="start">A waits for b</text><path class="ar3" d="M500 40L142 128" marker-end="url(#eah3)"/><text class="m" x="380" y="135" text-anchor="start">B waits for a</text><text class="m" x="10" y="168" text-anchor="start">No thread can move: the arrows form a cycle.</text></svg><figcaption>A cycle in the wait-for graph is a deadlock.</figcaption></figure>
+
+<p>"Run 500 random schedules": many end in deadlock. In real programs it may occur once in a million runs, only in production.</p>
+<p>It needs all four (Coffman conditions); remove one and it cannot happen:</p>
+<ol>
+<li><b>Mutual exclusion</b>: one holder at a time</li>
+<li><b>Hold and wait</b>: holds one lock, waits for another</li>
+<li><b>No preemption</b>: a lock cannot be taken away</li>
+<li><b>Circular wait</b>: A waits for B, B for A</li>
+</ol>
+<!-- read-more:start -->
+<div class="callout tip"><span class="label">Read more</span>
+<p><b>C++ Concurrency in Action (Williams)</b></p>
+<ul>
+<li>3.2.4 to 3.2.5 Deadlock: the problem, the solution and further guidelines (PDF pages 74 to 82)</li>
+</ul>
+</div>
+<!-- read-more:end -->
+</section>
+
+<section id="order" data-title="Fix: one global lock order">
+<h2>Fix: one global lock order</h2>
+<p>If <b>every</b> thread takes <code>a</code> before <code>b</code>, no cycle is possible:</p>
+<div id="sim-fixed"></div>
+<script type="text/x-cpp">
+std::mutex a, b;
+
+void thread1() { std::scoped_lock lk(a, b); /* ... */ }   // C++17: locks both with a deadlock-avoidance algorithm
+void thread2() { std::scoped_lock lk(b, a); /* ... */ }   // OK even though the order differs: scoped_lock avoids the deadlock
+
+// pre-C++17:
+std::lock(a, b);                                          // lock both atomically (deadlock-free)
+std::lock_guard<std::mutex> la(a, std::adopt_lock);       // adopt the already-held locks so RAII still unlocks
+std::lock_guard<std::mutex> lb(b, std::adopt_lock);
+</script>
+</section>
+
+<section id="guidelines" data-title="Four guidelines, one idea">
+<h2>Four guidelines, one idea</h2>
+<p><b>Do not wait for a thread that might be waiting for you.</b></p>
+<ol>
+<li><b>Avoid nested locks.</b> If you need several, take them in one step with <code>std::scoped_lock</code>.</li>
+<li><b>No user-supplied code under a lock.</b> A callback may take another lock, or keep a pointer to your data:
+<script type="text/x-cpp">
+class Wrapper {
+    Data data_;
+    std::mutex m_;
+public:
+    template <typename F>
+    void process(F f) {
+        std::lock_guard<std::mutex> lk(m_);
+        f(data_);                          // hands a reference to the protected data to unknown code
+    }
+};
+
+Data* leaked;
+wrapper.process([](Data& d) { leaked = &d; });   // the callback keeps the pointer
+leaked->modify();                                 // later: modifies the data with NO lock held
+</script>
+Never pass out a pointer or reference to protected data.</li>
+<li><b>Fixed lock order.</b> Hand-over-hand locking on list nodes deadlocks when two threads walk in opposite directions. Fix the traversal direction.</li>
+<li><b>Lock hierarchy.</b> Each mutex has a level; a thread may only lock a <i>lower</i> level than it holds. Violations throw the first time, even if the unlucky timing never occurs. It is a small wrapper around <code>std::mutex</code> that records the current level in a <code>thread_local</code> variable and throws if you lock upward. The idea is worth knowing; in practice, <code>std::scoped_lock</code> and a documented lock order cover most programs.</li>
+</ol>
+<div class="callout warn"><span class="label">No mutex needed</span>Two threads that <code>join()</code> each other deadlock, as does any cycle of futures or condition-variable waits.
+<script type="text/x-cpp">
+std::thread tA, tB;                  // both threads are started elsewhere, running funcA and funcB
+
+void funcA() { tB.join(); }          // A waits for B to finish...
+void funcB() { tA.join(); }          // ...and B waits for A to finish: neither ever returns
+</script></div>
+<div class="callout interview"><span class="label">Key point</span>"Prevent deadlock?" Global lock order; <code>std::scoped_lock</code>; no foreign code under a lock; short locks; no nesting; <code>try_lock</code> with back-off. Re-locking a non-recursive mutex you own is undefined behavior.</div>
+</section>
+
+<section id="related" data-title="Livelock, starvation and lost wakeups">
+<h2>Livelock, starvation and lost wakeups</h2>
+<p>Deadlock is the loudest bug but not the only way threads fail to make progress.</p>
+<table>
+<tr><th>Problem</th><th>What happens</th><th>CPU</th><th>Typical cause</th></tr>
+<tr><td><b>deadlock</b></td><td>threads wait for each other forever</td><td>idle</td><td>two locks taken in opposite orders</td></tr>
+<tr><td><b>livelock</b></td><td>threads keep reacting to each other and make no progress</td><td>busy</td><td>both back off and retry in lockstep</td></tr>
+<tr><td><b>starvation</b></td><td>one thread never gets the resource</td><td>busy elsewhere</td><td>an unfair lock or a priority inversion</td></tr>
+<tr><td><b>lost wakeup</b></td><td>a waiter sleeps through its signal</td><td>idle</td><td>notify before wait without a predicate</td></tr>
+</table>
+<ul>
+<li>Livelock is cured by randomizing the retry delay or by giving the threads a fixed order.</li>
+<li><code>std::mutex::try_lock</code> never blocks: use it to back off instead of waiting, but then handle failure.</li>
+</ul>
+</section>
+
+<section id="debug" data-title="Finding a deadlock">
+<h2>Finding a deadlock</h2>
+<p>A deadlock rarely announces itself: the program just stops. Finding it is a matter of asking every thread where it is.</p>
+<figure class="fig"><svg viewBox="0 0 640 170" role="img" aria-label="In a hung program every thread is waiting: two threads blocked inside lock calls with no thread running"><rect class="acc" x="10" y="20" width="190" height="50" rx="6"/><text class="t" x="105.0" y="42.0" text-anchor="middle">thread 1</text><text class="m" x="105.0" y="58.0" text-anchor="middle">blocked in lock(b), holds a</text><rect class="acc" x="220" y="20" width="190" height="50" rx="6"/><text class="t" x="315.0" y="42.0" text-anchor="middle">thread 2</text><text class="m" x="315.0" y="58.0" text-anchor="middle">blocked in lock(a), holds b</text><rect class="acc" x="430" y="20" width="200" height="50" rx="6"/><text class="t" x="530.0" y="42.0" text-anchor="middle">main</text><text class="m" x="530.0" y="58.0" text-anchor="middle">blocked in join()</text><text class="m" x="10" y="100" text-anchor="start">CPU: 0%. No thread can make progress, so nothing moves and nothing crashes.</text><text class="m" x="10" y="122" text-anchor="start">gdb: thread apply all bt shows each thread's stack; look for who waits on which mutex.</text><text class="m" x="10" y="144" text-anchor="start">TSan with -fsanitize=thread also reports lock-order inversions before the hang happens.</text></svg><figcaption>A deadlock shows up as threads waiting, the CPU idle, and a cycle in who holds what.</figcaption></figure>
+<table>
+<tr><th>Tool</th><th>What it shows</th></tr>
+<tr><td><code>gdb</code>: <code>thread apply all bt</code></td><td>the stack of every thread: look for several threads inside <code>lock</code>, <code>wait</code> or <code>join</code></td></tr>
+<tr><td>ThreadSanitizer (<code>-fsanitize=thread</code>)</td><td>lock-order inversions (a before b in one place, b before a in another), even if no hang occurred</td></tr>
+<tr><td>a lock hierarchy in debug builds</td><td>throws the first time a thread locks against the order</td></tr>
+<tr><td>logging with thread ids</td><td>which thread took which lock, in what order</td></tr>
+</table>
+<div class="callout tip"><span class="label">Reproduce it</span>Add a short <code>sleep_for</code> between the two lock calls while debugging: it widens the window so the deadlock happens every time instead of once a month.</div>
+</section>
+
+<section id="cheat" data-title="Cheat sheet">
+<h2>Cheat sheet</h2>
+<p>Answer aloud, then open.</p>
+<details class="ex"><summary>What is a deadlock and how do you prevent it?</summary><div><p>Threads wait for each other's locks forever. Needs mutual exclusion, hold-and-wait, no preemption and circular wait. Prevent with a consistent global lock order, <code>std::scoped_lock</code>/<code>std::lock</code> for multiple mutexes, short critical sections, no calls to foreign code under a lock, or <code>try_lock</code>.</p></div></details>
+<details class="ex"><summary>Can threads deadlock without any mutex? What are the practical rules against deadlock?</summary><div><p>Yes: two threads that <code>join()</code> each other, or any cycle of waits on futures or condition variables. The rules all mean "do not wait for a thread that might be waiting for you": avoid nested locks (or take several with <code>scoped_lock</code>), never call user-supplied code or leak references to protected data while holding a lock, lock in a fixed order, and use a lock hierarchy so a wrong order is caught immediately at runtime.</p></div></details>
+<details class="ex"><summary>What are the four Coffman conditions?</summary><div><p>Mutual exclusion, hold and wait, no preemption and circular wait. All four must hold for a deadlock; breaking any one prevents it. A global lock order breaks circular wait.</p></div></details>
+<details class="ex"><summary>Why is <code>std::scoped_lock(a, b)</code> safe when two threads pass the mutexes in opposite orders?</summary><div><p>It takes the locks with a deadlock-avoidance algorithm (try-and-back-off or ordering), so the order of the arguments does not matter.</p></div></details>
+<h3>Keep going</h3>
+<ul>
+<li>Before this lesson: <a href="39-mutexes.html">Mutexes and Locking</a>.</li>
+<li>Next lesson: <a href="41-condvars.html">Condition Variables and Debugging</a>.</li>
+</ul>
+</section>
+</main>
+
+<script src="assets/data/lessons.js"></script>
+<script src="assets/app.js"></script>
+<script>
+CT.threadsim('#sim-deadlock', {
+  title: 'Opposite lock order: A takes a then b, B takes b then a',
+  threads: [
+    { name: 'A', prog: ['a.lock()', 'b.lock()', 'r = counter', 'r = r + 1', 'counter = r', 'b.unlock()', 'a.unlock()'] },
+    { name: 'B', prog: ['b.lock()', 'a.lock()', 'r = counter', 'r = r + 1', 'counter = r', 'a.unlock()', 'b.unlock()'] }
+  ],
+  vars: { counter: 0 }, mutexes: ['a', 'b'], show: 'counter', expect: 2,
+  help: 'Step A once, then B once, and look at what each is now waiting for.'
+});
+
+CT.threadsim('#sim-fixed', {
+  title: 'Consistent lock order: both threads take a then b',
+  threads: [
+    { name: 'A', prog: ['a.lock()', 'b.lock()', 'r = counter', 'r = r + 1', 'counter = r', 'b.unlock()', 'a.unlock()'] },
+    { name: 'B', prog: ['a.lock()', 'b.lock()', 'r = counter', 'r = r + 1', 'counter = r', 'b.unlock()', 'a.unlock()'] }
+  ],
+  vars: { counter: 0 }, mutexes: ['a', 'b'], show: 'counter', expect: 2,
+  help: 'Whoever gets a first also gets b. The other simply waits. No cycle is possible, so no deadlock.'
+});
+</script>
+</body>
+</html>

@@ -4,7 +4,7 @@
 
 *Threads, mutexes, condition variables, futures and pools, atomics.*
 
-**Time:** about **14.4 hours** (10.9 h reading, 2.7 h lessons and quizzes, 0.8 h exercises), plus 3.9 h if you also read the deepen list.
+**Time:** about **17.7 hours** (10.9 h reading, 5.9 h lessons and quizzes, 0.8 h exercises), plus 3.9 h if you also read the deepen list.
 
 ## Big topics
 
@@ -38,9 +38,15 @@
 
 | Lesson | Time |
 |---|---|
-| [29. Multithreading](https://ghaith-hamdi1.github.io/cpp-training/07-multithreading.html) and its [quiz](https://ghaith-hamdi1.github.io/cpp-training/07-multithreading-quiz.html) | 60 min |
-| [30. Tasks & Parallelism](https://ghaith-hamdi1.github.io/cpp-training/17-tasks-parallelism.html) and its [quiz](https://ghaith-hamdi1.github.io/cpp-training/17-tasks-parallelism-quiz.html) | 45 min |
-| [31. Atomics & the Memory Model](https://ghaith-hamdi1.github.io/cpp-training/18-atomics-memory-model.html) and its [quiz](https://ghaith-hamdi1.github.io/cpp-training/18-atomics-memory-model-quiz.html) | 55 min |
+| [29. Threads: The Mental Model and Your First Thread](https://ghaith-hamdi1.github.io/cpp-training/07-multithreading.html) and its [quiz](https://ghaith-hamdi1.github.io/cpp-training/07-multithreading-quiz.html) | 30 min |
+| [30. Shared Data and Data Races](https://ghaith-hamdi1.github.io/cpp-training/38-races.html) and its [quiz](https://ghaith-hamdi1.github.io/cpp-training/38-races-quiz.html) | 30 min |
+| [31. Mutexes and Locking](https://ghaith-hamdi1.github.io/cpp-training/39-mutexes.html) and its [quiz](https://ghaith-hamdi1.github.io/cpp-training/39-mutexes-quiz.html) | 45 min |
+| [32. Deadlock](https://ghaith-hamdi1.github.io/cpp-training/40-deadlock.html) and its [quiz](https://ghaith-hamdi1.github.io/cpp-training/40-deadlock-quiz.html) | 30 min |
+| [33. Condition Variables and Debugging](https://ghaith-hamdi1.github.io/cpp-training/41-condvars.html) and its [quiz](https://ghaith-hamdi1.github.io/cpp-training/41-condvars-quiz.html) | 40 min |
+| [34. Futures, async and Promises](https://ghaith-hamdi1.github.io/cpp-training/17-tasks-parallelism.html) and its [quiz](https://ghaith-hamdi1.github.io/cpp-training/17-tasks-parallelism-quiz.html) | 40 min |
+| [35. Thread Pools, Coordination and Parallel Algorithms](https://ghaith-hamdi1.github.io/cpp-training/42-pools.html) and its [quiz](https://ghaith-hamdi1.github.io/cpp-training/42-pools-quiz.html) | 50 min |
+| [36. Atomics and Compare-and-Swap](https://ghaith-hamdi1.github.io/cpp-training/18-atomics-memory-model.html) and its [quiz](https://ghaith-hamdi1.github.io/cpp-training/18-atomics-memory-model-quiz.html) | 35 min |
+| [37. The Memory Model: Orders and Happens-Before](https://ghaith-hamdi1.github.io/cpp-training/43-memmodel.html) and its [quiz](https://ghaith-hamdi1.github.io/cpp-training/43-memmodel-quiz.html) | 55 min |
 
 Exercises: 13 (`SafeCounter`) and 14 (`BoundedQueue<T>`).
 

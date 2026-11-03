@@ -60,9 +60,15 @@ Each lesson has step-through memory visualizers or simulators, predict-the-outpu
 | 26 | [unique_ptr: Exclusive Ownership](https://ghaith-hamdi1.github.io/cpp-training/24-uniqueptr.html) | [Quiz](https://ghaith-hamdi1.github.io/cpp-training/24-uniqueptr-quiz.html) |
 | 27 | [shared_ptr: Shared Ownership](https://ghaith-hamdi1.github.io/cpp-training/14-smart-pointers.html) | [Quiz](https://ghaith-hamdi1.github.io/cpp-training/14-smart-pointers-quiz.html) |
 | 28 | [weak_ptr and Reference Cycles](https://ghaith-hamdi1.github.io/cpp-training/32-weakptr.html) | [Quiz](https://ghaith-hamdi1.github.io/cpp-training/32-weakptr-quiz.html) |
-| 29 | [Multithreading](https://ghaith-hamdi1.github.io/cpp-training/07-multithreading.html) | [Quiz](https://ghaith-hamdi1.github.io/cpp-training/07-multithreading-quiz.html) |
-| 30 | [Tasks and Parallelism](https://ghaith-hamdi1.github.io/cpp-training/17-tasks-parallelism.html) | [Quiz](https://ghaith-hamdi1.github.io/cpp-training/17-tasks-parallelism-quiz.html) |
-| 31 | [Atomics and the Memory Model](https://ghaith-hamdi1.github.io/cpp-training/18-atomics-memory-model.html) | [Quiz](https://ghaith-hamdi1.github.io/cpp-training/18-atomics-memory-model-quiz.html) |
+| 29 | [Threads: The Mental Model and Your First Thread](https://ghaith-hamdi1.github.io/cpp-training/07-multithreading.html) | [Quiz](https://ghaith-hamdi1.github.io/cpp-training/07-multithreading-quiz.html) |
+| 30 | [Shared Data and Data Races](https://ghaith-hamdi1.github.io/cpp-training/38-races.html) | [Quiz](https://ghaith-hamdi1.github.io/cpp-training/38-races-quiz.html) |
+| 31 | [Mutexes and Locking](https://ghaith-hamdi1.github.io/cpp-training/39-mutexes.html) | [Quiz](https://ghaith-hamdi1.github.io/cpp-training/39-mutexes-quiz.html) |
+| 32 | [Deadlock](https://ghaith-hamdi1.github.io/cpp-training/40-deadlock.html) | [Quiz](https://ghaith-hamdi1.github.io/cpp-training/40-deadlock-quiz.html) |
+| 33 | [Condition Variables and Debugging](https://ghaith-hamdi1.github.io/cpp-training/41-condvars.html) | [Quiz](https://ghaith-hamdi1.github.io/cpp-training/41-condvars-quiz.html) |
+| 34 | [Futures, async and Promises](https://ghaith-hamdi1.github.io/cpp-training/17-tasks-parallelism.html) | [Quiz](https://ghaith-hamdi1.github.io/cpp-training/17-tasks-parallelism-quiz.html) |
+| 35 | [Thread Pools, Coordination and Parallel Algorithms](https://ghaith-hamdi1.github.io/cpp-training/42-pools.html) | [Quiz](https://ghaith-hamdi1.github.io/cpp-training/42-pools-quiz.html) |
+| 36 | [Atomics and Compare-and-Swap](https://ghaith-hamdi1.github.io/cpp-training/18-atomics-memory-model.html) | [Quiz](https://ghaith-hamdi1.github.io/cpp-training/18-atomics-memory-model-quiz.html) |
+| 37 | [The Memory Model: Orders and Happens-Before](https://ghaith-hamdi1.github.io/cpp-training/43-memmodel.html) | [Quiz](https://ghaith-hamdi1.github.io/cpp-training/43-memmodel-quiz.html) |
 
 Besides the lessons, the site has a [C++ Puzzles](https://ghaith-hamdi1.github.io/cpp-training/puzzles.html) page: 163 "what does this program print?" questions from CppQuiz.org, each with an explanation that quotes the standard (see [third-party content](#third-party-content)).
 
@@ -101,8 +107,8 @@ After the two books in this repo (see their reading guides above), these are the
 | 3 | **A Tour of C++**, Bjarne Stroustrup | A short whole-language overview by the language's creator, including the C++20 features (concepts, ranges, modules, coroutines). | 3, 11, 18, 20, 27 |
 | 4 | **C++ Templates: The Complete Guide**, Vandevoorde, Josuttis and Gregor | The definitive templates book: variadic templates, forwarding, type traits, SFINAE and `if constexpr`. Large, so use it as a reference. | 27, 17 |
 | 5 | **Hands-On Design Patterns with C++**, Fedor Pikus | Design patterns in modern C++, including templates, concurrency and performance. | none |
-| 6 | **C++ High Performance**, Björn Andrist and Viktor Sehr | Performance, STL algorithms, memory and concurrency, relevant to real-time and low-latency work. | 20, 29, 31 |
-| 7 | **The Art of Multiprocessor Programming**, Maurice Herlihy and Nir Shavit | The theory behind locks, lock-free structures and memory models. Heavy and academic; read it only if lock-free work interests you. | 31 |
+| 6 | **C++ High Performance**, Björn Andrist and Viktor Sehr | Performance, STL algorithms, memory and concurrency, relevant to real-time and low-latency work. | 20, 29, 36 |
+| 7 | **The Art of Multiprocessor Programming**, Maurice Herlihy and Nir Shavit | The theory behind locks, lock-free structures and memory models. Heavy and academic; read it only if lock-free work interests you. | 36 |
 
 "Lessons" refers to the [lessons](#the-lessons) above.
 

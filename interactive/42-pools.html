@@ -1,0 +1,224 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Thread Pools, Coordination and Parallel Algorithms</title>
+<script>try{var t=JSON.parse(localStorage.getItem('cpptrain:theme'));if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body data-topic="pools" data-kind="lesson">
+<main>
+<h1>Thread Pools, Coordination and Parallel Algorithms</h1>
+<p class="lead">How to run many tasks on a few threads: the pool and its queue, sizing and the pool deadlock, work stealing, <code>latch</code>, <code>barrier</code>, <code>semaphore</code> and <code>stop_token</code>, and the C++17 parallel algorithms. Assumes <a href="17-tasks-parallelism.html">Futures, async and Promises</a>.</p>
+
+<section id="pool" data-title="Thread pools and the task queue">
+<h2>Thread pools and the task queue</h2>
+<p>Starting a thread per task is expensive, and thousands of threads overload the scheduler. A <b>thread pool</b> starts a fixed number of workers once and feeds them from a queue: the classic <b>producer/consumer</b> pattern.</p>
+<figure class="fig"><svg viewBox="0 0 640 170" role="img" aria-label="Tasks go into a queue and a fixed set of worker threads take them"><defs><marker id="a3" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path class="ah" d="M0 0L10 5L0 10z"/></marker></defs>
+<text class="t" x="10" y="26">Tasks</text>
+<rect class="acc" x="10" y="40" width="70" height="26" rx="5"/><rect class="acc" x="10" y="72" width="70" height="26" rx="5"/><rect class="acc" x="10" y="104" width="70" height="26" rx="5"/><text class="m" x="45" y="57" text-anchor="middle">task</text><text class="m" x="45" y="89" text-anchor="middle">task</text><text class="m" x="45" y="121" text-anchor="middle">task</text>
+<rect class="box" x="170" y="40" width="120" height="90" rx="8"/><text class="t" x="230" y="82" text-anchor="middle">Task queue</text><text class="m" x="230" y="102" text-anchor="middle">mutex + cv</text>
+<path class="ar" d="M82 85H168" marker-end="url(#a3)"/>
+<rect class="gd" x="400" y="30" width="110" height="30" rx="6"/><text x="455" y="50" text-anchor="middle">Worker 1</text><rect class="gd" x="400" y="70" width="110" height="30" rx="6"/><text x="455" y="90" text-anchor="middle">Worker 2</text><rect class="gd" x="400" y="110" width="110" height="30" rx="6"/><text x="455" y="130" text-anchor="middle">Worker N</text>
+<path class="ar" d="M292 70L398 45M292 85H398M292 100L398 125" marker-end="url(#a3)"/>
+<text class="m" x="520" y="90">fixed number,</text><text class="m" x="520" y="106">created once</text>
+<text class="m" x="10" y="162">Reusing N threads avoids the cost of one thread per task and keeps the thread count bounded.</text></svg><figcaption>Thread pool: many tasks, few long-lived workers.</figcaption></figure>
+<figure class="fig"><svg viewBox="0 0 640 190" role="img" aria-label="Each worker loops: wait for a task, take it under the lock, release the lock, run the task"><defs><marker id="gah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path class="ah" d="M0 0L10 5L0 10z"/></marker><marker id="gah2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path class="ah2" d="M0 0L10 5L0 10z"/></marker></defs><rect class="acc" x="10" y="20" width="130" height="40" rx="6"/><text class="t" x="75.0" y="37.0" text-anchor="middle">wait on cv</text><text class="m" x="75.0" y="53.0" text-anchor="middle">sleeping, no CPU</text><path class="ar" d="M140 40L178 40" marker-end="url(#gah)"/><rect class="gd" x="180" y="20" width="150" height="40" rx="6"/><text class="t" x="255.0" y="45.0" text-anchor="middle">lock, pop task</text><path class="ar" d="M330 40L368 40" marker-end="url(#gah)"/><rect class="gd" x="370" y="20" width="130" height="40" rx="6"/><text class="t" x="435.0" y="45.0" text-anchor="middle">unlock</text><path class="ar" d="M500 40L538 40" marker-end="url(#gah)"/><rect class="wn" x="540" y="20" width="90" height="40" rx="6"/><text class="t" x="585.0" y="45.0" text-anchor="middle">run it</text><path class="ar2" d="M585 62L585 100" marker-end="url(#gah2)"/><path class="ln" d="M585 100L75 100" stroke-dasharray="5 4"/><path class="ar2" d="M75 100L75 62" marker-end="url(#gah2)"/><text class="m" x="200" y="94" text-anchor="start">back to waiting</text><text class="m" x="10" y="130" text-anchor="start">stop flag set + queue empty -&gt; the worker returns</text><text class="m" x="10" y="152" text-anchor="start">If the task ran under the lock, only one task could run at a time.</text><text class="m" x="10" y="174" text-anchor="start">submit(): push under the lock, then notify_one().</text></svg><figcaption>The loop of a pool worker: the task runs outside the lock.</figcaption></figure>
+<script type="text/x-cpp">
+workers_.emplace_back([this] {                 // each worker runs this loop
+    for (;;) {
+        std::function<void()> task;
+        {
+            std::unique_lock lk(m_);
+            cv_.wait(lk, [this] { return stop_ || !tasks_.empty(); });
+            if (stop_ && tasks_.empty()) return;        // finish the queue, then exit
+            task = std::move(tasks_.front()); tasks_.pop();
+        }                                                // unlock BEFORE running the task
+        task();
+    }
+});
+</script>
+<p>The destructor sets <code>stop_</code> under the lock, calls <code>notify_all()</code> and joins every worker. It combines everything from the earlier lessons: mutex, condition variable, stop flag and RAII shutdown.</p>
+<p>Step through the pool:</p>
+<div id="st-pool"></div>
+<!-- read-more:start -->
+<div class="callout tip"><span class="label">Read more</span>
+<p><b>C++ Concurrency in Action (Williams)</b></p>
+<ul>
+<li>2.4 Choosing the number of threads at runtime (PDF pages 54 to 57)</li>
+<li>9.1.1 The simplest possible thread pool (PDF pages 324 to 326)</li>
+</ul>
+</div>
+<!-- read-more:end -->
+</section>
+
+<section id="sizing" data-title="Sizing a pool and the pool deadlock">
+<h2>Sizing a pool and the pool deadlock</h2>
+<p>How many workers? It depends on what the tasks do while they run.</p>
+<figure class="fig"><svg viewBox="0 0 640 170" role="img" aria-label="CPU-bound work wants about one worker per core; waiting work wants more; mixed work wants separate pools"><rect class="gd" x="10" y="20" width="190" height="70" rx="6"/><text class="t" x="105.0" y="52.0" text-anchor="middle">CPU-bound</text><text class="m" x="105.0" y="68.0" text-anchor="middle">workers = cores</text><rect class="acc" x="225" y="20" width="190" height="70" rx="6"/><text class="t" x="320.0" y="52.0" text-anchor="middle">I/O or blocking</text><text class="m" x="320.0" y="68.0" text-anchor="middle">workers &gt; cores</text><rect class="wn" x="440" y="20" width="190" height="70" rx="6"/><text class="t" x="535.0" y="52.0" text-anchor="middle">mixed</text><text class="m" x="535.0" y="68.0" text-anchor="middle">two pools</text><text class="t" x="10" y="120" text-anchor="start">A task that waits for a subtask on the SAME pool can block every worker:</text><text class="m" x="10" y="142" text-anchor="start">all N workers wait for subtasks that nobody is free to run.</text></svg><figcaption>Size a pool by what its tasks do.</figcaption></figure>
+<table>
+<tr><th>Work</th><th>Workers</th></tr>
+<tr><td>CPU-bound</td><td>about <code>hardware_concurrency()</code>; more is oversubscription and context switches</td></tr>
+<tr><td>I/O-bound or blocking</td><td>more than the core count, because threads spend their time waiting</td></tr>
+<tr><td>Mixed</td><td>separate pools, so slow blocking tasks cannot starve the fast ones</td></tr>
+</table>
+<div class="callout warn"><span class="label">Pool deadlock</span>A task that submits a subtask to the same pool and <b>waits</b> for it can block every worker. Do not block a pool thread on work that needs the same pool.</div>
+<!-- read-more:start -->
+<div class="callout tip"><span class="label">Read more</span>
+<p><b>C++ Concurrency in Action (Williams)</b></p>
+<ul>
+<li>9.1.1 The simplest possible thread pool (PDF pages 324 to 326)</li>
+</ul>
+</div>
+<!-- read-more:end -->
+</section>
+
+<section id="stealing" data-title="Work stealing">
+<h2>Work stealing</h2>
+<figure class="fig"><svg viewBox="0 0 640 190" role="img" aria-label="Each worker has its own deque; an idle worker takes a task from the back of a busy worker's deque"><defs><marker id="ws1" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path class="ah" d="M0 0L10 5L0 10z"/></marker></defs>
+<text class="t" x="10" y="20">One queue per worker (a deque)</text>
+<rect class="gd" x="10" y="36" width="90" height="30" rx="6"/><text x="55" y="56" text-anchor="middle">Worker 1</text>
+<rect class="acc" x="120" y="36" width="60" height="30" rx="5"/><rect class="acc" x="186" y="36" width="60" height="30" rx="5"/><rect class="acc" x="252" y="36" width="60" height="30" rx="5"/><rect class="acc" x="318" y="36" width="60" height="30" rx="5"/>
+<text class="m" x="150" y="55" text-anchor="middle">task</text><text class="m" x="216" y="55" text-anchor="middle">task</text><text class="m" x="282" y="55" text-anchor="middle">task</text><text class="m" x="348" y="55" text-anchor="middle">task</text>
+<text class="m" x="120" y="82">front: the owner pops here</text><text class="m" x="290" y="82">back: thieves take here</text>
+<rect class="gd" x="10" y="110" width="90" height="30" rx="6"/><text x="55" y="130" text-anchor="middle">Worker 2</text>
+<rect class="box" x="120" y="110" width="258" height="30" rx="5" stroke-dasharray="5 4"/><text class="m" x="250" y="129" text-anchor="middle">empty: idle</text>
+<path class="ar" d="M400 52C440 70 440 100 384 118" marker-end="url(#ws1)" fill="none"/>
+<text class="m" x="450" y="100">steals one task from the back</text>
+<text class="m" x="10" y="172">Owners and thieves work at opposite ends, so they rarely contend. A shared queue has one lock everyone fights over.</text></svg><figcaption>Work stealing: local deques keep the common case lock-light, stealing balances the load.</figcaption></figure>
+<ul>
+<li><b>Work stealing</b> is how production pools (TBB, Java's fork/join) balance load: each worker pops its own deque and an idle worker <b>steals</b> from another's back.</li>
+<li>It suits <b>recursive</b> tasks that spawn subtasks: a spawned task goes on the spawner's own deque and stays hot in its cache.</li>
+<li>A simple pool with one shared queue (the previous section) is fine until that queue's lock becomes the bottleneck. Know that stealing is the next step; do not claim to have written one.</li>
+</ul>
+<!-- read-more:start -->
+<div class="callout tip"><span class="label">Read more</span>
+<p><b>C++ Concurrency in Action (Williams)</b></p>
+<ul>
+<li>9.1.1 The simplest possible thread pool (PDF pages 324 to 326)</li>
+</ul>
+</div>
+<!-- read-more:end -->
+</section>
+
+<section id="coordination" data-title="latch, barrier and semaphore (C++20)">
+<h2><code>latch</code>, <code>barrier</code> and <code>semaphore</code> (C++20)</h2>
+<table>
+<tr><th>Tool</th><th>Idea</th><th>Reusable?</th></tr>
+<tr><td><code>std::latch(n)</code></td><td>wait until a counter has been counted down <i>n</i> times ("N things are done")</td><td>no: one shot</td></tr>
+<tr><td><code>std::barrier(n)</code></td><td>all <i>n</i> threads wait for each other at the end of each phase, then all go on</td><td><b>yes</b>: phase after phase</td></tr>
+<tr><td><code>std::counting_semaphore&lt;N&gt;</code></td><td>at most <i>k</i> threads in a section (a permit counter)</td><td>yes</td></tr>
+<tr><td><code>std::binary_semaphore</code></td><td>a semaphore with one permit: signal from one thread to another</td><td>yes</td></tr>
+</table>
+<figure class="fig"><svg viewBox="0 0 640 170" role="img" aria-label="Three threads finish phase 1 at different times and wait at a barrier; all start phase 2 together"><text class="m" x="60" y="20">Phase 1</text><text class="m" x="380" y="20">Phase 2</text>
+<rect class="acc" x="60" y="34" width="190" height="24" rx="5"/><text x="155" y="51" text-anchor="middle">thread A</text><rect class="box" x="250" y="34" width="106" height="24" rx="5" stroke-dasharray="5 4"/><text class="m" x="303" y="51" text-anchor="middle">waits</text>
+<rect class="acc" x="60" y="68" width="296" height="24" rx="5"/><text x="208" y="85" text-anchor="middle">thread B (slowest)</text>
+<rect class="acc" x="60" y="102" width="130" height="24" rx="5"/><text x="125" y="119" text-anchor="middle">thread C</text><rect class="box" x="190" y="102" width="166" height="24" rx="5" stroke-dasharray="5 4"/><text class="m" x="273" y="119" text-anchor="middle">waits</text>
+<rect class="wn" x="360" y="28" width="6" height="104" rx="2"/>
+<rect class="gd" x="376" y="34" width="200" height="24" rx="5"/><rect class="gd" x="376" y="68" width="200" height="24" rx="5"/><rect class="gd" x="376" y="102" width="200" height="24" rx="5"/>
+<text class="m" x="10" y="148">The barrier (vertical bar): the last arrival releases everyone, so phase 2 starts together.</text>
+<text class="m" x="10" y="164">Compiled: every thread saw all three phase-1 results before it began phase 2.</text></svg><figcaption>A barrier separates phases of a parallel computation.</figcaption></figure>
+<script type="text/x-cpp">
+std::latch done(3);                                  // three workers will count down
+for (int i = 0; i < 3; ++i) workers.emplace_back([&] { work(); done.count_down(); });
+done.wait();                                         // returns when the count reaches 0
+
+std::barrier sync(3);                                // three threads, many phases
+auto body = [&] { phase1(); sync.arrive_and_wait(); phase2(); };
+
+std::counting_semaphore<4> slots(2);                 // at most two threads at once
+void limited() { slots.acquire(); use(); slots.release(); }   // compiled: peak was 2 with six threads
+</script>
+</section>
+
+<section id="cancel" data-title="Cooperative cancellation: jthread and stop_token">
+<h2>Cooperative cancellation: <code>jthread</code> and <code>stop_token</code></h2>
+<p>You cannot safely kill a thread from outside, because it may hold a lock or be half way through an update. Instead you <b>ask</b> it to stop, and it checks regularly. <code>std::stop_token</code> is the standard channel for that request.</p>
+<figure class="fig"><svg viewBox="0 0 640 150" role="img" aria-label="request_stop sets a flag that the worker checks; the worker finishes its loop and returns, and jthread joins it"><defs><marker id="iah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path class="ah" d="M0 0L10 5L0 10z"/></marker></defs><rect class="acc" x="10" y="30" width="150" height="44" rx="6"/><text class="t" x="85.0" y="49.0" text-anchor="middle">main</text><text class="m" x="85.0" y="65.0" text-anchor="middle">request_stop()</text><path class="ar" d="M160 52L218 52" marker-end="url(#iah)"/><rect class="wn" x="220" y="20" width="170" height="64" rx="6"/><text class="t" x="305.0" y="49.0" text-anchor="middle">stop_token</text><text class="m" x="305.0" y="65.0" text-anchor="middle">stop_requested() flag</text><path class="ar" d="M390 52L448 52" marker-end="url(#iah)"/><rect class="gd" x="450" y="30" width="180" height="44" rx="6"/><text class="t" x="540.0" y="57.0" text-anchor="middle">worker loop exits</text><text class="m" x="10" y="110" text-anchor="start">std::jthread: request_stop() then join() in its destructor: no forgot-to-join crash.</text></svg><figcaption>There is no safe way to kill a thread: you ask it to stop.</figcaption></figure>
+<script type="text/x-cpp">
+std::jthread worker([](std::stop_token st) {
+    while (!st.stop_requested()) doWork();          // check the token regularly
+});
+// worker.request_stop() or just let the destructor: request_stop() then join()
+</script>
+<div class="callout tip"><span class="label">Design for it</span>Make long loops check the token (or a flag) once per iteration, and make blocking waits wake up for it: <code>condition_variable_any::wait(lk, token, pred)</code> does.</div>
+</section>
+
+<section id="parallel" data-title="Parallel algorithms">
+<h2>Parallel algorithms (C++17)</h2>
+<p>Most standard algorithms accept an <b>execution policy</b> as a first argument. The library decides how to split the work across threads.</p>
+<script type="text/x-cpp">
+#include <execution>
+
+std::sort(std::execution::par, v.begin(), v.end());
+long long sum = std::reduce(std::execution::par, v.begin(), v.end(), 0LL);    // compiled: 500500 for 1..1000
+std::transform(std::execution::par_unseq, a.begin(), a.end(), out.begin(), f);
+</script>
+<table>
+<tr><th>Policy</th><th>Meaning</th></tr>
+<tr><td><code>seq</code></td><td>sequential, as without a policy</td></tr>
+<tr><td><code>par</code></td><td>may run on several threads</td></tr>
+<tr><td><code>par_unseq</code></td><td>several threads and vectorised (SIMD): the function must not lock or allocate</td></tr>
+</table>
+<ul>
+<li><b>Your function object must be thread-safe</b>: no unsynchronised writes to shared data. A data race inside a parallel algorithm is still undefined behaviour.</li>
+<li><code>std::reduce</code> (not <code>accumulate</code>) is the parallel fold: it may <b>reassociate</b> the operation, so the operation must be associative (floating-point sums may differ slightly).</li>
+<li>It only pays for <b>big inputs and heavy work</b>; for small ranges the thread overhead dominates.</li>
+<li>With g++ you usually need Intel TBB installed and <code>-ltbb</code> for real parallelism; without a parallel backend the same code runs serially (as in the compiled example here).</li>
+<li>Exceptions escaping the callback call <code>std::terminate</code>.</li>
+</ul>
+<div class="callout tip"><span class="label">Choose</span>Parallel algorithms for data parallelism over a container; a pool or <code>std::async</code> for independent tasks; a queue and a pinned thread for a latency-critical pipeline.</div>
+</section>
+
+<section id="cheat" data-title="Cheat sheet">
+<h2>Cheat sheet</h2>
+<p>Answer aloud, then open.</p>
+<details class="ex"><summary>How would you signal several threads to start at the same moment?</summary><div><p>A <code>promise&lt;void&gt;</code> whose <code>shared_future</code> every thread waits on, or a <code>std::latch</code>/<code>barrier</code>. The promise is one-shot; for repeated signals use a condition variable.</p></div></details>
+<details class="ex"><summary>Why is the task run outside the lock in a thread-pool worker?</summary><div><p>Otherwise only one task could run at a time, and the queue would stay locked while a task works. The worker takes the task under the lock, releases it, then runs the task.</p></div></details>
+<details class="ex"><summary>How many threads should a pool have?</summary><div><p>About <code>hardware_concurrency()</code> for CPU-bound work (more means oversubscription and context switches), more for I/O-bound or blocking work. Use separate pools for mixed workloads.</p></div></details>
+<details class="ex"><summary>What is work stealing?</summary><div><p>Each worker has its own deque of tasks and pops from it; an idle worker steals from the back of another's deque. Owners and thieves work at opposite ends, so contention is low and load balances automatically. It removes the single shared queue's lock as a bottleneck.</p></div></details>
+<details class="ex"><summary>What is the difference between <code>latch</code> and <code>barrier</code>?</summary><div><p>A <code>latch</code> is a one-shot countdown: threads count down and others wait until it reaches zero. A <code>barrier</code> is reusable: a fixed group of threads waits for each other at the end of each phase, then all continue together.</p></div></details>
+<details class="ex"><summary>What does a semaphore do that a mutex does not?</summary><div><p>A counting semaphore allows up to k threads in at once (a permit counter) and can be released by a different thread than the one that acquired it. A mutex is one owner at a time and must be unlocked by its owner.</p></div></details>
+<details class="ex"><summary>How do you stop a thread cleanly?</summary><div><p>Cooperatively: ask it to stop and let it return. C++20 <code>std::jthread</code> passes a <code>std::stop_token</code> that the loop checks, and its destructor requests the stop and joins. There is no safe forced kill.</p></div></details>
+<details class="ex"><summary>When is a parallel algorithm worth using, and what must you watch?</summary><div><p>For large inputs and non-trivial work per element. The callback must be thread-safe, <code>reduce</code> needs an associative operation, and small ranges are slower because of thread overhead. Without a parallel backend the call runs serially.</p></div></details>
+<h3>Keep going</h3>
+<ul>
+<li>Before this lesson: <a href="17-tasks-parallelism.html">Futures, async and Promises</a>.</li>
+<li>Next lesson: <a href="18-atomics-memory-model.html">Atomics and Compare-and-Swap</a>.</li>
+</ul>
+</section>
+</main>
+
+<script src="assets/data/lessons.js"></script>
+<script src="assets/app.js"></script>
+<script>
+CT.stepper('#st-pool', {
+  title: 'A thread pool: tasks in, workers out',
+  code: String.raw`
+ThreadPool pool(2);
+pool.submit(taskA);
+pool.submit(taskB);
+pool.submit(taskC);
+// ... later, pool goes out of scope
+`,
+  steps: [
+    { line: 1, mem: [{ n: 'queue', v: '[ ]', k: 'queue' }, { n: 'worker 1', t: 'thread', v: 'sleeping on cv', k: 'threads' }, { n: 'worker 2', t: 'thread', v: 'sleeping on cv', k: 'threads' }],
+      note: 'The pool starts <b>2 workers once</b>. Each one waits on the condition variable: no CPU used while idle.' },
+    { line: 2, mem: [{ n: 'queue', v: '[ A ]', k: 'queue' }, { n: 'worker 1', t: 'thread', v: 'woken by notify_one', k: 'threads' }, { n: 'worker 2', t: 'thread', v: 'sleeping on cv', k: 'threads' }],
+      note: '<code>submit(A)</code> pushes under the lock, then <code>notify_one()</code> wakes <b>one</b> worker.' },
+    { line: 2, mem: [{ n: 'queue', v: '[ ]', k: 'queue' }, { n: 'worker 1', t: 'thread', v: 'RUNNING A', k: 'threads' }, { n: 'worker 2', t: 'thread', v: 'sleeping on cv', k: 'threads' }],
+      note: 'Worker 1 takes A off the queue <b>under the lock</b>, releases the lock, and only then runs A. Running outside the lock is what lets tasks run in parallel.' },
+    { line: 3, mem: [{ n: 'queue', v: '[ ]', k: 'queue' }, { n: 'worker 1', t: 'thread', v: 'RUNNING A', k: 'threads' }, { n: 'worker 2', t: 'thread', v: 'RUNNING B', k: 'threads' }],
+      note: '<code>submit(B)</code> wakes worker 2, which runs B at the same time as A.' },
+    { line: 4, mem: [{ n: 'queue', v: '[ C ]', k: 'queue' }, { n: 'worker 1', t: 'thread', v: 'RUNNING A', k: 'threads' }, { n: 'worker 2', t: 'thread', v: 'RUNNING B', k: 'threads' }],
+      note: '<code>submit(C)</code>: both workers are busy, so C <b>waits in the queue</b>. The thread count stays bounded however many tasks arrive.' },
+    { line: 4, mem: [{ n: 'queue', v: '[ ]', k: 'queue' }, { n: 'worker 1', t: 'thread', v: 'RUNNING C', k: 'threads' }, { n: 'worker 2', t: 'thread', v: 'RUNNING B', k: 'threads' }],
+      note: 'Worker 1 finishes A, finds C waiting, and takes it.' },
+    { line: 5, mem: [{ n: 'stop_', t: 'bool', v: 'true', p: 'set under the lock' }, { n: 'queue', v: '[ ]', k: 'queue' }, { n: 'worker 1', t: 'thread', v: 'exited (joined)', k: 'threads', dead: true }, { n: 'worker 2', t: 'thread', v: 'exited (joined)', k: 'threads', dead: true }],
+      note: 'The destructor sets <b>stop_ = true</b> under the lock, calls <code>notify_all()</code>, and joins. Workers finish the remaining tasks, see "stop and queue empty", and return. RAII shutdown.' }
+  ]
+});
+</script>
+</body>
+</html>

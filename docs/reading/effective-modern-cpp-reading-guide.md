@@ -22,10 +22,10 @@ The items on move semantics, smart pointers and concurrency are the ones worth r
 | **24** Distinguish universal references from rvalue references | 182 to 186 | `T&&` with a deduced `T` (or `auto&&`) is a universal reference; anything else written `type&&` is an rvalue reference. | 15. Forwarding references |
 | **25** Use `std::move` on rvalue references, `std::forward` on universal references | 186 to 195 | Apply each on the last use. Do not `std::move` a local you return (it defeats the return value optimization). | 25. std::forward restores it; 23. When std::move on a return is right and wrong |
 | **28** Understand reference collapsing | 215 to 221 | The four contexts where a reference to a reference arises, and the rule: if either is an lvalue reference the result is one. | 15. Forwarding references |
-| **35** Prefer task-based programming to thread-based | 259 to 263 | `std::thread` gives no return value and terminates on an exception; `std::async` handles exhaustion, oversubscription and balancing for you. | 30. Futures and async |
-| **36** Specify `std::launch::async` if asynchronicity is essential | 263 to 268 | The default launch policy may run the task synchronously or never. | 30. Futures and async |
+| **35** Prefer task-based programming to thread-based | 259 to 263 | `std::thread` gives no return value and terminates on an exception; `std::async` handles exhaustion, oversubscription and balancing for you. | 34. std::async and std::future |
+| **36** Specify `std::launch::async` if asynchronicity is essential | 263 to 268 | The default launch policy may run the task synchronously or never. | 34. std::async and std::future |
 | **37** Make `std::thread`s unjoinable on all paths | 268 to 276 | A joinable thread destroyed is a terminate; join-on-destruction and detach-on-destruction both have pitfalls; declare `std::thread` members last. | 29. Your first thread |
-| **40** Use `std::atomic` for concurrency, `volatile` for special memory | 289 to 297 | `atomic` is for data shared between threads without a mutex; `volatile` is for memory where reads and writes must not be optimized away. They are different tools. | 31. Atomic operations |
+| **40** Use `std::atomic` for concurrency, `volatile` for special memory | 289 to 297 | `atomic` is for data shared between threads without a mutex; `volatile` is for memory where reads and writes must not be optimized away. They are different tools. | 36. What an atomic is; Compare-and-swap |
 
 ## Tier 2: read next if you have time (about 160 pages)
 
@@ -38,15 +38,15 @@ The items on move semantics, smart pointers and concurrency are the ones worth r
 | **12** Declare overriding functions `override` | 97 to 104 | A mismatched signature silently creates a new function without it; reference qualifiers on member functions. | 7. Polymorphism and virtual functions |
 | **14** Declare functions `noexcept` if they won't emit exceptions | 108 to 115 | `noexcept` is part of the interface and enables optimization, and it matters most for move operations, `swap` and destructors. | 18. Exception-safety guarantees and noexcept; 22. Why moves must be noexcept |
 | **15** Use `constexpr` whenever possible | 115 to 121 | `constexpr` objects are `const` with compile-time values; `constexpr` functions can run at compile time. | 3. `const`, `constexpr` and `static` |
-| **16** Make `const` member functions thread safe | 121 to 127 | A `const` member that mutates a cached value is a data race unless protected. | 29. Mutexes (the `mutable` mutex) |
+| **16** Make `const` member functions thread safe | 121 to 127 | A `const` member that mutates a cached value is a data race unless protected. | 31. Mutexes: taking turns |
 | **21** Prefer `make_unique` and `make_shared` to `new` | 157 to 165 | Less duplication, better exception safety, and smaller, faster code for `make_shared`; when not to use them. | 26. Creating a unique_ptr; 27. shared_ptr and the control block |
 | **22** Pimpl: define special member functions in the implementation file | 165 to 174 | A `unique_ptr` Pimpl needs the special members declared in the header but defined in the `.cpp`. | Not in the lessons |
 | **26 to 27** Avoid overloading on universal references; alternatives | 195 to 215 | Universal-reference overloads and perfect-forwarding constructors are matched too eagerly. Alternatives: distinct names, pass by value, tag dispatch, `enable_if`. | 17. Type traits and if constexpr |
 | **29** Assume move operations are not present, not cheap, and not used | 221 to 225 | In generic code do not assume a move is cheap. | 24. Move traps |
 | **31** Avoid default capture modes | 234 to 242 | `[&]` can dangle; `[=]` can capture `this` and suggests the lambda is self-contained. | 10. Lambdas |
 | **32** Use init capture to move objects into closures | 242 to 247 | C++14 `[p = std::move(x)]`. | 10. Lambdas |
-| **38** Be aware of varying thread handle destructor behavior | 276 to 280 | The last future of a non-deferred `std::async` task blocks in its destructor. | 30. Futures and async |
-| **39** Consider void futures for one-shot event communication | 280 to 289 | Condition-variable, flag and promise/future designs for a single event. | 29. Condition variables |
+| **38** Be aware of varying thread handle destructor behavior | 276 to 280 | The last future of a non-deferred `std::async` task blocks in its destructor. | 34. std::async and std::future |
+| **39** Consider void futures for one-shot event communication | 280 to 289 | Condition-variable, flag and promise/future designs for a single event. | 33. Condition variables |
 | **41** Consider pass by value for copyable, cheap-to-move parameters that are always copied | 299 to 310 | Pass by value can be nearly as fast as by reference and simpler, but beware slicing. | 24. By value, overloads or const reference? |
 | **42** Consider emplacement instead of insertion | 310 to 320 | When `emplace_back` really is faster than `push_back`. | 11. vector: the workhorse |
 

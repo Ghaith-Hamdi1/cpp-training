@@ -129,7 +129,7 @@ After: Lesson 10 (Lambdas) and its quiz.
 2. Why is a joinable `std::thread` destroyed a `std::terminate`?
 3. What is `volatile` for, and why is it not a synchronization tool?
 
-After: Lessons 29 to 31 (Multithreading, Tasks, Atomics) and their quizzes.
+After: Lessons 29 to 36 (Multithreading, Tasks, Atomics) and their quizzes.
 
 ## Skip, and a note on the edition
 

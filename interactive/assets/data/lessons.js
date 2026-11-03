@@ -78,12 +78,24 @@ CT.lessons = [
     blurb: 'When ownership is shared, the control block, make_shared, thread safety and the pitfalls.' },
   { id: 'weakptr', file: '32-weakptr.html', quiz: '32-weakptr-quiz.html', title: 'weak_ptr and Reference Cycles', time: '35 min', assess: 2, phase: 5,
     blurb: 'Why shared_ptr cycles leak, weak_ptr and lock(), and the three places weak_ptr belongs: parent links, caches and observers.' },
-  { id: 'threads', file: '07-multithreading.html', quiz: '07-multithreading-quiz.html', title: 'Multithreading', time: '60 min', assess: 2, phase: 6,
-    blurb: 'From your first thread to data races, mutexes, deadlocks, condition variables and the other mutex types.' },
-  { id: 'tasks', file: '17-tasks-parallelism.html', quiz: '17-tasks-parallelism-quiz.html', title: 'Tasks & Parallelism', time: '45 min', assess: 2, phase: 6,
-    blurb: 'Futures and async, promises, thread pools and work stealing, latch, barrier, semaphore, stop_token and parallel algorithms.' },
-  { id: 'atomics', file: '18-atomics-memory-model.html', quiz: '18-atomics-memory-model-quiz.html', title: 'Atomics & the Memory Model', time: '55 min', assess: 2, phase: 6,
-    blurb: 'Atomic operations, compare-and-swap, memory orders and happens-before with a simulator, ordering patterns and concurrent data structures.' },
+  { id: 'threads', file: '07-multithreading.html', quiz: '07-multithreading-quiz.html', title: 'Threads: The Mental Model and Your First Thread', time: '30 min', assess: 2, phase: 6,
+    blurb: 'What a thread is, concurrency versus parallelism, the cost of a thread, and how to start, pass arguments to, join and detach one safely.' },
+  { id: 'races', file: '38-races.html', quiz: '38-races-quiz.html', title: 'Shared Data and Data Races', time: '30 min', assess: 2, phase: 6,
+    blurb: 'What a data race is, why ++counter is three steps, how races break invariants, and the three ways to be safe.' },
+  { id: 'mutexes', file: '39-mutexes.html', quiz: '39-mutexes-quiz.html', title: 'Mutexes and Locking', time: '45 min', assess: 2, phase: 6,
+    blurb: 'Mutexes and RAII locks, protecting a class, the other mutex types and call_once, and the races that hide in interfaces.' },
+  { id: 'deadlock', file: '40-deadlock.html', quiz: '40-deadlock-quiz.html', title: 'Deadlock', time: '30 min', assess: 2, phase: 6,
+    blurb: 'Why threads wait forever, the four conditions, a global lock order, scoped_lock and the guidelines that prevent it.' },
+  { id: 'condvars', file: '41-condvars.html', quiz: '41-condvars-quiz.html', title: 'Condition Variables and Debugging', time: '40 min', assess: 2, phase: 6,
+    blurb: 'Waiting without burning a CPU, the three rules, a reusable thread-safe queue, and finding and naming the common thread bugs.' },
+  { id: 'tasks', file: '17-tasks-parallelism.html', quiz: '17-tasks-parallelism-quiz.html', title: 'Futures, async and Promises', time: '40 min', assess: 2, phase: 6,
+    blurb: 'std::async and std::future, exceptions that travel, promise, shared_future, packaged_task and waiting with a time limit.' },
+  { id: 'pools', file: '42-pools.html', quiz: '42-pools-quiz.html', title: 'Thread Pools, Coordination and Parallel Algorithms', time: '50 min', assess: 2, phase: 6,
+    blurb: 'A thread pool and its task queue, sizing and pool deadlock, work stealing, latch, barrier, semaphore and stop_token, and the C++17 parallel algorithms.' },
+  { id: 'atomics', file: '18-atomics-memory-model.html', quiz: '18-atomics-memory-model-quiz.html', title: 'Atomics and Compare-and-Swap', time: '35 min', assess: 2, phase: 6,
+    blurb: 'Indivisible operations on one variable: std::atomic, compare-and-swap loops, atomic_flag and a spinlock, and the ABA problem.' },
+  { id: 'memmodel', file: '43-memmodel.html', quiz: '43-memmodel-quiz.html', title: 'The Memory Model: Orders and Happens-Before', time: '55 min', assess: 2, phase: 6,
+    blurb: 'Why threads can see writes out of order, release and acquire, the five memory orders, the ordering patterns that matter, and thread-safe data structures.' },
 ];
 
 /* When a section moves to another lesson, record where it went so old links keep working:
@@ -102,7 +114,7 @@ CT.moved = {
   '08-strings-regex-time.html#s3': '08-strings-regex-time.html#s2',   // the two regex sections were merged
   '07-multithreading.html#s6': '18-atomics-memory-model.html#ops',        // the multithreading lesson was split in three
   '07-multithreading.html#s8': '17-tasks-parallelism.html#futures',
-  '07-multithreading.html#s9': '17-tasks-parallelism.html#pool',
+  '07-multithreading.html#s9': '42-pools.html#pool',
   '02-oop.html#s3': '26-copying.html#copy',                       // the OOP lesson was split in three: classes, copy control, inheritance
   '02-oop.html#conversions': '26-copying.html#conversions',
   '02-oop.html#s8': '26-copying.html#operators',
@@ -145,6 +157,21 @@ CT.moved = {
   '13-move-semantics.html#forwarding': '37-forwarding.html#forward',
   '14-smart-pointers.html#weak': '32-weakptr.html#weak',             // shared_ptr and weak_ptr became two lessons
   '03-core-language.html#errors': '21-vocabulary-types.html#errors',  // exceptions versus return values went to the values-or-errors lesson
+  '07-multithreading.html#s3': '38-races.html#s3',                    // Multithreading was split into five lessons, Tasks into two, Atomics into two
+  '07-multithreading.html#s4': '39-mutexes.html#s4',
+  '07-multithreading.html#mutex-types': '39-mutexes.html#mutex-types',
+  '07-multithreading.html#interface-races': '39-mutexes.html#interface-races',
+  '07-multithreading.html#s5': '40-deadlock.html#s5',
+  '07-multithreading.html#s7': '41-condvars.html#s7',
+  '07-multithreading.html#s11': '41-condvars.html#s11',
+  '07-multithreading.html#s12': '07-multithreading.html#cheat',
+  '17-tasks-parallelism.html#pool': '42-pools.html#pool',
+  '17-tasks-parallelism.html#stealing': '42-pools.html#stealing',
+  '17-tasks-parallelism.html#coordination': '42-pools.html#coordination',
+  '17-tasks-parallelism.html#parallel': '42-pools.html#parallel',
+  '18-atomics-memory-model.html#ordering': '43-memmodel.html#ordering',
+  '18-atomics-memory-model.html#patterns': '43-memmodel.html#patterns',
+  '18-atomics-memory-model.html#structures': '43-memmodel.html#structures',
   '04-stl.html#s8': '08-strings-regex-time.html#s1'       // the STL strings section is covered by the Strings lesson
 };
 
@@ -514,6 +541,45 @@ CT.progressMigrations = [
       store.set('weak:' + from, stay);
     });
     var gone = ['moves-', 'smartptr-', 'core-', 'vocab-'];
+    store.set('mock:missed', store.get('mock:missed', []).filter(function (id) { return !gone.some(function (g) { return id.indexOf(g) === 0; }); }));   // the cheat sheets changed
+  } },
+  /* v17: Multithreading became five lessons, Tasks and Parallelism two, and Atomics and the Memory Model two. */
+  { to: 17, run: function (store) {
+    var SECS = {
+      threads: { s2: ['threads', ['s2', 'rules', 'join']], s3: ['races', ['s3', 'invariants', 'safe']], s4: ['mutexes', ['s4', 'raii', 'protect']],
+        'mutex-types': ['mutexes', ['mutex-types', 'recursive', 'rw', 'once']], 'interface-races': ['mutexes', ['interface-races', 'whole']],
+        s5: ['deadlock', ['s5', 'order', 'guidelines']], s7: ['condvars', ['s7', 'rules', 'queue']], s11: ['condvars', ['s11', 'vocab']] },
+      tasks: { futures: ['tasks', ['why', 'futures', 'destructor', 'exceptions', 'promise']], pool: ['pools', ['pool']], stealing: ['pools', ['stealing', 'sizing']],
+        coordination: ['pools', ['coordination', 'cancel']], parallel: ['pools', ['parallel']] },
+      atomics: { ops: ['atomics', ['ops', 'cas', 'spin', 'aba']], ordering: ['memmodel', ['reorder', 'ordering', 'orders', 'happens']], patterns: ['memmodel', ['patterns', 'dclp']], structures: ['memmodel', ['structures']] }
+    };   // old lesson -> old section -> [new lesson, new section ids]
+    var hash = function (s) { var x = 5381, i; for (i = 0; i < s.length; i++) x = ((x * 33) ^ s.charCodeAt(i)) >>> 0; return x.toString(36); };
+    var WHERE = { threads: {'t246gp': 'races', 'lmqcb7': 'mutexes', 'g90zih': 'mutexes', '135sauc': 'deadlock', 'elhe5k': 'deadlock', 'k73t32': 'condvars', '1wookdi': 'condvars', 'brsovm': 'condvars', '1doh2lv': 'condvars', 'a6fhob': 'races', 'el9evr': 'condvars', '11aexad': 'condvars', 'd28nqf': 'condvars', '1x2v47b': 'mutexes', '1a75i60': 'mutexes', '10pxbc1': 'deadlock', 'ewxqj0': 'deadlock', '1gzh5pr': 'deadlock', '12hdefx': 'mutexes', '1lvgi70': 'mutexes', 'r511i1': 'mutexes', '1iyux45': 'mutexes'}, tasks: {'1b9ljuy': 'pools', 'c1ji5e': 'pools', '160oshq': 'pools', '1s28nu6': 'pools', '1cmoati': 'pools', '1i6qvre': 'pools', '1qdcyon': 'pools', '1uissv2': 'pools', '3zy63s': 'pools', '1of6rdh': 'pools'}, atomics: {'1ht5j1o': 'memmodel', '1ja552p': 'memmodel', 'ydq9ub': 'memmodel', 'jj4mho': 'memmodel', '1q96p64': 'memmodel', '115ckgn': 'memmodel', '1hxu2c': 'memmodel', 'tfglza': 'memmodel', '1weigfl': 'memmodel', 'jceni1': 'memmodel', 'y18nz9': 'memmodel'} };
+    Object.keys(SECS).forEach(function (from) {
+      var done = store.get('done:' + from, []), keep = [];
+      done.forEach(function (id) {
+        var t = SECS[from][id];
+        if (!t) { keep.push(id); return; }
+        var d = store.get('done:' + t[0], []);
+        t[1].forEach(function (n) { if (d.indexOf(n) < 0) d.push(n); });
+        store.set('done:' + t[0], d);
+        if (t[0] === from) keep.push.apply(keep, t[1]);
+      });
+      store.set('done:' + from, keep.filter(function (id, i) { return keep.indexOf(id) === i; }));
+      if (SECS[from][store.get('last:' + from, '')]) store.set('last:' + from, '');
+      var li = store.get('lastinfo', null);
+      if (li && li.id === from && SECS[from][li.sec]) store.set('lastinfo', null);
+      var weak = store.get('weak:' + from, {}), stay = {};
+      Object.keys(weak).forEach(function (k) {
+        var to = WHERE[from][hash(k)];
+        if (!to) { stay[k] = weak[k]; return; }
+        var w = store.get('weak:' + to, {});
+        w[k] = weak[k];
+        store.set('weak:' + to, w);
+      });
+      store.set('weak:' + from, stay);
+    });
+    var gone = ['threads-', 'tasks-', 'atomics-'];
     store.set('mock:missed', store.get('mock:missed', []).filter(function (id) { return !gone.some(function (g) { return id.indexOf(g) === 0; }); }));   // the cheat sheets changed
   } }
 ];

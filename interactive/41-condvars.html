@@ -1,0 +1,203 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Condition Variables and Debugging</title>
+<script>try{var t=JSON.parse(localStorage.getItem('cpptrain:theme'));if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body data-topic="condvars" data-kind="lesson">
+<main>
+<h1>Condition Variables and Debugging</h1>
+<p class="lead">How a thread waits for an event without burning a CPU, the three rules, a reusable thread-safe queue, and the tools and symptoms for finding thread bugs. Assumes <a href="40-deadlock.html">Deadlock</a>.</p>
+
+<section id="s7" data-title="Condition variables">
+<h2>Condition variables</h2>
+<figure class="fig"><svg viewBox="0 0 640 170" role="img" aria-label="Producer pushes into a queue and notifies; the consumer sleeps until notified"><defs><marker id="a2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path class="ah" d="M0 0L10 5L0 10z"/></marker></defs>
+<rect class="acc" x="10" y="50" width="130" height="60" rx="8"/><text class="t" x="75" y="76" text-anchor="middle">Producer</text><text class="m" x="75" y="96" text-anchor="middle">lock, push, notify</text>
+<rect class="box" x="240" y="55" width="160" height="50" rx="8"/><rect class="wn" x="252" y="65" width="30" height="30" rx="4"/><rect class="wn" x="290" y="65" width="30" height="30" rx="4"/><rect class="wn" x="328" y="65" width="30" height="30" rx="4"/><text class="m" x="320" y="125" text-anchor="middle">shared queue + mutex</text>
+<rect class="acc" x="500" y="50" width="130" height="60" rx="8"/><text class="t" x="565" y="76" text-anchor="middle">Consumer</text><text class="m" x="565" y="96" text-anchor="middle">wait(lock, pred)</text>
+<path class="ar" d="M140 80H238" marker-end="url(#a2)"/><path class="ar" d="M402 80H498" marker-end="url(#a2)"/>
+<text class="m" x="190" y="68" text-anchor="middle">push</text><text class="m" x="450" y="68" text-anchor="middle">pop</text>
+<path class="ln" d="M75 50Q320 14 565 50" stroke-dasharray="5 4"/><text class="m" x="320" y="18" text-anchor="middle">notify_one() wakes the sleeping consumer</text>
+<text class="m" x="10" y="160">The consumer sleeps (no CPU) until notified, then re-checks the predicate to survive spurious wakeups.</text></svg><figcaption>Condition variable: sleep until something changed, always paired with a mutex and a condition.</figcaption></figure>
+<p>To <b>wait until something happens</b>, a busy loop burns 100% CPU. A <b>condition variable</b> lets the thread <i>sleep</i> until woken, always together with a mutex and the shared state.</p>
+<script type="text/x-cpp">
+std::mutex m;
+std::condition_variable cv;
+std::queue<int> q;
+
+// CONSUMER
+std::unique_lock<std::mutex> lk(m);
+cv.wait(lk, [] { return !q.empty(); });     // sleep until the predicate is true
+int x = q.front(); q.pop();
+
+// PRODUCER
+{ std::lock_guard<std::mutex> lk(m); q.push(42); }
+cv.notify_one();                             // wake one waiting thread
+</script>
+<p>Watch the hand-over:</p>
+<div id="st-cv"></div>
+<!-- read-more:start -->
+<div class="callout tip"><span class="label">Read more</span>
+<p><b>Effective Modern C++ (Meyers)</b></p>
+<ul>
+<li>Item 39, Consider void futures for one-shot event communication (PDF pages 280 to 289)</li>
+</ul>
+<p><b>C++ Concurrency in Action (Williams)</b></p>
+<ul>
+<li>4.1 Waiting for an event: condition variables and a thread-safe queue (PDF pages 96 to 104)</li>
+<li>6.1 to 6.2.2 Designing for concurrency, a thread-safe stack and a queue with condition variables (PDF pages 197 to 206)</li>
+</ul>
+</div>
+<!-- read-more:end -->
+</section>
+
+<section id="predicate" data-title="The predicate is the truth">
+<h2>The predicate is the truth</h2>
+<p>The two ideas that make condition variables safe are worth one picture. A thread never trusts a wakeup: it re-checks the condition, under the lock, every time it wakes.</p>
+<figure class="fig"><svg viewBox="0 0 640 150" role="img" aria-label="A waiter checks the predicate under the lock, sleeps if false, and re-checks after every wakeup"><defs><marker id="fah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path class="ah" d="M0 0L10 5L0 10z"/></marker><marker id="fah3" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path class="ah3" d="M0 0L10 5L0 10z"/></marker><marker id="fah2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path class="ah2" d="M0 0L10 5L0 10z"/></marker></defs><rect class="acc" x="10" y="30" width="130" height="44" rx="6"/><text class="t" x="75.0" y="57.0" text-anchor="middle">lock the mutex</text><path class="ar" d="M140 52L178 52" marker-end="url(#fah)"/><rect class="gd" x="180" y="30" width="150" height="44" rx="6"/><text class="t" x="255.0" y="57.0" text-anchor="middle">predicate true?</text><path class="ar" d="M330 40L388 40" marker-end="url(#fah)"/><rect class="gd" x="390" y="22" width="130" height="36" rx="6"/><text class="t" x="455.0" y="45.0" text-anchor="middle">yes: go on</text><path class="ar3" d="M330 64L388 90" marker-end="url(#fah3)"/><rect class="wn" x="390" y="76" width="240" height="44" rx="6"/><text class="t" x="510.0" y="103.0" text-anchor="middle">no: wait (unlocks, sleeps)</text><path class="ar2" d="M510 120L255 124" marker-end="url(#fah2)"/><text class="m" x="240" y="144" text-anchor="start">woken: lock again and re-check</text><text class="m" x="10" y="110" text-anchor="start">spurious wakeups and</text><text class="m" x="10" y="126" text-anchor="start">stolen notifications are harmless</text></svg><figcaption>The predicate is the truth; the notification is only a hint to look again.</figcaption></figure>
+<table>
+<tr><th>Mistake</th><th>What goes wrong</th><th>Fix</th></tr>
+<tr><td>waiting without a predicate</td><td>a spurious wakeup or a notification that came before the wait is missed or misread</td><td><code>cv.wait(lk, pred)</code></td></tr>
+<tr><td>changing the condition without the mutex</td><td>the waiter checks, the notifier changes and notifies, the waiter then sleeps forever</td><td>modify the shared state under the same mutex</td></tr>
+<tr><td><code>notify_one</code> when several threads wait for different things</td><td>the wrong thread wakes and goes back to sleep</td><td><code>notify_all</code>, or separate condition variables</td></tr>
+</table>
+</section>
+
+<section id="rules" data-title="Three rules to follow">
+<h2>Three rules to follow</h2>
+<ol>
+<li><b>Always wait with a predicate.</b> Spurious wakeups happen, and another consumer may take the item first.</li>
+<li><b>Change the state under the mutex</b>, then notify. Otherwise a lost wakeup: the waiter sees false, you notify, it then sleeps forever.</li>
+<li>The waiter needs <code>unique_lock</code>: <code>wait</code> unlocks while sleeping.</li>
+</ol>
+<p><code>notify_one()</code> wakes one waiter; <code>notify_all()</code> wakes all (shutdown, or several may proceed).</p>
+</section>
+
+<section id="queue" data-title="A reusable thread-safe queue">
+<h2>A reusable thread-safe queue</h2>
+<script type="text/x-cpp">
+template <typename T>
+class SafeQueue {
+    std::queue<T> q_;
+    std::mutex m_;
+    std::condition_variable cv_;
+public:
+    void push(T v) {
+        { std::lock_guard<std::mutex> lk(m_); q_.push(std::move(v)); }
+        cv_.notify_one();                      // notify AFTER releasing the lock: the woken thread can take it at once
+    }
+    T pop() {                                  // blocks until an item exists
+        std::unique_lock<std::mutex> lk(m_);
+        cv_.wait(lk, [this] { return !q_.empty(); });
+        T v = std::move(q_.front());
+        q_.pop();
+        return v;
+    }
+};
+</script>
+</section>
+
+<section id="s11" data-title="Debugging and common bugs">
+<h2>Debugging and common bugs</h2>
+<p>Timing bugs vanish under a debugger or a <code>printf</code> ("Heisenbug"). Use tools:</p>
+<ul>
+<li><b>ThreadSanitizer</b>: <code>-fsanitize=thread -g</code> finds data races and prints both accesses. Run tests with it.</li>
+<li><b>Helgrind / DRD</b> (Valgrind): races and lock-order violations.</li>
+<li>Thread ids in logs; <code>gdb</code> <code>thread apply all bt</code> on a hang.</li>
+</ul>
+<table>
+<tr><th>Symptom</th><th>Likely cause</th></tr>
+<tr><td>Wrong totals, rare crashes</td><td>data race</td></tr>
+<tr><td>Hang, CPU idle</td><td>deadlock or lost wakeup</td></tr>
+<tr><td>Hang, CPU 100%</td><td>busy-wait or livelock</td></tr>
+<tr><td>Crash at exit</td><td>detached thread using destroyed data; joinable thread destroyed</td></tr>
+<tr><td>Slower with more threads</td><td>lock contention, false sharing, oversubscription</td></tr>
+<tr><td>Garbled output</td><td>several threads on <code>std::cout</code>: build the line, print once, or lock</td></tr>
+</table>
+<!-- read-more:start -->
+<div class="callout tip"><span class="label">Read more</span>
+<p><b>C++ Concurrency in Action (Williams)</b></p>
+<ul>
+<li>11.1 Types of concurrency-related bugs, and 11.2.1 reviewing code to locate them (PDF pages 363 to 367)</li>
+</ul>
+</div>
+<!-- read-more:end -->
+</section>
+
+<section id="vocab" data-title="Vocabulary">
+<h2>Vocabulary</h2>
+<ul>
+<li><b>Thread-safe</b>: usable from several threads without external locking (<code>shared_ptr</code>'s reference count, <i>not</i> its pointee).</li>
+<li><b><code>thread_local</code></b>: one copy per thread.</li>
+<li><b>Function-local <code>static</code></b> init is thread-safe since C++11 (Meyers Singleton).</li>
+<li><b><code>std::call_once(flag, fn)</code></b>: initialize exactly once.</li>
+</ul>
+<div class="callout tip"><span class="label">Where next</span>Atomics and the memory model are in <a href="18-atomics-memory-model.html">Atomics and the Memory Model</a>, futures, thread pools and C++20 coordination tools in <a href="17-tasks-parallelism.html">Tasks and Parallelism</a>.</div>
+<p>Further reading: your notes in <a href="https://github.com/Ghaith-Hamdi1/cpp-training/tree/main/docs/training-notes/03-cpp-standard-library/11-multithreading-and-synchronization/">Module 3: multithreading and synchronization</a> (with <a href="https://github.com/Ghaith-Hamdi1/cpp-training/tree/main/examples/course/03-cpp-standard-library/11-multithreading-and-synchronization/">runnable examples</a>), the <a href="https://github.com/changkun/modern-cpp-tutorial/blob/master/book/en-us/07-thread.md">modern-cpp-tutorial concurrency chapter</a> (threads, mutexes, futures, condition variables, atomics and the memory model), and the <a href="https://github.com/AnthonyCalandra/modern-cpp-features">modern-cpp-features</a> notes on <code>std::thread</code>, <code>std::async</code>, <code>std::scoped_lock</code> and parallel algorithms.</p>
+</section>
+
+<section id="timeline" data-title="A producer and consumer timeline">
+<h2>A producer and consumer timeline</h2>
+<p>The whole pattern is easiest to see on a timeline: the consumer sleeps without using the CPU, the producer pushes and notifies, the consumer wakes, takes the item and sleeps again.</p>
+<figure class="fig"><svg viewBox="0 0 640 190" role="img" aria-label="Producer and consumer timeline: the consumer sleeps, is woken by notify, checks the predicate, and goes back to sleep when the queue is empty"><defs><marker id="rah2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path class="ah2" d="M0 0L10 5L0 10z"/></marker></defs><text class="t" x="10" y="20" text-anchor="start">producer</text><rect class="acc" x="100" y="8" width="70" height="26" rx="6"/><text class="t" x="135.0" y="26.0" text-anchor="middle">push 1</text><rect class="gd" x="180" y="8" width="70" height="26" rx="6"/><text class="t" x="215.0" y="26.0" text-anchor="middle">notify</text><rect class="acc" x="300" y="8" width="70" height="26" rx="6"/><text class="t" x="335.0" y="26.0" text-anchor="middle">push 2</text><rect class="gd" x="380" y="8" width="70" height="26" rx="6"/><text class="t" x="415.0" y="26.0" text-anchor="middle">notify</text><text class="t" x="10" y="100" text-anchor="start">consumer</text><rect class="box" x="100" y="88" width="80" height="26" rx="6"/><text class="t" x="140.0" y="106.0" text-anchor="middle">asleep</text><rect class="acc" x="184" y="88" width="110" height="26" rx="6"/><text class="t" x="239.0" y="106.0" text-anchor="middle">pop 1, check</text><rect class="box" x="298" y="88" width="80" height="26" rx="6"/><text class="t" x="338.0" y="106.0" text-anchor="middle">asleep</text><rect class="acc" x="382" y="88" width="110" height="26" rx="6"/><text class="t" x="437.0" y="106.0" text-anchor="middle">pop 2, check</text><rect class="box" x="496" y="88" width="80" height="26" rx="6"/><text class="t" x="536.0" y="106.0" text-anchor="middle">asleep</text><path class="ar2" d="M215 34L230 86" marker-end="url(#rah2)"/><path class="ar2" d="M415 34L430 86" marker-end="url(#rah2)"/><text class="m" x="10" y="150" text-anchor="start">Each wake-up re-checks !q.empty() under the lock; an empty queue means back to sleep (a spurious wakeup is harmless).</text></svg><figcaption>Between wake-ups the consumer uses no CPU.</figcaption></figure>
+<table>
+<tr><th>Situation</th><th>What happens</th></tr>
+<tr><td>notify arrives before the consumer waits</td><td>the consumer checks the predicate first, sees the item and never sleeps: no lost wakeup</td></tr>
+<tr><td>two items pushed, one notify</td><td>the consumer pops one, re-checks, finds another and pops that too: a loop around wait handles it</td></tr>
+<tr><td>notify with nobody waiting</td><td>nothing: a condition variable does not remember notifications, the shared state does</td></tr>
+<tr><td>shutdown</td><td>set a stop flag under the lock and <code>notify_all</code>: every waiter wakes, sees the flag and returns</td></tr>
+</table>
+</section>
+
+<section id="cheat" data-title="Cheat sheet">
+<h2>Cheat sheet</h2>
+<p>Answer aloud, then open.</p>
+<details class="ex"><summary>Why does <code>condition_variable::wait</code> need a predicate / a loop?</summary><div><p>Spurious wakeups (a thread may wake without a notification) and because the state may change again between the notification and the thread reacquiring the lock. The predicate re-checks the real condition.</p></div></details>
+<details class="ex"><summary>Why must the shared condition be modified under the mutex?</summary><div><p>Otherwise the waiter could check the condition (false), then the notifier changes it and notifies, then the waiter goes to sleep: a lost wakeup. The mutex makes check-and-sleep atomic with respect to the update.</p></div></details>
+<details class="ex"><summary>How would you find a data race in a large program?</summary><div><p>Build and run the tests with ThreadSanitizer (<code>-fsanitize=thread</code>), and Helgrind for lock-order problems; review shared state and make sure every access has a lock or is atomic; reduce sharing by design.</p></div></details>
+<details class="ex"><summary>What is a spurious wakeup?</summary><div><p>A waiting thread can return from <code>wait</code> without anyone having notified it. That is why the wait is always paired with a predicate that is re-checked after each wakeup.</p></div></details>
+<details class="ex"><summary>What does <code>wait</code> do with the mutex?</summary><div><p>It must be given a <code>unique_lock</code>. <code>wait</code> unlocks it while the thread sleeps and locks it again before returning, so the predicate is always checked under the lock.</p></div></details>
+<h3>Keep going</h3>
+<ul>
+<li>Before this lesson: <a href="40-deadlock.html">Deadlock</a>.</li>
+<li>Next: <a href="17-tasks-parallelism.html">Futures, async and promises</a>.</li>
+</ul>
+</section>
+</main>
+
+<script src="assets/data/lessons.js"></script>
+<script src="assets/app.js"></script>
+<script>
+CT.stepper('#st-cv', {
+  title: 'Consumer waits, producer delivers',
+  code: String.raw`
+// consumer thread
+std::unique_lock lk(m);
+cv.wait(lk, [] { return !q.empty(); });
+int x = q.front(); q.pop();
+
+// producer thread
+{ std::lock_guard lk2(m); q.push(42); }
+cv.notify_one();
+`,
+  steps: [
+    { line: 2, mem: [{ n: 'queue q', t: 'empty', v: '[ ]' }, { n: 'mutex m', v: 'held by consumer' }, { n: 'consumer', v: 'running' }, { n: 'producer', v: 'not started' }],
+      note: 'The consumer thread locks the mutex and begins to wait.' },
+    { line: 3, mem: [{ n: 'queue q', t: 'empty', v: '[ ]' }, { n: 'mutex m', v: 'free' }, { n: 'consumer', v: 'ASLEEP (not using CPU)' }, { n: 'producer', v: 'running' }],
+      note: 'The predicate <code>!q.empty()</code> is false, so <b>wait atomically unlocks m and puts the thread to sleep</b>. It uses no CPU. The mutex being free is essential: otherwise the producer could never get in.' },
+    { line: 7, mem: [{ n: 'queue q', t: '1 item', v: '[ 42 ]' }, { n: 'mutex m', v: 'held by producer' }, { n: 'consumer', v: 'ASLEEP' }, { n: 'producer', v: 'running' }],
+      note: 'The producer takes the lock and pushes 42 into the queue. The shared state changes <b>while holding the mutex</b>.' },
+    { line: 8, mem: [{ n: 'queue q', t: '1 item', v: '[ 42 ]' }, { n: 'mutex m', v: 'free' }, { n: 'consumer', v: 'WOKEN: needs m' }, { n: 'producer', v: 'done' }],
+      note: 'The braces end, releasing the lock. <code>notify_one()</code> wakes the sleeping consumer.' },
+    { line: 3, mem: [{ n: 'queue q', t: '1 item', v: '[ 42 ]' }, { n: 'mutex m', v: 'held by consumer' }, { n: 'consumer', v: 'running: re-checks predicate' }, { n: 'producer', v: 'done' }],
+      note: 'On waking, the consumer <b>re-acquires the mutex and checks the predicate again</b>. It is now true (this check is also what protects against spurious wakeups). Only then does <code>wait</code> return.' },
+    { line: 4, mem: [{ n: 'queue q', t: 'empty', v: '[ ]' }, { n: 'mutex m', v: 'held by consumer' }, { n: 'consumer', v: 'x = 42' }, { n: 'producer', v: 'done' }],
+      note: 'The consumer takes the item, safely, still holding the lock. When <code>lk</code> goes out of scope the mutex is released.' }
+  ]
+});
+</script>
+</body>
+</html>

@@ -27,10 +27,10 @@ Time = core reading at about 10 pages an hour (pages with code you type in and r
 | [3](phase-3-the-standard-library-and-generic-programming.md) | The standard library and generic programming | 231 pages, 23.1 h | 6.6 h | 0.4 h | **30.1 h** | 67 pages, 6.7 h |
 | [4](phase-4-raii-exceptions-and-advanced-language-tools.md) | RAII, exceptions and advanced language tools | 66 pages, 6.6 h | 0.5 h | 0.0 h | **7.1 h** | 23 pages, 2.3 h |
 | [5](phase-5-modern-cpp.md) | Modern C++ (C++11 to C++20) | 207 pages, 20.7 h | 5.5 h | 0.8 h | **27.0 h** | 118 pages, 11.8 h |
-| [6](phase-6-concurrency-and-the-memory-model.md) | Concurrency and the memory model | 109 pages, 10.9 h | 2.7 h | 0.8 h | **14.4 h** | 39 pages, 3.9 h |
-| | **Total** | 1023 pages | | | **127.9 h** | 417 pages, 41.7 h |
+| [6](phase-6-concurrency-and-the-memory-model.md) | Concurrency and the memory model | 109 pages, 10.9 h | 5.9 h | 0.8 h | **17.7 h** | 39 pages, 3.9 h |
+| | **Total** | 1023 pages | | | **131.1 h** | 417 pages, 41.7 h |
 
-The core path is about **128 hours**: roughly 21 weeks at 6 hours a week, or 11 weeks at 12. Adding every deepen list brings it to about **170 hours**. If you only want a refresher on what you already know, skim the "core reading" at 25 pages an hour and spend your time on the lessons, quizzes and recap questions.
+The core path is about **131 hours**: roughly 22 weeks at 6 hours a week, or 11 weeks at 12. Adding every deepen list brings it to about **173 hours**. If you only want a refresher on what you already know, skim the "core reading" at 25 pages an hour and spend your time on the lessons, quizzes and recap questions.
 
 Do the phases in order, because each builds on the one before. Phase 6 (concurrency) needs move semantics, lambdas and RAII from the earlier phases.
 
@@ -78,9 +78,14 @@ A one-page reminder: every big topic, the lesson that teaches it and the book ch
 | Class templates and specialization | [16. Class Templates](https://ghaith-hamdi1.github.io/cpp-training/30-classtemplates.html) | Primer 16.1, 16.5 (681 to 706; 735 to 743); PPP 18.1 to 18.3 (527 to 541) |
 | Forwarding and variadics | [15. Function Templates](https://ghaith-hamdi1.github.io/cpp-training/05-templates.html) | Primer 16.2.5 to 16.4 (716 to 734); EMC Item 28 (215 to 221) |
 | Type traits, `constexpr`, concepts | [17. Type Traits, Concepts and Compile-time C++](https://ghaith-hamdi1.github.io/cpp-training/09-compile-time.html) | EMC Item 15 (115 to 121); PPP 18.1.2 to 18.1.4 (530 to 534) |
-| Threads, mutexes, deadlock | [29. Multithreading](https://ghaith-hamdi1.github.io/cpp-training/07-multithreading.html) | Concurrency in Action ch. 2 to 4 (40 to 113) |
-| Futures, pools, tasks | [30. Tasks & Parallelism](https://ghaith-hamdi1.github.io/cpp-training/17-tasks-parallelism.html) | Concurrency in Action 4.2, 9.1.1 (105 to 113; 324 to 326); EMC Items 35 to 39 (259 to 289) |
-| Atomics and the memory model | [31. Atomics & the Memory Model](https://ghaith-hamdi1.github.io/cpp-training/18-atomics-memory-model.html) | Concurrency in Action 5.1, 5.3 (148 to 151; 165 to 170); EMC Item 40 (289 to 297) |
+| Threads | [29. Threads: The Mental Model and Your First Thread](https://ghaith-hamdi1.github.io/cpp-training/07-multithreading.html) | Concurrency in Action ch. 2 (40 to 59) |
+| Data races and mutexes | [31. Mutexes and Locking](https://ghaith-hamdi1.github.io/cpp-training/39-mutexes.html) | Concurrency in Action ch. 3 (60 to 95) |
+| Deadlock | [32. Deadlock](https://ghaith-hamdi1.github.io/cpp-training/40-deadlock.html) | Concurrency in Action 3.2.4 to 3.2.5 (74 to 82) |
+| Condition variables | [33. Condition Variables and Debugging](https://ghaith-hamdi1.github.io/cpp-training/41-condvars.html) | Concurrency in Action 4.1 (96 to 103) |
+| Futures and promises | [34. Futures, async and Promises](https://ghaith-hamdi1.github.io/cpp-training/17-tasks-parallelism.html) | Concurrency in Action 4.2 (104 to 115); EMC Items 35 to 38 (259 to 280) |
+| Thread pools | [35. Thread Pools, Coordination and Parallel Algorithms](https://ghaith-hamdi1.github.io/cpp-training/42-pools.html) | Concurrency in Action 9.1, 10.1 (324 to 337; 350 to 362) |
+| Atomics and compare-and-swap | [36. Atomics and Compare-and-Swap](https://ghaith-hamdi1.github.io/cpp-training/18-atomics-memory-model.html) | Concurrency in Action 5.2 (151 to 164); EMC Item 40 (289 to 297) |
+| The memory model | [37. The Memory Model: Orders and Happens-Before](https://ghaith-hamdi1.github.io/cpp-training/43-memmodel.html) | Concurrency in Action 5.1, 5.3 (148 to 151; 165 to 196) |
 
 ## Notes on the books
 

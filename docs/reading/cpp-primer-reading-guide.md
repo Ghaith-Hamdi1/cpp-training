@@ -12,7 +12,7 @@ The sections and their summaries come from the book's table of contents and chap
 
 | Covers well | Does not cover |
 |---|---|
-| Types, expressions, statements, functions, classes | Threads, mutexes, atomics (use *C++ Concurrency in Action* and lessons 29 to 31) |
+| Types, expressions, statements, functions, classes | Threads, mutexes, atomics (use *C++ Concurrency in Action* and lessons 29 to 36) |
 | The whole standard library of C++11: strings, containers, algorithms, IO, smart pointers | C++14, C++17 and C++20: `optional`, `variant`, `string_view`, structured bindings, `if constexpr`, concepts, ranges, `std::format` (lessons 3, 19, 11, 10 and 17) |
 | Copy control, move semantics, operator overloading | Deep move semantics and forwarding (*Effective Modern C++* and *C++ Move Semantics*) |
 | Inheritance and virtual functions, templates, exceptions | Design patterns, performance and memory layout (use other books; the lessons no longer cover them) |

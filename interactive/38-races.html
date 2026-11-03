@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Shared Data and Data Races</title>
+<script>try{var t=JSON.parse(localStorage.getItem('cpptrain:theme'));if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body data-topic="races" data-kind="lesson">
+<main>
+<h1>Shared Data and Data Races</h1>
+<p class="lead">Why <code>++counter</code> is three steps, what a data race really is, how races break invariants, and the three ways to be safe. Assumes <a href="07-multithreading.html">Threads</a>.</p>
+
+<section id="s3" data-title="Shared data and data races">
+<h2>Shared data and data races</h2>
+<figure class="fig"><svg viewBox="0 0 640 210" role="img" aria-label="Two threads read the same counter value and both write 1, losing an update">
+<text class="m" x="10" y="20">time</text><path class="ln" d="M45 16H110"/>
+<text class="t" x="10" y="62">Thread 1</text><rect class="acc" x="90" y="40" width="130" height="32" rx="6"/><text x="155" y="61" text-anchor="middle">read: 0</text><rect class="acc" x="230" y="40" width="90" height="32" rx="6"/><text x="275" y="61" text-anchor="middle">0 + 1</text><rect class="bd" x="330" y="40" width="130" height="32" rx="6"/><text x="395" y="61" text-anchor="middle">write 1</text>
+<text class="t" x="10" y="112">Thread 2</text><rect class="acc" x="130" y="90" width="130" height="32" rx="6"/><text x="195" y="111" text-anchor="middle">read: 0</text><rect class="acc" x="270" y="90" width="90" height="32" rx="6"/><text x="315" y="111" text-anchor="middle">0 + 1</text><rect class="bd" x="370" y="90" width="130" height="32" rx="6"/><text x="435" y="111" text-anchor="middle">write 1</text>
+<text class="t" x="10" y="165">counter</text><text x="90" y="165">0</text><text x="395" y="165">1</text><text x="435" y="165" class="m">still 1</text>
+<text class="t" x="10" y="198" style="fill:var(--bad)">Expected 2, got 1: both threads read 0 before either wrote. One update is lost.</text></svg><figcaption>A data race: the two read-modify-write sequences overlap. ++counter is three steps, not one.</figcaption></figure>
+<p>Two threads each increment a shared counter:</p>
+<script type="text/x-cpp">
+int counter = 0;
+void work() { for (int i = 0; i < 2; ++i) ++counter; }   // two threads each run this: expect counter == 4
+</script>
+<p><code>++counter</code> is <b>three</b> CPU steps:</p>
+<ol>
+<li><b>load</b> the value from memory into a register: <code>r = counter</code></li>
+<li><b>add</b> one to the register: <code>r = r + 1</code></li>
+<li><b>store</b> the register back to memory: <code>counter = r</code></li>
+</ol>
+<p>If B loads between A's load and store, <b>one increment is lost</b>. Play the scheduler with <b>Step A</b> and <b>Step B</b>:</p>
+<div id="sim-race"></div>
+<p>Hint: A loads, B runs fully, A finishes. Or press <b>Run 500 random schedules</b>.</p>
+<div class="callout tip"><span class="label">Caveat</span>The simulator switches far more often than a real OS. A real race may fail once in thousands of runs, which is why it survives testing.</div>
+<div class="callout warn"><span class="label">Data race = undefined behavior</span>Two threads access the same memory, at least one writes, no synchronization. A <b>race condition</b> is the wider timing-dependent logic bug.</div>
+<p><b>Why it hurts:</b> shared data has an <b>invariant</b> (links agree, count matches items). An update breaks it briefly, and a thread looking then sees corruption. Trouble starts when <i>two or more</i> pieces of data change together.</p>
+<!-- read-more:start -->
+<div class="callout tip"><span class="label">Read more</span>
+<p><b>C++ Concurrency in Action (Williams)</b></p>
+<ul>
+<li>3.1 Problems with sharing data between threads (invariants, race conditions) (PDF pages 60 to 63)</li>
+</ul>
+</div>
+<!-- read-more:end -->
+</section>
+
+<section id="invariants" data-title="Races break invariants">
+<h2>Races break invariants</h2>
+<p>A single lost increment is the easy case. The real damage comes from <b>invariants</b>: facts that must always hold across several variables, such as "the size matches the elements" or "the previous and next pointers agree". Any update that changes two of them takes more than one step, and in the middle the invariant is false.</p>
+<figure class="fig"><svg viewBox="0 0 640 170" role="img" aria-label="An update touches two fields; a reader between the two writes sees a broken invariant"><defs><marker id="cah3" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path class="ah3" d="M0 0L10 5L0 10z"/></marker></defs><rect class="acc" x="10" y="20" width="270" height="60" rx="6"/><text class="t" x="145.0" y="47.0" text-anchor="middle">writer: push_back</text><text class="m" x="145.0" y="63.0" text-anchor="middle">1. store element   2. size = size + 1</text><rect class="bd" x="340" y="20" width="290" height="60" rx="6"/><text class="t" x="485.0" y="47.0" text-anchor="middle">reader sees</text><text class="m" x="485.0" y="63.0" text-anchor="middle">size says 3, only 2 elements stored</text><path class="ar3" d="M280 50L338 50" marker-end="url(#cah3)"/><text class="t" x="10" y="110" text-anchor="start">Invariant: size equals the number of stored elements.</text><text class="m" x="10" y="134" text-anchor="start">Between step 1 and step 2 it is false. Another thread reading now sees garbage.</text><text class="m" x="10" y="156" text-anchor="start">A mutex makes the two steps look like one.</text></svg><figcaption>An invariant spans several variables, so a write sequence is briefly invalid.</figcaption></figure>
+<table>
+<tr><th>Term</th><th>Meaning</th></tr>
+<tr><td><b>data race</b></td><td>two threads access the same memory, at least one writes, with no synchronization: undefined behavior</td></tr>
+<tr><td><b>race condition</b></td><td>the result depends on the timing of threads; wider than a data race and possible even with atomics or locks</td></tr>
+<tr><td><b>invariant</b></td><td>a condition on shared data that must hold between operations</td></tr>
+<tr><td><b>deadlock</b></td><td>threads wait for each other forever (next lessons)</td></tr>
+</table>
+<div class="callout warn"><span class="label">Undefined behavior, not stale data</span>A data race is not just "you might read an old value". The compiler assumes there are none, and may reorder or remove code on that assumption.</div>
+</section>
+
+<section id="safe" data-title="Three ways to be safe">
+<h2>Three ways to be safe</h2>
+<table>
+<tr><th>Strategy</th><th>How</th></tr>
+<tr><td><b>1. Do not share</b></td><td>own data per thread (locals, <code>thread_local</code>), merge afterwards. Best option.</td></tr>
+<tr><td><b>2. Share, never modify</b></td><td><code>const</code> data is safe to read from many threads.</td></tr>
+<tr><td><b>3. Share and protect</b></td><td>a <b>mutex</b> or an <b>atomic</b>.</td></tr>
+</table>
+</section>
+
+<section id="strategies" data-title="The three strategies in code">
+<h2>The three strategies in code</h2>
+<p>Here is what each strategy looks like for the same job: add up a large array with four threads.</p>
+<figure class="fig"><svg viewBox="0 0 640 190" role="img" aria-label="Three ways to be safe: private data merged at the end, read-only shared data, and shared data behind a lock"><rect class="gd" x="10" y="20" width="200" height="90" rx="6"/><text class="t" x="110.0" y="62.0" text-anchor="middle">1. do not share</text><text class="m" x="110.0" y="78.0" text-anchor="middle">each thread sums its own range</text><rect class="acc" x="220" y="20" width="200" height="90" rx="6"/><text class="t" x="320.0" y="62.0" text-anchor="middle">2. share, never modify</text><text class="m" x="320.0" y="78.0" text-anchor="middle">const table read by all</text><rect class="wn" x="430" y="20" width="200" height="90" rx="6"/><text class="t" x="530.0" y="62.0" text-anchor="middle">3. share and protect</text><text class="m" x="530.0" y="78.0" text-anchor="middle">mutex or atomic around writes</text><text class="m" x="10" y="140" text-anchor="start">Each step costs more than the one before: sharing needs synchronization, and synchronization needs waiting.</text><text class="m" x="10" y="162" text-anchor="start">Prefer 1, then 2, and use 3 only for data that really must be shared.</text></svg><figcaption>The cheapest safe design is the one that never shares.</figcaption></figure>
+<script type="text/x-cpp">
+// 1. do not share: each thread sums its own slice into its own variable, then we merge
+long long part[4] = {};                                   // one slot per thread: no two threads write the same slot
+for (int t = 0; t < 4; ++t)
+    workers.emplace_back([&, t] { for (size_t i = t; i < v.size(); i += 4) part[t] += v[i]; });
+for (auto& w : workers) w.join();
+long long total = part[0] + part[1] + part[2] + part[3];   // join makes every write visible here
+</script>
+<table>
+<tr><th>Strategy</th><th>Cost</th><th>Watch out for</th></tr>
+<tr><td>do not share</td><td>none while running; a merge at the end</td><td>neighbouring slots on one cache line slow each other (false sharing): pad them if it matters</td></tr>
+<tr><td>share, never modify</td><td>none</td><td>the data must really be <code>const</code> for the whole time</td></tr>
+<tr><td>share and protect</td><td>waiting on the lock or the atomic</td><td>the invariant, the lock order, and holding the lock briefly</td></tr>
+</table>
+<p>The thread that calls <code>join()</code> sees everything the joined thread wrote: <code>join</code> is itself a synchronization point.</p>
+</section>
+
+<section id="cheat" data-title="Cheat sheet">
+<h2>Cheat sheet</h2>
+<p>Answer aloud, then open.</p>
+<details class="ex"><summary>What is a data race? Is it the same as a race condition?</summary><div><p>A data race is unsynchronised concurrent access to the same memory with at least one write: undefined behavior in C++. A race condition is the wider class of bugs where correctness depends on timing, which can exist even without a data race (two correctly locked steps that needed to be one atomic operation).</p></div></details>
+<details class="ex"><summary>Is a function-local <code>static</code> initialised thread-safely?</summary><div><p>Yes, since C++11 initialization happens exactly once even with concurrent callers ("magic statics"). That is why the Meyers Singleton is thread-safe. Using the object afterwards still needs its own synchronization.</p></div></details>
+<details class="ex"><summary>Why is <code>++counter</code> not safe on two threads?</summary><div><p>It is three steps: load, add, store. If both threads load before either stores, one increment is lost. Use a mutex or <code>std::atomic</code>.</p></div></details>
+<details class="ex"><summary>What are the three ways to share data safely?</summary><div><p>Do not share (each thread owns its data and results are merged), share but never modify (<code>const</code> data), or share and protect with a mutex or an atomic.</p></div></details>
+<h3>Keep going</h3>
+<ul>
+<li>Before this lesson: <a href="07-multithreading.html">Threads</a>.</li>
+<li>Next lesson: <a href="39-mutexes.html">Mutexes and Locking</a>.</li>
+</ul>
+</section>
+</main>
+
+<script src="assets/data/lessons.js"></script>
+<script src="assets/app.js"></script>
+<script>
+CT.threadsim('#sim-race', {
+  title: 'Two threads, each doing ++counter twice (no lock). Correct answer: 4',
+  threads: [{ name: 'A', prog: INC2 }, { name: 'B', prog: INC2 }],
+  vars: { counter: 0 }, show: 'counter', expect: 4,
+  help: 'Step A and B in any order. Each line is one instruction; the scheduler may switch threads between any two of them.'
+});
+</script>
+</body>
+</html>

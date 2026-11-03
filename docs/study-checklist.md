@@ -404,43 +404,110 @@ Move semantics, smart pointers, forwarding, `constexpr`, vocabulary types, conce
 
 - [ ] Recap check. Explain: what `std::move` does at run time (nothing), why `return std::move(local)` hurts, the three value categories, what a forwarding reference is, why `make_shared` needs one allocation, and what a concept replaces.
 
-## Phase 6: Concurrency and the memory model (about 14.4 hours)
+## Phase 6: Concurrency and the memory model (about 17.7 hours)
 
 Threads, mutexes, condition variables, futures and pools, atomics.. Roadmap page: [phase-6-concurrency-and-the-memory-model.md](reading/roadmap/phase-6-concurrency-and-the-memory-model.md).
 
 ### Lessons and quizzes
 
-**Multithreading:** [07-multithreading.html](../interactive/07-multithreading.html), quiz: [07-multithreading-quiz.html](../interactive/07-multithreading-quiz.html) (28 questions).
+**Threads: The Mental Model and Your First Thread:** [07-multithreading.html](../interactive/07-multithreading.html), quiz: [07-multithreading-quiz.html](../interactive/07-multithreading-quiz.html) (12 questions).
 
 - [ ] Why threads? The mental model
+- [ ] Concurrency, parallelism and the cost of a thread
 - [ ] Your first thread (including the dangling-argument trap and joining on every path)
-- [ ] Shared data and data races (invariants; run the race simulator and "Run 500 random schedules")
-- [ ] Mutexes: taking turns (run the mutex simulator)
-- [ ] Other mutex types and `call_once` (why recursive mutexes are a smell)
-- [ ] Races hidden in interfaces (step through the stack example)
-- [ ] Deadlock (cause the deadlock yourself, then run the fixed version)
-- [ ] Condition variables (step through the hand-over)
-- [ ] Debugging and common bugs
+- [ ] Arguments, ownership and detach bugs
+- [ ] Join on every path
 - [ ] Cheat sheet (say each answer aloud)
 - [ ] Take the quiz, then retry the missed questions
 
-**Tasks & Parallelism:** [17-tasks-parallelism.html](../interactive/17-tasks-parallelism.html), quiz: [17-tasks-parallelism-quiz.html](../interactive/17-tasks-parallelism-quiz.html) (15 questions).
+**Shared Data and Data Races:** [38-races.html](../interactive/38-races.html), quiz: [38-races-quiz.html](../interactive/38-races-quiz.html) (11 questions).
 
-- [ ] Futures and async
-- [ ] `promise`, `shared_future` and `packaged_task`
-- [ ] Thread pools and producer/consumer (step through the pool)
-- [ ] Work stealing and sizing a pool
-- [ ] `latch`, `barrier`, `semaphore` and `stop_token` (C++20)
+- [ ] Shared data and data races
+- [ ] Races break invariants
+- [ ] Three ways to be safe
+- [ ] The three strategies in code
+- [ ] Cheat sheet (say each answer aloud)
+- [ ] Take the quiz, then retry the missed questions
+
+**Mutexes and Locking:** [39-mutexes.html](../interactive/39-mutexes.html), quiz: [39-mutexes-quiz.html](../interactive/39-mutexes-quiz.html) (15 questions).
+
+- [ ] Mutexes: taking turns
+- [ ] Use RAII locks, never raw `lock()`/`unlock()`
+- [ ] Protecting a class
+- [ ] How long to hold a lock
+- [ ] Other mutex types and `call_once`
+- [ ] `recursive_mutex` is a design smell
+- [ ] Reader-writer lock
+- [ ] `std::call_once`
+- [ ] Races hidden in interfaces
+- [ ] Fix: offer whole operations
+- [ ] Cheat sheet (say each answer aloud)
+- [ ] Take the quiz, then retry the missed questions
+
+**Deadlock:** [40-deadlock.html](../interactive/40-deadlock.html), quiz: [40-deadlock-quiz.html](../interactive/40-deadlock-quiz.html) (13 questions).
+
+- [ ] Deadlock
+- [ ] Fix: one global lock order
+- [ ] Four guidelines, one idea
+- [ ] Livelock, starvation and lost wakeups
+- [ ] Finding a deadlock
+- [ ] Cheat sheet (say each answer aloud)
+- [ ] Take the quiz, then retry the missed questions
+
+**Condition Variables and Debugging:** [41-condvars.html](../interactive/41-condvars.html), quiz: [41-condvars-quiz.html](../interactive/41-condvars-quiz.html) (13 questions).
+
+- [ ] Condition variables
+- [ ] The predicate is the truth
+- [ ] Three rules to follow
+- [ ] A reusable thread-safe queue
+- [ ] Debugging and common bugs
+- [ ] Vocabulary
+- [ ] A producer and consumer timeline
+- [ ] Cheat sheet (say each answer aloud)
+- [ ] Take the quiz, then retry the missed questions
+
+**Futures, async and Promises:** [17-tasks-parallelism.html](../interactive/17-tasks-parallelism.html), quiz: [17-tasks-parallelism-quiz.html](../interactive/17-tasks-parallelism-quiz.html) (13 questions).
+
+- [ ] Why tasks instead of raw threads
+- [ ] `std::async` and `std::future`
+- [ ] The future that waits in its destructor
+- [ ] Exceptions travel with the result
+- [ ] `promise`: the writing end
+- [ ] `shared_future` and `packaged_task`
+- [ ] Waiting with a time limit
+- [ ] Cheat sheet (say each answer aloud)
+- [ ] Take the quiz, then retry the missed questions
+
+**Thread Pools, Coordination and Parallel Algorithms:** [42-pools.html](../interactive/42-pools.html), quiz: [42-pools-quiz.html](../interactive/42-pools-quiz.html) (14 questions).
+
+- [ ] Thread pools and the task queue
+- [ ] Sizing a pool and the pool deadlock
+- [ ] Work stealing
+- [ ] `latch`, `barrier` and `semaphore` (C++20)
+- [ ] Cooperative cancellation: `jthread` and `stop_token`
 - [ ] Parallel algorithms (C++17)
 - [ ] Cheat sheet (say each answer aloud)
 - [ ] Take the quiz, then retry the missed questions
 
-**Atomics & the Memory Model:** [18-atomics-memory-model.html](../interactive/18-atomics-memory-model.html), quiz: [18-atomics-memory-model-quiz.html](../interactive/18-atomics-memory-model-quiz.html) (17 questions).
+**Atomics and Compare-and-Swap:** [18-atomics-memory-model.html](../interactive/18-atomics-memory-model.html), quiz: [18-atomics-memory-model-quiz.html](../interactive/18-atomics-memory-model-quiz.html) (14 questions).
 
-- [ ] Atomic operations and `compare_exchange`
-- [ ] Memory orders and happens-before (use the memory-order simulator)
-- [ ] Ordering patterns that matter (publish, refcount, spinlock)
-- [ ] Thread-safe data structures (fine-grained locks, lock-free push)
+- [ ] What an atomic is
+- [ ] Compare-and-swap
+- [ ] `atomic_flag` and a spinlock
+- [ ] The ABA problem
+- [ ] Atomics in everyday code
+- [ ] Cheat sheet (say each answer aloud)
+- [ ] Take the quiz, then retry the missed questions
+
+**The Memory Model: Orders and Happens-Before:** [43-memmodel.html](../interactive/43-memmodel.html), quiz: [43-memmodel-quiz.html](../interactive/43-memmodel-quiz.html) (18 questions).
+
+- [ ] Why the order matters
+- [ ] Release and acquire: the one rule to learn
+- [ ] The five memory orders
+- [ ] Happens-before
+- [ ] Ordering patterns that matter
+- [ ] Double-checked locking: the classic trap
+- [ ] Thread-safe data structures
 - [ ] Cheat sheet (say each answer aloud)
 - [ ] Take the quiz, then retry the missed questions
 

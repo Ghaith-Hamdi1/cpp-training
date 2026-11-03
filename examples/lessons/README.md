@@ -6,7 +6,7 @@ Each file is a complete program (it has `main` and its own `#include`s) that dem
 g++ -std=c++23 -Wall -Wextra -pthread 01-basics/01_init_and_traps.cpp -o demo && ./demo
 ```
 
-Or build everything with `make` (outputs go to `build/`). The `-pthread` flag is only needed for lessons 29 to 31, but it is harmless elsewhere. Add `-fsanitize=address,undefined` to catch memory bugs; `-fsanitize=thread` finds data races on Linux or WSL (it is not available for MinGW).
+Or build everything with `make` (outputs go to `build/`). The `-pthread` flag is only needed for lessons 29 to 36, but it is harmless elsewhere. Add `-fsanitize=address,undefined` to catch memory bugs; `-fsanitize=thread` finds data races on Linux or WSL (it is not available for MinGW).
 
 The folder names follow the lesson file names (`13-move-semantics` holds the lesson file `13-move-semantics.html`); the Lesson column uses the numbers shown on the site, which follow the study order.
 
@@ -37,13 +37,13 @@ The folder names follow the lesson file names (`13-move-semantics` holds the les
 | 20 to 25 Move semantics | `13-move-semantics/01_value_categories_moves.cpp` | value categories checked with `decltype`, copy and move counts, elision and `return std::move`, sink parameters, `std::exchange`, copy-and-swap |
 | 26 unique_ptr | `24-uniqueptr/01_unique_ptr.cpp` | the object freed at the closing brace, ownership that moves but never copies, passing and returning, a vector of `unique_ptr`, `unique_ptr<Base>`, sizes with different deleters, `release` and `reset` |
 | 27 and 28 shared_ptr, weak_ptr | `14-smart-pointers/01_ownership_deleters.cpp` | ownership and custom deleters, `shared_ptr` counts, a cycle that leaks and the `weak_ptr` fix, `enable_shared_from_this` |
-| 29 Multithreading | `01_threads_basics_and_guard.cpp` | `std::thread`, `std::ref`, join guard, `jthread` |
-|  | `02_race_mutex_atomic.cpp` | a real lost-update race, fixed with a mutex and with an atomic |
+| 29 to 33 Threads | `07-multithreading/01_threads_basics_and_guard.cpp` | `std::thread`, `std::ref`, join guard, `jthread` |
+|  | `07-multithreading/02_race_mutex_atomic.cpp` | a real lost-update race, fixed with a mutex and with an atomic |
 |  | `03_interface_race_and_deadlock.cpp` | `try_pop`, `scoped_lock` with opposite orders |
 |  | `04_condvar_queue_and_thread_pool.cpp` | condition variable, blocking queue, thread pool |
 |  | `05_async_atomics_spsc.cpp` | `async`, `promise`, `packaged_task`, release/acquire, CAS, lock-free SPSC queue |
 |  | `06_mutex_types.cpp` | `recursive_mutex`, `timed_mutex` with `try_lock_for`, a `shared_mutex` price table, `call_once` |
-| 30 Tasks | `01_futures_coordination_parallel.cpp` | a `promise<void>` start signal through a `shared_future`, `latch`, `barrier`, `counting_semaphore`, `jthread` with `stop_token`, `reduce(par)` |
-| 31 Atomics | `01_atomics_ordering_patterns.cpp` | relaxed counter, release/acquire publication tested 2000 times, CAS weak versus strong, an `atomic_flag` spinlock, a reference count, a lock-free push, a two-lock queue |
+| 34 and 35 Tasks | `17-tasks-parallelism/01_futures_coordination_parallel.cpp` | a `promise<void>` start signal through a `shared_future`, `latch`, `barrier`, `counting_semaphore`, `jthread` with `stop_token`, `reduce(par)` |
+| 36 and 37 Atomics | `18-atomics-memory-model/01_atomics_ordering_patterns.cpp` | relaxed counter, release/acquire publication tested 2000 times, CAS weak versus strong, an `atomic_flag` spinlock, a reference count, a lock-free push, a two-lock queue |
 
 Some outputs vary between runs on purpose: the unsafe counter in `02_race_mutex_atomic.cpp` is a data race (undefined behavior) kept only to show lost updates.
