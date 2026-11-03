@@ -1,4 +1,4 @@
-// Lesson 27: unique_ptr (moves, custom deleter, arrays), shared_ptr counting, a reference cycle that leaks and the
+// Lesson 26: unique_ptr (moves, custom deleter, arrays), shared_ptr counting, a reference cycle that leaks and the
 // weak_ptr fix, enable_shared_from_this, and passing smart pointers. Compile with -std=c++23.
 #include <cstdio>
 #include <iostream>

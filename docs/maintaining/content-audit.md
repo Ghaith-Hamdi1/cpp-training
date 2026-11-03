@@ -70,7 +70,8 @@ Terms below appear zero times in the lesson text.
 
 ## Re-audit (after phases 0 to 6)
 
-Re-run on the finished rewrite. The site now has **20 lessons, 376 quiz questions, 169 interview cheat-sheet items (mock interview) and 40 step-throughs**; the level check draws 48 questions.
+Re-run on the finished rewrite. The site now has **37 lessons, 509 quiz questions, 198 interview cheat-sheet items (mock interview) and 31 step-throughs**; the level check draws 48 questions.
+The lessons were rebuilt in November 2026 from 20 to 37 single-topic lessons (see `docs/maintaining/visual-kit.md` and `tools/new-lesson.mjs`); each prints as one PDF of 5 to 10 pages in `docs/lessons-pdf/`, and Strings, Regex and Time is the optional last lesson (`37-further-reading-strings-regex-time.pdf`).
 
 ### Original findings
 

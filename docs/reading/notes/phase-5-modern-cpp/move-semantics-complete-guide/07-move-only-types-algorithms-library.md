@@ -59,4 +59,4 @@ What surprised me when I ran it:
 
 ## After this session
 
-Lesson 27 (Smart pointers), Lesson 14 (STL algorithms) and Lesson 34 (futures and threads are move-only)
+Lesson 26 (Smart pointers), Lesson 13 (STL algorithms) and Lesson 33 (futures and threads are move-only)

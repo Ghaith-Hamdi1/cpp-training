@@ -44,16 +44,16 @@
 
 | Lesson | Time |
 |---|---|
-| [8. Strings, Regex & Time](https://ghaith-hamdi1.github.io/cpp-training/08-strings-regex-time.html) and its [quiz](https://ghaith-hamdi1.github.io/cpp-training/08-strings-regex-time-quiz.html) | 40 min |
-| [9. Function Pointers and Functors](https://ghaith-hamdi1.github.io/cpp-training/23-callables.html) and its [quiz](https://ghaith-hamdi1.github.io/cpp-training/23-callables-quiz.html) | 35 min |
-| [10. Lambdas](https://ghaith-hamdi1.github.io/cpp-training/15-lambdas.html) and its [quiz](https://ghaith-hamdi1.github.io/cpp-training/15-lambdas-quiz.html) | 35 min |
-| [11. STL Containers](https://ghaith-hamdi1.github.io/cpp-training/04-stl.html) and its [quiz](https://ghaith-hamdi1.github.io/cpp-training/04-stl-quiz.html) | 35 min |
-| [12. Maps, Sets and Hashing](https://ghaith-hamdi1.github.io/cpp-training/31-assoc.html) and its [quiz](https://ghaith-hamdi1.github.io/cpp-training/31-assoc-quiz.html) | 40 min |
-| [13. Iterators](https://ghaith-hamdi1.github.io/cpp-training/28-iterators.html) and its [quiz](https://ghaith-hamdi1.github.io/cpp-training/28-iterators-quiz.html) | 35 min |
-| [14. Algorithms and Ranges](https://ghaith-hamdi1.github.io/cpp-training/29-algorithms.html) and its [quiz](https://ghaith-hamdi1.github.io/cpp-training/29-algorithms-quiz.html) | 40 min |
-| [15. Function Templates](https://ghaith-hamdi1.github.io/cpp-training/05-templates.html) and its [quiz](https://ghaith-hamdi1.github.io/cpp-training/05-templates-quiz.html) | 45 min |
-| [16. Class Templates](https://ghaith-hamdi1.github.io/cpp-training/30-classtemplates.html) and its [quiz](https://ghaith-hamdi1.github.io/cpp-training/30-classtemplates-quiz.html) | 40 min |
-| [17. Type Traits, Concepts and Compile-time C++](https://ghaith-hamdi1.github.io/cpp-training/09-compile-time.html) and its [quiz](https://ghaith-hamdi1.github.io/cpp-training/09-compile-time-quiz.html) | 50 min |
+| [8. Function Pointers and Functors](https://ghaith-hamdi1.github.io/cpp-training/23-callables.html) and its [quiz](https://ghaith-hamdi1.github.io/cpp-training/23-callables-quiz.html) | 35 min |
+| [9. Lambdas](https://ghaith-hamdi1.github.io/cpp-training/15-lambdas.html) and its [quiz](https://ghaith-hamdi1.github.io/cpp-training/15-lambdas-quiz.html) | 35 min |
+| [10. STL Containers](https://ghaith-hamdi1.github.io/cpp-training/04-stl.html) and its [quiz](https://ghaith-hamdi1.github.io/cpp-training/04-stl-quiz.html) | 35 min |
+| [11. Maps, Sets and Hashing](https://ghaith-hamdi1.github.io/cpp-training/31-assoc.html) and its [quiz](https://ghaith-hamdi1.github.io/cpp-training/31-assoc-quiz.html) | 40 min |
+| [12. Iterators](https://ghaith-hamdi1.github.io/cpp-training/28-iterators.html) and its [quiz](https://ghaith-hamdi1.github.io/cpp-training/28-iterators-quiz.html) | 35 min |
+| [13. Algorithms and Ranges](https://ghaith-hamdi1.github.io/cpp-training/29-algorithms.html) and its [quiz](https://ghaith-hamdi1.github.io/cpp-training/29-algorithms-quiz.html) | 40 min |
+| [14. Function Templates](https://ghaith-hamdi1.github.io/cpp-training/05-templates.html) and its [quiz](https://ghaith-hamdi1.github.io/cpp-training/05-templates-quiz.html) | 45 min |
+| [15. Class Templates](https://ghaith-hamdi1.github.io/cpp-training/30-classtemplates.html) and its [quiz](https://ghaith-hamdi1.github.io/cpp-training/30-classtemplates-quiz.html) | 40 min |
+| [16. Type Traits, Concepts and Compile-time C++](https://ghaith-hamdi1.github.io/cpp-training/09-compile-time.html) and its [quiz](https://ghaith-hamdi1.github.io/cpp-training/09-compile-time-quiz.html) | 50 min |
+| [37. Strings, Regex & Time](https://ghaith-hamdi1.github.io/cpp-training/08-strings-regex-time.html) and its [quiz](https://ghaith-hamdi1.github.io/cpp-training/08-strings-regex-time-quiz.html) | 40 min |
 
 Exercises: 12 (`Stack<T>`).
 

@@ -67,4 +67,4 @@ What I got wrong when I compared it with the book:
 
 ## After this session
 
-Lesson 16, section 3 (specialization), and lesson 15, section 3 (variadics); lesson 17 (compile-time C++)
+Lesson 15, section 3 (specialization), and lesson 14, section 3 (variadics); lesson 16 (compile-time C++)

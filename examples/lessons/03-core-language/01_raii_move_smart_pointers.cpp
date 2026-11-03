@@ -1,4 +1,4 @@
-// Lesson 18: RAII with stack unwinding, std::move traps, unique_ptr / shared_ptr / weak_ptr, cycles.
+// Lesson 17: RAII with stack unwinding, std::move traps, unique_ptr / shared_ptr / weak_ptr, cycles.
 #include <iostream>
 #include <memory>
 #include <stdexcept>

@@ -66,4 +66,4 @@ What I got wrong when I compared it with the book:
 
 ## After this session
 
-Lessons 15 and 16 (function and class templates), section 1 of each; practice 12 (`Stack<T>`)
+Lessons 14 and 15 (function and class templates), section 1 of each; practice 12 (`Stack<T>`)

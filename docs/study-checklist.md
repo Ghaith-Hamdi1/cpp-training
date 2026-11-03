@@ -136,18 +136,6 @@ Streams, containers, iterators, algorithms, templates.. Roadmap page: [phase-3-t
 
 ### Lessons and quizzes
 
-**Strings, Regex & Time:** [08-strings-regex-time.html](../interactive/08-strings-regex-time.html), quiz: [08-strings-regex-time-quiz.html](../interactive/08-strings-regex-time-quiz.html) (23 questions).
-
-- [ ] `std::string` and `std::string_view`
-- [ ] Inside `std::string`: SSO and capacity
-- [ ] Numbers and text: `from_chars`, `to_chars`, `stoi`
-- [ ] Formatting: `std::format` and streams
-- [ ] String streams and files
-- [ ] Regular expressions
-- [ ] Time with `std::chrono`
-- [ ] Cheat sheet (say each answer aloud)
-- [ ] Take the quiz, then retry the missed questions
-
 **Function Pointers and Functors:** [23-callables.html](../interactive/23-callables.html), quiz: [23-callables-quiz.html](../interactive/23-callables-quiz.html) (13 questions).
 
 - [ ] Something you can call
@@ -233,6 +221,18 @@ Streams, containers, iterators, algorithms, templates.. Roadmap page: [phase-3-t
 - [ ] Concepts and `requires` (C++20)
 - [ ] `constexpr`, `consteval`, `constinit`
 - [ ] Template metaprogramming (TMP)
+- [ ] Cheat sheet (say each answer aloud)
+- [ ] Take the quiz, then retry the missed questions
+
+**Strings, Regex & Time:** [08-strings-regex-time.html](../interactive/08-strings-regex-time.html), quiz: [08-strings-regex-time-quiz.html](../interactive/08-strings-regex-time-quiz.html) (23 questions).
+
+- [ ] `std::string` and `std::string_view`
+- [ ] Inside `std::string`: SSO and capacity
+- [ ] Numbers and text: `from_chars`, `to_chars`, `stoi`
+- [ ] Formatting: `std::format` and streams
+- [ ] String streams and files
+- [ ] Regular expressions
+- [ ] Time with `std::chrono`
 - [ ] Cheat sheet (say each answer aloud)
 - [ ] Take the quiz, then retry the missed questions
 

@@ -58,4 +58,4 @@ What surprised me when I ran it:
 
 ## After this session
 
-Lesson 20, "Lvalues, rvalues and value categories"
+Lesson 19, "Lvalues, rvalues and value categories"

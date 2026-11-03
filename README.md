@@ -39,36 +39,36 @@ Each lesson has step-through memory visualizers or simulators, predict-the-outpu
 | 5 | [Classes and Objects](https://ghaith-hamdi1.github.io/cpp-training/02-oop.html) | [Quiz](https://ghaith-hamdi1.github.io/cpp-training/02-oop-quiz.html) |
 | 6 | [Copy Control and Operators](https://ghaith-hamdi1.github.io/cpp-training/26-copying.html) | [Quiz](https://ghaith-hamdi1.github.io/cpp-training/26-copying-quiz.html) |
 | 7 | [Inheritance, Virtual Functions and the Object Model](https://ghaith-hamdi1.github.io/cpp-training/27-inherit.html) | [Quiz](https://ghaith-hamdi1.github.io/cpp-training/27-inherit-quiz.html) |
-| 8 | [Strings, Regex and Time](https://ghaith-hamdi1.github.io/cpp-training/08-strings-regex-time.html) | [Quiz](https://ghaith-hamdi1.github.io/cpp-training/08-strings-regex-time-quiz.html) |
-| 9 | [Function Pointers and Functors](https://ghaith-hamdi1.github.io/cpp-training/23-callables.html) | [Quiz](https://ghaith-hamdi1.github.io/cpp-training/23-callables-quiz.html) |
-| 10 | [Lambdas](https://ghaith-hamdi1.github.io/cpp-training/15-lambdas.html) | [Quiz](https://ghaith-hamdi1.github.io/cpp-training/15-lambdas-quiz.html) |
-| 11 | [STL Containers](https://ghaith-hamdi1.github.io/cpp-training/04-stl.html) | [Quiz](https://ghaith-hamdi1.github.io/cpp-training/04-stl-quiz.html) |
-| 12 | [Maps, Sets and Hashing](https://ghaith-hamdi1.github.io/cpp-training/31-assoc.html) | [Quiz](https://ghaith-hamdi1.github.io/cpp-training/31-assoc-quiz.html) |
-| 13 | [Iterators](https://ghaith-hamdi1.github.io/cpp-training/28-iterators.html) | [Quiz](https://ghaith-hamdi1.github.io/cpp-training/28-iterators-quiz.html) |
-| 14 | [Algorithms and Ranges](https://ghaith-hamdi1.github.io/cpp-training/29-algorithms.html) | [Quiz](https://ghaith-hamdi1.github.io/cpp-training/29-algorithms-quiz.html) |
-| 15 | [Function Templates](https://ghaith-hamdi1.github.io/cpp-training/05-templates.html) | [Quiz](https://ghaith-hamdi1.github.io/cpp-training/05-templates-quiz.html) |
-| 16 | [Class Templates](https://ghaith-hamdi1.github.io/cpp-training/30-classtemplates.html) | [Quiz](https://ghaith-hamdi1.github.io/cpp-training/30-classtemplates-quiz.html) |
-| 17 | [Type Traits, Concepts and Compile-time C++](https://ghaith-hamdi1.github.io/cpp-training/09-compile-time.html) | [Quiz](https://ghaith-hamdi1.github.io/cpp-training/09-compile-time-quiz.html) |
-| 18 | [RAII and Exceptions](https://ghaith-hamdi1.github.io/cpp-training/03-core-language.html) | [Quiz](https://ghaith-hamdi1.github.io/cpp-training/03-core-language-quiz.html) |
-| 19 | [Values or Errors: optional, variant and expected](https://ghaith-hamdi1.github.io/cpp-training/21-vocabulary-types.html) | [Quiz](https://ghaith-hamdi1.github.io/cpp-training/21-vocabulary-types-quiz.html) |
-| 20 | [Lvalues and Rvalues](https://ghaith-hamdi1.github.io/cpp-training/13-move-semantics.html) | [Quiz](https://ghaith-hamdi1.github.io/cpp-training/13-move-semantics-quiz.html) |
-| 21 | [Copy versus Move, and std::move](https://ghaith-hamdi1.github.io/cpp-training/33-copymove.html) | [Quiz](https://ghaith-hamdi1.github.io/cpp-training/33-copymove-quiz.html) |
-| 22 | [Writing Move Operations](https://ghaith-hamdi1.github.io/cpp-training/34-writemoves.html) | [Quiz](https://ghaith-hamdi1.github.io/cpp-training/34-writemoves-quiz.html) |
-| 23 | [Returning Objects and Copy Elision](https://ghaith-hamdi1.github.io/cpp-training/35-elision.html) | [Quiz](https://ghaith-hamdi1.github.io/cpp-training/35-elision-quiz.html) |
-| 24 | [Sink Parameters and Move Traps](https://ghaith-hamdi1.github.io/cpp-training/36-sinks.html) | [Quiz](https://ghaith-hamdi1.github.io/cpp-training/36-sinks-quiz.html) |
-| 25 | [Perfect Forwarding](https://ghaith-hamdi1.github.io/cpp-training/37-forwarding.html) | [Quiz](https://ghaith-hamdi1.github.io/cpp-training/37-forwarding-quiz.html) |
-| 26 | [unique_ptr: Exclusive Ownership](https://ghaith-hamdi1.github.io/cpp-training/24-uniqueptr.html) | [Quiz](https://ghaith-hamdi1.github.io/cpp-training/24-uniqueptr-quiz.html) |
-| 27 | [shared_ptr: Shared Ownership](https://ghaith-hamdi1.github.io/cpp-training/14-smart-pointers.html) | [Quiz](https://ghaith-hamdi1.github.io/cpp-training/14-smart-pointers-quiz.html) |
-| 28 | [weak_ptr and Reference Cycles](https://ghaith-hamdi1.github.io/cpp-training/32-weakptr.html) | [Quiz](https://ghaith-hamdi1.github.io/cpp-training/32-weakptr-quiz.html) |
-| 29 | [Threads: The Mental Model and Your First Thread](https://ghaith-hamdi1.github.io/cpp-training/07-multithreading.html) | [Quiz](https://ghaith-hamdi1.github.io/cpp-training/07-multithreading-quiz.html) |
-| 30 | [Shared Data and Data Races](https://ghaith-hamdi1.github.io/cpp-training/38-races.html) | [Quiz](https://ghaith-hamdi1.github.io/cpp-training/38-races-quiz.html) |
-| 31 | [Mutexes and Locking](https://ghaith-hamdi1.github.io/cpp-training/39-mutexes.html) | [Quiz](https://ghaith-hamdi1.github.io/cpp-training/39-mutexes-quiz.html) |
-| 32 | [Deadlock](https://ghaith-hamdi1.github.io/cpp-training/40-deadlock.html) | [Quiz](https://ghaith-hamdi1.github.io/cpp-training/40-deadlock-quiz.html) |
-| 33 | [Condition Variables and Debugging](https://ghaith-hamdi1.github.io/cpp-training/41-condvars.html) | [Quiz](https://ghaith-hamdi1.github.io/cpp-training/41-condvars-quiz.html) |
-| 34 | [Futures, async and Promises](https://ghaith-hamdi1.github.io/cpp-training/17-tasks-parallelism.html) | [Quiz](https://ghaith-hamdi1.github.io/cpp-training/17-tasks-parallelism-quiz.html) |
-| 35 | [Thread Pools, Coordination and Parallel Algorithms](https://ghaith-hamdi1.github.io/cpp-training/42-pools.html) | [Quiz](https://ghaith-hamdi1.github.io/cpp-training/42-pools-quiz.html) |
-| 36 | [Atomics and Compare-and-Swap](https://ghaith-hamdi1.github.io/cpp-training/18-atomics-memory-model.html) | [Quiz](https://ghaith-hamdi1.github.io/cpp-training/18-atomics-memory-model-quiz.html) |
-| 37 | [The Memory Model: Orders and Happens-Before](https://ghaith-hamdi1.github.io/cpp-training/43-memmodel.html) | [Quiz](https://ghaith-hamdi1.github.io/cpp-training/43-memmodel-quiz.html) |
+| 8 | [Function Pointers and Functors](https://ghaith-hamdi1.github.io/cpp-training/23-callables.html) | [Quiz](https://ghaith-hamdi1.github.io/cpp-training/23-callables-quiz.html) |
+| 9 | [Lambdas](https://ghaith-hamdi1.github.io/cpp-training/15-lambdas.html) | [Quiz](https://ghaith-hamdi1.github.io/cpp-training/15-lambdas-quiz.html) |
+| 10 | [STL Containers](https://ghaith-hamdi1.github.io/cpp-training/04-stl.html) | [Quiz](https://ghaith-hamdi1.github.io/cpp-training/04-stl-quiz.html) |
+| 11 | [Maps, Sets and Hashing](https://ghaith-hamdi1.github.io/cpp-training/31-assoc.html) | [Quiz](https://ghaith-hamdi1.github.io/cpp-training/31-assoc-quiz.html) |
+| 12 | [Iterators](https://ghaith-hamdi1.github.io/cpp-training/28-iterators.html) | [Quiz](https://ghaith-hamdi1.github.io/cpp-training/28-iterators-quiz.html) |
+| 13 | [Algorithms and Ranges](https://ghaith-hamdi1.github.io/cpp-training/29-algorithms.html) | [Quiz](https://ghaith-hamdi1.github.io/cpp-training/29-algorithms-quiz.html) |
+| 14 | [Function Templates](https://ghaith-hamdi1.github.io/cpp-training/05-templates.html) | [Quiz](https://ghaith-hamdi1.github.io/cpp-training/05-templates-quiz.html) |
+| 15 | [Class Templates](https://ghaith-hamdi1.github.io/cpp-training/30-classtemplates.html) | [Quiz](https://ghaith-hamdi1.github.io/cpp-training/30-classtemplates-quiz.html) |
+| 16 | [Type Traits, Concepts and Compile-time C++](https://ghaith-hamdi1.github.io/cpp-training/09-compile-time.html) | [Quiz](https://ghaith-hamdi1.github.io/cpp-training/09-compile-time-quiz.html) |
+| 17 | [RAII and Exceptions](https://ghaith-hamdi1.github.io/cpp-training/03-core-language.html) | [Quiz](https://ghaith-hamdi1.github.io/cpp-training/03-core-language-quiz.html) |
+| 18 | [Values or Errors: optional, variant and expected](https://ghaith-hamdi1.github.io/cpp-training/21-vocabulary-types.html) | [Quiz](https://ghaith-hamdi1.github.io/cpp-training/21-vocabulary-types-quiz.html) |
+| 19 | [Lvalues and Rvalues](https://ghaith-hamdi1.github.io/cpp-training/13-move-semantics.html) | [Quiz](https://ghaith-hamdi1.github.io/cpp-training/13-move-semantics-quiz.html) |
+| 20 | [Copy versus Move, and std::move](https://ghaith-hamdi1.github.io/cpp-training/33-copymove.html) | [Quiz](https://ghaith-hamdi1.github.io/cpp-training/33-copymove-quiz.html) |
+| 21 | [Writing Move Operations](https://ghaith-hamdi1.github.io/cpp-training/34-writemoves.html) | [Quiz](https://ghaith-hamdi1.github.io/cpp-training/34-writemoves-quiz.html) |
+| 22 | [Returning Objects and Copy Elision](https://ghaith-hamdi1.github.io/cpp-training/35-elision.html) | [Quiz](https://ghaith-hamdi1.github.io/cpp-training/35-elision-quiz.html) |
+| 23 | [Sink Parameters and Move Traps](https://ghaith-hamdi1.github.io/cpp-training/36-sinks.html) | [Quiz](https://ghaith-hamdi1.github.io/cpp-training/36-sinks-quiz.html) |
+| 24 | [Perfect Forwarding](https://ghaith-hamdi1.github.io/cpp-training/37-forwarding.html) | [Quiz](https://ghaith-hamdi1.github.io/cpp-training/37-forwarding-quiz.html) |
+| 25 | [unique_ptr: Exclusive Ownership](https://ghaith-hamdi1.github.io/cpp-training/24-uniqueptr.html) | [Quiz](https://ghaith-hamdi1.github.io/cpp-training/24-uniqueptr-quiz.html) |
+| 26 | [shared_ptr: Shared Ownership](https://ghaith-hamdi1.github.io/cpp-training/14-smart-pointers.html) | [Quiz](https://ghaith-hamdi1.github.io/cpp-training/14-smart-pointers-quiz.html) |
+| 27 | [weak_ptr and Reference Cycles](https://ghaith-hamdi1.github.io/cpp-training/32-weakptr.html) | [Quiz](https://ghaith-hamdi1.github.io/cpp-training/32-weakptr-quiz.html) |
+| 28 | [Threads: The Mental Model and Your First Thread](https://ghaith-hamdi1.github.io/cpp-training/07-multithreading.html) | [Quiz](https://ghaith-hamdi1.github.io/cpp-training/07-multithreading-quiz.html) |
+| 29 | [Shared Data and Data Races](https://ghaith-hamdi1.github.io/cpp-training/38-races.html) | [Quiz](https://ghaith-hamdi1.github.io/cpp-training/38-races-quiz.html) |
+| 30 | [Mutexes and Locking](https://ghaith-hamdi1.github.io/cpp-training/39-mutexes.html) | [Quiz](https://ghaith-hamdi1.github.io/cpp-training/39-mutexes-quiz.html) |
+| 31 | [Deadlock](https://ghaith-hamdi1.github.io/cpp-training/40-deadlock.html) | [Quiz](https://ghaith-hamdi1.github.io/cpp-training/40-deadlock-quiz.html) |
+| 32 | [Condition Variables and Debugging](https://ghaith-hamdi1.github.io/cpp-training/41-condvars.html) | [Quiz](https://ghaith-hamdi1.github.io/cpp-training/41-condvars-quiz.html) |
+| 33 | [Futures, async and Promises](https://ghaith-hamdi1.github.io/cpp-training/17-tasks-parallelism.html) | [Quiz](https://ghaith-hamdi1.github.io/cpp-training/17-tasks-parallelism-quiz.html) |
+| 34 | [Thread Pools, Coordination and Parallel Algorithms](https://ghaith-hamdi1.github.io/cpp-training/42-pools.html) | [Quiz](https://ghaith-hamdi1.github.io/cpp-training/42-pools-quiz.html) |
+| 35 | [Atomics and Compare-and-Swap](https://ghaith-hamdi1.github.io/cpp-training/18-atomics-memory-model.html) | [Quiz](https://ghaith-hamdi1.github.io/cpp-training/18-atomics-memory-model-quiz.html) |
+| 36 | [The Memory Model: Orders and Happens-Before](https://ghaith-hamdi1.github.io/cpp-training/43-memmodel.html) | [Quiz](https://ghaith-hamdi1.github.io/cpp-training/43-memmodel-quiz.html) |
+| 37 | [Strings, Regex and Time](https://ghaith-hamdi1.github.io/cpp-training/08-strings-regex-time.html) | [Quiz](https://ghaith-hamdi1.github.io/cpp-training/08-strings-regex-time-quiz.html) |
 
 Besides the lessons, the site has a [C++ Puzzles](https://ghaith-hamdi1.github.io/cpp-training/puzzles.html) page: 163 "what does this program print?" questions from CppQuiz.org, each with an explanation that quotes the standard (see [third-party content](#third-party-content)).
 
@@ -103,12 +103,12 @@ After the two books in this repo (see their reading guides above), these are the
 | # | Book | Why read it | Lessons |
 |---|---|---|---|
 | 1 | **Effective Modern C++**, Scott Meyers ([reading guide](docs/reading/effective-modern-cpp-reading-guide.md)) | Short, self-contained items on move semantics, smart pointers, lambdas, `auto`, forwarding references and a concurrency chapter (C++11/14). The most practical book on the list. | 2, 6 to 9, 12, 16, 17 |
-| 2 | **[C++ Move Semantics: The Complete Guide](https://leanpub.com/cppmove)**, Nicolai Josuttis ([reading guide](docs/reading/move-semantics-complete-guide-reading-guide.md)) | A whole book on one topic (about 260 pages, 2020): `std::move`, rvalue references, moved-from states, value categories, `std::forward`, forwarding references and `decltype(auto)`. The deepest treatment of move semantics. | 11, 15, 27 |
-| 3 | **A Tour of C++**, Bjarne Stroustrup | A short whole-language overview by the language's creator, including the C++20 features (concepts, ranges, modules, coroutines). | 3, 11, 18, 20, 27 |
-| 4 | **C++ Templates: The Complete Guide**, Vandevoorde, Josuttis and Gregor | The definitive templates book: variadic templates, forwarding, type traits, SFINAE and `if constexpr`. Large, so use it as a reference. | 27, 17 |
+| 2 | **[C++ Move Semantics: The Complete Guide](https://leanpub.com/cppmove)**, Nicolai Josuttis ([reading guide](docs/reading/move-semantics-complete-guide-reading-guide.md)) | A whole book on one topic (about 260 pages, 2020): `std::move`, rvalue references, moved-from states, value categories, `std::forward`, forwarding references and `decltype(auto)`. The deepest treatment of move semantics. | 10, 14, 26 |
+| 3 | **A Tour of C++**, Bjarne Stroustrup | A short whole-language overview by the language's creator, including the C++20 features (concepts, ranges, modules, coroutines). | 3, 10, 17, 19, 26 |
+| 4 | **C++ Templates: The Complete Guide**, Vandevoorde, Josuttis and Gregor | The definitive templates book: variadic templates, forwarding, type traits, SFINAE and `if constexpr`. Large, so use it as a reference. | 26, 16 |
 | 5 | **Hands-On Design Patterns with C++**, Fedor Pikus | Design patterns in modern C++, including templates, concurrency and performance. | none |
-| 6 | **C++ High Performance**, Björn Andrist and Viktor Sehr | Performance, STL algorithms, memory and concurrency, relevant to real-time and low-latency work. | 20, 29, 36 |
-| 7 | **The Art of Multiprocessor Programming**, Maurice Herlihy and Nir Shavit | The theory behind locks, lock-free structures and memory models. Heavy and academic; read it only if lock-free work interests you. | 36 |
+| 6 | **C++ High Performance**, Björn Andrist and Viktor Sehr | Performance, STL algorithms, memory and concurrency, relevant to real-time and low-latency work. | 19, 28, 35 |
+| 7 | **The Art of Multiprocessor Programming**, Maurice Herlihy and Nir Shavit | The theory behind locks, lock-free structures and memory models. Heavy and academic; read it only if lock-free work interests you. | 35 |
 
 "Lessons" refers to the [lessons](#the-lessons) above.
 

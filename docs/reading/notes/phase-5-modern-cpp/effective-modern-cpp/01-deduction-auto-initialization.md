@@ -60,4 +60,4 @@ What surprised me when I ran it:
 
 ## After this session
 
-Lesson 15 (Templates, argument deduction), Lesson 3 (Types, `auto` and braces) and their quizzes
+Lesson 14 (Templates, argument deduction), Lesson 3 (Types, `auto` and braces) and their quizzes

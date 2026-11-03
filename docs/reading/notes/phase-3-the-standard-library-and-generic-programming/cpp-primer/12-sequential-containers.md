@@ -67,4 +67,4 @@ What I got wrong when I compared it with the book:
 
 ## After this session
 
-Lesson 11 (STL Containers), sections 2, 3 and 6, and lesson 13 (Iterators); their quizzes
+Lesson 10 (STL Containers), sections 2, 3 and 6, and lesson 12 (Iterators); their quizzes

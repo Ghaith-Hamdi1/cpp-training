@@ -36,8 +36,6 @@ CT.lessons = [
     blurb: 'Shallow and deep copies, the Rule of 3, 5 and 0, explicit and conversion operators, copy-and-swap, and operator overloading.' },
   { id: 'inherit', file: '27-inherit.html', quiz: '27-inherit-quiz.html', title: 'Inheritance, Virtual Functions and the Object Model', time: '60 min', assess: 2, phase: 2,
     blurb: 'Is-a inheritance, how virtual calls work with the vtable and vptr, abstract classes, composition, multiple and virtual inheritance, RTTI and private inheritance.' },
-  { id: 'strings', file: '08-strings-regex-time.html', quiz: '08-strings-regex-time-quiz.html', title: 'Strings, Regex & Time', time: '40 min', assess: 2, phase: 3,
-    blurb: 'string versus string_view, regular expressions with a live tester, and measuring time with chrono clocks and durations.' },
   { id: 'callables', file: '23-callables.html', quiz: '23-callables-quiz.html', title: 'Function Pointers and Functors', time: '35 min', assess: 2, phase: 3,
     blurb: 'Function pointers, functors, std::function and std::invoke: the things you can call, what each can hold, and when to use which.' },
   { id: 'lambdas', file: '15-lambdas.html', quiz: '15-lambdas-quiz.html', title: 'Lambdas', time: '35 min', assess: 2, phase: 3,
@@ -96,6 +94,8 @@ CT.lessons = [
     blurb: 'Indivisible operations on one variable: std::atomic, compare-and-swap loops, atomic_flag and a spinlock, and the ABA problem.' },
   { id: 'memmodel', file: '43-memmodel.html', quiz: '43-memmodel-quiz.html', title: 'The Memory Model: Orders and Happens-Before', time: '55 min', assess: 2, phase: 6,
     blurb: 'Why threads can see writes out of order, release and acquire, the five memory orders, the ordering patterns that matter, and thread-safe data structures.' },
+  { id: 'strings', file: '08-strings-regex-time.html', quiz: '08-strings-regex-time-quiz.html', title: 'Strings, Regex & Time', time: '40 min', assess: 2, phase: 3, optional: true,
+    blurb: 'string versus string_view, regular expressions with a live tester, and measuring time with chrono clocks and durations.' },
 ];
 
 /* When a section moves to another lesson, record where it went so old links keep working:

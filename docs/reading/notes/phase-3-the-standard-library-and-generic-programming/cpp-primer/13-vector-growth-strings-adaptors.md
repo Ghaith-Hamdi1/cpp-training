@@ -68,4 +68,4 @@ What I got wrong when I compared it with the book:
 
 ## After this session
 
-Lesson 11, sections 2 and 3; lesson 8, section 2 (SSO and capacity); practice 12 (`Stack<T>`) so far
+Lesson 10, sections 2 and 3; lesson 37, section 2 (SSO and capacity); practice 12 (`Stack<T>`) so far

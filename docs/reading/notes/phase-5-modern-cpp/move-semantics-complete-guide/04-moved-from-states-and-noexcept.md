@@ -59,4 +59,4 @@ What surprised me when I ran it:
 
 ## After this session
 
-Lesson 18 (Core, `noexcept`) and Lesson 20
+Lesson 17 (Core, `noexcept`) and Lesson 19

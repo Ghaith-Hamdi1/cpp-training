@@ -54,4 +54,4 @@ What I got wrong when I compared it with the book:
 
 ## After this session
 
-Lesson 18 (Core Language: exceptions) and its quiz
+Lesson 17 (Core Language: exceptions) and its quiz

@@ -1,4 +1,4 @@
-// Lesson 29: starting threads, std::ref, lambdas, member functions, join on every path (RAII guard), jthread.
+// Lesson 28: starting threads, std::ref, lambdas, member functions, join on every path (RAII guard), jthread.
 // Compile with -pthread. Output order of the two "running" lines can differ between runs.
 #include <chrono>
 #include <iostream>

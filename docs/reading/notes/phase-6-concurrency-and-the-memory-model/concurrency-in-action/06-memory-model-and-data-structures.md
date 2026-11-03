@@ -59,4 +59,4 @@ What surprised me when I ran it:
 
 ## After this session
 
-Lesson 36 (Atomics), "Memory orders and happens-before" and "Thread-safe data structures"
+Lesson 35 (Atomics), "Memory orders and happens-before" and "Thread-safe data structures"
