@@ -6,7 +6,8 @@
 // a short static table. The "Read more" book notes of a lesson are collected into one "Further reading" box at the end of the lesson, and
 // a few sections are moved within their lesson where that reads better on paper (see ORDER in pdfPrep).
 // The "Read more" book notes are taken out of the sections and listed per section (book, chapter and PDF pages) on a last page of their own.
-// The files are numbered in study order (lesson 1 upwards, as in the registry), not by the page's own file name.
+// The files are numbered in study order (lesson 1 upwards, as in the registry), not by the page's own file name, and sit in one folder per theme
+// (the roadmap phase: 01-core-language-foundations, 02-classes-..., plus 07-further-reading for the optional lesson).
 // A lesson with `optional: true` in the registry is printed as NN-further-reading-<name>.pdf.
 // Needs Edge or Chrome. Usage: node tools/build-lessons-pdf.mjs
 import { existsSync, mkdirSync, mkdtempSync, readdirSync, rmSync, unlinkSync, writeFileSync } from 'node:fs';
@@ -17,7 +18,11 @@ import { spawn } from 'node:child_process';
 import { loadRegistry, root } from './lib/registry.mjs';
 
 const repo = resolve(fileURLToPath(new URL('..', import.meta.url)));
-const lessons = loadRegistry().lessons;
+const registry = loadRegistry();
+const lessons = registry.lessons;
+const slug = (t) => t.replace(/(.*?)/g, '').toLowerCase().replace(/c++/g, 'cpp').replace(/&/g, 'and').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+/** The theme folder of a lesson: its roadmap phase (01-core-language-foundations ...), or 07-further-reading for the optional lesson. */
+const folderOf = (l) => { if (l.optional) return '07-further-reading'; const ph = registry.phases.find((p) => p.n === l.phase); return String(ph.n).padStart(2, '0') + '-' + slug(ph.name); };
 const exe = process.env.BROWSER || ['C:/Program Files (x86)/Microsoft/Edge/Application/msedge.exe', 'C:/Program Files/Microsoft/Edge/Application/msedge.exe', 'C:/Program Files/Google/Chrome/Application/chrome.exe', '/usr/bin/google-chrome', '/usr/bin/chromium'].find(existsSync);
 if (!exe) throw new Error('No Edge or Chrome found; set BROWSER to its path');
 
@@ -302,7 +307,10 @@ try {
 
   const dir = resolve(repo, 'docs/lessons-pdf');
   mkdirSync(dir, { recursive: true });
-  for (const f of readdirSync(dir)) if (/^\d\d-.*\.pdf$/.test(f)) unlinkSync(join(dir, f));   // the numbering can change, so start clean (only the files this tool names)
+  for (const f of readdirSync(dir, { withFileTypes: true })) {                    // the numbering can change, so start clean (only what this tool names)
+    if (f.isFile() && /^\d\d-.*\.pdf$/.test(f.name)) unlinkSync(join(dir, f.name));
+    else if (f.isDirectory() && /^\d\d-/.test(f.name)) rmSync(join(dir, f.name), { recursive: true, force: true });
+  }
   for (const [k, l] of lessons.entries()) {
     events.length = 0;
     await send('Page.navigate', { url: pathToFileURL(join(root, l.file)).href });
@@ -318,8 +326,9 @@ try {
     if (rep.result.value && rep.result.value.length) console.log('taller than a page in', l.file, JSON.stringify(rep.result.value));
     const { data } = await send('Page.printToPDF', { printBackground: true, preferCSSPageSize: false, paperWidth: 8.27, paperHeight: 11.69, marginTop: 0.4, marginBottom: 0.45, marginLeft: 0.5, marginRight: 0.5 });
     const name = String(k + 1).padStart(2, '0') + '-' + (l.optional ? 'further-reading-' : '') + l.file.replace(/^\d+-/, '').replace(/\.html$/, '') + '.pdf';
-    writeFileSync(join(dir, name), Buffer.from(data, 'base64'));
-    console.log('printed', name);
+    const sub = join(dir, folderOf(l)); mkdirSync(sub, { recursive: true });
+    writeFileSync(join(sub, name), Buffer.from(data, 'base64'));
+    console.log('printed', folderOf(l) + '/' + name);
   }
   ws.close();
 
