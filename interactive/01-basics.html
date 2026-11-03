@@ -3,14 +3,14 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>C++ Basics and Pointers</title>
+<title>C++ Basics</title>
 <script>try{var t=JSON.parse(localStorage.getItem('cpptrain:theme'));if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
 <link rel="stylesheet" href="assets/style.css">
 </head>
 <body data-topic="basics" data-kind="lesson">
 <main>
-<h1>C++ Basics and Pointers</h1>
-<p class="lead">Start here if C++ is new or rusty: types, functions, where variables live, and how pointers and references work.</p>
+<h1>C++ Basics</h1>
+<p class="lead">Start here if C++ is new or rusty: how a program is built, variables and types, operators and control flow, functions and passing arguments, and the tools that catch mistakes. <a href="22-pointers.html">Pointers and References</a> is the next lesson.</p>
 
 <section data-title="How a C++ program is built">
 <h2>How a C++ program is built</h2>
@@ -33,7 +33,6 @@ int main() {                 // execution starts here
 g++ -std=c++17 -Wall -Wextra main.cpp -o main
 ./main
 </script>
-<div class="callout tip"><span class="label">Habit to build now</span>Always compile with <code>-Wall -Wextra</code>. The compiler warns about many of the bugs this lesson describes (uninitialized variables, unused values, signed/unsigned comparisons).</div>
 <div class="callout interview"><span class="label">Key point</span>"Compile error vs linker error?" A compile error is a syntax or type problem inside one file. A linker error ("undefined reference") means a function was declared and called but never defined anywhere you linked.</div>
 <!-- read-more:start -->
 <div class="callout tip"><span class="label">Read more</span>
@@ -42,6 +41,10 @@ g++ -std=c++17 -Wall -Wextra main.cpp -o main
 <li>2.6 Defining our own data structures (PDF pages 101 to 109)</li>
 <li>3.1 Namespace using declarations (PDF pages 111 to 112)</li>
 <li>18.2 Namespaces (PDF pages 814 to 830)</li>
+</ul>
+<p><b>Programming: Principles and Practice (Stroustrup)</b></p>
+<ul>
+<li>7.2 to 7.3 Declarations and definitions; scope (PDF pages 194 to 202)</li>
 </ul>
 </div>
 <!-- read-more:end -->
@@ -189,248 +192,6 @@ std::cout << a;
 <!-- read-more:end -->
 </section>
 
-<section data-title="Where variables live: stack, heap, static">
-<h2>Where variables live: stack, heap, static</h2>
-<figure class="fig"><svg viewBox="0 0 640 170" role="img" aria-label="Stack, heap and static storage compared"><rect class="acc" x="10" y="10" width="200" height="150" rx="10"/><text class="t" x="110" y="36" text-anchor="middle">Stack</text><text class="m" x="110" y="62" text-anchor="middle">locals, parameters</text><text class="m" x="110" y="84" text-anchor="middle">freed at the closing }</text><text class="m" x="110" y="106" text-anchor="middle">very fast, about 1 to 8 MB</text><text class="m" x="110" y="140" text-anchor="middle">int local = 1;</text><rect class="wn" x="220" y="10" width="200" height="150" rx="10"/><text class="t" x="320" y="36" text-anchor="middle">Heap</text><text class="m" x="320" y="62" text-anchor="middle">new / malloc</text><text class="m" x="320" y="84" text-anchor="middle">lives until you delete it</text><text class="m" x="320" y="106" text-anchor="middle">slower, huge</text><text class="m" x="320" y="140" text-anchor="middle">int* p = new int(5);</text><rect class="gd" x="430" y="10" width="200" height="150" rx="10"/><text class="t" x="530" y="36" text-anchor="middle">Static / global</text><text class="m" x="530" y="62" text-anchor="middle">globals, static variables</text><text class="m" x="530" y="84" text-anchor="middle">whole program lifetime</text><text class="m" x="530" y="106" text-anchor="middle">fixed at startup</text><text class="m" x="530" y="140" text-anchor="middle">static int calls;</text></svg><figcaption>The lifetime rule decides where a variable should live.</figcaption></figure>
-<table>
-<tr><th>Region</th><th>What goes there</th><th>Lifetime</th><th>Speed / size</th></tr>
-<tr><td><b>Stack</b></td><td>local variables, function parameters</td><td>automatic: freed when the scope <code>{ }</code> ends</td><td>very fast, small (about 1 to 8 MB)</td></tr>
-<tr><td><b>Heap</b> (free store)</td><td>objects created with <code>new</code> / <code>malloc</code></td><td>manual: lives until you <code>delete</code> it</td><td>slower, huge</td></tr>
-<tr><td><b>Static / global</b></td><td>globals, <code>static</code> variables</td><td>whole program</td><td>fixed at startup</td></tr>
-</table>
-<script type="text/x-cpp">
-int counter = 0;               // static storage: exists for the whole program
-
-void f() {
-    int local = 1;             // stack: created on entry, destroyed on exit
-    static int calls = 0;      // static storage, but only visible inside f
-    ++calls;
-    int* p = new int(5);       // the int lives on the HEAP; p itself is on the stack
-    delete p;
-}
-</script>
-<div class="callout tip"><span class="label">Mental model</span>Stack: a pile of plates, popped automatically. Heap: a storage unit you rent until you hand the key back.</div>
-<!-- read-more:start -->
-<div class="callout tip"><span class="label">Read more</span>
-<p><b>Programming: Principles and Practice (Stroustrup)</b></p>
-<ul>
-<li>7.2 to 7.3 Declarations and definitions; scope (PDF pages 194 to 202)</li>
-</ul>
-</div>
-<!-- read-more:end -->
-</section>
-
-<section data-title="Pointers from scratch">
-<h2>Pointers from scratch</h2>
-<p>A <b>pointer</b> is a variable whose value is an <b>address</b>.</p>
-<table>
-<tr><th>Syntax</th><th>Meaning</th></tr>
-<tr><td><code>int* p</code></td><td>declare <code>p</code> as "pointer to int"</td></tr>
-<tr><td><code>&amp;x</code></td><td>address-of: the address of <code>x</code></td></tr>
-<tr><td><code>*p</code></td><td>dereference: the thing <code>p</code> points to</td></tr>
-<tr><td><code>nullptr</code></td><td>the pointer that points to nothing</td></tr>
-</table>
-<p>Step through it (addresses are made up):</p>
-<div id="st-ptr"></div>
-
-<h3>Pointers and arrays</h3>
-<p>An array name <b>decays</b> to a pointer to its first element; <code>p + 1</code> moves one <i>element</i>.</p>
-<script type="text/x-cpp">
-int a[3] = {10, 20, 30};
-int* p = a;            // same as &a[0]
-std::cout << *p;       // 10
-std::cout << *(p + 1); // 20   (p + 1 advances by sizeof(int) bytes)
-std::cout << p[2];     // 30   p[i] is exactly *(p + i)
-</script>
-<div class="callout warn"><span class="label">Careful</span>Never dereference <code>nullptr</code> and never read past the end of an array. Both are undefined behavior. C++ will not stop you.</div>
-<div class="callout tip"><span class="label">What a pointer does not know</span>Only an address and a type: not <b>how many</b> elements, nor <b>who</b> frees them. Root of most pointer bugs.</div>
-<div class="callout interview"><span class="label">Key point</span>"What is the difference between <code>NULL</code> and <code>nullptr</code>?" <code>NULL</code> is a macro for a null pointer constant, usually plain <code>0</code> (an integer), so <code>f(NULL)</code> can call <code>f(int)</code> instead of <code>f(char*)</code>. <code>nullptr</code> has its own type and only converts to pointers.</div>
-<!-- read-more:start -->
-<div class="callout tip"><span class="label">Read more</span>
-<p><b>C++ Primer (Lippman, Lajoie, Moo)</b></p>
-<ul>
-<li>2.3 Compound types (PDF pages 79 to 87)</li>
-</ul>
-<p><b>Programming: Principles and Practice (Stroustrup)</b></p>
-<ul>
-<li>15.3 to 15.5 Memory, addresses and pointers; free store; destructors (PDF pages 452 to 463)</li>
-</ul>
-</div>
-<!-- read-more:end -->
-</section>
-
-<section data-title="References">
-<h2>References</h2>
-<p>A reference is an <b>alias</b>: another name for an existing variable, not a copy.</p>
-<script type="text/x-cpp">
-int x = 1;
-int& r = x;     // r is another name for x
-r = 5;          // x is now 5
-</script>
-<table>
-<tr><th></th><th>Pointer <code>int*</code></th><th>Reference <code>int&amp;</code></th></tr>
-<tr><td>Can be null</td><td>yes</td><td>no (must refer to something real)</td></tr>
-<tr><td>Must be initialized</td><td>no (but should be)</td><td>yes, at declaration</td></tr>
-<tr><td>Can be re-pointed</td><td>yes</td><td>no, bound for life</td></tr>
-<tr><td>Syntax to use</td><td><code>*p</code>, <code>p-&gt;member</code></td><td>just use the name</td></tr>
-<tr><td>Use for</td><td>optional things, arrays, ownership, C APIs</td><td>function parameters, aliases</td></tr>
-</table>
-<details class="ex"><summary><span class="ex-tag">Predict</span>The reference trap</summary><div>
-<script type="text/x-cpp">
-int a = 1, b = 2;
-int& r = a;
-r = b;
-std::cout << a << b;
-</script>
-<script type="text/x-out">
-22
-</script>
-<p><code>r = b</code> does <b>not</b> make <code>r</code> refer to <code>b</code>. References cannot be re-bound. It assigns the value of <code>b</code> into the variable <code>r</code> aliases, so <code>a</code> becomes 2.</p>
-</div></details>
-<p>Step through the reference trap:</p>
-<div id="st-ref"></div>
-<!-- read-more:start -->
-<div class="callout tip"><span class="label">Read more</span>
-<p><b>C++ Primer (Lippman, Lajoie, Moo)</b></p>
-<ul>
-<li>2.3 Compound types (PDF pages 79 to 87)</li>
-</ul>
-<p><b>Programming: Principles and Practice (Stroustrup)</b></p>
-<ul>
-<li>16.1 to 16.2 Arrays, pointers and references (PDF pages 477 to 483)</li>
-</ul>
-</div>
-<!-- read-more:end -->
-</section>
-
-<section data-title="const and pointers">
-<h2><code>const</code> and pointers</h2>
-<figure class="fig"><svg viewBox="0 0 640 150" role="img" aria-label="const before the star locks the data, const after the star locks the pointer"><defs><marker id="b2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path class="ah" d="M0 0L10 5L0 10z"/></marker></defs><text class="t" x="10" y="26">const int* p</text><text class="m" x="10" y="44">data locked</text><rect class="gd" x="190" y="12" width="90" height="36" rx="6"/><text x="235" y="35" text-anchor="middle">p</text><path class="ar" d="M280 30H398" marker-end="url(#b2)"/><text class="m" x="340" y="22" text-anchor="middle">p can move</text><rect class="bd" x="400" y="12" width="120" height="36" rx="6"/><text x="460" y="35" text-anchor="middle">int (read-only)</text><text class="m" x="535" y="35">*p = 5 is an error</text><text class="t" x="10" y="96">int* const p</text><text class="m" x="10" y="114">pointer locked</text><rect class="bd" x="190" y="82" width="90" height="36" rx="6"/><text x="235" y="105" text-anchor="middle">p</text><path class="ar" d="M280 100H398" marker-end="url(#b2)"/><text class="m" x="340" y="92" text-anchor="middle">p cannot move</text><rect class="gd" x="400" y="82" width="120" height="36" rx="6"/><text x="460" y="105" text-anchor="middle">int (changeable)</text><text class="m" x="535" y="105">*p = 5 is fine</text><text class="m" x="10" y="142">Read right to left. Red = locked, green = free.</text></svg><figcaption>const before the star protects the data; after the star it protects the pointer.</figcaption></figure>
-<p><code>const</code> = "I will not modify this". With pointers, either the data or the pointer can be const. <b>Read right to left.</b></p>
-<script type="text/x-cpp">
-int x = 1, y = 2;
-
-const int* p1 = &x;         // "p1 is a pointer to const int"
-// *p1 = 5;                 // ERROR: cannot change the int through p1
-p1 = &y;                    // OK: the pointer itself may move
-
-int* const p2 = &x;         // "p2 is a const pointer to int"
-*p2 = 5;                    // OK: the int may change
-// p2 = &y;                 // ERROR: the pointer may not move
-
-const int* const p3 = &x;   // neither can change
-</script>
-<p>Make everything <code>const</code> that can be.</p>
-<!-- read-more:start -->
-<div class="callout tip"><span class="label">Read more</span>
-<p><b>C++ Primer (Lippman, Lajoie, Moo)</b></p>
-<ul>
-<li>2.4 const qualifier (PDF pages 88 to 95)</li>
-</ul>
-</div>
-<!-- read-more:end -->
-</section>
-
-<section data-title="Dynamic memory: new and delete">
-<h2>Dynamic memory: <code>new</code> and <code>delete</code></h2>
-<p><code>new</code> allocates on the heap <b>and</b> constructs; you must <code>delete</code> it or it <b>leaks</b>.</p>
-<div id="st-heap"></div>
-<script type="text/x-cpp">
-int*  one = new int(42);     delete one;        // single object: new / delete
-int*  arr = new int[100];    delete[] arr;      // array: new[] / delete[]  (must match!)
-</script>
-<table>
-<tr><th>Bug</th><th>What happened</th></tr>
-<tr><td><b>Memory leak</b></td><td>you lost the pointer (or forgot <code>delete</code>) so the memory is never freed</td></tr>
-<tr><td><b>Dangling pointer</b></td><td>you used a pointer after the memory was freed (see the step-through above)</td></tr>
-<tr><td><b>Double delete</b></td><td>you freed the same memory twice: undefined behavior, often a crash</td></tr>
-<tr><td><b>Mismatch</b></td><td><code>new[]</code> freed with <code>delete</code>, or the reverse</td></tr>
-</table>
-<div class="callout tip"><span class="label">Modern C++</span>Avoid raw <code>new</code>/<code>delete</code>: use <code>std::vector</code> and <code>std::unique_ptr</code> (<a href="14-smart-pointers.html">Smart Pointers</a>).</div>
-<div class="callout interview"><span class="label">Key point</span>"What does <code>new</code> do beyond <code>malloc</code>?" It calls the constructor, throws <code>std::bad_alloc</code> on failure (instead of returning null), and returns a correctly typed pointer. <code>delete</code> calls the destructor and then frees the memory.</div>
-<!-- read-more:start -->
-<div class="callout tip"><span class="label">Read more</span>
-<p><b>C++ Primer (Lippman, Lajoie, Moo)</b></p>
-<ul>
-<li>12.2 Dynamic arrays (PDF pages 505 to 512)</li>
-</ul>
-<p><b>Programming: Principles and Practice (Stroustrup)</b></p>
-<ul>
-<li>15.3 to 15.5 Memory, addresses and pointers; free store; destructors (PDF pages 452 to 463)</li>
-</ul>
-</div>
-<!-- read-more:end -->
-</section>
-
-<section data-title="Arrays, C-strings and std::string">
-<h2>Arrays, C-strings and <code>std::string</code></h2>
-<script type="text/x-cpp">
-int a[5] = {1, 2, 3};       // fixed size, remaining elements are 0, NO bounds checking
-a[10] = 7;                  // compiles, undefined behavior at runtime
-
-void f(int arr[]) {         // this is really `int* arr`: the size is lost!
-    sizeof(arr);            // size of a POINTER (8), not of the array
-}
-
-char s[] = "hi";            // 3 chars: 'h', 'i', and a terminating '\0'
-</script>
-<p>Prefer:</p>
-<table>
-<tr><th>Instead of</th><th>Use</th><th>Why</th></tr>
-<tr><td><code>int a[N]</code></td><td><code>std::array&lt;int, N&gt;</code></td><td>knows its size, no decay, same speed</td></tr>
-<tr><td><code>new int[n]</code></td><td><code>std::vector&lt;int&gt;</code></td><td>grows, frees itself, <code>.at(i)</code> bounds-checks</td></tr>
-<tr><td><code>char*</code> strings</td><td><code>std::string</code></td><td>owns its memory, safe copy, <code>+</code>, <code>.size()</code>, <code>.find()</code></td></tr>
-<tr><td>pointer plus a count</td><td><code>std::span&lt;int&gt;</code> (C++20)</td><td>a non-owning view that remembers its size; accepts an array or a vector without copying</td></tr>
-</table>
-<script type="text/x-cpp">
-std::string s = "hello";
-s += " world";                       // grows automatically
-std::cout << s.size() << s.substr(0, 5);   // 11 hello
-std::vector<int> v = {1, 2, 3};
-v.push_back(4);                      // size is now 4
-</script>
-<!-- read-more:start -->
-<div class="callout tip"><span class="label">Read more</span>
-<p><b>C++ Primer (Lippman, Lajoie, Moo)</b></p>
-<ul>
-<li>3.2 Library string type (PDF pages 113 to 124)</li>
-<li>3.5 Arrays (PDF pages 142 to 153)</li>
-<li>3.6 Multidimensional arrays (PDF pages 154 to 161)</li>
-</ul>
-<p><b>Programming: Principles and Practice (Stroustrup)</b></p>
-<ul>
-<li>16.3 to 16.4 C-style strings; alternatives to pointer use (PDF pages 484 to 487)</li>
-</ul>
-</div>
-<!-- read-more:end -->
-</section>
-
-<section data-title="The classic memory bugs">
-<h2>The classic memory bugs</h2>
-<p>Most "mysterious" crashes are one of these.</p>
-<table>
-<tr><th>Bug</th><th>Example</th></tr>
-<tr><td>Uninitialized read</td><td><code>int n; use(n);</code></td></tr>
-<tr><td>Out-of-bounds</td><td><code>int a[3]; a[3] = 1;</code> (valid indices are 0 to 2)</td></tr>
-<tr><td>Null dereference</td><td><code>int* p = nullptr; *p = 1;</code></td></tr>
-<tr><td>Use after free</td><td><code>delete p; *p = 1;</code></td></tr>
-<tr><td>Signed overflow</td><td><code>INT_MAX + 1</code> (UB for signed; wraps for unsigned)</td></tr>
-</table>
-<h3>Returning a reference to a local</h3>
-<script type="text/x-cpp">
-int& bad() {
-    int local = 42;
-    return local;          // BUG: local is destroyed when bad() returns
-}                          // the caller gets a dangling reference
-
-int good() {
-    int local = 42;
-    return local;          // fine: returns a copy of the value
-}
-</script>
-<div class="callout warn"><span class="label">Tooling</span>Test with <code>-fsanitize=address,undefined</code>: it reports leaks, out-of-bounds, use-after-free and overflow with the exact line.</div>
-</section>
-
 <section id="tooling" data-title="Tooling: warnings, sanitizers, static analysis">
 <h2>Tooling: warnings, sanitizers, static analysis</h2>
 <p>C++ trusts you, so let tools check what the language will not. Use them in layers, cheapest first.</p>
@@ -452,16 +213,11 @@ g++ -std=c++17 -Wall -Wextra -g -fsanitize=address,undefined main.cpp -o main
 <section id="s12" data-title="Cheat sheet">
 <h2>Cheat sheet</h2>
 <p>Answer aloud, then open.</p>
-<details class="ex"><summary>Pointer vs reference?</summary><div><p>A pointer holds an address, can be null, can be re-pointed, and needs <code>*</code> to use. A reference is a permanent alias that must be initialized and cannot be null. Use references for parameters, pointers when "nothing" is a valid value or you need to re-point.</p></div></details>
-<details class="ex"><summary>Stack vs heap?</summary><div><p>The stack holds locals and is freed automatically when the scope ends; it is fast but small. The heap holds <code>new</code>-allocated objects that live until you free them; it is large but slower and you must manage the lifetime (or let a smart pointer do it).</p></div></details>
-<details class="ex"><summary>What is a dangling pointer?</summary><div><p>A pointer to memory that has been freed or has gone out of scope. Dereferencing it is undefined behavior. Setting a pointer to <code>nullptr</code> after <code>delete</code> helps, and smart pointers avoid the problem.</p></div></details>
-<details class="ex"><summary><code>const int*</code> vs <code>int* const</code>?</summary><div><p>Read right to left. <code>const int*</code> is a pointer to a const int (data is read-only, pointer can move). <code>int* const</code> is a const pointer to an int (pointer is fixed, data can change).</p></div></details>
-<details class="ex"><summary><code>delete</code> vs <code>delete[]</code>?</summary><div><p>Memory from <code>new</code> must be freed with <code>delete</code>; memory from <code>new[]</code> must be freed with <code>delete[]</code> so every element's destructor runs. Mixing them is undefined behavior. Deleting <code>nullptr</code> is safe and does nothing.</p></div></details>
 <details class="ex"><summary>What is undefined behavior?</summary><div><p>Code the standard places no requirements on: the compiler may assume it never happens, so anything can occur (crash, wrong output, or apparently fine). Examples: out-of-bounds access, null dereference, signed overflow, reading uninitialized memory, data races.</p></div></details>
 <details class="ex"><summary>How do you pass a large object to a function efficiently?</summary><div><p>By <code>const</code> reference if the function only reads it, to avoid a copy. By non-const reference if it must modify the caller's object.</p></div></details>
 <h3>Keep going</h3>
 <ul>
-<li>Next lesson: <a href="16-types-and-casts.html">Types, Initialization and Casts</a>.</li>
+<li>Next lesson: <a href="22-pointers.html">Pointers and References</a>.</li>
 <li>Your own notes: <a href="https://github.com/Ghaith-Hamdi1/cpp-training/blob/main/docs/training-notes/01-cpp-basics/README.md">Module 1: C++ Basics</a> and the <a href="https://github.com/Ghaith-Hamdi1/cpp-training/blob/main/docs/learncpp-recaps/README.md">learncpp.com recaps</a> (chapters 1 to 13 and 19).</li>
 <li>Reference: <a href="https://github.com/AnthonyCalandra/modern-cpp-features">modern-cpp-features</a> and the <a href="https://github.com/changkun/modern-cpp-tutorial">modern-cpp-tutorial</a>.</li>
 </ul>
@@ -471,52 +227,6 @@ g++ -std=c++17 -Wall -Wextra -g -fsanitize=address,undefined main.cpp -o main
 <script src="assets/data/lessons.js"></script>
 <script src="assets/app.js"></script>
 <script>
-CT.stepper('#st-ptr', {
-  title: 'A pointer and the variable it points to',
-  code: String.raw`
-int x = 10;
-int* p = &x;
-*p = 20;
-int y = *p;
-p = nullptr;
-`,
-  steps: [
-    { line: 1, mem: [{ n: 'x @0x1000', t: 'int', v: '10' }],
-      note: 'A normal variable. <b>x</b> lives at address <b>0x1000</b> and holds 10.' },
-    { line: 2, mem: [{ n: 'x @0x1000', t: 'int', v: '10' }, { n: 'p @0x1008', t: 'int*', v: '0x1000', p: 'x' }],
-      note: '<b>&amp;x</b> is the address of x (0x1000). <b>p</b> is its own variable and its value is that address, so we say p <i>points to</i> x.' },
-    { line: 3, mem: [{ n: 'x @0x1000', t: 'int', v: '20' }, { n: 'p @0x1008', t: 'int*', v: '0x1000', p: 'x' }],
-      note: '<b>*p</b> means "the thing p points to", which is x. Writing through the pointer changed x to 20 without ever naming x.' },
-    { line: 4, mem: [{ n: 'x @0x1000', t: 'int', v: '20' }, { n: 'p @0x1008', t: 'int*', v: '0x1000', p: 'x' }, { n: 'y @0x1010', t: 'int', v: '20' }],
-      note: 'Reading through the pointer: <b>y</b> receives a <i>copy</i> of 20. Changing y later would not affect x.' },
-    { line: 5, mem: [{ n: 'x @0x1000', t: 'int', v: '20' }, { n: 'p @0x1008', t: 'int*', v: 'nullptr' }, { n: 'y @0x1010', t: 'int', v: '20' }],
-      note: 'p now points to nothing. Dereferencing it would be undefined behavior, so check <code>if (p)</code> before using a pointer that might be null.' }
-  ]
-});
-
-CT.stepper('#st-heap', {
-  title: 'new, delete and a dangling pointer',
-  code: String.raw`
-int* p = new int(42);
-*p = 7;
-delete p;
-// p still holds the old address!
-p = nullptr;
-`,
-  steps: [
-    { line: 1, mem: [{ n: 'p @0x1000', t: 'int*', v: '0x5000', p: 'heap int' }, { n: 'heap @0x5000', t: 'int', v: '42', k: 'heap' }],
-      note: '<b>new int(42)</b> reserves 4 bytes on the <b>heap</b> and stores 42. The pointer <b>p</b> on the stack remembers where it is.' },
-    { line: 2, mem: [{ n: 'p @0x1000', t: 'int*', v: '0x5000', p: 'heap int' }, { n: 'heap @0x5000', t: 'int', v: '7', k: 'heap' }],
-      note: 'Writing through the pointer changes the heap value.' },
-    { line: 3, mem: [{ n: 'p @0x1000', t: 'int*', v: '0x5000', p: 'freed memory!' }, { n: 'heap @0x5000', t: 'int', v: '7', k: 'heap', dead: true }],
-      note: '<b>delete p</b> hands the memory back. Notice what did <i>not</i> change: <b>p still holds 0x5000</b>. It is now a <b>dangling pointer</b>. Using it (<code>*p</code>) is undefined behavior.' },
-    { line: 4, mem: [{ n: 'p @0x1000', t: 'int*', v: '0x5000', p: 'freed memory!' }, { n: 'heap @0x5000', t: 'int', v: '7', k: 'heap', dead: true }],
-      note: 'Nothing happens here, but this is the danger zone: the pointer looks valid and the compiler cannot tell it is not.' },
-    { line: 5, mem: [{ n: 'p @0x1000', t: 'int*', v: 'nullptr' }, { n: 'heap @0x5000', t: 'int', v: '7', k: 'heap', dead: true }],
-      note: 'Setting the pointer to <b>nullptr</b> after <code>delete</code> turns a silent bug into a checkable state. Better still: use <code>std::unique_ptr</code> and never write <code>delete</code> yourself.' }
-  ]
-});
-
 CT.stepper('#st-pass', {
   title: 'Pass by value vs pass by reference',
   code: String.raw`
@@ -544,24 +254,6 @@ byRef(a);
   ]
 });
 
-CT.stepper('#st-ref', {
-  title: 'A reference is an alias and can never be re-bound',
-  code: String.raw`
-int a = 1, b = 2;
-int& r = a;
-r = b;
-std::cout << a << b;
-`,
-  steps: [
-    { line: 1, mem: [{ n: 'a', t: 'int', v: '1' }, { n: 'b', t: 'int', v: '2' }], note: 'Two ordinary ints.' },
-    { line: 2, mem: [{ n: 'a', t: 'int', v: '1' }, { n: 'b', t: 'int', v: '2' }, { n: 'r', t: 'int&', v: 'alias', to: 'a' }],
-      note: '<b>r</b> is bound to <b>a</b> for life. It is not a separate variable holding an address you can change.' },
-    { line: 3, mem: [{ n: 'a', t: 'int', v: '2' }, { n: 'b', t: 'int', v: '2' }, { n: 'r', t: 'int&', v: 'alias', to: 'a' }],
-      note: '<code>r = b</code> does <b>not</b> make r refer to b. The arrow stays on a. It <i>assigns</i> the value of b (2) into the thing r names, so <b>a becomes 2</b>.' },
-    { line: 4, mem: [{ n: 'a', t: 'int', v: '2' }, { n: 'b', t: 'int', v: '2' }, { n: 'r', t: 'int&', v: 'alias', to: 'a' }], out: '22\n',
-      note: 'Prints <b>22</b>. A pointer could be re-pointed (<code>p = &amp;b</code>); a reference cannot.' }
-  ]
-});
 </script>
 </body>
 </html>

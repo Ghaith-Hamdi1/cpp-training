@@ -3,90 +3,14 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Smart Pointers and Ownership</title>
+<title>shared_ptr and weak_ptr</title>
 <script>try{var t=JSON.parse(localStorage.getItem('cpptrain:theme'));if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
 <link rel="stylesheet" href="assets/style.css">
 </head>
 <body data-topic="smartptr" data-kind="lesson">
 <main>
-<h1>Smart Pointers and Ownership</h1>
-<p class="lead">Who owns an object: <code>unique_ptr</code>, <code>shared_ptr</code> and <code>weak_ptr</code>, the control block, cycles, and how to pass ownership around. Builds on <a href="03-core-language.html">RAII</a> and <a href="13-move-semantics.html">Move Semantics</a>.</p>
-
-<section id="ownership" data-title="Who owns it? The three smart pointers">
-<h2>Who owns it? The three smart pointers</h2>
-<p>RAII wrappers around <code>new</code>/<code>delete</code> (<code>&lt;memory&gt;</code>) that make <b>ownership explicit in the type</b>. The owner is whoever must free the object.</p>
-<table>
-<tr><th>Type</th><th>Ownership</th><th>Copyable?</th><th>Cost</th></tr>
-<tr><td><code>std::unique_ptr&lt;T&gt;</code></td><td>exclusive: one owner</td><td><b>no</b>, only movable</td><td>same as a raw pointer</td></tr>
-<tr><td><code>std::shared_ptr&lt;T&gt;</code></td><td>shared: reference counted, freed when the last owner goes</td><td>yes (bumps the count)</td><td>extra control block, atomic count</td></tr>
-<tr><td><code>std::weak_ptr&lt;T&gt;</code></td><td>none: observes a <code>shared_ptr</code> without keeping it alive</td><td>yes</td><td>small</td></tr>
-<tr><td>raw pointer / reference</td><td>none: "I use it, I do not own it"</td><td>yes</td><td>none</td></tr>
-</table>
-<div class="callout tip"><span class="label">Default</span>A plain value member or local first. Then <code>unique_ptr</code> when it must live on the heap (polymorphism, large, optional). <code>shared_ptr</code> only for truly shared ownership.</div>
-<table>
-<tr><th>A function that...</th><th>takes</th></tr>
-<tr><td>only uses the object</td><td><code>const Widget&amp;</code> (or <code>Widget*</code> if it may be null): never the smart pointer</td></tr>
-<tr><td>takes over ownership</td><td><code>std::unique_ptr&lt;Widget&gt;</code> by value: the caller must <code>std::move</code></td></tr>
-<tr><td>keeps a share</td><td><code>std::shared_ptr&lt;Widget&gt;</code> by value</td></tr>
-<tr><td>gives ownership to the caller</td><td>returns <code>std::unique_ptr&lt;Widget&gt;</code> (a factory)</td></tr>
-</table>
-<script type="text/x-cpp">
-std::unique_ptr<Widget> makeWidget(std::string n);        // factory: sole ownership to the caller
-void use(const Widget& w);                                // just uses: pass the object, not the owner
-void take(std::unique_ptr<Widget> w);                     // takes ownership
-
-auto w = makeWidget("alpha");
-use(*w);
-take(std::move(w));                                       // w is now null
-</script>
-<!-- read-more:start -->
-<div class="callout tip"><span class="label">Read more</span>
-<p><b>C++ Primer (Lippman, Lajoie, Moo)</b></p>
-<ul>
-<li>12.1 Dynamic memory and smart pointers (PDF pages 479 to 504)</li>
-</ul>
-<p><b>Programming: Principles and Practice (Stroustrup)</b></p>
-<ul>
-<li>18.4 to 18.5 Resources and exceptions; resource-management pointers (RAII, unique_ptr) (PDF pages 542 to 553)</li>
-</ul>
-<p><b>C++ Move Semantics (Josuttis)</b></p>
-<ul>
-<li>Chapter 13 Move-only types (PDF pages 213 to 218)</li>
-</ul>
-</div>
-<!-- read-more:end -->
-</section>
-
-<section id="unique" data-title="unique_ptr in detail">
-<h2><code>unique_ptr</code> in detail</h2>
-<script type="text/x-cpp">
-auto p = std::make_unique<Widget>(1, "a");   // preferred over `new`
-// auto q = p;                               // ERROR: unique_ptr cannot be copied
-auto q = std::move(p);                       // OK: ownership moves, p is now null
-</script>
-<div id="st-unique"></div>
-<ul>
-<li><b>Zero overhead:</b> with the default deleter <code>sizeof(unique_ptr&lt;T&gt;) == sizeof(T*)</code> (checked). A function-pointer deleter makes it twice as big; a stateless lambda deleter adds nothing.</li>
-<li><b>Custom deleter</b> for anything that is not <code>delete</code>: <code>std::unique_ptr&lt;std::FILE, decltype(closer)&gt; f(std::fopen(...), closer);</code> closes the file on scope exit.</li>
-<li><b>Arrays:</b> <code>std::make_unique&lt;int[]&gt;(3)</code> uses <code>delete[]</code>. Prefer <code>std::vector</code> unless you need a fixed block.</li>
-<li><b>Polymorphism:</b> <code>unique_ptr&lt;Base&gt;</code> holding a <code>Derived</code> needs a <b>virtual destructor</b> on <code>Base</code>, as with any <code>delete</code> through a base pointer.</li>
-<li><code>.get()</code> returns the raw pointer without giving up ownership; <code>.release()</code> gives it up (you must delete it); <code>.reset()</code> destroys the object now.</li>
-</ul>
-<div class="callout interview"><span class="label">Key point</span>Why <code>make_unique</code>? No naked <code>new</code>, the type is written once, and before C++17 <code>f(unique_ptr&lt;A&gt;(new A), g())</code> could leak when <code>g()</code> threw between the two steps.</div>
-<!-- read-more:start -->
-<div class="callout tip"><span class="label">Read more</span>
-<p><b>C++ Primer (Lippman, Lajoie, Moo)</b></p>
-<ul>
-<li>12.1 Dynamic memory and smart pointers (PDF pages 479 to 504)</li>
-</ul>
-<p><b>Effective Modern C++ (Meyers)</b></p>
-<ul>
-<li>Item 18, Use std::unique_ptr for exclusive-ownership resource management (PDF pages 136 to 143)</li>
-<li>Item 21, Prefer make_unique and make_shared to new (PDF pages 157 to 165)</li>
-</ul>
-</div>
-<!-- read-more:end -->
-</section>
+<h1>shared_ptr and weak_ptr</h1>
+<p class="lead">Shared ownership: <code>shared_ptr</code> and the control block, reference cycles and <code>weak_ptr</code>, and the pitfalls. Assumes <a href="24-uniqueptr.html">unique_ptr</a>, which covers ownership and the rule that a smart pointer is only for objects you own.</p>
 
 <section id="shared" data-title="shared_ptr and the control block">
 <h2><code>shared_ptr</code> and the control block</h2>
@@ -109,9 +33,14 @@ auto s2 = s1;                                // two owners, use_count() == 2
 <ul>
 <li>12.1 Dynamic memory and smart pointers (PDF pages 479 to 504)</li>
 </ul>
+<p><b>Programming: Principles and Practice (Stroustrup)</b></p>
+<ul>
+<li>18.4 to 18.5 Resources and exceptions; resource-management pointers (RAII, unique_ptr) (PDF pages 542 to 553)</li>
+</ul>
 <p><b>Effective Modern C++ (Meyers)</b></p>
 <ul>
 <li>Item 19, Use std::shared_ptr for shared-ownership resource management (PDF pages 143 to 152)</li>
+<li>Item 21, Prefer make_unique and make_shared to new (PDF pages 157 to 165)</li>
 </ul>
 </div>
 <!-- read-more:end -->
@@ -193,23 +122,6 @@ Session raw; raw.self();               // throws std::bad_weak_ptr: no shared_pt
 <script src="assets/data/lessons.js"></script>
 <script src="assets/app.js"></script>
 <script>
-CT.stepper('#st-unique', {
-  title: 'unique_ptr: ownership moves, it is never copied',
-  code: String.raw`
-auto p = std::make_unique<Widget>();
-auto q = std::move(p);
-q.reset();
-`,
-  steps: [
-    { line: 1, mem: [{ n: 'p @0x1000', t: 'unique_ptr', v: '0x5000' }, { n: 'Widget @0x5000', t: 'Widget', v: 'alive', k: 'heap' }],
-      note: '<b>p</b> owns the Widget. It is the only owner, and its destructor will free the object.' },
-    { line: 2, mem: [{ n: 'p @0x1000', t: 'unique_ptr', v: 'nullptr' }, { n: 'q @0x1008', t: 'unique_ptr', v: '0x5000' }, { n: 'Widget @0x5000', t: 'Widget', v: 'alive', k: 'heap' }],
-      note: '<code>std::move(p)</code> hands ownership to <b>q</b>. p is now <b>null</b>. Copying (<code>auto q = p;</code>) does not compile: there can be only one owner.' },
-    { line: 3, mem: [{ n: 'p @0x1000', t: 'unique_ptr', v: 'nullptr' }, { n: 'q @0x1008', t: 'unique_ptr', v: 'nullptr' }, { n: 'Widget @0x5000', t: 'Widget', v: 'destroyed', dead: true, k: 'heap' }],
-      note: '<code>q.reset()</code> destroys the Widget now. Without it, the destructor of q would do the same at the closing brace. No <code>delete</code>, no leak, same cost as a raw pointer.' }
-  ]
-});
-
 
 CT.stepper('#st-shared', {
   title: 'shared_ptr reference counting',

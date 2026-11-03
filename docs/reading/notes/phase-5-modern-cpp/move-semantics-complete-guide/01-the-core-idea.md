@@ -58,4 +58,4 @@ What surprised me when I ran it:
 
 ## After this session
 
-Lesson 11, "Lvalues, rvalues and value categories" and "Copy versus move"
+Lesson 13, "Lvalues, rvalues and value categories" and "Copy versus move"

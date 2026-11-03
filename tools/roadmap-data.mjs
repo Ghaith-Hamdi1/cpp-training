@@ -40,7 +40,7 @@ export const phases = [
       ['ppp', 'Memory, addresses and pointers: 15.3 to 15.5', [[452, 463]], 'Pointers, the free store, `delete`, dangling pointers'],
       ['ppp', 'Arrays, `this`, alternatives to raw pointers: 15.6 to 15.8; 16.1 to 16.4', [[464, 473], [477, 487]], 'Arrays, references versus pointers, `span`'],
     ],
-    lessons: ['basics', 'types'], practice: ['01 to 09 (C strings, pointers, `trim`, `parseUnsigned`)', 9 * 15],
+    lessons: ['basics', 'pointers', 'types'], practice: ['01 to 09 (C strings, pointers, `trim`, `parseUnsigned`)', 9 * 15],
     recap: 'Explain from memory: what `int* const p` means, why `int{3.7}` is an error, what `v[i]` does that `v.at(i)` does not, why an array parameter is really a pointer, and what the linker error "undefined reference" means.',
   },
   {
@@ -98,7 +98,7 @@ export const phases = [
       ['ppp', 'Choosing a container: 20.3 to 20.7.1', [[598, 612]], 'Container overview, iterator categories, timing'],
       ['ppp', 'Algorithms: 21.1, 21.2, 21.5', [[617, 626], [633, 635]], 'Standard algorithms, function objects, sorting and searching'],
     ],
-    lessons: ['strings', 'lambdas', 'stl', 'templates'], practice: ['12 (`Stack<T>`)', 25],
+    lessons: ['strings', 'callables', 'lambdas', 'stl', 'templates'], practice: ['12 (`Stack<T>`)', 25],
     recap: 'Explain: how a lambda is compiled (a closure class with `operator()`), when `vector` invalidates iterators, why `map::operator[]` can insert, what a strict weak ordering is, how a template is instantiated, and why `std::sort` does not work on `std::list`.',
   },
   {
@@ -153,7 +153,7 @@ export const phases = [
       ['mv', 'chapters 13 to 15: move-only types, algorithms, library types', [[213, 250]], 'Move semantics in the standard library'],
       ['ppp', 'Concepts: 18.1.2 to 18.1.4', [[530, 534]], 'The only concepts coverage in the five books; the lessons carry the rest'],
     ],
-    lessons: ['vocab', 'moves', 'smartptr', 'compiletime'], practice: ['15 (`optional`/`variant`) and 16 (concepts)', 50],
+    lessons: ['vocab', 'moves', 'uniqueptr', 'smartptr', 'compiletime'], practice: ['15 (`optional`/`variant`) and 16 (concepts)', 50],
     recap: 'Explain: what `std::move` does at run time (nothing), why `return std::move(local)` hurts, the three value categories, what a forwarding reference is, why `make_shared` needs one allocation, and what a concept replaces.',
     note: 'C++ Primer (2013) stops at C++11, so for C++14, C++17 and C++20 features (vocabulary types, `if constexpr`, concepts, ranges, structured bindings) the lessons and Effective Modern C++ are the sources. Josuttis is a deep dive: read it after Effective Modern C++ if move semantics is the part you want to master.',
   },

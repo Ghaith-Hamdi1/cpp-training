@@ -1,4 +1,4 @@
-// Lesson 1: pointers, array decay, references (cannot be re-bound), const with pointers.
+// Pointers and References: pointers, array decay, references (cannot be re-bound), const with pointers.
 #pragma GCC diagnostic ignored "-Wsizeof-array-argument"   // deliberate: shows the decay
 #include <cstddef>
 #include <iostream>

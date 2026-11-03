@@ -1,0 +1,364 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pointers and References</title>
+<script>try{var t=JSON.parse(localStorage.getItem('cpptrain:theme'));if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body data-topic="pointers" data-kind="lesson">
+<main>
+<h1>Pointers and References</h1>
+<p class="lead">Pointers, references and the memory they point at: where variables live, what an address is, arrays and decay, const, new and delete, and the bugs that follow. Assumes <a href="01-basics.html">C++ Basics</a>.</p>
+
+<section id="memory" data-title="Memory is a row of numbered boxes">
+<h2>Memory is a row of numbered boxes</h2>
+<p>Your program's memory is a long row of numbered boxes, one per byte. The number of a box is its <b>address</b>. A variable is just a name for one or more boxes next to each other: an <code>int</code> takes 4 of them, and the address of the variable is the address of the first.</p>
+<figure class="fig"><svg viewBox="0 0 640 120" role="img" aria-label="Two ints next to each other in memory: x holds 7 at address 0x1000, y holds 12 at 0x1004"><text class="m" x="40" y="22">4 bytes</text><text class="m" x="280" y="22">4 bytes</text><rect class="acc" x="40" y="30" width="240" height="40" rx="4"/><text class="mono" x="160" y="55" text-anchor="middle">int x = 7</text><rect class="gd" x="280" y="30" width="240" height="40" rx="4"/><text class="mono" x="400" y="55" text-anchor="middle">int y = 12</text><text class="addr" x="40" y="92">0x1000</text><text class="addr" x="280" y="92">0x1004</text><text class="addr" x="520" y="92">0x1008</text></svg><figcaption>A variable is a name for some boxes; its address is where the first box is.</figcaption></figure>
+<script type="text/x-cpp">
+int x = 7;
+int y = 12;
+std::cout << &x << '\n';          // the address of x, such as 0x7ffc3a10
+std::cout << sizeof(x) << '\n';   // 4: bytes used by an int on most machines
+</script>
+<div class="callout tip"><span class="label">Made-up numbers</span>The addresses in this lesson are invented to keep the pictures readable. Real ones differ on every run.</div>
+</section>
+
+<section id="regions" data-title="Where variables live: stack, heap, static">
+<h2>Where variables live: stack, heap, static</h2>
+<p>Memory is split into regions with different lifetime rules. The rule decides where a variable should live.</p>
+<figure class="fig"><svg viewBox="0 0 640 262" role="img" aria-label="The stack at the top holds p and a local; p points to an int on the heap below; static storage holds a counter at the bottom"><defs><marker id="m2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path class="ah" d="M0 0L10 5L0 10z"/></marker></defs>
+<rect class="lane" x="0" y="0" width="640" height="84" rx="8"/><text class="lane-label" x="10" y="18">STACK: locals and parameters, freed at the closing }</text><rect class="acc" x="30" y="32" width="130" height="36" rx="5"/><text class="mono" x="95" y="55" text-anchor="middle">local = 1</text><rect class="acc" x="200" y="32" width="150" height="36" rx="5"/><text class="mono" x="275" y="55" text-anchor="middle">p = 0x5a20</text>
+<rect class="lane" x="0" y="100" width="640" height="76" rx="8"/><text class="lane-label" x="10" y="118">HEAP: new, lives until you delete it</text><text class="addr" x="550" y="157">0x5a20</text><rect class="wn" x="440" y="136" width="100" height="32" rx="5"/><text class="mono" x="490" y="157" text-anchor="middle">5</text>
+<path class="ar" d="M275 68C275 110 480 100 480 134" marker-end="url(#m2)"/>
+<rect class="lane" x="0" y="192" width="640" height="62" rx="8"/><text class="lane-label" x="10" y="210">STATIC: globals and static variables, live for the whole program</text><rect class="gd" x="30" y="216" width="150" height="30" rx="5"/><text class="mono" x="105" y="236" text-anchor="middle">counter = 0</text></svg><figcaption>p itself is on the stack; the int it points to is on the heap.</figcaption></figure>
+<table>
+<tr><th>Region</th><th>What goes there</th><th>Lifetime</th><th>Speed and size</th></tr>
+<tr><td><b>Stack</b></td><td>local variables, function parameters</td><td>automatic: freed when the scope <code>{ }</code> ends</td><td>very fast, small (about 1 to 8 MB)</td></tr>
+<tr><td><b>Heap</b> (free store)</td><td>objects created with <code>new</code> or <code>malloc</code></td><td>manual: lives until you <code>delete</code> it</td><td>slower, huge</td></tr>
+<tr><td><b>Static</b></td><td>globals, <code>static</code> variables</td><td>the whole program</td><td>fixed at startup</td></tr>
+</table>
+<script type="text/x-cpp">
+int counter = 0;               // static storage: exists for the whole program
+
+void f() {
+    int local = 1;             // stack: created on entry, destroyed on exit
+    int* p = new int(5);       // the int is on the HEAP; p itself is on the stack
+    delete p;                  // the heap int is freed here, by hand
+}
+</script>
+<div class="callout tip"><span class="label">Mental model</span>Stack: a pile of plates, popped automatically. Heap: a storage unit you rent until you hand the key back.</div>
+</section>
+
+<section id="pointers" data-title="Pointers from scratch">
+<h2>Pointers from scratch</h2>
+<p>A <b>pointer</b> is a variable whose value is an <b>address</b>. The type says what lives at that address, so a <code>int*</code> points to an <code>int</code>.</p>
+<figure class="fig"><svg viewBox="0 0 640 130" role="img" aria-label="The pointer p holds the address 0x1000, and an arrow shows it points to the variable x holding 7"><defs><marker id="m3" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path class="ah" d="M0 0L10 5L0 10z"/></marker></defs><text class="addr" x="60" y="30">0x1000</text><rect class="gd" x="50" y="38" width="150" height="40" rx="5"/><text class="mono" x="125" y="63" text-anchor="middle">x = 7</text><text class="addr" x="360" y="30">0x2000</text><rect class="acc" x="350" y="38" width="190" height="40" rx="5"/><text class="mono" x="445" y="63" text-anchor="middle">p = 0x1000</text><path class="ar" d="M350 58H206" marker-end="url(#m3)"/><text class="mono big" x="278" y="50" text-anchor="middle">*p</text><text class="m" x="320" y="108" text-anchor="middle">p stores an address; *p follows it to the value</text></svg><figcaption>The pointer is a separate variable. Its value is the address of x.</figcaption></figure>
+<table>
+<tr><th>Syntax</th><th>Meaning</th></tr>
+<tr><td><code>int* p</code></td><td>declare <code>p</code> as "pointer to int"</td></tr>
+<tr><td><code>&amp;x</code></td><td>address-of: the address of <code>x</code></td></tr>
+<tr><td><code>*p</code></td><td>dereference: the thing <code>p</code> points to</td></tr>
+<tr><td><code>p-&gt;m</code></td><td>shorthand for <code>(*p).m</code> when <code>p</code> points to a struct</td></tr>
+<tr><td><code>nullptr</code></td><td>the pointer that points to nothing</td></tr>
+</table>
+<script type="text/x-cpp">
+int x = 7;
+int* p = &x;      // p holds the address of x
+int y = *p;       // follow the arrow: y is 7 (a copy)
+*p = 9;           // write through it: x is now 9
+p = nullptr;      // points at nothing; never dereference it
+</script>
+<p>Step through it (addresses are made up):</p>
+<div id="st-ptr"></div>
+<div class="callout warn"><span class="label">Careful</span>Dereferencing <code>nullptr</code>, an uninitialized pointer or a freed pointer is undefined behavior. C++ will not stop you.</div>
+<div class="callout tip"><span class="label">What a pointer does not know</span>Only an address and a type: not <b>how many</b> elements are there, nor <b>who</b> frees them. That is the root of most pointer bugs.</div>
+<div class="callout interview"><span class="label">Key point</span>"What is the difference between <code>NULL</code> and <code>nullptr</code>?" <code>NULL</code> is a macro for a null pointer constant, usually plain <code>0</code> (an integer), so <code>f(NULL)</code> can call <code>f(int)</code> instead of <code>f(char*)</code>. <code>nullptr</code> has its own type and only converts to pointers.</div>
+<!-- read-more:start -->
+<div class="callout tip"><span class="label">Read more</span>
+<p><b>C++ Primer (Lippman, Lajoie, Moo)</b></p>
+<ul>
+<li>2.3 Compound types (PDF pages 79 to 87)</li>
+</ul>
+<p><b>Programming: Principles and Practice (Stroustrup)</b></p>
+<ul>
+<li>15.3 to 15.5 Memory, addresses and pointers; free store; destructors (PDF pages 452 to 463)</li>
+</ul>
+</div>
+<!-- read-more:end -->
+</section>
+
+<section id="arrays" data-title="Pointers and arrays">
+<h2>Pointers and arrays</h2>
+<p>An array is a row of elements next to each other. Its name <b>decays</b> to a pointer to the first element, and <code>p + 1</code> moves one <i>element</i> (not one byte).</p>
+<figure class="fig"><svg viewBox="0 0 640 170" role="img" aria-label="An array of three ints with p pointing at the first, p plus 1 at the second and p plus 2 at the third"><defs><marker id="m4" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path class="ah" d="M0 0L10 5L0 10z"/></marker></defs><text class="m" x="150" y="24">a[0]</text><text class="m" x="250" y="24">a[1]</text><text class="m" x="350" y="24">a[2]</text><g class="mono"><rect class="cell" x="140" y="32" width="100" height="40"/><text x="190" y="58" text-anchor="middle">10</text><rect class="cell" x="240" y="32" width="100" height="40"/><text x="290" y="58" text-anchor="middle">20</text><rect class="cell" x="340" y="32" width="100" height="40"/><text x="390" y="58" text-anchor="middle">30</text></g><text class="addr" x="140" y="90">+0</text><text class="addr" x="240" y="90">+4</text><text class="addr" x="340" y="90">+8</text><path class="ar" d="M190 140V78" marker-end="url(#m4)"/><text class="mono" x="190" y="158" text-anchor="middle">p</text><path class="ar" d="M290 140V78" marker-end="url(#m4)"/><text class="mono" x="290" y="158" text-anchor="middle">p + 1</text><path class="ar" d="M390 140V78" marker-end="url(#m4)"/><text class="mono" x="390" y="158" text-anchor="middle">p + 2</text></svg><figcaption>Adding 1 to an int pointer adds 4 bytes: the next element.</figcaption></figure>
+<script type="text/x-cpp">
+int a[3] = {10, 20, 30};
+int* p = a;                  // the name decays to &a[0]
+std::cout << *p;             // 10
+std::cout << *(p + 1);       // 20
+std::cout << p[2];           // 30: p[i] is exactly *(p + i)
+</script>
+<p>The decay loses the size, which is the classic trap:</p>
+<script type="text/x-cpp">
+int a[5] = {1, 2, 3};        // fixed size; the other two elements are 0
+a[10] = 7;                   // compiles, undefined behavior when it runs
+
+void f(int arr[]) {          // really `int* arr`: the size is gone
+    sizeof(arr);             // the size of a POINTER (8), not of the array
+}
+char s[] = "hi";             // 3 chars: 'h', 'i' and the terminating '\0'
+</script>
+<table>
+<tr><th>Instead of</th><th>Use</th><th>Why</th></tr>
+<tr><td><code>int a[N]</code></td><td><code>std::array&lt;int, N&gt;</code></td><td>knows its size, no decay, same speed</td></tr>
+<tr><td><code>new int[n]</code></td><td><code>std::vector&lt;int&gt;</code></td><td>grows, frees itself, <code>.at(i)</code> checks bounds</td></tr>
+<tr><td><code>char*</code> strings</td><td><code>std::string</code></td><td>owns its memory, copies safely, has <code>.size()</code> and <code>.find()</code></td></tr>
+<tr><td>pointer plus a count</td><td><code>std::span&lt;int&gt;</code> (C++20)</td><td>a non-owning view that remembers its size</td></tr>
+</table>
+<!-- read-more:start -->
+<div class="callout tip"><span class="label">Read more</span>
+<p><b>C++ Primer (Lippman, Lajoie, Moo)</b></p>
+<ul>
+<li>3.2 Library string type (PDF pages 113 to 124)</li>
+<li>3.5 Arrays (PDF pages 142 to 153)</li>
+<li>3.6 Multidimensional arrays (PDF pages 154 to 161)</li>
+</ul>
+<p><b>Programming: Principles and Practice (Stroustrup)</b></p>
+<ul>
+<li>16.3 to 16.4 C-style strings; alternatives to pointer use (PDF pages 484 to 487)</li>
+</ul>
+</div>
+<!-- read-more:end -->
+</section>
+
+<section id="references" data-title="References">
+<h2>References</h2>
+<p>A reference is not a second pointer. It is a <b>second name</b> for the same box, so using it needs no <code>*</code>.</p>
+<figure class="fig"><svg viewBox="0 0 640 170" role="img" aria-label="A pointer is its own box holding an address; a reference is just a second name attached to the same box"><defs><marker id="m5" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path class="ah" d="M0 0L10 5L0 10z"/></marker></defs><text class="t" x="10" y="20">pointer</text><rect class="acc" x="10" y="34" width="100" height="34" rx="5"/><text class="mono" x="60" y="56" text-anchor="middle">p</text><path class="ar" d="M110 51H190" marker-end="url(#m5)"/><rect class="gd" x="192" y="34" width="100" height="34" rx="5"/><text class="mono" x="242" y="56" text-anchor="middle">int 5</text><text class="m" x="10" y="104">its own box that holds an address</text><path class="ln" d="M320 8V160"/><text class="t" x="350" y="20">reference</text><rect class="gd" x="400" y="34" width="120" height="34" rx="5"/><text class="mono" x="460" y="56" text-anchor="middle">int 5</text><rect class="box" x="380" y="96" width="50" height="26" rx="13"/><text class="mono" x="405" y="114" text-anchor="middle">x</text><rect class="box" x="490" y="96" width="50" height="26" rx="13"/><text class="mono" x="515" y="114" text-anchor="middle">r</text><path class="ln" d="M405 96L430 70"/><path class="ln" d="M515 96L490 70"/><text class="m" x="350" y="150">two names, one box, no extra storage</text></svg><figcaption>A pointer is a variable; a reference is another name.</figcaption></figure>
+<script type="text/x-cpp">
+int x = 1;
+int& r = x;     // r is another name for x
+r = 5;          // x is now 5
+</script>
+<table>
+<tr><th></th><th>Pointer <code>int*</code></th><th>Reference <code>int&amp;</code></th></tr>
+<tr><td>Can be null</td><td>yes</td><td>no (must refer to something real)</td></tr>
+<tr><td>Must be initialized</td><td>no (but should be)</td><td>yes, at declaration</td></tr>
+<tr><td>Can be re-pointed</td><td>yes</td><td>no, bound for life</td></tr>
+<tr><td>Syntax to use</td><td><code>*p</code>, <code>p-&gt;member</code></td><td>just use the name</td></tr>
+<tr><td>Use for</td><td>optional things, arrays, ownership, C APIs</td><td>function parameters, aliases</td></tr>
+</table>
+<details class="ex"><summary><span class="ex-tag">Predict</span>The reference trap</summary><div>
+<script type="text/x-cpp">
+int a = 1, b = 2;
+int& r = a;
+r = b;
+std::cout << a << b;
+</script>
+<script type="text/x-out">
+22
+</script>
+<p><code>r = b</code> does <b>not</b> make <code>r</code> refer to <code>b</code>. References cannot be re-bound. It assigns the value of <code>b</code> into the variable <code>r</code> aliases, so <code>a</code> becomes 2.</p>
+</div></details>
+<p>Step through the reference trap:</p>
+<div id="st-ref"></div>
+<!-- read-more:start -->
+<div class="callout tip"><span class="label">Read more</span>
+<p><b>C++ Primer (Lippman, Lajoie, Moo)</b></p>
+<ul>
+<li>2.3 Compound types (PDF pages 79 to 87)</li>
+</ul>
+<p><b>Programming: Principles and Practice (Stroustrup)</b></p>
+<ul>
+<li>16.1 to 16.2 Arrays, pointers and references (PDF pages 477 to 483)</li>
+</ul>
+</div>
+<!-- read-more:end -->
+</section>
+
+<section id="constptr" data-title="const and pointers">
+<h2><code>const</code> and pointers</h2>
+<figure class="fig"><svg viewBox="0 0 640 150" role="img" aria-label="const before the star locks the data, const after the star locks the pointer"><defs><marker id="b2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path class="ah" d="M0 0L10 5L0 10z"/></marker></defs><text class="t" x="10" y="26">const int* p</text><text class="m" x="10" y="44">data locked</text><rect class="gd" x="190" y="12" width="90" height="36" rx="6"/><text x="235" y="35" text-anchor="middle">p</text><path class="ar" d="M280 30H398" marker-end="url(#b2)"/><text class="m" x="340" y="22" text-anchor="middle">p can move</text><rect class="bd" x="400" y="12" width="120" height="36" rx="6"/><text x="460" y="35" text-anchor="middle">int (read-only)</text><text class="m" x="535" y="35">*p = 5 is an error</text><text class="t" x="10" y="96">int* const p</text><text class="m" x="10" y="114">pointer locked</text><rect class="bd" x="190" y="82" width="90" height="36" rx="6"/><text x="235" y="105" text-anchor="middle">p</text><path class="ar" d="M280 100H398" marker-end="url(#b2)"/><text class="m" x="340" y="92" text-anchor="middle">p cannot move</text><rect class="gd" x="400" y="82" width="120" height="36" rx="6"/><text x="460" y="105" text-anchor="middle">int (changeable)</text><text class="m" x="535" y="105">*p = 5 is fine</text><text class="m" x="10" y="142">Read right to left. Red = locked, green = free.</text></svg><figcaption>const before the star protects the data; after the star it protects the pointer.</figcaption></figure>
+<p><code>const</code> means "I will not modify this". With pointers, either the data or the pointer can be const. <b>Read the declaration right to left.</b></p>
+<script type="text/x-cpp">
+int x = 1, y = 2;
+
+const int* p1 = &x;         // "p1 is a pointer to const int"
+// *p1 = 5;                 // ERROR: cannot change the int through p1
+p1 = &y;                    // OK: the pointer itself may move
+
+int* const p2 = &x;         // "p2 is a const pointer to int"
+*p2 = 5;                    // OK: the int may change
+// p2 = &y;                 // ERROR: the pointer may not move
+
+const int* const p3 = &x;   // neither can change
+</script>
+<table>
+<tr><th>Declaration</th><th>Read as</th><th>Move the pointer</th><th>Change the int</th></tr>
+<tr><td><code>const int* p</code></td><td>pointer to a const int</td><td>yes</td><td>no</td></tr>
+<tr><td><code>int* const p</code></td><td>const pointer to an int</td><td>no</td><td>yes</td></tr>
+<tr><td><code>const int* const p</code></td><td>const pointer to a const int</td><td>no</td><td>no</td></tr>
+</table>
+<p>Make everything <code>const</code> that can be.</p>
+<!-- read-more:start -->
+<div class="callout tip"><span class="label">Read more</span>
+<p><b>C++ Primer (Lippman, Lajoie, Moo)</b></p>
+<ul>
+<li>2.4 const qualifier (PDF pages 88 to 95)</li>
+</ul>
+</div>
+<!-- read-more:end -->
+</section>
+
+<section id="dynamic" data-title="Dynamic memory: new and delete">
+<h2>Dynamic memory: <code>new</code> and <code>delete</code></h2>
+<p><code>new</code> allocates on the heap <b>and</b> constructs the object; you must <code>delete</code> it, or it <b>leaks</b>. A heap object has three moments in its life, and the pointer outlives the last one.</p>
+<figure class="fig"><svg viewBox="0 0 640 150" role="img" aria-label="Three steps: new creates a heap int that p points to, p is used to read and write it, then delete frees it and p is left dangling"><defs><marker id="m6" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path class="ah2" d="M0 0L10 5L0 10z"/></marker><marker id="m7" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path class="ah3" d="M0 0L10 5L0 10z"/></marker></defs>
+<text class="t" x="10" y="20">1. new</text><rect class="acc" x="10" y="34" width="60" height="30" rx="5"/><text class="mono" x="40" y="54" text-anchor="middle">p</text><path class="ar2" d="M70 49H110" marker-end="url(#m6)"/><rect class="wn" x="112" y="34" width="80" height="30" rx="5"/><text class="mono" x="152" y="54" text-anchor="middle">5</text><text class="m" x="10" y="90">allocated and built</text>
+<text class="t" x="230" y="20">2. use</text><rect class="acc" x="230" y="34" width="60" height="30" rx="5"/><text class="mono" x="260" y="54" text-anchor="middle">p</text><path class="ar2" d="M290 49H330" marker-end="url(#m6)"/><rect class="wn" x="332" y="34" width="80" height="30" rx="5"/><text class="mono" x="372" y="54" text-anchor="middle">*p = 6</text><text class="m" x="230" y="90">read and write</text>
+<text class="t" x="450" y="20">3. delete</text><rect class="acc" x="450" y="34" width="60" height="30" rx="5"/><text class="mono" x="480" y="54" text-anchor="middle">p</text><path class="ar3 dash" d="M510 49H540" marker-end="url(#m7)"/><rect class="dead" x="542" y="34" width="90" height="30" rx="5"/><text class="m" x="587" y="54" text-anchor="middle">freed</text><text class="m" x="450" y="90">p still holds the old address:</text><text class="m" x="450" y="108">dangling</text></svg><figcaption>delete frees the block but does not change p.</figcaption></figure>
+<div id="st-heap"></div>
+<script type="text/x-cpp">
+int*  one = new int(42);     delete one;        // single object: new / delete
+int*  arr = new int[100];    delete[] arr;      // array: new[] / delete[]  (must match!)
+</script>
+<table>
+<tr><th>Bug</th><th>What happened</th></tr>
+<tr><td><b>Memory leak</b></td><td>you lost the pointer (or forgot <code>delete</code>) so the memory is never freed</td></tr>
+<tr><td><b>Dangling pointer</b></td><td>you used a pointer after the memory was freed</td></tr>
+<tr><td><b>Double delete</b></td><td>you freed the same memory twice: undefined behavior, often a crash</td></tr>
+<tr><td><b>Mismatch</b></td><td><code>new[]</code> freed with <code>delete</code>, or the reverse</td></tr>
+</table>
+<div class="callout tip"><span class="label">Modern C++</span>Avoid raw <code>new</code>/<code>delete</code>: use <code>std::vector</code> and <code>std::unique_ptr</code> (<a href="14-smart-pointers.html">Smart Pointers</a>).</div>
+<div class="callout interview"><span class="label">Key point</span>"What does <code>new</code> do beyond <code>malloc</code>?" It calls the constructor, throws <code>std::bad_alloc</code> on failure (instead of returning null), and returns a correctly typed pointer. <code>delete</code> calls the destructor and then frees the memory.</div>
+<!-- read-more:start -->
+<div class="callout tip"><span class="label">Read more</span>
+<p><b>C++ Primer (Lippman, Lajoie, Moo)</b></p>
+<ul>
+<li>12.2 Dynamic arrays (PDF pages 505 to 512)</li>
+</ul>
+<p><b>Programming: Principles and Practice (Stroustrup)</b></p>
+<ul>
+<li>15.3 to 15.5 Memory, addresses and pointers; free store; destructors (PDF pages 452 to 463)</li>
+</ul>
+</div>
+<!-- read-more:end -->
+</section>
+
+<section id="bugs" data-title="The classic memory bugs">
+<h2>The classic memory bugs</h2>
+<p>Most "mysterious" crashes are one of these.</p>
+<figure class="fig"><svg viewBox="0 0 640 130" role="img" aria-label="A leak: p was moved to a new block, so the first block has no pointer left and is never freed"><defs><marker id="m8" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path class="ah" d="M0 0L10 5L0 10z"/></marker></defs><text class="t" x="10" y="20">p = new int(1);  p = new int(2);</text><rect class="acc" x="30" y="44" width="60" height="30" rx="5"/><text class="mono" x="60" y="64" text-anchor="middle">p</text><path class="ar" d="M90 59H170" marker-end="url(#m8)"/><rect class="gd" x="172" y="44" width="80" height="30" rx="5"/><text class="mono" x="212" y="64" text-anchor="middle">2</text><rect class="wn dash" x="380" y="44" width="110" height="30" rx="5"/><text class="mono" x="435" y="64" text-anchor="middle">1</text><text class="m" x="380" y="96">no pointer left: leaked</text><text class="m" x="30" y="96">p now points here</text></svg><figcaption>Reassigning the only pointer to a block leaks the block.</figcaption></figure>
+<table>
+<tr><th>Bug</th><th>Example</th></tr>
+<tr><td>Uninitialized read</td><td><code>int n; use(n);</code></td></tr>
+<tr><td>Out-of-bounds</td><td><code>int a[3]; a[3] = 1;</code> (valid indices are 0 to 2)</td></tr>
+<tr><td>Null dereference</td><td><code>int* p = nullptr; *p = 1;</code></td></tr>
+<tr><td>Use after free</td><td><code>delete p; *p = 1;</code></td></tr>
+<tr><td>Leak</td><td><code>p = new int(1); p = new int(2);</code> (the first block is lost)</td></tr>
+<tr><td>Signed overflow</td><td><code>INT_MAX + 1</code> (undefined for signed, wraps for unsigned)</td></tr>
+</table>
+<h3>Returning a reference to a local</h3>
+<script type="text/x-cpp">
+int& bad() {
+    int local = 42;
+    return local;          // BUG: local is destroyed when bad() returns
+}                          // the caller gets a dangling reference
+
+int good() {
+    int local = 42;
+    return local;          // fine: returns a copy of the value
+}
+</script>
+<div class="callout warn"><span class="label">Tooling</span>Test with <code>-fsanitize=address,undefined</code>: it reports leaks, out-of-bounds, use-after-free and overflow with the exact line (see <a href="01-basics.html#tooling">Tooling</a> in the Basics lesson).</div>
+</section>
+
+<section id="cheat" data-title="Cheat sheet">
+<h2>Cheat sheet</h2>
+<p>Answer aloud, then open.</p>
+<details class="ex"><summary>Pointer vs reference?</summary><div><p>A pointer holds an address, can be null, can be re-pointed, and needs <code>*</code> to use. A reference is a permanent alias that must be initialized and cannot be null. Use references for parameters, pointers when "nothing" is a valid value or you need to re-point.</p></div></details>
+<details class="ex"><summary>Stack vs heap?</summary><div><p>The stack holds locals and is freed automatically when the scope ends; it is fast but small. The heap holds <code>new</code>-allocated objects that live until you free them; it is large but slower and you must manage the lifetime (or let a smart pointer do it).</p></div></details>
+<details class="ex"><summary>What is a dangling pointer?</summary><div><p>A pointer to memory that has been freed or has gone out of scope. Dereferencing it is undefined behavior. Setting a pointer to <code>nullptr</code> after <code>delete</code> helps, and smart pointers avoid the problem.</p></div></details>
+<details class="ex"><summary><code>const int*</code> vs <code>int* const</code>?</summary><div><p>Read right to left. <code>const int*</code> is a pointer to a const int (data is read-only, pointer can move). <code>int* const</code> is a const pointer to an int (pointer is fixed, data can change).</p></div></details>
+<details class="ex"><summary><code>delete</code> vs <code>delete[]</code>?</summary><div><p>Memory from <code>new</code> must be freed with <code>delete</code>; memory from <code>new[]</code> must be freed with <code>delete[]</code> so every element's destructor runs. Mixing them is undefined behavior. Deleting <code>nullptr</code> is safe and does nothing.</p></div></details>
+<h3>Keep going</h3>
+<ul>
+<li>Next lesson: <a href="16-types-and-casts.html">Types, Initialization and Casts</a>.</li>
+<li>Your own notes: <a href="https://github.com/Ghaith-Hamdi1/cpp-training/blob/main/docs/training-notes/01-cpp-basics/README.md">Module 1: C++ Basics</a>.</li>
+</ul>
+</section>
+
+</main>
+
+<script src="assets/data/lessons.js"></script>
+<script src="assets/app.js"></script>
+<script>
+CT.stepper('#st-ptr', {
+  title: 'A pointer and the variable it points to',
+  code: String.raw`
+int x = 10;
+int* p = &x;
+*p = 20;
+int y = *p;
+p = nullptr;
+`,
+  steps: [
+    { line: 1, mem: [{ n: 'x @0x1000', t: 'int', v: '10' }],
+      note: 'A normal variable. <b>x</b> lives at address <b>0x1000</b> and holds 10.' },
+    { line: 2, mem: [{ n: 'x @0x1000', t: 'int', v: '10' }, { n: 'p @0x1008', t: 'int*', v: '0x1000', p: 'x' }],
+      note: '<b>&amp;x</b> is the address of x (0x1000). <b>p</b> is its own variable and its value is that address, so we say p <i>points to</i> x.' },
+    { line: 3, mem: [{ n: 'x @0x1000', t: 'int', v: '20' }, { n: 'p @0x1008', t: 'int*', v: '0x1000', p: 'x' }],
+      note: '<b>*p</b> means "the thing p points to", which is x. Writing through the pointer changed x to 20 without ever naming x.' },
+    { line: 4, mem: [{ n: 'x @0x1000', t: 'int', v: '20' }, { n: 'p @0x1008', t: 'int*', v: '0x1000', p: 'x' }, { n: 'y @0x1010', t: 'int', v: '20' }],
+      note: 'Reading through the pointer: <b>y</b> receives a <i>copy</i> of 20. Changing y later would not affect x.' },
+    { line: 5, mem: [{ n: 'x @0x1000', t: 'int', v: '20' }, { n: 'p @0x1008', t: 'int*', v: 'nullptr' }, { n: 'y @0x1010', t: 'int', v: '20' }],
+      note: 'p now points to nothing. Dereferencing it would be undefined behavior, so check <code>if (p)</code> before using a pointer that might be null.' }
+  ]
+});
+
+CT.stepper('#st-heap', {
+  title: 'new, delete and a dangling pointer',
+  code: String.raw`
+int* p = new int(42);
+*p = 7;
+delete p;
+// p still holds the old address!
+p = nullptr;
+`,
+  steps: [
+    { line: 1, mem: [{ n: 'p @0x1000', t: 'int*', v: '0x5000', p: 'heap int' }, { n: 'heap @0x5000', t: 'int', v: '42', k: 'heap' }],
+      note: '<b>new int(42)</b> reserves 4 bytes on the <b>heap</b> and stores 42. The pointer <b>p</b> on the stack remembers where it is.' },
+    { line: 2, mem: [{ n: 'p @0x1000', t: 'int*', v: '0x5000', p: 'heap int' }, { n: 'heap @0x5000', t: 'int', v: '7', k: 'heap' }],
+      note: 'Writing through the pointer changes the heap value.' },
+    { line: 3, mem: [{ n: 'p @0x1000', t: 'int*', v: '0x5000', p: 'freed memory!' }, { n: 'heap @0x5000', t: 'int', v: '7', k: 'heap', dead: true }],
+      note: '<b>delete p</b> hands the memory back. Notice what did <i>not</i> change: <b>p still holds 0x5000</b>. It is now a <b>dangling pointer</b>. Using it (<code>*p</code>) is undefined behavior.' },
+    { line: 4, mem: [{ n: 'p @0x1000', t: 'int*', v: '0x5000', p: 'freed memory!' }, { n: 'heap @0x5000', t: 'int', v: '7', k: 'heap', dead: true }],
+      note: 'Nothing happens here, but this is the danger zone: the pointer looks valid and the compiler cannot tell it is not.' },
+    { line: 5, mem: [{ n: 'p @0x1000', t: 'int*', v: 'nullptr' }, { n: 'heap @0x5000', t: 'int', v: '7', k: 'heap', dead: true }],
+      note: 'Setting the pointer to <b>nullptr</b> after <code>delete</code> turns a silent bug into a checkable state. Better still: use <code>std::unique_ptr</code> and never write <code>delete</code> yourself.' }
+  ]
+});
+
+CT.stepper('#st-ref', {
+  title: 'A reference is an alias and can never be re-bound',
+  code: String.raw`
+int a = 1, b = 2;
+int& r = a;
+r = b;
+std::cout << a << b;
+`,
+  steps: [
+    { line: 1, mem: [{ n: 'a', t: 'int', v: '1' }, { n: 'b', t: 'int', v: '2' }], note: 'Two ordinary ints.' },
+    { line: 2, mem: [{ n: 'a', t: 'int', v: '1' }, { n: 'b', t: 'int', v: '2' }, { n: 'r', t: 'int&', v: 'alias', to: 'a' }],
+      note: '<b>r</b> is bound to <b>a</b> for life. It is not a separate variable holding an address you can change.' },
+    { line: 3, mem: [{ n: 'a', t: 'int', v: '2' }, { n: 'b', t: 'int', v: '2' }, { n: 'r', t: 'int&', v: 'alias', to: 'a' }],
+      note: '<code>r = b</code> does <b>not</b> make r refer to b. The arrow stays on a. It <i>assigns</i> the value of b (2) into the thing r names, so <b>a becomes 2</b>.' },
+    { line: 4, mem: [{ n: 'a', t: 'int', v: '2' }, { n: 'b', t: 'int', v: '2' }, { n: 'r', t: 'int&', v: 'alias', to: 'a' }], out: '22\n',
+      note: 'Prints <b>22</b>. A pointer could be re-pointed (<code>p = &amp;b</code>); a reference cannot.' }
+  ]
+});
+</script>
+</body>
+</html>

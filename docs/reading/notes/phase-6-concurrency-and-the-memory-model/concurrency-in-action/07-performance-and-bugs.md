@@ -54,4 +54,4 @@ What surprised me when I ran it:
 
 ## After this session
 
-Lesson 14, "Debugging and common bugs"
+Lesson 17, "Debugging and common bugs"

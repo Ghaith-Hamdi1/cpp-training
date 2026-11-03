@@ -32,11 +32,11 @@ std::cout << f() << f() << n;`,
       opts: ['675', '677', '666', '565'], a: 0,
       why: '`f` has its own copy of `n`, so `++n` returns 6 then 7. The outer `n` is never touched and stays 5.' },
 
-    { sec: 'captures', q: 'Which lambda is safe to return from a function that has a local `int x`?',
+    { sec: 'lifetime', q: 'Which lambda is safe to return from a function that has a local `int x`?',
       opts: ['`[&x] { return x; }`', '`[x] { return x; }`', '`[&] { return x; }`', 'All of them'], a: 1,
       why: 'Capturing by value copies `x` into the lambda. The reference captures would dangle once the function returns.' },
 
-    { sec: 'captures', q: 'In a member function, what does the capture `[=]` capture (and why is relying on it deprecated in C++20)?',
+    { sec: 'lifetime', q: 'In a member function, what does the capture `[=]` capture (and why is relying on it deprecated in C++20)?',
       opts: ['A copy of the whole object, so it is always safe to keep around later', 'The this pointer (not the object), so it dangles if the object dies', 'No members: [=] captures only local variables', 'A reference to a private copy of the whole object that it holds'], a: 1,
       why: '`[=]` implicitly captures `this` by pointer. C++20 deprecates that: write `[=, this]` to be explicit, or `[*this]` to copy the object.' },
 
@@ -52,24 +52,16 @@ std::cout << f() << f() << n;`,
       opts: ['The const qualifiers on the parameters', 'The auto parameters make operator() a template', 'The empty capture list at the start', 'auto parameters are invalid in lambdas'], a: 1,
       why: 'A C++14 generic lambda has a templated call operator, so it works for any pair of types that support `<`.' },
 
-    { sec: 'callables', q: 'Why is `std::sort` with a lambda comparator usually faster than with a `std::function` comparator?',
-      opts: ['std::function cannot be used as a sort comparator', 'The lambda\'s type is known at compile time, so the call can inline', 'Lambdas are compiled to run on the graphics card instead', 'Both comparators run at the same speed'], a: 1,
-      why: 'A template parameter keeps the closure type, so the comparison is inlined into the sort loop. Type erasure costs an indirect call per comparison.' },
+    { sec: 'captures', q: 'What is the size of a lambda with no captures on a typical compiler?',
+      opts: ['0 bytes', '1 byte', '8 bytes, like a function pointer', 'It depends on the size of its body'], a: 1,
+      why: 'An empty class still has a size of at least 1 byte. A capture adds a member, so a lambda capturing one `int` is 4 bytes. The body is code, not data.' },
 
-    { sec: 'callables', q: 'When do you genuinely need `std::function` rather than a template parameter?',
-      opts: ['Whenever you pass a lambda to a function template', 'To store callables of different types with one signature together', 'To make a call faster than the equivalent template would be', 'To capture variables by reference instead of by value'], a: 1,
-      why: 'A member or container needs one concrete type. `std::function` erases the different closure types behind a single signature.' },
+    { sec: 'lifetime', q: 'A lambda captures a local `x` by reference and is passed to a thread that runs after the function has returned. What is the problem?',
+      opts: ['Nothing: a reference capture keeps x alive', 'The reference dangles: x was destroyed on return', 'The lambda is copied again for every call made', 'The thread cannot call a lambda with captures'], a: 1,
+      why: 'A reference capture does not extend the lifetime of the variable. After the function returns, the lambda reads destroyed memory. Capture by value when a lambda outlives its scope.' },
 
-    { sec: 'callables', q: 'When may constructing a `std::function` allocate on the heap?',
-      opts: ['It stores the callable inline in the object, up to any size', 'When the callable is too big for its small internal buffer', 'Only when it wraps a plain function pointer or a lambda', 'Each std::function allocates on the heap when constructed'], a: 1,
-      why: 'Implementations keep small callables inline and heap-allocate bigger ones. The threshold is implementation-defined (compiled with libstdc++: a 64-byte capture allocated).' },
-
-    { sec: 'before', q: 'Why can a plain function pointer not carry a "limit" value for a comparison?',
-      opts: ['Function pointers cannot be passed to standard algorithms such as sort', 'It is only an address: the function has no state besides arguments and globals', 'Functions cannot take int parameters, only pointers to them', 'The limit would have to be declared as a const variable first'], a: 1,
-      why: 'A function pointer holds just the address of code. To bring in state you need a global variable, an extra argument, or a function object (a functor or a lambda) that stores it in a member.' },
-
-    { sec: 'before', q: 'What is a functor?',
-      opts: ['A function that returns another function when it is called later', 'A class with an operator(), so objects are callable and can hold state', 'Another name for a function pointer in older C++ code bases', 'A macro that expands to a lambda expression at compile time'], a: 1,
-      why: 'A functor is a function object: an instance of a class with `operator()`. A lambda is a functor the compiler writes for you, with the captured variables as members.' }
+    { sec: 'uses', q: 'Which call sorts the strings in `w` by length, shortest first?',
+      opts: ['std::sort(w.begin(), w.end(), [](const std::string& a, const std::string& b) { return a.size() < b.size(); });', 'std::sort(w.begin(), w.end(), [](const std::string& a, const std::string& b) { return a.size() > b.size(); });', 'std::sort(w.begin(), w.end(), [](const std::string& a) { return a.size() < 3; });', 'std::sort(w.begin(), w.end(), [&w](const std::string& a, const std::string& b) { return a < w; });'], a: 0,
+      why: 'A comparator returns true when its first argument goes before the second. `a.size() < b.size()` puts shorter strings first; `>` would put longer ones first.' }
   ]
 };

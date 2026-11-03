@@ -22,8 +22,10 @@ CT.phases = [
 ];
 
 CT.lessons = [
-  { id: 'basics', file: '01-basics.html', quiz: '01-basics-quiz.html', title: 'C++ Basics & Pointers', time: '60 min', assess: 2, phase: 1,
-    blurb: 'Types, functions, memory, pointers, references, const and dynamic allocation, built up from zero.' },
+  { id: 'basics', file: '01-basics.html', quiz: '01-basics-quiz.html', title: 'C++ Basics', time: '40 min', assess: 2, phase: 1,
+    blurb: 'How a program is built, types and variables, operators, control flow, functions and passing arguments, and the tools that catch mistakes.' },
+  { id: 'pointers', file: '22-pointers.html', quiz: '22-pointers-quiz.html', title: 'Pointers and References', time: '50 min', assess: 2, phase: 1,
+    blurb: 'Where variables live, what an address is, pointers, arrays and decay, references, const with pointers, new and delete, and the classic memory bugs, in pictures.' },
   { id: 'types', file: '16-types-and-casts.html', quiz: '16-types-and-casts-quiz.html', title: 'Types, Initialization & Casts', time: '40 min', assess: 2, phase: 1,
     blurb: 'Initialization forms and brace traps, auto and decltype, implicit conversions, the named casts, const, constexpr and static.' },
   { id: 'oop', file: '02-oop.html', quiz: '02-oop-quiz.html', title: 'Object-Oriented Programming', time: '60 min', assess: 2, phase: 2,
@@ -32,8 +34,10 @@ CT.lessons = [
     blurb: 'Multiple inheritance and layout, the diamond and virtual inheritance, RTTI and private inheritance.' },
   { id: 'strings', file: '08-strings-regex-time.html', quiz: '08-strings-regex-time-quiz.html', title: 'Strings, Regex & Time', time: '40 min', assess: 2, phase: 3,
     blurb: 'string versus string_view, regular expressions with a live tester, and measuring time with chrono clocks and durations.' },
-  { id: 'lambdas', file: '15-lambdas.html', quiz: '15-lambdas-quiz.html', title: 'Lambdas & Callables', time: '35 min', assess: 2, phase: 3,
-    blurb: 'Captures and their lifetime traps, init-capture, generic lambdas, and function pointer versus functor versus lambda versus std::function.' },
+  { id: 'callables', file: '23-callables.html', quiz: '23-callables-quiz.html', title: 'Function Pointers and Functors', time: '35 min', assess: 2, phase: 3,
+    blurb: 'Function pointers, functors, std::function and std::invoke: the things you can call, what each can hold, and when to use which.' },
+  { id: 'lambdas', file: '15-lambdas.html', quiz: '15-lambdas-quiz.html', title: 'Lambdas', time: '35 min', assess: 2, phase: 3,
+    blurb: 'What a lambda is, captures and their lifetime traps, init-capture, generic lambdas and where lambdas are used.' },
   { id: 'stl', file: '04-stl.html', quiz: '04-stl-quiz.html', title: 'The STL', time: '60 min', assess: 2, phase: 3,
     blurb: 'Containers, iterators, algorithms, complexity, iterator invalidation and how to choose the right container.' },
   { id: 'templates', file: '05-templates.html', quiz: '05-templates-quiz.html', title: 'Templates', time: '60 min', assess: 2, phase: 3,
@@ -44,8 +48,10 @@ CT.lessons = [
     blurb: 'pair and tuple, optional, variant and visit, expected, span and string_view: the small types that make interfaces honest.' },
   { id: 'moves', file: '13-move-semantics.html', quiz: '13-move-semantics-quiz.html', title: 'Move Semantics', time: '45 min', assess: 2, phase: 5,
     blurb: 'Value categories, what std::move really does, writing move operations, copy elision, the move traps and perfect forwarding.' },
-  { id: 'smartptr', file: '14-smart-pointers.html', quiz: '14-smart-pointers-quiz.html', title: 'Smart Pointers & Ownership', time: '40 min', assess: 2, phase: 5,
-    blurb: 'unique_ptr, shared_ptr and weak_ptr, the control block, cycles, custom deleters and how to pass ownership around.' },
+  { id: 'uniqueptr', file: '24-uniqueptr.html', quiz: '24-uniqueptr-quiz.html', title: 'unique_ptr: Exclusive Ownership', time: '35 min', assess: 2, phase: 5,
+    blurb: 'Ownership in the type: how unique_ptr frees its object, why it is move-only, passing and returning it, deleters, arrays and the usual mistakes.' },
+  { id: 'smartptr', file: '14-smart-pointers.html', quiz: '14-smart-pointers-quiz.html', title: 'shared_ptr and weak_ptr', time: '30 min', assess: 2, phase: 5,
+    blurb: 'shared_ptr and the control block, reference cycles and weak_ptr, make_shared, enable_shared_from_this and the pitfalls.' },
   { id: 'compiletime', file: '09-compile-time.html', quiz: '09-compile-time-quiz.html', title: 'Type Traits & Compile-time C++', time: '45 min', assess: 2, phase: 5,
     blurb: 'Type traits, SFINAE, concepts and requires, if constexpr, constexpr and consteval, and classic template metaprogramming.' },
   { id: 'threads', file: '07-multithreading.html', quiz: '07-multithreading-quiz.html', title: 'Multithreading', time: '60 min', assess: 2, phase: 6,
@@ -63,7 +69,7 @@ CT.moved = {
   '05-templates.html#s7': '09-compile-time.html#s4',    // Compile-time computation: now Template metaprogramming
   '03-core-language.html#s2': '13-move-semantics.html#values',          // lesson 3 was split into five lessons
   '03-core-language.html#s3': '13-move-semantics.html#copy-move',
-  '03-core-language.html#s4': '14-smart-pointers.html#ownership',
+  '03-core-language.html#s4': '24-uniqueptr.html#owner',
   '03-core-language.html#s5': '16-types-and-casts.html#deduction',
   '03-core-language.html#s6': '15-lambdas.html#anatomy',
   '03-core-language.html#s8': '16-types-and-casts.html#casts',
@@ -74,6 +80,17 @@ CT.moved = {
   '07-multithreading.html#s8': '17-tasks-parallelism.html#futures',
   '07-multithreading.html#s9': '17-tasks-parallelism.html#pool',
   '19-object-model.html#conversions': '02-oop.html#conversions',          // explicit, conversion operators and copy-and-swap moved to OOP
+  '14-smart-pointers.html#ownership': '24-uniqueptr.html#owner',      // the first two Smart Pointers sections became the unique_ptr lesson
+  '14-smart-pointers.html#unique': '24-uniqueptr.html#basics',
+  '15-lambdas.html#before': '23-callables.html#fnptr',          // the callable sections of Lambdas became their own lesson
+  '15-lambdas.html#callables': '23-callables.html#choose',
+  '01-basics.html#s5': '22-pointers.html#regions',            // the pointer sections of Basics became the Pointers lesson
+  '01-basics.html#s6': '22-pointers.html#pointers',
+  '01-basics.html#s7': '22-pointers.html#references',
+  '01-basics.html#s8': '22-pointers.html#constptr',
+  '01-basics.html#s9': '22-pointers.html#dynamic',
+  '01-basics.html#s10': '22-pointers.html#arrays',
+  '01-basics.html#s11': '22-pointers.html#bugs',
   '04-stl.html#s8': '08-strings-regex-time.html#s1'       // the STL strings section is covered by the Strings lesson
 };
 
@@ -222,6 +239,82 @@ CT.progressMigrations = [
     var li = store.get('lastinfo', null);
     if (li && GONE.indexOf(li.id) >= 0) store.set('lastinfo', null);
     store.set('mock:missed', store.get('mock:missed', []).filter(function (id) { return !GONE.some(function (g) { return id.indexOf(g + '-') === 0; }); }));
+  } },
+  /* v10: the pointer sections of the Basics lesson became the lesson Pointers and References. Ticks, the saved position, weak
+     questions and cheat-sheet ids move with them. */
+  { to: 10, run: function (store) {
+    var SECS = { s5: 'regions', s6: 'pointers', s7: 'references', s8: 'constptr', s9: 'dynamic', s10: 'arrays', s11: 'bugs' };   // old basics section id -> pointers section id
+    var done = store.get('done:basics', []), keep = [], moved = store.get('done:pointers', []);
+    done.forEach(function (id) {
+      if (!SECS[id]) { keep.push(id); return; }
+      if (moved.indexOf(SECS[id]) < 0) moved.push(SECS[id]);
+    });
+    store.set('done:basics', keep);
+    if (moved.length) store.set('done:pointers', moved);
+    if (SECS[store.get('last:basics', '')]) store.set('last:basics', '');
+    var li = store.get('lastinfo', null);
+    if (li && li.id === 'basics' && SECS[li.sec]) store.set('lastinfo', null);
+    var hash = function (s) { var x = 5381, i; for (i = 0; i < s.length; i++) x = ((x * 33) ^ s.charCodeAt(i)) >>> 0; return x.toString(36); };
+    var WHERE = { '12rk0wq': 'pointers', '140heij': 'pointers', '1695ukm': 'pointers', '16dq4u': 'pointers', '1gjko1s': 'pointers', '1wy7ajg': 'pointers', '4glhig': 'pointers', '5ddfga': 'pointers', 'c4xhtz': 'pointers', 'kcotr5': 'pointers', 'rzuk2j': 'pointers', 'uxe5i5': 'pointers', 'yrsevc': 'pointers', 'yvgttd': 'pointers' };
+    var weak = store.get('weak:basics', {}), stay = {};
+    Object.keys(weak).forEach(function (k) {
+      if (!WHERE[hash(k)]) { stay[k] = weak[k]; return; }
+      var w = store.get('weak:pointers', {});
+      w[k] = weak[k];
+      store.set('weak:pointers', w);
+    });
+    store.set('weak:basics', stay);
+    store.set('mock:missed', store.get('mock:missed', []).filter(function (id) { return id.indexOf('basics-') !== 0; }));   // the cheat sheet changed
+  } },
+  /* v11: the Lambdas lesson lost its two callable sections to the new lesson Function Pointers and Functors. */
+  { to: 11, run: function (store) {
+    var SECS = { before: ['fnptr', 'functor'], callables: ['stdfunction', 'choose'] };          // old lambdas section -> new callables sections
+    var done = store.get('done:lambdas', []), keep = [], moved = store.get('done:callables', []);
+    done.forEach(function (id) {
+      if (!SECS[id]) { keep.push(id); return; }
+      SECS[id].forEach(function (n) { if (moved.indexOf(n) < 0) moved.push(n); });
+    });
+    store.set('done:lambdas', keep);
+    if (moved.length) store.set('done:callables', moved);
+    if (SECS[store.get('last:lambdas', '')]) store.set('last:lambdas', '');
+    var li = store.get('lastinfo', null);
+    if (li && li.id === 'lambdas' && SECS[li.sec]) store.set('lastinfo', null);
+    var hash = function (s) { var x = 5381, i; for (i = 0; i < s.length; i++) x = ((x * 33) ^ s.charCodeAt(i)) >>> 0; return x.toString(36); };
+    var WHERE = { '1n3e8s0': 'callables', '1ny5xz': 'callables', '1o4szts': 'callables', '6h4nsm': 'callables', 'cnzgl8': 'callables' };
+    var weak = store.get('weak:lambdas', {}), stay = {};
+    Object.keys(weak).forEach(function (k) {
+      if (!WHERE[hash(k)]) { stay[k] = weak[k]; return; }
+      var w = store.get('weak:callables', {});
+      w[k] = weak[k];
+      store.set('weak:callables', w);
+    });
+    store.set('weak:lambdas', stay);
+    store.set('mock:missed', store.get('mock:missed', []).filter(function (id) { return id.indexOf('lambdas-') !== 0; }));   // the cheat sheet changed
+  } },
+  /* v12: the first two sections of the Smart Pointers lesson became the lesson unique_ptr: Exclusive Ownership. */
+  { to: 12, run: function (store) {
+    var SECS = { ownership: ['owner', 'pass'], unique: ['basics', 'move', 'details'] };         // old smartptr section -> new uniqueptr sections
+    var done = store.get('done:smartptr', []), keep = [], moved = store.get('done:uniqueptr', []);
+    done.forEach(function (id) {
+      if (!SECS[id]) { keep.push(id); return; }
+      SECS[id].forEach(function (n) { if (moved.indexOf(n) < 0) moved.push(n); });
+    });
+    store.set('done:smartptr', keep);
+    if (moved.length) store.set('done:uniqueptr', moved);
+    if (SECS[store.get('last:smartptr', '')]) store.set('last:smartptr', '');
+    var li = store.get('lastinfo', null);
+    if (li && li.id === 'smartptr' && SECS[li.sec]) store.set('lastinfo', null);
+    var hash = function (s) { var x = 5381, i; for (i = 0; i < s.length; i++) x = ((x * 33) ^ s.charCodeAt(i)) >>> 0; return x.toString(36); };
+    var WHERE = { '1cbs40b': 'uniqueptr', '1lnknas': 'uniqueptr', '2xwsc1': 'uniqueptr', 'l2v1mh': 'uniqueptr', 'mhbz02': 'uniqueptr', 'v9cdh9': 'uniqueptr' };
+    var weak = store.get('weak:smartptr', {}), stay = {};
+    Object.keys(weak).forEach(function (k) {
+      if (!WHERE[hash(k)]) { stay[k] = weak[k]; return; }
+      var w = store.get('weak:uniqueptr', {});
+      w[k] = weak[k];
+      store.set('weak:uniqueptr', w);
+    });
+    store.set('weak:smartptr', stay);
+    store.set('mock:missed', store.get('mock:missed', []).filter(function (id) { return id.indexOf('smartptr-') !== 0; }));   // the cheat sheet changed
   } }
 ];
 

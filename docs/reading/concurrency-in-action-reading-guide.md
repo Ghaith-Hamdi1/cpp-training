@@ -12,28 +12,28 @@ The sections were chosen from the book's table of contents and from reading samp
 
 | Book section | PDF pages | Matching lesson section |
 |---|---|---|
-| 1.1 What is concurrency? | 25 to 30 | 14. Why threads? The mental model |
-| 1.2.3 When not to use concurrency | 32 to 33 | 14. Why threads? The mental model |
-| 2.1 Basic thread management (launching, joining, detaching, waiting in exceptional circumstances, running in the background) | 40 to 47 | 14. Your first thread |
-| 2.2 Passing arguments to a thread function | 47 to 50 | 14. Your first thread |
-| 3.1 Problems with sharing data between threads (invariants, race conditions) | 60 to 63 | 14. Shared data and data races |
-| 3.2.1 to 3.2.3 Mutexes in C++, structuring code to protect data, race conditions inherent in interfaces | 64 to 74 | 14. Mutexes; 14. Races hidden in interfaces |
-| 3.2.4 to 3.2.5 Deadlock: the problem, the solution and further guidelines | 74 to 82 | 14. Deadlock |
-| 4.1 Waiting for an event: condition variables and a thread-safe queue | 96 to 104 | 14. Condition variables |
+| 1.1 What is concurrency? | 25 to 30 | 17. Why threads? The mental model |
+| 1.2.3 When not to use concurrency | 32 to 33 | 17. Why threads? The mental model |
+| 2.1 Basic thread management (launching, joining, detaching, waiting in exceptional circumstances, running in the background) | 40 to 47 | 17. Your first thread |
+| 2.2 Passing arguments to a thread function | 47 to 50 | 17. Your first thread |
+| 3.1 Problems with sharing data between threads (invariants, race conditions) | 60 to 63 | 17. Shared data and data races |
+| 3.2.1 to 3.2.3 Mutexes in C++, structuring code to protect data, race conditions inherent in interfaces | 64 to 74 | 17. Mutexes; 17. Races hidden in interfaces |
+| 3.2.4 to 3.2.5 Deadlock: the problem, the solution and further guidelines | 74 to 82 | 17. Deadlock |
+| 4.1 Waiting for an event: condition variables and a thread-safe queue | 96 to 104 | 17. Condition variables |
 
 ## Tier 2: read next if you have time (about 55 pages)
 
 | Book section | PDF pages | Matching lesson section |
 |---|---|---|
-| 2.4 Choosing the number of threads at runtime | 54 to 57 | 15. Thread pools and producer/consumer |
-| 3.2.6 to 3.2.8 `std::unique_lock`, transferring mutex ownership, locking granularity | 82 to 87 | 14. Mutexes |
-| 3.3.1 Protecting shared data during initialization (`std::call_once`) | 88 to 91 | 14. Other mutex types and call_once |
-| 4.2.1 to 4.2.4 Futures: `std::async`, `std::packaged_task`, `std::promise`, saving an exception | 105 to 113 | 15. Futures and async; 15. promise, shared_future and packaged_task |
-| 5.1 Memory model basics, and 5.3 Synchronizing operations through the memory ordering overview | 148 to 151 and 165 to 170 | 16. Atomic operations; 16. Memory orders and happens-before |
-| 6.1 to 6.2.2 Designing for concurrency, a thread-safe stack and a queue with condition variables | 197 to 206 | 14. Races hidden in interfaces; 14. Condition variables; 16. Thread-safe data structures |
+| 2.4 Choosing the number of threads at runtime | 54 to 57 | 18. Thread pools and producer/consumer |
+| 3.2.6 to 3.2.8 `std::unique_lock`, transferring mutex ownership, locking granularity | 82 to 87 | 17. Mutexes |
+| 3.3.1 Protecting shared data during initialization (`std::call_once`) | 88 to 91 | 17. Other mutex types and call_once |
+| 4.2.1 to 4.2.4 Futures: `std::async`, `std::packaged_task`, `std::promise`, saving an exception | 105 to 113 | 18. Futures and async; 18. promise, shared_future and packaged_task |
+| 5.1 Memory model basics, and 5.3 Synchronizing operations through the memory ordering overview | 148 to 151 and 165 to 170 | 19. Atomic operations; 19. Memory orders and happens-before |
+| 6.1 to 6.2.2 Designing for concurrency, a thread-safe stack and a queue with condition variables | 197 to 206 | 17. Races hidden in interfaces; 17. Condition variables; 19. Thread-safe data structures |
 | 8.2 Factors affecting the performance of concurrent code (cache ping-pong, false sharing, oversubscription) | 283 to 289 | Not in the lessons |
-| 9.1.1 The simplest possible thread pool | 324 to 326 | 15. Thread pools and producer/consumer; 15. Work stealing and sizing a pool |
-| 11.1 Types of concurrency-related bugs, and 11.2.1 reviewing code to locate them | 363 to 367 | 14. Debugging and common bugs |
+| 9.1.1 The simplest possible thread pool | 324 to 326 | 18. Thread pools and producer/consumer; 18. Work stealing and sizing a pool |
+| 11.1 Types of concurrency-related bugs, and 11.2.1 reviewing code to locate them | 363 to 367 | 17. Debugging and common bugs |
 
 ## Skip on a first read
 

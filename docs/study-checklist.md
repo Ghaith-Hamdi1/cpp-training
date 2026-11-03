@@ -12,26 +12,32 @@ A step-by-step plan through the lessons and the books, one phase at a time. The 
 
 ---
 
-## Phase 1: Core language foundations (about 22.9 hours)
+## Phase 1: Core language foundations (about 23.4 hours)
 
 Types, expressions, control flow, functions, pointers, references, strings and vectors.. Roadmap page: [phase-1-core-language-foundations.md](reading/roadmap/phase-1-core-language-foundations.md).
 
 ### Lessons and quizzes
 
-**C++ Basics & Pointers:** [01-basics.html](../interactive/01-basics.html), quiz: [01-basics-quiz.html](../interactive/01-basics-quiz.html) (22 questions).
+**C++ Basics:** [01-basics.html](../interactive/01-basics.html), quiz: [01-basics-quiz.html](../interactive/01-basics-quiz.html) (13 questions).
 
 - [ ] How a C++ program is built
 - [ ] Variables and types
 - [ ] Operators and control flow
 - [ ] Functions and passing arguments
+- [ ] Tooling: warnings, sanitizers, static analysis
+- [ ] Cheat sheet (say each answer aloud)
+- [ ] Take the quiz, then retry the missed questions
+
+**Pointers and References:** [22-pointers.html](../interactive/22-pointers.html), quiz: [22-pointers-quiz.html](../interactive/22-pointers-quiz.html) (18 questions).
+
+- [ ] Memory is a row of numbered boxes
 - [ ] Where variables live: stack, heap, static
 - [ ] Pointers from scratch
+- [ ] Pointers and arrays
 - [ ] References
 - [ ] `const` and pointers
 - [ ] Dynamic memory: `new` and `delete`
-- [ ] Arrays, C-strings and `std::string`
 - [ ] The classic memory bugs
-- [ ] Tooling: warnings, sanitizers, static analysis
 - [ ] Cheat sheet (say each answer aloud)
 - [ ] Take the quiz, then retry the missed questions
 
@@ -109,7 +115,7 @@ Class design, copy control, operator overloading, inheritance, virtual functions
 
 - [ ] Recap check. Explain aloud how `virtual` works in memory (vptr, vtable, slot), why a base destructor must be virtual, what the Rule of Zero says, and why `Animal a = dog;` slices.
 
-## Phase 3: The standard library and generic programming (about 26.8 hours)
+## Phase 3: The standard library and generic programming (about 27.4 hours)
 
 Streams, containers, iterators, algorithms, templates.. Roadmap page: [phase-3-the-standard-library-and-generic-programming.md](reading/roadmap/phase-3-the-standard-library-and-generic-programming.md).
 
@@ -127,13 +133,23 @@ Streams, containers, iterators, algorithms, templates.. Roadmap page: [phase-3-t
 - [ ] Cheat sheet (say each answer aloud)
 - [ ] Take the quiz, then retry the missed questions
 
-**Lambdas & Callables:** [15-lambdas.html](../interactive/15-lambdas.html), quiz: [15-lambdas-quiz.html](../interactive/15-lambdas-quiz.html) (15 questions).
+**Function Pointers and Functors:** [23-callables.html](../interactive/23-callables.html), quiz: [23-callables-quiz.html](../interactive/23-callables-quiz.html) (13 questions).
 
-- [ ] Before lambdas: function pointers and functors
+- [ ] Something you can call
+- [ ] Function pointers
+- [ ] Functors: objects you can call
+- [ ] `std::function` and `std::invoke`
+- [ ] Which one when
+- [ ] Cheat sheet (say each answer aloud)
+- [ ] Take the quiz, then retry the missed questions
+
+**Lambdas:** [15-lambdas.html](../interactive/15-lambdas.html), quiz: [15-lambdas-quiz.html](../interactive/15-lambdas-quiz.html) (13 questions).
+
 - [ ] What a lambda is
 - [ ] Captures: by value and by reference (step through; dangling captures)
+- [ ] Capture lifetime: dangling references
 - [ ] `mutable`, init-capture, generic and recursive lambdas
-- [ ] Function pointer, functor, lambda, `std::function`
+- [ ] Where lambdas are used
 - [ ] Cheat sheet (say each answer aloud)
 - [ ] Take the quiz, then retry the missed questions
 
@@ -211,7 +227,7 @@ Exceptions and RAII, namespaces, unions and enums, memory control.. Roadmap page
 
 - [ ] Recap check. Explain: what stack unwinding does, why a destructor must not throw, the difference between basic and strong guarantee and how copy-and-swap gives the strong one.
 
-## Phase 5: Modern C++ (C++11 to C++20) (about 24.3 hours)
+## Phase 5: Modern C++ (C++11 to C++20) (about 24.7 hours)
 
 Move semantics, smart pointers, forwarding, `constexpr`, vocabulary types, concepts.. Roadmap page: [phase-5-modern-cpp.md](reading/roadmap/phase-5-modern-cpp.md).
 
@@ -240,10 +256,19 @@ Move semantics, smart pointers, forwarding, `constexpr`, vocabulary types, conce
 - [ ] Cheat sheet (say each answer aloud)
 - [ ] Take the quiz, then retry the missed questions
 
-**Smart Pointers & Ownership:** [14-smart-pointers.html](../interactive/14-smart-pointers.html), quiz: [14-smart-pointers-quiz.html](../interactive/14-smart-pointers-quiz.html) (12 questions).
+**unique_ptr: Exclusive Ownership:** [24-uniqueptr.html](../interactive/24-uniqueptr.html), quiz: [24-uniqueptr-quiz.html](../interactive/24-uniqueptr-quiz.html) (16 questions).
 
-- [ ] Who owns it? The three smart pointers
-- [ ] `unique_ptr` in detail (deleters, arrays, zero overhead)
+- [ ] Ownership: who frees it?
+- [ ] Creating a `unique_ptr`
+- [ ] Move-only: handing over ownership
+- [ ] Passing and returning
+- [ ] Deleters, arrays, polymorphism and the member functions
+- [ ] Common mistakes
+- [ ] Cheat sheet (say each answer aloud)
+- [ ] Take the quiz, then retry the missed questions
+
+**shared_ptr and weak_ptr:** [14-smart-pointers.html](../interactive/14-smart-pointers.html), quiz: [14-smart-pointers-quiz.html](../interactive/14-smart-pointers-quiz.html) (10 questions).
+
 - [ ] `shared_ptr` and the control block (step through the count)
 - [ ] Reference cycles and `weak_ptr` (step through the leak)
 - [ ] Pitfalls and `enable_shared_from_this`

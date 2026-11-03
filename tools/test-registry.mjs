@@ -84,7 +84,7 @@ test('the real v2 migration splits the old core lesson progress and is idempoten
   assert.equal(CT.migrate(s), CT.schemaVersion());
   assert.deepEqual(s.get('done:core'), ['s1', 's7']);
   assert.deepEqual(s.get('done:moves').sort(), ['copy-move', 'returning', 'traps', 'writing']);
-  assert.ok(s.get('done:smartptr').includes('unique'));
+  assert.ok(s.get('done:uniqueptr').includes('basics'));        // v2 filed it under smartptr, v12 moved it to unique_ptr
   assert.deepEqual(s.get('done:types'), ['const']);
   assert.equal(s.get('last:core'), '');
   assert.equal(s.get('lastinfo', 'gone'), null);
@@ -184,6 +184,63 @@ test('the real v9 migration forgets the four removed lessons and keeps other pro
   assert.equal(s.get('quiz:stl').best, 70);
   assert.deepEqual(s.get('mock:missed'), ['stl-2']);
   assert.ok(!CT.lessons.some((l) => ['patterns', 'patterns2', 'wire', 'latency'].includes(l.id)));
+});
+
+test('the real v10 migration moves the pointer sections from Basics to Pointers', () => {
+  const CT = loadRegistry();
+  const q = 'What is the value of `x` after this code runs?';     // a question that moved to the pointers quiz (checked by its hash below)
+  const s = makeStore({ 'schema': 9, 'done:basics': ['s1', 's5', 's6', 's9', 'tooling'], 'last:basics': 's7', 'lastinfo': { id: 'basics', sec: 's9' },
+    'weak:basics': { [q]: 0, 'a question that stayed': 1 }, 'mock:missed': ['basics-2', 'stl-1'] });
+  assert.equal(CT.migrate(s), CT.schemaVersion());
+  assert.deepEqual(s.get('done:basics'), ['s1', 'tooling']);
+  assert.deepEqual(s.get('done:pointers').sort(), ['dynamic', 'pointers', 'regions']);
+  assert.equal(s.get('last:basics'), '');
+  assert.equal(s.get('lastinfo', 'gone'), null);
+  assert.deepEqual(s.get('weak:basics'), { 'a question that stayed': 1 });
+  assert.deepEqual(s.get('weak:pointers'), { [q]: 0 });
+  assert.deepEqual(s.get('mock:missed'), ['stl-1']);
+  const before = JSON.stringify(s.dump());
+  s.set('schema', 9);
+  CT.migrate(s);
+  assert.equal(JSON.stringify(s.dump()), before, 'running it again must change nothing');
+});
+
+test('the real v11 migration moves the callable sections from Lambdas to Function Pointers and Functors', () => {
+  const CT = loadRegistry();
+  const q = 'What is a functor?';                               // a question that moved to the callables quiz
+  const s = makeStore({ 'schema': 10, 'done:lambdas': ['anatomy', 'before', 'callables'], 'last:lambdas': 'before', 'lastinfo': { id: 'lambdas', sec: 'callables' },
+    'weak:lambdas': { [q]: 0, 'a question that stayed': 1 }, 'mock:missed': ['lambdas-2', 'stl-1'] });
+  assert.equal(CT.migrate(s), CT.schemaVersion());
+  assert.deepEqual(s.get('done:lambdas'), ['anatomy']);
+  assert.deepEqual(s.get('done:callables').sort(), ['choose', 'fnptr', 'functor', 'stdfunction']);
+  assert.equal(s.get('last:lambdas'), '');
+  assert.equal(s.get('lastinfo', 'gone'), null);
+  assert.deepEqual(s.get('weak:lambdas'), { 'a question that stayed': 1 });
+  assert.deepEqual(s.get('weak:callables'), { [q]: 0 });
+  assert.deepEqual(s.get('mock:missed'), ['stl-1']);
+  const before = JSON.stringify(s.dump());
+  s.set('schema', 10);
+  CT.migrate(s);
+  assert.equal(JSON.stringify(s.dump()), before, 'running it again must change nothing');
+});
+
+test('the real v12 migration moves the ownership and unique sections from Smart Pointers to unique_ptr', () => {
+  const CT = loadRegistry();
+  const q = 'Which `unique_ptr` member returns the raw pointer AND gives up ownership?';   // a question that moved to the uniqueptr quiz
+  const s = makeStore({ 'schema': 11, 'done:smartptr': ['ownership', 'shared', 'unique'], 'last:smartptr': 'unique', 'lastinfo': { id: 'smartptr', sec: 'ownership' },
+    'weak:smartptr': { [q]: 0, 'a question that stayed': 1 }, 'mock:missed': ['smartptr-2', 'stl-1'] });
+  assert.equal(CT.migrate(s), CT.schemaVersion());
+  assert.deepEqual(s.get('done:smartptr'), ['shared']);
+  assert.deepEqual(s.get('done:uniqueptr').sort(), ['basics', 'details', 'move', 'owner', 'pass']);
+  assert.equal(s.get('last:smartptr'), '');
+  assert.equal(s.get('lastinfo', 'gone'), null);
+  assert.deepEqual(s.get('weak:smartptr'), { 'a question that stayed': 1 });
+  assert.deepEqual(s.get('weak:uniqueptr'), { [q]: 0 });
+  assert.deepEqual(s.get('mock:missed'), ['stl-1']);
+  const before = JSON.stringify(s.dump());
+  s.set('schema', 11);
+  CT.migrate(s);
+  assert.equal(JSON.stringify(s.dump()), before, 'running it again must change nothing');
 });
 
 test('the real v8 migration merges the strings regex sections', () => {

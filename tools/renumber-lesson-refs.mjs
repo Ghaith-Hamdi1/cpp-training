@@ -9,7 +9,7 @@
 // For a lesson that was split, list its new ids in SPLITS: a plain "Lesson N" then points at the first one, and references that name a
 // section of the old lesson are printed as MANUAL because they need a human to pick the right new lesson.
 // Run it ONCE per change, before committing: running it twice would renumber twice.
-// Usage: node tools/renumber-lesson-refs.mjs [--ref HEAD] [--write]
+// Usage: node tools/renumber-lesson-refs.mjs [--ref HEAD | --base-file <lessons.js>] [--write]
 import { readFileSync, writeFileSync, readdirSync, statSync } from 'node:fs';
 import { join, resolve, relative } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -25,7 +25,8 @@ const write = args.includes('--write');
 // old lesson id -> its new ids (first one is where a plain "Lesson N" now points). Edit when a lesson is split.
 export const SPLITS = {};
 
-const oldSource = execFileSync('git', ['show', `${ref}:interactive/assets/data/lessons.js`], { cwd: repo, encoding: 'utf8' });
+const baseFile = args.includes('--base-file') ? args[args.indexOf('--base-file') + 1] : null;       // a lessons.js to compare with instead of a git ref
+const oldSource = baseFile ? readFileSync(baseFile, 'utf8') : execFileSync('git', ['show', `${ref}:interactive/assets/data/lessons.js`], { cwd: repo, encoding: 'utf8' });
 const sandbox = {}; sandbox.window = sandbox; vm.createContext(sandbox); vm.runInContext(oldSource, sandbox);
 const oldIds = sandbox.CT.lessons.map((l) => l.id);
 const newReg = loadRegistry();

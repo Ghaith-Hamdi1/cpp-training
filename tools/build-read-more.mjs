@@ -63,8 +63,11 @@ const HINTS = {
     [/^emc 14 /, 'writing move operations'], [/^emc 23 /, 'copy versus move'], [/^emc 25 /, 'returning objects'], [/^emc (29|41) /, 'sink parameters'],
     [/^mv (1\.|Chapter 2)/, 'copy versus move'], [/^mv 4\./, 'sink parameters'], [/^mv 6\.1/, 'copy versus move'], [/^mv 6\.3/, 'writing move operations'], [/^ppp 17\./, 'writing move operations']
   ],
+  uniqueptr: [
+    [/^emc (18|21|22) /, 'creating a unique ptr'], [/^mv Chapter 13/, 'move only'], [/^ppp 18\.4/, 'ownership who frees it']
+  ],
   smartptr: [
-    [/^emc (18|21|22) /, 'unique ptr in detail'], [/^emc 19 /, 'shared ptr and the control block'], [/^emc 20 /, 'reference cycles'], [/^ppp 18\.4/, 'who owns it']
+    [/^emc (19|21|22) /, 'shared ptr and the control block'], [/^emc 20 /, 'reference cycles']
   ],
   strings: [[/^ppp 9\.11/, 'string streams and files']],
   stl: [[/^mv Chapter 15/, 'vector the workhorse']]

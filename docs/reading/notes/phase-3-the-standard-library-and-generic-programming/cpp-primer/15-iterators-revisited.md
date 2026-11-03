@@ -64,4 +64,4 @@ What I got wrong when I compared it with the book:
 
 ## After this session
 
-Lesson 7, section 3 (Iterators) and its quiz
+Lesson 9, section 3 (Iterators) and its quiz

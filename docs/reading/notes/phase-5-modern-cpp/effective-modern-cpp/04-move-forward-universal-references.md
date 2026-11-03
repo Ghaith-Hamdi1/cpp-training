@@ -60,4 +60,4 @@ What surprised me when I ran it:
 
 ## After this session
 
-Lesson 11 (Move semantics and Perfect forwarding) and Lesson 8 (forwarding references)
+Lesson 13 (Move semantics and Perfect forwarding) and Lesson 10 (forwarding references)

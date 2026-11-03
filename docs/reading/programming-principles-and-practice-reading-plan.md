@@ -38,16 +38,16 @@ Bold sections are the ones to read most carefully. In all it is about 35 hours a
 
 | # | Checkpoint questions | After |
 |---|---|---|
-| 1 | Why is `int x{7.5};` an error while `int x = 7.5;` compiles?<br>What does `auto` deduce, and what does it drop?<br>Which conversions can lose information? | Lesson 2 (Types, Initialization and Casts); practice 09 |
-| 2 | When should a function report an error by exception and when by return value?<br>What is the difference between a logic error and a run-time error? | Lesson 9 (exceptions) and its quiz |
+| 1 | Why is `int x{7.5};` an error while `int x = 7.5;` compiles?<br>What does `auto` deduce, and what does it drop?<br>Which conversions can lose information? | Lesson 3 (Types, Initialization and Casts); practice 09 |
+| 2 | When should a function report an error by exception and when by return value?<br>What is the difference between a logic error and a run-time error? | Lesson 11 (exceptions) and its quiz |
 | 3 | Pass by value, by reference and by `const` reference: when do you use each?<br>What does a declaration promise that a definition delivers?<br>Where does each kind of variable live (stack, static data, free store)? | Lesson 1 (passing-arguments step-through) and its quiz |
 
 ## Part B: classes and object-oriented design (sessions 4 and 5)
 
 | # | Checkpoint questions | After |
 |---|---|---|
-| 4 | What is an **invariant**, and how does a constructor enforce it?<br>Why does the book keep the representation private?<br>What belongs in a class's interface ("as small as possible, but no smaller")?<br>Why mark a member function `const`? | Lesson 3 (OOP), sections 1 to 4; practice 10 up to its constructor (`MyString`) |
-| 5 | How is a derived object laid out in memory, and what is the vptr?<br>Why does the base class need a virtual destructor?<br>Why does the book delete the copy operations of a base class?<br>Interface inheritance versus implementation inheritance? | Lesson 3 (polymorphism) and lesson 4 (The Object Model in Depth); practice 11 (Shapes) |
+| 4 | What is an **invariant**, and how does a constructor enforce it?<br>Why does the book keep the representation private?<br>What belongs in a class's interface ("as small as possible, but no smaller")?<br>Why mark a member function `const`? | Lesson 4 (OOP), sections 1 to 4; practice 10 up to its constructor (`MyString`) |
+| 5 | How is a derived object laid out in memory, and what is the vptr?<br>Why does the base class need a virtual destructor?<br>Why does the book delete the copy operations of a base class?<br>Interface inheritance versus implementation inheritance? | Lesson 4 (polymorphism) and lesson 5 (The Object Model in Depth); practice 11 (Shapes) |
 
 Session 5 answers "how does `virtual` work in memory". Explain the vptr and vtable aloud before moving on.
 
@@ -59,25 +59,25 @@ These sessions are the heart of the book. Do not skip them.
 |---|---|---|
 | 6 | Why does a pointer not know how many elements it points to?<br>`delete` versus `delete[]`: what goes wrong if you mix them?<br>What are the four ways a raw pointer causes a crash (uninitialized, out of range, dangling, double delete)?<br>What does a destructor release, and in what order are members destroyed? | Lesson 1 (pointers); practice 01, 02, 03. Do 01 (`buildExecutionId`) from memory with a timer |
 | 7 | When do you pass a pointer and when a reference?<br>What replaces a (pointer, count) pair (`span`) and a possibly-null pointer (`not_null`)?<br>How does a reference differ from a pointer in reassignment? | Practice 05, 06, 07, 08, 09; quiz for lesson 1 |
-| 8 | What is a shallow copy, and why is it a bug for a class that owns memory?<br>What are the "essential operations", the rule of zero and the rule of all?<br>How does `vector` grow: what do `reserve`, `resize` and `push_back` each do?<br>What state is a moved-from object in? | Lesson 11 (Move Semantics); practice 10 (`MyString`, Rule of Five), written fully from memory |
-| 9 | Templates versus virtual functions: what is resolved at compile time and what at run time?<br>What is a concept, and what does it improve (errors at the call site)?<br>Why is `vector<Circle>` not a `vector<Shape>`? | Lesson 8 (Templates), sections 1 to 3 (function templates, deduction, class templates); practice 12 (`Stack<T>`) |
-| 10 | What is RAII, and how does it remove the need for `try`/`finally`?<br>Why return a moved object instead of a free-store pointer ("who deletes it?")?<br>What are `unique_ptr` and `shared_ptr` for, and which is the default? | Lesson 9 (RAII) and lesson 12 (Smart Pointers and Ownership) |
+| 8 | What is a shallow copy, and why is it a bug for a class that owns memory?<br>What are the "essential operations", the rule of zero and the rule of all?<br>How does `vector` grow: what do `reserve`, `resize` and `push_back` each do?<br>What state is a moved-from object in? | Lesson 13 (Move Semantics); practice 10 (`MyString`, Rule of Five), written fully from memory |
+| 9 | Templates versus virtual functions: what is resolved at compile time and what at run time?<br>What is a concept, and what does it improve (errors at the call site)?<br>Why is `vector<Circle>` not a `vector<Shape>`? | Lesson 10 (Templates), sections 1 to 3 (function templates, deduction, class templates); practice 12 (`Stack<T>`) |
+| 10 | What is RAII, and how does it remove the need for `try`/`finally`?<br>Why return a moved object instead of a free-store pointer ("who deletes it?")?<br>What are `unique_ptr` and `shared_ptr` for, and which is the default? | Lesson 11 (RAII) and lesson 15 (Smart Pointers and Ownership) |
 
-The book stops at introductory templates. Variadic templates, forwarding references, specialization and type traits are not in it; use lessons 8 and 13.
+The book stops at introductory templates. Variadic templates, forwarding references, specialization and type traits are not in it; use lessons 10 and 16.
 
 ## Part D: the standard library (sessions 11 to 13)
 
 | # | Checkpoint questions | After |
 |---|---|---|
-| 11 | How does generalizing a loop over an array lead to iterators and `[first, last)` ranges?<br>What does `++words[s]` do when `s` is not yet a key? | Lesson 7 (The STL), sections 1 to 4; its quiz |
-| 12 | Why is `vector` the default container?<br>Name the six iterator categories and which container gives which.<br>Why measure before claiming something is faster, and how do you stop the optimizer deleting your test? | Lesson 7, "Which container should I use?"; time `find` in a `vector` against a `map` with `<chrono>` |
-| 13 | How do algorithms report "not found"?<br>Why do `binary_search` and `equal_range` need a sorted sequence?<br>How does a lambda differ from a function object? | Lessons 7 (Algorithms) and 6 (Lambdas); quiz for lesson 7 |
+| 11 | How does generalizing a loop over an array lead to iterators and `[first, last)` ranges?<br>What does `++words[s]` do when `s` is not yet a key? | Lesson 9 (The STL), sections 1 to 4; its quiz |
+| 12 | Why is `vector` the default container?<br>Name the six iterator categories and which container gives which.<br>Why measure before claiming something is faster, and how do you stop the optimizer deleting your test? | Lesson 9, "Which container should I use?"; time `find` in a `vector` against a `map` with `<chrono>` |
+| 13 | How do algorithms report "not found"?<br>Why do `binary_search` and `equal_range` need a sorted sequence?<br>How does a lambda differ from a function object? | Lessons 9 (Algorithms) and 6 (Lambdas); quiz for lesson 9 |
 
 ## Part E: optional extras (session 14)
 
 | # | Read | After |
 |---|---|---|
-| 14 | Any of: 9.11 String streams; 19.4 Generalizing `Vector` again; 21.3 to 21.4 Numerical algorithms and copying | Lesson 5 (Strings, Regex and Time) |
+| 14 | Any of: 9.11 String streams; 19.4 Generalizing `Vector` again; 21.3 to 21.4 Numerical algorithms and copying | Lesson 6 (Strings, Regex and Time) |
 
 ## What to skip
 
@@ -93,10 +93,10 @@ The book stops at introductory templates. Variadic templates, forwarding referen
 
 | Topic | Where to learn it |
 |---|---|
-| Threads, mutexes, atomics | the Williams book in `books/`; lessons 14 to 16 |
+| Threads, mutexes, atomics | the Williams book in `books/`; lessons 17 to 19 |
 | Design patterns | not covered by the lessons |
-| The memory model | lesson 16 |
-| Variadic templates, forwarding references, SFINAE | lessons 8 and 13 |
+| The memory model | lesson 19 |
+| Variadic templates, forwarding references, SFINAE | lessons 10 and 16 |
 | A quick revision | the lessons' quizzes and cheat sheets |
 
 ## Notes on the edition

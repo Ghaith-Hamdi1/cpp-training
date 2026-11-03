@@ -58,4 +58,4 @@ What I got wrong when I compared it with the book:
 
 ## After this session
 
-Lesson 2 (Types, Initialization and Casts); practice exercise 09
+Lesson 3 (Types, Initialization and Casts); practice exercise 09

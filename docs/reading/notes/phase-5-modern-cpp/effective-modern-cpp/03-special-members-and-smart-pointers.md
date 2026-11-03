@@ -60,4 +60,4 @@ What surprised me when I ran it:
 
 ## After this session
 
-Lesson 3 (Rule of 3, 5, 0) and Lesson 12 (Smart pointers)
+Lesson 4 (Rule of 3, 5, 0) and Lesson 15 (Smart pointers)

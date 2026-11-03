@@ -4,7 +4,7 @@
 
 *Streams, containers, iterators, algorithms, templates.*
 
-**Time:** about **26.8 hours** (23.1 h reading, 3.3 h lessons and quizzes, 0.4 h exercises), plus 6.7 h if you also read the deepen list.
+**Time:** about **27.4 hours** (23.1 h reading, 3.8 h lessons and quizzes, 0.4 h exercises), plus 6.7 h if you also read the deepen list.
 
 ## Big topics
 
@@ -44,10 +44,11 @@
 
 | Lesson | Time |
 |---|---|
-| [5. Strings, Regex & Time](https://ghaith-hamdi1.github.io/cpp-training/08-strings-regex-time.html) and its [quiz](https://ghaith-hamdi1.github.io/cpp-training/08-strings-regex-time-quiz.html) | 40 min |
-| [6. Lambdas & Callables](https://ghaith-hamdi1.github.io/cpp-training/15-lambdas.html) and its [quiz](https://ghaith-hamdi1.github.io/cpp-training/15-lambdas-quiz.html) | 35 min |
-| [7. The STL](https://ghaith-hamdi1.github.io/cpp-training/04-stl.html) and its [quiz](https://ghaith-hamdi1.github.io/cpp-training/04-stl-quiz.html) | 60 min |
-| [8. Templates](https://ghaith-hamdi1.github.io/cpp-training/05-templates.html) and its [quiz](https://ghaith-hamdi1.github.io/cpp-training/05-templates-quiz.html) | 60 min |
+| [6. Strings, Regex & Time](https://ghaith-hamdi1.github.io/cpp-training/08-strings-regex-time.html) and its [quiz](https://ghaith-hamdi1.github.io/cpp-training/08-strings-regex-time-quiz.html) | 40 min |
+| [7. Function Pointers and Functors](https://ghaith-hamdi1.github.io/cpp-training/23-callables.html) and its [quiz](https://ghaith-hamdi1.github.io/cpp-training/23-callables-quiz.html) | 35 min |
+| [8. Lambdas](https://ghaith-hamdi1.github.io/cpp-training/15-lambdas.html) and its [quiz](https://ghaith-hamdi1.github.io/cpp-training/15-lambdas-quiz.html) | 35 min |
+| [9. The STL](https://ghaith-hamdi1.github.io/cpp-training/04-stl.html) and its [quiz](https://ghaith-hamdi1.github.io/cpp-training/04-stl-quiz.html) | 60 min |
+| [10. Templates](https://ghaith-hamdi1.github.io/cpp-training/05-templates.html) and its [quiz](https://ghaith-hamdi1.github.io/cpp-training/05-templates-quiz.html) | 60 min |
 
 Exercises: 12 (`Stack<T>`).
 

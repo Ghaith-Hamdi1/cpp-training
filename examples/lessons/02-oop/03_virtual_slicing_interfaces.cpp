@@ -1,4 +1,4 @@
-// Lesson 3: virtual vs non-virtual dispatch, override, object slicing, abstract interface, polymorphic container.
+// Lesson 4: virtual vs non-virtual dispatch, override, object slicing, abstract interface, polymorphic container.
 #include <iostream>
 #include <memory>
 #include <string>

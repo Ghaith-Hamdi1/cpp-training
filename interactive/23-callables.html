@@ -1,0 +1,196 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Function Pointers and Functors</title>
+<script>try{var t=JSON.parse(localStorage.getItem('cpptrain:theme'));if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body data-topic="callables" data-kind="lesson">
+<main>
+<h1>Function Pointers and Functors</h1>
+<p class="lead">The things you can call in C++: function pointers, functors and std::function, what each one can hold, and when to use which. Lambdas, the shortest way to write most of them, come next.</p>
+
+<section id="callable" data-title="Something you can call">
+<h2>Something you can call</h2>
+<p>Many functions take "something to call": <code>std::sort</code> takes a comparison, <code>std::thread</code> takes a task, a library takes a callback. C++ has several kinds of callable. They look the same at the call site, <code>f(x)</code>, but they are different things underneath.</p>
+<figure class="fig"><svg viewBox="0 0 640 190" role="img" aria-label="Four kinds of callable, a function pointer, a functor, a lambda and std::function, all used with the same call f(x)"><defs><marker id="c1" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path class="ah" d="M0 0L10 5L0 10z"/></marker></defs>
+<rect class="acc" x="10" y="12" width="145" height="64" rx="6"/><text class="t" x="82" y="34" text-anchor="middle">function pointer</text><text class="m" x="82" y="54" text-anchor="middle">the address of</text><text class="m" x="82" y="68" text-anchor="middle">a function</text>
+<rect class="gd" x="170" y="12" width="145" height="64" rx="6"/><text class="t" x="242" y="34" text-anchor="middle">functor</text><text class="m" x="242" y="54" text-anchor="middle">an object with</text><text class="m" x="242" y="68" text-anchor="middle">operator()</text>
+<rect class="wn" x="330" y="12" width="145" height="64" rx="6"/><text class="t" x="402" y="34" text-anchor="middle">lambda</text><text class="m" x="402" y="54" text-anchor="middle">a functor the</text><text class="m" x="402" y="68" text-anchor="middle">compiler writes</text>
+<rect class="box" x="490" y="12" width="140" height="64" rx="6"/><text class="t" x="560" y="34" text-anchor="middle">std::function</text><text class="m" x="560" y="54" text-anchor="middle">holds any of the</text><text class="m" x="560" y="68" text-anchor="middle">others</text>
+<path class="ar" d="M82 78V122" marker-end="url(#c1)"/><path class="ar" d="M242 78V122" marker-end="url(#c1)"/><path class="ar" d="M402 78V122" marker-end="url(#c1)"/><path class="ar" d="M560 78V122" marker-end="url(#c1)"/>
+<rect class="lane" x="10" y="124" width="620" height="44" rx="6"/><text class="mono big" x="320" y="152" text-anchor="middle">f(x)</text></svg><figcaption>Four ways to hand over behavior; the call looks identical.</figcaption></figure>
+<p>This lesson covers function pointers, functors and <code>std::function</code>. <a href="15-lambdas.html">Lambdas</a> come next and are the shortest way to write most of them.</p>
+</section>
+
+<section id="fnptr" data-title="Function pointers">
+<h2>Function pointers</h2>
+<p>Code lives in memory too, so a function has an address. A <b>function pointer</b> holds it, and calling through the pointer runs the function.</p>
+<figure class="fig"><svg viewBox="0 0 640 140" role="img" aria-label="The pointer f holds the address of the function twice in the code area"><defs><marker id="c2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path class="ah" d="M0 0L10 5L0 10z"/></marker></defs>
+<text class="addr" x="30" y="26">stack</text><rect class="acc" x="20" y="34" width="170" height="38" rx="5"/><text class="mono" x="105" y="58" text-anchor="middle">f = 0x4010</text>
+<text class="addr" x="400" y="26">code area</text><text class="addr" x="400" y="40">0x4010</text><rect class="wn" x="390" y="46" width="230" height="38" rx="5"/><text class="mono" x="505" y="70" text-anchor="middle">int twice(int x)</text>
+<path class="ar" d="M190 53H384" marker-end="url(#c2)"/><text class="m" x="290" y="44" text-anchor="middle">points to</text>
+<text class="m" x="20" y="116">f(21) jumps to the address in f and runs twice(21)</text></svg><figcaption>A function pointer is just an address, 8 bytes on a 64-bit machine.</figcaption></figure>
+<script type="text/x-cpp">
+int twice(int x) { return 2 * x; }
+
+int (*f)(int) = twice;       // f points to a function: takes an int, returns an int
+std::cout << f(21);          // 42: the call goes through the pointer
+
+using Op = int (*)(int);     // an alias makes the syntax readable
+Op g = twice;
+</script>
+<p>Passing a function pointer lets the caller choose the behavior at run time:</p>
+<script type="text/x-cpp">
+void apply(int (*op)(int), int x) { std::cout << op(x); }
+apply(twice, 21);                                   // 42
+
+bool descending(int a, int b) { return a > b; }
+std::sort(v.begin(), v.end(), descending);          // 9 5 2 1: the comparison is a function
+</script>
+<ul>
+<li>The pointer can point to any function with the <b>same signature</b>, and it can be changed while the program runs.</li>
+<li>It has <b>no state</b>: the function sees only its arguments and globals. Giving <code>descending</code> a "limit" would need a global variable.</li>
+<li>The call goes through the pointer, so the compiler usually cannot inline it.</li>
+</ul>
+<div class="callout tip"><span class="label">C callbacks</span>C libraries pass state with a <code>void*</code> argument next to the function pointer, because a plain function cannot carry any. Functors and lambdas remove the need for it.</div>
+<!-- read-more:start -->
+<div class="callout tip"><span class="label">Read more</span>
+<p><b>C++ Primer (Lippman, Lajoie, Moo)</b></p>
+<ul>
+<li>6.7 Pointers to functions (PDF pages 276 to 281)</li>
+</ul>
+</div>
+<!-- read-more:end -->
+</section>
+
+<section id="functor" data-title="Functors: objects you can call">
+<h2>Functors: objects you can call</h2>
+<p>A <b>functor</b> (function object) is a class with an <code>operator()</code>. An object of it is called like a function, and it can <b>carry state</b> in its members.</p>
+<figure class="fig"><svg viewBox="0 0 640 150" role="img" aria-label="A GreaterThan object holds limit 4 and an operator() that compares its argument with the limit"><defs><marker id="c3" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path class="ah" d="M0 0L10 5L0 10z"/></marker></defs>
+<rect class="gd" x="20" y="14" width="260" height="102" rx="8"/><text class="t" x="34" y="38">GreaterThan gt{4}</text><rect class="cell" x="34" y="48" width="232" height="24"/><text class="mono" x="44" y="65">int limit = 4;       // state</text><rect class="cell" x="34" y="78" width="232" height="26"/><text class="mono" x="44" y="96">operator()(int x)</text>
+<path class="ar" d="M280 90H380" marker-end="url(#c3)"/><text class="mono" x="330" y="82" text-anchor="middle">gt(5)</text>
+<rect class="box" x="384" y="68" width="120" height="44" rx="6"/><text class="mono" x="444" y="95" text-anchor="middle">5 &gt; 4</text>
+<path class="ar" d="M504 90H548" marker-end="url(#c3)"/><rect class="acc" x="550" y="68" width="70" height="44" rx="6"/><text class="mono" x="585" y="95" text-anchor="middle">true</text></svg><figcaption>The limit lives inside the object, so the call needs only the number to test.</figcaption></figure>
+<script type="text/x-cpp">
+struct GreaterThan {
+    int limit;                                        // the state
+    bool operator()(int x) const { return x > limit; }
+};
+
+GreaterThan gt{4};
+gt(5);                                                // true
+gt(3);                                                // false
+std::count_if(v.begin(), v.end(), GreaterThan{1});    // counts the elements above 1
+</script>
+<ul>
+<li>Each functor class is its own type, so a template such as <code>std::count_if</code> knows exactly which <code>operator()</code> runs and can <b>inline</b> it.</li>
+<li>The cost: a whole class, written away from where it is used, for one small piece of logic.</li>
+<li>The standard library ships ready-made ones: <code>std::less&lt;&gt;</code>, <code>std::greater&lt;&gt;</code>, <code>std::plus&lt;&gt;</code>. For example <code>std::sort(v.begin(), v.end(), std::greater&lt;&gt;{})</code> sorts descending.</li>
+</ul>
+<div class="callout tip"><span class="label">So what is a lambda?</span>A lambda is a functor the compiler writes for you, in place: <code>[limit](int x) { return x &gt; limit; }</code> is <code>GreaterThan</code> with <code>limit</code> as its member. See <a href="15-lambdas.html">Lambdas</a>.</div>
+<!-- read-more:start -->
+<div class="callout tip"><span class="label">Read more</span>
+<p><b>C++ Primer (Lippman, Lajoie, Moo)</b></p>
+<ul>
+<li>6.7 Pointers to functions (PDF pages 276 to 281)</li>
+<li>14.8 The function-call operator (PDF pages 600 to 607)</li>
+</ul>
+</div>
+<!-- read-more:end -->
+</section>
+
+<section id="stdfunction" data-title="std::function and std::invoke">
+<h2><code>std::function</code> and <code>std::invoke</code></h2>
+<p>A function pointer, a functor and a lambda are three different types. <code>std::function&lt;int(int)&gt;</code> is one type that can hold <b>any</b> callable taking an <code>int</code> and returning an <code>int</code>. That is called <b>type erasure</b>.</p>
+<figure class="fig"><svg viewBox="0 0 640 170" role="img" aria-label="A function pointer, a functor and a lambda can each be stored in one std::function of the same signature"><defs><marker id="c4" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path class="ah" d="M0 0L10 5L0 10z"/></marker></defs>
+<rect class="acc" x="10" y="14" width="170" height="34" rx="5"/><text class="mono" x="95" y="36" text-anchor="middle">twice  (function)</text>
+<rect class="gd" x="10" y="68" width="170" height="34" rx="5"/><text class="mono" x="95" y="90" text-anchor="middle">Times{3}  (functor)</text>
+<rect class="wn" x="10" y="122" width="170" height="34" rx="5"/><text class="mono" x="95" y="144" text-anchor="middle">[](int x){...}  (lambda)</text>
+<path class="ar" d="M180 31L296 78" marker-end="url(#c4)"/><path class="ar" d="M180 85H296" marker-end="url(#c4)"/><path class="ar" d="M180 139L296 92" marker-end="url(#c4)"/>
+<rect class="box" x="298" y="56" width="190" height="58" rx="8"/><text class="mono big" x="393" y="82" text-anchor="middle">std::function</text><text class="mono" x="393" y="102" text-anchor="middle">&lt;int(int)&gt;</text>
+<text class="m" x="500" y="78">one type</text><text class="m" x="500" y="96">one indirect call</text><text class="m" x="500" y="114">may allocate</text></svg><figcaption>Anything with the right signature fits; the price is an indirect call and sometimes a heap allocation.</figcaption></figure>
+<script type="text/x-cpp">
+struct Times { int k; int operator()(int x) const { return x * k; } };
+
+std::function<int(int)> f = twice;          // a function pointer
+std::cout << f(10);                         // 20
+f = Times{3};                               // now a functor
+std::cout << f(10);                         // 30
+f = [](int x) { return x + 1; };            // now a lambda
+std::cout << f(10);                         // 11
+</script>
+<ul>
+<li>It can hold callables of different types in one container, or keep one behind an interface.</li>
+<li>It may <b>allocate</b> when the callable does not fit its small internal buffer. Compiled with libstdc++: a callable holding one <code>int</code> allocated nothing, one holding a 64-byte array allocated once.</li>
+</ul>
+<h3><code>std::invoke</code></h3>
+<p><code>std::invoke(f, args...)</code> calls anything callable, including a pointer to a <b>member function</b>, which a plain <code>f(x)</code> cannot do:</p>
+<script type="text/x-cpp">
+struct Account { int balance() const; };
+
+Account acct;
+std::invoke(&Account::balance, acct);       // calls acct.balance()
+</script>
+<h3><code>std::bind</code>: know it, prefer a lambda</h3>
+<script type="text/x-cpp">
+using namespace std::placeholders;
+auto f = std::bind(add3, 1, _1, _2);        // fix the first argument: f(2, 3) is add3(1, 2, 3)
+auto h = [](int b, int c) { return add3(1, b, c); };   // the same, and easier to read
+</script>
+<p><code>std::bind</code> predates lambdas (C++11). It copies its arguments, hides overloads and gives unreadable errors. You will see it in older code, so be able to read it; in new code write a lambda.</p>
+<!-- read-more:start -->
+<div class="callout tip"><span class="label">Read more</span>
+<p><b>C++ Primer (Lippman, Lajoie, Moo)</b></p>
+<ul>
+<li>14.8 The function-call operator (PDF pages 600 to 607)</li>
+</ul>
+</div>
+<!-- read-more:end -->
+</section>
+
+<section id="choose" data-title="Which one when">
+<h2>Which one when</h2>
+<table>
+<tr><th>Kind</th><th>Holds state?</th><th>Inlinable?</th><th>Overhead</th></tr>
+<tr><td>function pointer</td><td>no</td><td>rarely (indirect call)</td><td>8 bytes</td></tr>
+<tr><td>functor (class with <code>operator()</code>)</td><td>yes</td><td>yes: type known at compile time</td><td>size of its members</td></tr>
+<tr><td>lambda</td><td>yes (captures)</td><td>yes: it is a functor</td><td>size of its captures</td></tr>
+<tr><td><code>std::function&lt;R(Args...)&gt;</code></td><td>yes</td><td>no: type-erased</td><td>indirect call, and may allocate</td></tr>
+</table>
+<script type="text/x-cpp">
+template <typename F>
+void apply(F f) { f(1); }                              // keeps the exact type: fully inlined
+
+void apply2(std::function<void(int)> f) { f(1); }      // accepts anything, one indirect call
+</script>
+<ul>
+<li><b>Take a template parameter</b> when you call it right away (<code>std::sort</code> does). Use <code>std::function</code> only when you must <b>store</b> callables of different types, or keep them behind an interface.</li>
+<li>Use a plain function pointer for C APIs. A lambda with no captures converts to one.</li>
+<li>Writing a functor by hand is now rare: a lambda is the same thing in one line.</li>
+</ul>
+<div class="callout interview"><span class="label">Key point</span>"Lambda vs <code>std::function</code>?" A lambda has its own type and is inlined; <code>std::function</code> erases the type, costs an indirect call and maybe an allocation. Use it only when you must store different callables in one place.</div>
+</section>
+
+<section id="cheat" data-title="Cheat sheet">
+<h2>Cheat sheet</h2>
+<p>Answer aloud, then open.</p>
+<details class="ex"><summary>What is a function pointer, and what can it not do?</summary><div><p>The address of a function, 8 bytes, callable like the function. It cannot carry state: the function sees only its arguments and globals. The call goes through the pointer, so it is rarely inlined.</p></div></details>
+<details class="ex"><summary>What is a functor?</summary><div><p>A class with an <code>operator()</code>. Its objects are called like functions and keep state in their members. Each class is its own type, so templates can inline the call.</p></div></details>
+<details class="ex"><summary>Why can a plain function pointer not carry a "limit" value for a comparison?</summary><div><p>A function pointer is only an address. The function it points to receives its arguments and can read globals, nothing else. A functor or a lambda stores the limit as a member.</p></div></details>
+<details class="ex"><summary><code>std::function</code> vs a template parameter?</summary><div><p>A template parameter keeps the exact callable type, so the call is inlined and nothing allocates. <code>std::function</code> erases the type: one indirect call, possible allocation, but it can store different callables behind one type.</p></div></details>
+<details class="ex"><summary>How do you call a member function through a pointer?</summary><div><p>With <code>std::invoke(&amp;Account::balance, acct)</code>, or <code>(acct.*pmf)()</code> for a pointer-to-member <code>pmf</code>. <code>std::invoke</code> works for every kind of callable.</p></div></details>
+<h3>Keep going</h3>
+<ul>
+<li>Next lesson: <a href="15-lambdas.html">Lambdas</a>.</li>
+</ul>
+</section>
+
+</main>
+
+<script src="assets/data/lessons.js"></script>
+<script src="assets/app.js"></script>
+</body>
+</html>

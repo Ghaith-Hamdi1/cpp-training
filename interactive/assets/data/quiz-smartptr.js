@@ -2,14 +2,6 @@
 CT.quizData.smartptr = {
   id: 'smartptr',
   questions: [
-    { sec: 'unique', q: 'Which line fails to compile?',
-      code: String.raw`
-auto p = std::make_unique<int>(5);   // (1)
-auto q = p;                          // (2)
-auto r = std::move(p);               // (3)`,
-      opts: ['(1)', '(2) because unique_ptr cannot be copied', '(3) because you cannot move a unique_ptr', 'None: all three lines compile'], a: 1,
-      why: '`unique_ptr` has exclusive ownership, so its copy constructor is deleted. It is move-only, which is what (3) does.' },
-
     { sec: 'shared', q: 'What does this print?',
       code: String.raw`
 auto a = std::make_shared<int>(1);
@@ -23,10 +15,6 @@ std::cout << b.use_count();`,
       opts: ['Both are destroyed normally when they go out of scope', 'A reference cycle: counts never reach zero, so both leak', 'A compile error: shared_ptr cycles are rejected', 'Only one is destroyed; the other is kept alive'], a: 1,
       why: 'Each keeps the other\'s count at 1. Break the cycle by making one direction a `std::weak_ptr`.' },
 
-    { sec: 'unique', q: 'Why prefer `std::make_unique<T>(...)` over `std::unique_ptr<T>(new T(...))`?',
-      opts: ['It is the only way to create a unique_ptr', 'No naked new, shorter, and the type is written once', 'It allocates the object on the stack for speed', 'It makes the pointer shareable like a shared_ptr'], a: 1,
-      why: 'It avoids raw `new`, names the type only once, and before C++17 also prevented a leak when another argument in the same call threw. (`make_shared` additionally saves an allocation.)' },
-
     { sec: 'pitfalls', q: 'What is wrong with this code?',
       code: String.raw`
 auto raw = new Widget;
@@ -34,22 +22,6 @@ std::shared_ptr<Widget> a(raw);
 std::shared_ptr<Widget> b(raw);`,
       opts: ['Both share ownership and the count is 2, as intended', 'Each shared_ptr makes its own control block: Widget is deleted twice', 'It does not compile: a raw pointer cannot be shared between pointers', 'b is left null after the second construction, so it cannot be used'], a: 1,
       why: 'Only copying an existing `shared_ptr` shares a control block. Build a second one from a raw pointer (or from `this`) and you get two independent reference counts. Use `enable_shared_from_this` when an object must hand out a `shared_ptr` to itself.' },
-
-    { sec: 'ownership', q: 'A function only needs to read a `Widget`. What should its parameter be?',
-      opts: ['`std::unique_ptr<Widget>` by value', '`const Widget&`', '`std::shared_ptr<Widget>` by value', '`Widget*&`'], a: 1,
-      why: 'A function that merely uses an object should not care how it is owned: take a reference (or a raw pointer if it may be null).' },
-
-    { sec: 'ownership', q: 'Which parameter type says "I take over ownership of this object"?',
-      opts: ['Widget* by value, because a raw pointer owns what it points to', 'const Widget&, which keeps the object alive for the call', 'std::unique_ptr<Widget> by value', 'std::weak_ptr<Widget> by value, which keeps the object alive'], a: 2,
-      why: 'A `unique_ptr` by value can only be passed with `std::move`, so the transfer is visible at the call site.' },
-
-    { sec: 'unique', q: 'With the default deleter, how does `sizeof(std::unique_ptr<int>)` compare with `sizeof(int*)`?',
-      opts: ['They are the same: no overhead', 'The `unique_ptr` is twice as big', 'It adds a control block', 'It depends on the compiler, always larger'], a: 0,
-      why: 'The deleter is part of the type and an empty default deleter takes no space, so a `unique_ptr` is exactly one pointer. A function-pointer deleter would double it.' },
-
-    { sec: 'unique', q: 'Which `unique_ptr` member returns the raw pointer AND gives up ownership?',
-      opts: ['`get()`', '`release()`', '`reset()`', '`operator*`'], a: 1,
-      why: '`release()` hands the pointer to you and stops managing it: you must delete it. `get()` only peeks, and `reset()` destroys the object.' },
 
     { sec: 'shared', q: 'Which part of a `std::shared_ptr` is thread-safe?',
       opts: ['The reference count only: the object itself needs its own synchronization', 'The object it points to', 'Only the pointer\'s address', 'Everything, including assigning the same `shared_ptr` variable from two threads'], a: 0,
@@ -61,6 +33,22 @@ std::shared_ptr<Widget> b(raw);`,
 
     { sec: 'pitfalls', q: 'What happens when `shared_from_this()` is called on an object that no `shared_ptr` owns?',
       opts: ['It creates a new shared_ptr that takes ownership', 'It throws std::bad_weak_ptr', 'It returns a null shared_ptr', 'It leaks the object silently'], a: 1,
-      why: '`enable_shared_from_this` only works if the object is already managed by a `shared_ptr`; otherwise it throws `std::bad_weak_ptr` (C++17).' }
+      why: '`enable_shared_from_this` only works if the object is already managed by a `shared_ptr`; otherwise it throws `std::bad_weak_ptr` (C++17).' },
+
+    { sec: 'shared', q: 'What does `std::make_shared<T>()` do that `std::shared_ptr<T>(new T)` does not?',
+      opts: ['It makes the object itself thread-safe', 'It allocates object and control block together', 'It avoids keeping a reference count at all', 'It creates a unique_ptr first and converts'], a: 1,
+      why: '`make_shared` places the object and the control block in a single heap block, which is one allocation instead of two and keeps them close in memory.' },
+
+    { sec: 'shared', q: 'What happens to the reference count when you copy a `shared_ptr`?',
+      opts: ['Nothing: copies share the pointer without counting', 'The count is increased, atomically', 'The count is reset to one', 'The old owner loses its share'], a: 1,
+      why: 'Each copy is another owner, so the strong count goes up (with an atomic increment, which is why copying a shared_ptr is not free). The object is freed when the count reaches zero.' },
+
+    { sec: 'weak', q: 'Why does a `weak_ptr` break a reference cycle?',
+      opts: ['It deletes the object when the cycle is detected', 'It observes without adding to the strong count', 'It makes the shared_ptr unique by itself', 'It copies the object so there is no sharing'], a: 1,
+      why: 'A `weak_ptr` does not own: it does not count toward the strong reference count, so the cycle of strong owners that kept both objects alive no longer exists.' },
+
+    { sec: 'weak', q: 'How do you safely use the object a `weak_ptr` refers to?',
+      opts: ['Dereference it directly with `*` as usual', 'Call `lock()` and check the result is not empty', 'Call `get()` on it and use the pointer', 'Convert it with a C-style cast to a pointer'], a: 1,
+      why: '`lock()` returns a `shared_ptr` that keeps the object alive while you use it, or an empty one if the object is already gone.' }
   ]
 };

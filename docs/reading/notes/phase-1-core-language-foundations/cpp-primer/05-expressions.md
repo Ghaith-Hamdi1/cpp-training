@@ -78,4 +78,4 @@ What I got wrong when I compared it with the book:
 
 ## After this session
 
-Lesson 2, sections 3 and 4 (conversions and casts) and its quiz
+Lesson 3, sections 3 and 4 (conversions and casts) and its quiz

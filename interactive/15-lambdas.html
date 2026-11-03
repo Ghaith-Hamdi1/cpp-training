@@ -3,91 +3,39 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Lambdas and Callables</title>
+<title>Lambdas</title>
 <script>try{var t=JSON.parse(localStorage.getItem('cpptrain:theme'));if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
 <link rel="stylesheet" href="assets/style.css">
 </head>
 <body data-topic="lambdas" data-kind="lesson">
 <main>
-<h1>Lambdas and Callables</h1>
-<p class="lead">Function pointers and functors first, then how a lambda works, captures and their lifetime traps, init-capture, generic lambdas, and when to use a function pointer, functor, lambda or <code>std::function</code>.</p>
-
-<section id="before" data-title="Before lambdas: function pointers and functors">
-<h2>Before lambdas: function pointers and functors</h2>
-<p>Algorithms such as <code>std::sort</code> and <code>std::count_if</code> take "something callable". Before C++11 there were two ways to supply it, and a lambda is a shorter way to write the second.</p>
-<h3>A function pointer</h3>
-<script type="text/x-cpp">
-bool descending(int a, int b) { return a > b; }
-int twice(int x) { return 2 * x; }
-void apply(int (*f)(int), int x) { std::cout << f(x) << '\n'; }   // a parameter that points to a function
-
-std::vector<int> v{5, 2, 9, 1};
-std::sort(v.begin(), v.end(), descending);          // 9 5 2 1: pass the function by name
-apply(twice, 21);                                   // 42
-</script>
-<ul>
-<li>A function pointer is just an address (8 bytes). It can point to any function with the <b>same signature</b>, chosen at run time.</li>
-<li>It has <b>no state</b>: the function sees only its arguments and globals. To give <code>descending</code> a limit you would need a global variable.</li>
-<li>The call goes through the pointer, so the compiler usually cannot inline it.</li>
-</ul>
-<h3>A functor (function object)</h3>
-<p>A <b>functor</b> is a class with an <code>operator()</code>. An object of it can be called like a function, and it can <b>carry state</b> in its members.</p>
-<script type="text/x-cpp">
-struct GreaterThan {
-    int limit;                                       // the state
-    bool operator()(int x) const { return x > limit; }
-};
-GreaterThan gt{4};
-gt(5);                                               // true
-gt(3);                                               // false
-std::count_if(v.begin(), v.end(), GreaterThan{1});   // 3: how many elements are above 1
-</script>
-<ul>
-<li>Each functor class is its own type, so a template like <code>std::count_if</code> knows exactly which <code>operator()</code> to call and can <b>inline</b> it.</li>
-<li>The cost: a whole class, written away from the place where it is used, for one small piece of logic.</li>
-</ul>
-<div class="callout tip"><span class="label">So what is a lambda?</span>A lambda is a functor the compiler writes for you, in place: <code>[limit](int x) { return x &gt; limit; }</code> is the <code>GreaterThan</code> above, with <code>limit</code> as its member. The next sections show how it works and where it goes wrong.</div>
-<!-- read-more:start -->
-<div class="callout tip"><span class="label">Read more</span>
-<p><b>C++ Primer (Lippman, Lajoie, Moo)</b></p>
-<ul>
-<li>6.7 Pointers to functions (PDF pages 276 to 281)</li>
-</ul>
-<p><b>Programming: Principles and Practice (Stroustrup)</b></p>
-<ul>
-<li>21.1 to 21.2, 21.5 Standard algorithms, function objects, sorting and searching (PDF pages 617 to 626 and 633 to 635)</li>
-</ul>
-<p><b>Effective Modern C++ (Meyers)</b></p>
-<ul>
-<li>Item 31, Avoid default capture modes (PDF pages 234 to 242)</li>
-<li>Item 32, Use init capture to move objects into closures (PDF pages 242 to 247)</li>
-</ul>
-</div>
-<!-- read-more:end -->
-</section>
+<h1>Lambdas</h1>
+<p class="lead">What a lambda is, how captures work and where they go wrong, init-capture, generic lambdas, and where lambdas are used. Assumes <a href="23-callables.html">Function Pointers and Functors</a>.</p>
 
 <section id="anatomy" data-title="What a lambda is">
 <h2>What a lambda is</h2>
-<figure class="fig"><svg viewBox="0 0 640 130" role="img" aria-label="A lambda is compiled to a small class holding the captures and an operator()"><rect class="box" x="10" y="10" width="250" height="100" rx="8"/><text class="t" x="24" y="34">[factor](int x) { return x * factor; }</text><text class="m" x="24" y="58">captures in [ ]</text><text class="m" x="24" y="76">parameters in ( )</text><text class="m" x="24" y="94">body in { }</text><text class="t" x="270" y="60">compiles to</text><path class="ar" d="M268 72H362"/><path class="ah" d="M372 72l-10-6v12z"/><rect class="acc" x="380" y="10" width="250" height="100" rx="8"/><text class="t" x="394" y="34">class __lambda {</text><text class="m" x="410" y="56">int factor;   // by-value capture</text><text class="m" x="410" y="76">int operator()(int x) const</text><text class="m" x="410" y="94">{ return x * factor; }</text></svg><figcaption>Capture by reference stores a reference instead; it dangles if the lambda outlives the variable.</figcaption></figure>
-<p>A lambda is an unnamed function object written in place: the compiler generates a small class whose constructor stores the captures and whose <code>operator()</code> holds the body.</p>
+<p>A lambda is a function you write <b>right where you need it</b>, with no name. It has three parts: what it can see from outside (the <b>captures</b>), what it receives (the <b>parameters</b>), and what it does (the <b>body</b>).</p>
+<figure class="fig"><svg viewBox="0 0 640 130" role="img" aria-label="A lambda is compiled to a small class holding the captures and an operator()"><rect class="box" x="10" y="10" width="250" height="100" rx="8"/><text class="t" x="24" y="34">[factor](int x) { return x * factor; }</text><text class="m" x="24" y="58">captures in [ ]</text><text class="m" x="24" y="76">parameters in ( )</text><text class="m" x="24" y="94">body in { }</text><text class="t" x="270" y="60">compiles to</text><path class="ar" d="M268 72H362"/><path class="ah" d="M372 72l-10-6v12z"/><rect class="acc" x="380" y="10" width="250" height="100" rx="8"/><text class="t" x="394" y="34">class __lambda {</text><text class="m" x="410" y="56">int factor;   // by-value capture</text><text class="m" x="410" y="76">int operator()(int x) const</text><text class="m" x="410" y="94">{ return x * factor; }</text></svg><figcaption>The compiler turns the lambda into a small class: captures become members, the body becomes operator().</figcaption></figure>
 <script type="text/x-cpp">
 //  [captures] (parameters) -> return_type { body }
 auto add = [](int a, int b) { return a + b; };
 add(2, 3);                                         // 5
 
 std::vector<int> v{5, 2, 9, 1};
-std::sort(v.begin(), v.end(), [](int a, int b) { return a > b; });   // descending: an inline comparator
+std::sort(v.begin(), v.end(), [](int a, int b) { return a > b; });   // an inline comparator
 </script>
 <ul>
 <li>Every lambda has its <b>own unique type</b>, so store it with <code>auto</code> (or a template parameter).</li>
-<li>A lambda with <b>no captures</b> converts to a plain function pointer. Compiled: <code>sizeof</code> of such a lambda is 1, of one capturing an <code>int</code> is 4, of a function pointer 8.</li>
-<li><code>operator()</code> is <code>const</code> by default; <code>mutable</code> lifts that (next sections).</li>
+<li>A lambda with <b>no captures</b> converts to a plain function pointer. Compiled: <code>sizeof</code> of a lambda with no captures is 1, of one capturing an <code>int</code> is 4, of a function pointer 8.</li>
+<li><code>operator()</code> is <code>const</code> by default; <code>mutable</code> lifts that (see below).</li>
 </ul>
+<div class="callout tip"><span class="label">Where it comes from</span>A lambda is a <a href="23-callables.html#functor">functor</a> that the compiler writes for you. If functors are new, read <a href="23-callables.html">Function Pointers and Functors</a> first.</div>
 <!-- read-more:start -->
 <div class="callout tip"><span class="label">Read more</span>
 <p><b>C++ Primer (Lippman, Lajoie, Moo)</b></p>
 <ul>
 <li>10.3 Customizing operations (PDF pages 414 to 429)</li>
+<li>14.8 The function-call operator (PDF pages 600 to 607)</li>
 </ul>
 </div>
 <!-- read-more:end -->
@@ -95,6 +43,13 @@ std::sort(v.begin(), v.end(), [](int a, int b) { return a > b; });   // descendi
 
 <section id="captures" data-title="Captures: by value and by reference">
 <h2>Captures: by value and by reference</h2>
+<p>The square brackets say which outside variables the lambda may use, and how it holds them. <b>By value</b> copies the variable into the lambda when it is created. <b>By reference</b> keeps an alias to the live variable.</p>
+<figure class="fig"><svg viewBox="0 0 640 190" role="img" aria-label="After x changes to 2, the by-value lambda still holds its own copy 1, and the by-reference lambda reads the live x as 2"><defs><marker id="l1" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path class="ah" d="M0 0L10 5L0 10z"/></marker></defs>
+<text class="addr" x="268" y="18">the variable, after x = 2</text><rect class="acc" x="270" y="24" width="100" height="34" rx="5"/><text class="mono" x="320" y="46" text-anchor="middle">x = 2</text>
+<rect class="gd" x="30" y="100" width="230" height="64" rx="8"/><text class="t" x="44" y="122">byVal = [x]</text><rect class="cell" x="44" y="130" width="202" height="24"/><text class="mono" x="54" y="147">member x = 1  (a copy)</text>
+<rect class="wn" x="380" y="100" width="230" height="64" rx="8"/><text class="t" x="394" y="122">byRef = [&amp;x]</text><rect class="cell" x="394" y="130" width="202" height="24"/><text class="mono" x="404" y="147">member x&amp; (alias of x)</text>
+<path class="ar" d="M480 100C480 80 420 70 372 48" marker-end="url(#l1)"/>
+<text class="m" x="30" y="184">byVal() returns 1: the snapshot never changes</text><text class="m" x="380" y="184">byRef() returns 2: it reads the live x</text></svg><figcaption>A by-value capture is a snapshot; a by-reference capture follows the variable.</figcaption></figure>
 <script type="text/x-cpp">
 int factor = 3;
 auto byValue = [factor](int x) { return x * factor; };    // copies factor now
@@ -116,8 +71,16 @@ std::cout << byVal() << byRef();
 </div></details>
 <p>Step through the two capture modes:</p>
 <div id="st-lambda"></div>
-<div class="callout warn"><span class="label">Dangling captures</span>A lambda that captures a local by reference and then outlives it (returned from the function, or run later on another thread) reads destroyed memory. When a lambda escapes its scope, capture by value.</div>
-<div class="callout warn"><span class="label"><code>[=]</code> and <code>this</code></span>Inside a member function <code>[=]</code> also captures <code>this</code> (the pointer), so the lambda uses the object through that pointer and dangles if the object dies. This implicit capture is deprecated in C++20: write <code>[=, this]</code> to say so, or <code>[*this]</code> to copy the object.</div>
+<table>
+<tr><th>Capture</th><th>Meaning</th></tr>
+<tr><td><code>[]</code></td><td>nothing from outside</td></tr>
+<tr><td><code>[x]</code></td><td>a copy of <code>x</code></td></tr>
+<tr><td><code>[&amp;x]</code></td><td>a reference to <code>x</code></td></tr>
+<tr><td><code>[=]</code></td><td>copy everything the lambda uses</td></tr>
+<tr><td><code>[&amp;]</code></td><td>reference everything the lambda uses</td></tr>
+<tr><td><code>[x = expr]</code></td><td>a new member initialized from <code>expr</code> (see below)</td></tr>
+</table>
+<div class="callout tip"><span class="label">Prefer naming them</span>A list such as <code>[limit, &amp;total]</code> shows at a glance what the lambda depends on. <code>[=]</code> and <code>[&amp;]</code> hide it.</div>
 <!-- read-more:start -->
 <div class="callout tip"><span class="label">Read more</span>
 <p><b>C++ Primer (Lippman, Lajoie, Moo)</b></p>
@@ -128,73 +91,97 @@ std::cout << byVal() << byRef();
 <!-- read-more:end -->
 </section>
 
-<section id="advanced" data-title="mutable, init-capture, generic and recursive lambdas">
-<h2><code>mutable</code>, init-capture, generic and recursive lambdas</h2>
+<section id="lifetime" data-title="Capture lifetime: dangling references">
+<h2>Capture lifetime: dangling references</h2>
+<p>A by-reference capture is only valid while the variable lives. If the lambda <b>outlives</b> it, because it is returned, stored, or run later on another thread, the reference points at a destroyed variable.</p>
+<figure class="fig"><svg viewBox="0 0 640 140" role="img" aria-label="A lambda returned from a function holds a reference to a local variable that no longer exists"><defs><marker id="l2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path class="ah3" d="M0 0L10 5L0 10z"/></marker></defs>
+<text class="t" x="10" y="20">after make() has returned</text>
+<rect class="wn" x="20" y="36" width="190" height="40" rx="6"/><text class="mono" x="115" y="61" text-anchor="middle">closure { int&amp; n }</text>
+<path class="ar3 dash" d="M210 56H398" marker-end="url(#l2)"/>
+<rect class="dead" x="400" y="36" width="190" height="40" rx="6"/><text class="mono" x="495" y="61" text-anchor="middle">n  (destroyed)</text>
+<text class="m" x="20" y="108">calling the closure now reads memory that no longer belongs to n</text></svg><figcaption>The closure left the function; the local it refers to did not.</figcaption></figure>
 <script type="text/x-cpp">
-auto count = [n = 0]() mutable { return ++n; };           // own state; mutable lets it change
-count(); count(); count();                                // 1 2 3 (compiled: "123")
+auto make() {
+    int n = 5;
+    return [&n] { return n; };     // BUG: n dies when make() returns
+}
 
-auto owned = std::make_unique<int>(42);
-auto init  = [p = std::move(owned)] { return *p; };       // C++14 init-capture: MOVE a move-only object in
-                                                          // (compiled: returns 42, the original is null)
-
-auto bigger = [](const auto& a, const auto& b) { return a < b ? b : a; };   // C++14 generic: any type
-bigger(3, 7);  bigger(2.5, 1.5);                          // 7 and 2.5
-
-auto result = [&] { return compute(a, b); }();            // immediately invoked: initialise a const with logic
-const int limit = [&] { return fast ? 100 : 10; }();
+auto makeSafe() {
+    int n = 5;
+    return [n] { return n; };      // fine: the lambda owns its own copy
+}
 </script>
-<ul>
-<li><b>Init-capture</b> <code>[name = expr]</code> creates a new member: the way to move a <code>unique_ptr</code> in, or to precompute something.</li>
-<li><code>mutable</code> changes the lambda's own copy; each copy of the lambda has its own state.</li>
-<li>A <b>generic lambda</b> has a templated <code>operator()</code>: <code>auto</code> parameters are template parameters.</li>
-<li>A lambda cannot name itself. For recursion, pass it to itself: <code>auto fact = [](auto self, int n) -&gt; int { return n &lt;= 1 ? 1 : n * self(self, n - 1); };</code> (compiled: 5! = 120), or use <code>std::function</code>.</li>
-<li><code>[this]</code> in a member function captures the pointer; <code>[*this]</code> copies the object.</li>
-</ul>
+<table>
+<tr><th>The lambda is...</th><th>Capture by reference is...</th></tr>
+<tr><td>used and finished inside the same scope (<code>std::sort</code>, <code>count_if</code>)</td><td>safe</td></tr>
+<tr><td>returned or stored for later</td><td><b>dangling</b>: capture by value</td></tr>
+<tr><td>run on another thread that may outlive the variable</td><td><b>dangling</b>: capture by value</td></tr>
+</table>
+<div class="callout warn"><span class="label"><code>[=]</code> and <code>this</code></span>Inside a member function <code>[=]</code> also captures <code>this</code> (the pointer), so the lambda uses the object through that pointer and dangles if the object dies. This implicit capture is deprecated in C++20: write <code>[=, this]</code> to say so, or <code>[*this]</code> to copy the object.</div>
 </section>
 
-<section id="callables" data-title="Function pointer, functor, lambda, std::function">
-<h2>Function pointer, functor, lambda, <code>std::function</code></h2>
-<p>Four ways to pass "something callable":</p>
-<table>
-<tr><th>Kind</th><th>Can hold state?</th><th>Inlinable?</th><th>Overhead</th></tr>
-<tr><td>function pointer</td><td>no</td><td>rarely (indirect call)</td><td>8 bytes</td></tr>
-<tr><td>functor (class with <code>operator()</code>)</td><td>yes</td><td>yes: type known at compile time</td><td>size of its members</td></tr>
-<tr><td>lambda</td><td>yes (captures)</td><td>yes: it is a functor</td><td>size of its captures</td></tr>
-<tr><td><code>std::function&lt;R(Args...)&gt;</code></td><td>yes</td><td>no: type-erased</td><td>indirect call, and may allocate</td></tr>
-</table>
+<section id="advanced" data-title="mutable, init-capture, generic and recursive lambdas">
+<h2><code>mutable</code>, init-capture, generic and recursive lambdas</h2>
+<h3><code>mutable</code>: the lambda's own state</h3>
 <script type="text/x-cpp">
-template <typename F>
-void apply(F f) { f(1); }                                  // template parameter: the lambda's exact type, fully inlined
-
-void apply2(std::function<void(int)> f) { f(1); }          // type-erased: accepts anything, one indirect call
-
-std::vector<std::function<int(int)>> ops{ [](int x) { return x + 1; },
-                                          [k = 10](int x) { return x * k; } };   // different lambdas, one type
+auto count = [n = 0]() mutable { return ++n; };           // n is the lambda's own member
+count(); count(); count();                                // 1 2 3 (compiled: "123")
 </script>
-<ul>
-<li><b>Templates for hot paths and algorithms</b> (<code>std::sort</code> takes its comparator as a template parameter and inlines it). <code>std::function</code> when you must <b>store</b> callables of different types or keep them behind an interface.</li>
-<li><code>std::function</code> may <b>allocate</b> when the callable does not fit its small buffer. Compiled with libstdc++: a small capture did not allocate, a 64-byte capture did.</li>
-<li><code>std::invoke(f, args...)</code> calls anything callable, including a member function pointer: <code>std::invoke(&amp;Account::balance, acct)</code>.</li>
-<li>A stateless lambda converts to a function pointer, handy for C APIs and callbacks.</li>
-</ul>
-<h3><code>std::bind</code>: know it, prefer a lambda</h3>
+<p>A by-value capture is <code>const</code> inside the lambda; <code>mutable</code> lets it change. The change lives in the lambda's own copy, never in the original variable, and each copy of the lambda has its own state.</p>
+<h3>Init-capture: move something in</h3>
+<figure class="fig"><svg viewBox="0 0 640 150" role="img" aria-label="Before, owned holds the heap int; after the init-capture, the lambda member p holds it and owned is empty"><defs><marker id="l3" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path class="ah2" d="M0 0L10 5L0 10z"/></marker></defs>
+<text class="t" x="10" y="20">before</text><rect class="gd" x="10" y="30" width="90" height="30" rx="5"/><text class="mono" x="55" y="50" text-anchor="middle">owned</text><path class="ar2" d="M100 45H140" marker-end="url(#l3)"/><rect class="wn" x="142" y="30" width="70" height="30" rx="5"/><text class="mono" x="177" y="50" text-anchor="middle">42</text>
+<path class="ln" d="M320 8V140"/>
+<text class="t" x="340" y="20">after  [p = std::move(owned)]</text><rect class="dead" x="340" y="30" width="90" height="30" rx="5"/><text class="mono" x="385" y="50" text-anchor="middle">owned</text><text class="m" x="440" y="50">empty</text>
+<rect class="gd" x="340" y="84" width="130" height="30" rx="5"/><text class="mono" x="405" y="104" text-anchor="middle">closure.p</text><path class="ar2" d="M470 99H510" marker-end="url(#l3)"/><rect class="wn" x="512" y="84" width="70" height="30" rx="5"/><text class="mono" x="547" y="104" text-anchor="middle">42</text></svg><figcaption>A move-only object cannot be copied into a lambda, but it can be moved in.</figcaption></figure>
 <script type="text/x-cpp">
-using namespace std::placeholders;
-auto f = std::bind(add3, 1, _1, _2);     // fix the first argument, leave two open: f(2, 3) is add3(1, 2, 3)
-auto g = std::bind(add3, _2, _1, 9);     // placeholders can reorder: g(4, 5) is add3(5, 4, 9)
-auto h = [](int b, int c) { return add3(1, b, c); };   // the same as f, and easier to read
+auto owned = std::make_unique<int>(42);
+auto init  = [p = std::move(owned)] { return *p; };       // C++14 init-capture
+init();                                                   // 42; owned is now empty
 </script>
-<p>Compiled: <code>f(2, 3)</code> gave 123, <code>g(4, 5)</code> gave 549 and the lambda gave 123. <code>std::bind</code> predates lambdas (C++11); it copies its arguments, hides overloads and produces unreadable errors. You will see it in older code, so be able to read it; in new code write a lambda, which also inlines better.</p>
-<div class="callout interview"><span class="label">Key point</span>"Lambda vs <code>std::function</code>?" A lambda has its own type and is inlined; <code>std::function</code> erases the type, costs an indirect call and maybe an allocation. Use it only when you must store different callables in one place.</div>
+<p><code>[name = expr]</code> creates a new member initialized from <code>expr</code>. It is the way to move a <code>unique_ptr</code> in, or to precompute a value once.</p>
+<h3>Generic lambdas</h3>
+<script type="text/x-cpp">
+auto bigger = [](const auto& a, const auto& b) { return a < b ? b : a; };
+bigger(3, 7);                                             // 7
+bigger(2.5, 1.5);                                         // 2.5
+</script>
+<p>With <code>auto</code> parameters (C++14) the lambda's <code>operator()</code> is a template, so one lambda works for any types that support <code>&lt;</code>.</p>
+<h3>Recursion and immediate calls</h3>
+<script type="text/x-cpp">
+auto fact = [](auto self, int n) -> int { return n <= 1 ? 1 : n * self(self, n - 1); };
+fact(fact, 5);                                            // 120: a lambda cannot name itself, so it is passed to itself
+
+const int limit = [&] { return fast ? 100 : 10; }();      // called at once: initialize a const with logic
+</script>
 <!-- read-more:start -->
 <div class="callout tip"><span class="label">Read more</span>
-<p><b>C++ Primer (Lippman, Lajoie, Moo)</b></p>
+<p><b>Programming: Principles and Practice (Stroustrup)</b></p>
 <ul>
-<li>14.8 The function-call operator (PDF pages 600 to 607)</li>
+<li>21.1 to 21.2, 21.5 Standard algorithms, function objects, sorting and searching (PDF pages 617 to 626 and 633 to 635)</li>
+</ul>
+<p><b>Effective Modern C++ (Meyers)</b></p>
+<ul>
+<li>Item 31, Avoid default capture modes (PDF pages 234 to 242)</li>
+<li>Item 32, Use init capture to move objects into closures (PDF pages 242 to 247)</li>
 </ul>
 </div>
 <!-- read-more:end -->
+</section>
+
+<section id="uses" data-title="Where lambdas are used">
+<h2>Where lambdas are used</h2>
+<p>Almost everywhere something takes a small piece of behavior.</p>
+<table>
+<tr><th>Situation</th><th>Example</th></tr>
+<tr><td>sort with your own order</td><td><code>std::sort(w.begin(), w.end(), [](const std::string&amp; a, const std::string&amp; b) { return a.size() &lt; b.size(); });</code></td></tr>
+<tr><td>find or count by a rule</td><td><code>std::find_if(v.begin(), v.end(), [](int x) { return x % 2 == 0; });</code></td></tr>
+<tr><td>a task for a thread</td><td><code>std::thread t([&amp;] { work(); });</code> (capture carefully, see lifetime)</td></tr>
+<tr><td>a callback you keep for later</td><td><code>std::function&lt;void()&gt; onDone = [id] { notify(id); };</code></td></tr>
+<tr><td>initialize a <code>const</code> with logic</td><td><code>const auto v = [&amp;] { ... }();</code></td></tr>
+</table>
+<p>Compiled: sorting <code>{"pear", "fig", "banana"}</code> with the length comparison above put <code>fig</code> first and <code>banana</code> last.</p>
+<div class="callout tip"><span class="label">Rule of thumb</span>If the logic is more than a few lines, or you use it in several places, give it a name (a function) instead of a long lambda.</div>
 </section>
 
 <section id="cheat" data-title="Cheat sheet">
@@ -204,9 +191,13 @@ auto h = [](int b, int c) { return add3(1, b, c); };   // the same as f, and eas
 <details class="ex"><summary>Capture by value vs by reference?</summary><div><p>By value copies the variable when the lambda is created (const inside unless <code>mutable</code>). By reference stores a reference to the live variable and dangles if the lambda outlives it. Capture by value for lambdas that escape the scope or run on another thread.</p></div></details>
 <details class="ex"><summary>How do you move a <code>unique_ptr</code> into a lambda?</summary><div><p>With a C++14 init-capture: <code>[p = std::move(ptr)] { ... }</code>. A plain capture would need a copy, which <code>unique_ptr</code> forbids.</p></div></details>
 <details class="ex"><summary>What does <code>mutable</code> do on a lambda?</summary><div><p>It makes <code>operator()</code> non-const so the lambda can modify its by-value captures. The changes live in the lambda's own copy, not in the original variable.</p></div></details>
-<details class="ex"><summary><code>std::function</code> vs a template parameter?</summary><div><p>A template parameter keeps the exact callable type, so the call is inlined and nothing allocates. <code>std::function</code> erases the type: one indirect call, possible allocation, but it can store different callables behind one type.</p></div></details>
 <details class="ex"><summary>What is a generic lambda?</summary><div><p>A lambda with <code>auto</code> parameters (C++14): its <code>operator()</code> is a template, so one lambda works for any argument type.</p></div></details>
 <details class="ex"><summary>What is wrong with capturing <code>this</code> by <code>[=]</code>?</summary><div><p><code>[=]</code> inside a member function captures the <code>this</code> pointer, not a copy of the object, so the lambda dangles if the object is destroyed first. It is deprecated in C++20: write <code>[=, this]</code> or <code>[*this]</code> to copy.</p></div></details>
+<h3>Keep going</h3>
+<ul>
+<li>Before this lesson: <a href="23-callables.html">Function Pointers and Functors</a>, where <code>std::function</code> and <code>std::bind</code> live.</li>
+<li>Lambdas are used all through <a href="04-stl.html">The STL</a> and in <a href="07-multithreading.html">Multithreading</a>.</li>
+</ul>
 </section>
 
 </main>
