@@ -11,6 +11,9 @@
      "intro": [
       "**What is undefined behavior?**\n\nCode the standard places no requirements on: the compiler may assume it never happens, so anything can occur (crash, wrong output, or apparently fine). Examples: out-of-bounds access, null dereference, signed overflow, reading uninitialized memory, data races."
      ],
+     "cards": [
+      "basics-0"
+     ],
      "items": [
       "basics:0",
       "basics:1",
@@ -26,6 +29,9 @@
      "title": "C++ Basics (2/2)",
      "intro": [
       "**How do you pass a large object to a function efficiently?**\n\nBy `const` reference if the function only reads it, to avoid a copy. By non-const reference if it must modify the caller's object."
+     ],
+     "cards": [
+      "basics-1"
      ],
      "items": [
       "basics:7",
@@ -43,6 +49,10 @@
       "**Pointer vs reference?**\n\nA pointer holds an address, can be null, can be re-pointed, and needs `*` to use. A reference is a permanent alias that must be initialized and cannot be null. Use references for parameters, pointers when \"nothing\" is a valid value or you need to re-point.",
       "**Stack vs heap?**\n\nThe stack holds locals and is freed automatically when the scope ends; it is fast but small. The heap holds `new`-allocated objects that live until you free them; it is large but slower and you must manage the lifetime (or let a smart pointer do it)."
      ],
+     "cards": [
+      "pointers-0",
+      "pointers-1"
+     ],
      "items": [
       "pointers:0",
       "pointers:1",
@@ -59,6 +69,10 @@
       "**What is a dangling pointer?**\n\nA pointer to memory that has been freed or has gone out of scope. Dereferencing it is undefined behavior. Setting a pointer to `nullptr` after `delete` helps, and smart pointers avoid the problem.",
       "**`const int*` vs `int* const`?**\n\nRead right to left. `const int*` is a pointer to a const int (data is read-only, pointer can move). `int* const` is a const pointer to an int (pointer is fixed, data can change)."
      ],
+     "cards": [
+      "pointers-2",
+      "pointers-3"
+     ],
      "items": [
       "pointers:6",
       "pointers:7",
@@ -73,6 +87,9 @@
      "title": "Pointers and References (3/3)",
      "intro": [
       "**`delete` vs `delete[]`?**\n\nMemory from `new` must be freed with `delete`; memory from `new[]` must be freed with `delete[]` so every element's destructor runs. Mixing them is undefined behavior. Deleting `nullptr` is safe and does nothing."
+     ],
+     "cards": [
+      "pointers-4"
      ],
      "items": [
       "pointers:12",
@@ -91,6 +108,11 @@
       "**What does `auto` deduce, and what are its traps?**\n\nThe type of the initializer with top-level `const` and references dropped. `auto x = {1,2,3}` is an `initializer_list`. `auto y = v[0]` copies; use `const auto&`. `decltype(expr)` keeps the exact type.",
       "**`std::vector<int> v{3, 7}` versus `v(3, 7)`?**\n\nBraces prefer the `initializer_list` constructor: two elements, 3 and 7. Parentheses call the (count, value) constructor: three elements, each 7."
      ],
+     "cards": [
+      "types-0",
+      "types-1",
+      "types-2"
+     ],
      "items": [
       "types:0",
       "types:1",
@@ -108,6 +130,10 @@
       "**What are the three meanings of `static`?**\n\nA local variable that lives for the whole program and keeps its value between calls; internal linkage for a global (visible only in this `.cpp`); a class member shared by all objects.",
       "**Which C++17 features do you use?**\n\n`std::optional`, `std::variant`, `std::string_view`, structured bindings, `if constexpr`, `if` with initializer, fold expressions and `[[nodiscard]]`: vocabulary types and clearer code."
      ],
+     "cards": [
+      "types-3",
+      "types-4"
+     ],
      "items": [
       "types:7",
       "types:8",
@@ -124,6 +150,11 @@
       "**When would you use `dynamic_cast`?**\n\nFor a checked downcast from a polymorphic base to a derived type when you cannot express the need through a virtual function. It returns null (pointers) or throws `bad_cast` (references) on failure. Frequent use suggests a design problem.",
       "**The four named casts?**\n\n`static_cast` for well-defined conversions, `dynamic_cast` for checked downcasts, `const_cast` to add or remove `const` (modifying a truly const object is UB), `reinterpret_cast` to reinterpret bits (rarely correct). Never a C cast: it can silently pick any of them.",
       "**What is wrong with `if (-1 < 1u)`?**\n\nThe signed operand is converted to unsigned, becoming a huge value, so the comparison is false. Avoid mixing signed and unsigned; compile with `-Wsign-compare`."
+     ],
+     "cards": [
+      "casts-0",
+      "casts-1",
+      "casts-2"
      ],
      "items": [
       "casts:0",
@@ -143,6 +174,11 @@
       "**What does a C-style cast `(T)x` do?**\n\nIt tries `static_cast`, then `static_cast` plus `const_cast`, then `reinterpret_cast`, and uses the first that compiles. It can silently remove `const` or reinterpret bytes, and it never becomes `dynamic_cast`. Use the named casts so the intent is visible and searchable.",
       "**What is narrowing, and how do braces help?**\n\nA conversion that can lose information, such as double to int or a value that does not fit. With `=` it compiles silently; with braces the compiler must diagnose it, for example `int b{3.7}` is an error.",
       "**How do you reinterpret the bits of a float as an integer safely?**\n\nWith `std::memcpy` or `std::bit_cast` (C++20). A `reinterpret_cast` of the pointer and a read through it as another type violates the aliasing rules."
+     ],
+     "cards": [
+      "casts-3",
+      "casts-4",
+      "casts-5"
      ],
      "items": [
       "casts:8",
@@ -169,6 +205,11 @@
       "**In what order are objects constructed and destroyed?**\n\nConstruction: base class first, then the members in declaration order, then the body of the constructor. Destruction runs in the exact reverse order.",
       "**Why use the member initializer list?**\n\nIt initializes members directly instead of default-constructing and then assigning. `const` and reference members can only be set there. Members are initialized in declaration order, whatever order the list is written in."
      ],
+     "cards": [
+      "oop-0",
+      "oop-1",
+      "oop-2"
+     ],
      "items": [
       "oop:0",
       "oop:1",
@@ -187,6 +228,11 @@
       "**`struct` or `class`?**\n\nOnly the default access differs: `struct` is public, `class` is private. Use `struct` for plain data and `class` when there is an invariant to protect.",
       "**What is RAII in one sentence?**\n\nAcquire a resource in the constructor and release it in the destructor, so the resource lives exactly as long as the object and is freed even when the function returns early or throws."
      ],
+     "cards": [
+      "oop-3",
+      "oop-4",
+      "oop-5"
+     ],
      "items": [
       "oop:7",
       "oop:8",
@@ -203,6 +249,10 @@
       "**What is the Rule of Three / Five / Zero?**\n\nThree: if you define a destructor, copy constructor or copy assignment, define all three. Five: add the move constructor and move assignment. Zero: design classes so none are needed by holding resources in self-managing members like `vector` and `unique_ptr`. Remember that declaring a destructor or a copy operation suppresses the move operations, so moves silently become copies.",
       "**What does `explicit` do on a constructor and on `operator bool`?**\n\nOn a constructor it forbids implicit conversions from the argument type (`Feet f = 3.0` fails). On `operator bool` it allows the conversion only in contexts such as `if` and `while`, not in arithmetic. Mark single-argument constructors `explicit` by default."
      ],
+     "cards": [
+      "copying-0",
+      "copying-1"
+     ],
      "items": [
       "copying:0",
       "copying:1",
@@ -218,6 +268,10 @@
      "intro": [
       "**What is copy-and-swap?**\n\nWrite the copy constructor and a non-throwing `swap`, then implement `operator=(T other)` by value that swaps with the parameter. The copy happens before `*this` is modified, giving the strong exception guarantee and safe self-assignment with one function.",
       "**Member or non-member operator?**\n\nOperators that change the left operand (`+=`) are members. Operators where both sides should convert (`+`, `==`) are non-members, built from the member ones. `operator<<` for printing must be a non-member because its left operand is the stream."
+     ],
+     "cards": [
+      "copying-2",
+      "copying-3"
      ],
      "items": [
       "copying:6",
@@ -236,6 +290,12 @@
       "**What is the difference between overloading and overriding?**\n\nOverloading: several functions with the same name and different parameters in the same scope, chosen at compile time. Overriding: a derived class provides its own implementation of a base virtual function with the same signature, chosen at runtime.",
       "**What is a pure virtual function and an abstract class?**\n\nA pure virtual function is declared `= 0` and has no required implementation. A class with at least one cannot be instantiated; it defines an interface that derived classes must implement.",
       "**What is object slicing?**\n\nCopying a derived object into a base-class value discards the derived members and virtual behaviour. Avoid it by passing polymorphic objects by reference or pointer."
+     ],
+     "cards": [
+      "inherit-0",
+      "inherit-1",
+      "inherit-2",
+      "inherit-3"
      ],
      "items": [
       "inherit:0",
@@ -256,6 +316,12 @@
       "**What is the diamond problem and how is it solved?**\n\nA class inherits the same base through two paths, so the base's members are duplicated and access is ambiguous. Virtual inheritance (`class Left : virtual Base`) makes all paths share one base subobject, which the most derived class constructs first. It adds memory and indirection, so prefer interfaces without data or composition.",
       "**Why do `Reader*` and `Writer*` to the same `File` hold different addresses?**\n\nWith multiple inheritance the object contains each base subobject at its own offset, each with its own vptr. Converting to the second base adjusts the pointer to that subobject, which is why C casts and `reinterpret_cast` are wrong here."
      ],
+     "cards": [
+      "inherit-4",
+      "inherit-5",
+      "inherit-6",
+      "inherit-7"
+     ],
      "items": [
       "inherit:7",
       "inherit:8",
@@ -273,6 +339,11 @@
       "**`typeid` on a polymorphic versus non-polymorphic type?**\n\nOn a polymorphic object `typeid(*p)` gives the dynamic type. On a type with no virtual function it gives the static type, known at compile time. `type_info::name()` is implementation-defined and only for diagnostics.",
       "**When is private inheritance appropriate?**\n\nFor \"implemented in terms of\": to override a virtual function of the base, access its protected members, or use the empty base optimisation. Otherwise prefer composition. It does not allow conversion to the base outside the class."
      ],
+     "cards": [
+      "inherit-8",
+      "inherit-9",
+      "inherit-10"
+     ],
      "items": [
       "inherit:13",
       "inherit:14",
@@ -287,7 +358,7 @@
   {
    "id": "library",
    "title": "3. Standard library and generic programming",
-   "ready": false,
+   "ready": true,
    "nodes": [
     {
      "id": "callables:n0",
@@ -297,11 +368,17 @@
       "**What is a functor?**\n\nA class with an `operator()`. Its objects are called like functions and keep state in their members. Each class is its own type, so templates can inline the call.",
       "**Why can a plain function pointer not carry a \"limit\" value for a comparison?**\n\nA function pointer is only an address. The function it points to receives its arguments and can read globals, nothing else. A functor or a lambda stores the limit as a member."
      ],
+     "cards": [
+      "callables-0",
+      "callables-1",
+      "callables-2"
+     ],
      "items": [
       "callables:0",
       "callables:1",
       "callables:2",
       "callables:3",
+      "b:callables:0",
       "callables:4",
       "callables:5",
       "callables:6"
@@ -313,6 +390,10 @@
      "intro": [
       "**`std::function` vs a template parameter?**\n\nA template parameter keeps the exact callable type, so the call is inlined and nothing allocates. `std::function` erases the type: one indirect call, possible allocation, but it can store different callables behind one type.",
       "**How do you call a member function through a pointer?**\n\nWith `std::invoke(&Account::balance, acct)`, or `(acct.*pmf)()` for a pointer-to-member `pmf`. `std::invoke` works for every kind of callable."
+     ],
+     "cards": [
+      "callables-3",
+      "callables-4"
      ],
      "items": [
       "callables:7",
@@ -331,11 +412,17 @@
       "**Capture by value vs by reference?**\n\nBy value copies the variable when the lambda is created (const inside unless `mutable`). By reference stores a reference to the live variable and dangles if the lambda outlives it. Capture by value for lambdas that escape the scope or run on another thread.",
       "**How do you move a `unique_ptr` into a lambda?**\n\nWith a C++14 init-capture: `[p = std::move(ptr)] { ... }`. A plain capture would need a copy, which `unique_ptr` forbids."
      ],
+     "cards": [
+      "lambdas-0",
+      "lambdas-1",
+      "lambdas-2"
+     ],
      "items": [
       "lambdas:0",
       "lambdas:1",
       "lambdas:2",
       "lambdas:3",
+      "b:lambdas:0",
       "lambdas:4",
       "lambdas:5",
       "lambdas:6"
@@ -348,6 +435,11 @@
       "**What does `mutable` do on a lambda?**\n\nIt makes `operator()` non-const so the lambda can modify its by-value captures. The changes live in the lambda's own copy, not in the original variable.",
       "**What is a generic lambda?**\n\nA lambda with `auto` parameters (C++14): its `operator()` is a template, so one lambda works for any argument type.",
       "**What is wrong with capturing `this` by `[=]`?**\n\n`[=]` inside a member function captures the `this` pointer, not a copy of the object, so the lambda dangles if the object is destroyed first. It is deprecated in C++20: write `[=, this]` or `[*this]` to copy."
+     ],
+     "cards": [
+      "lambdas-3",
+      "lambdas-4",
+      "lambdas-5"
      ],
      "items": [
       "lambdas:7",
@@ -365,11 +457,16 @@
       "**How does `std::vector` grow?**\n\nWhen `size == capacity` it allocates a larger buffer (geometric growth, typically 1.5x to 2x, implementation-defined), moves or copies the elements, and frees the old buffer. This makes `push_back` amortised O(1), but it invalidates all iterators, pointers and references. `reserve` avoids the reallocations.",
       "**`push_back` vs `emplace_back`?**\n\n`push_back` takes an existing object (a copy or move). `emplace_back` forwards its arguments to the element's constructor and builds it in place, avoiding a temporary. For simple types there is no difference; for objects with expensive construction `emplace_back` can save a move."
      ],
+     "cards": [
+      "stl-0",
+      "stl-1"
+     ],
      "items": [
       "stl:0",
       "stl:1",
       "stl:2",
       "stl:3",
+      "b:stl:0",
       "stl:4",
       "stl:5",
       "stl:6"
@@ -381,6 +478,10 @@
      "intro": [
       "**Which container for a task queue? For \"top K\" elements?**\n\nA queue (`std::queue`, backed by `deque`) for FIFO tasks. A `priority_queue` (heap) for top K: keep a heap of size K and compare against its root: O(n log K).",
       "**How do you return several values from a function?**\n\nA `std::pair` or `std::tuple`, unpacked with structured bindings (`auto [a, b] = f();`), or a small named struct when the fields need names or the result travels. Not out-parameters, except where you want to reuse a buffer."
+     ],
+     "cards": [
+      "stl-2",
+      "stl-3"
      ],
      "items": [
       "stl:7",
@@ -399,11 +500,17 @@
       "**Why use `try_emplace` instead of `emplace` or `insert`?**\n\nIf the key exists, `try_emplace` does nothing and does not touch its arguments, so a moved-in value is not lost. `emplace` and `insert` may already have built or moved from the value. It is the right call for \"insert if absent\" with expensive or move-only values.",
       "**`map` vs `unordered_map`?**\n\n`map`: balanced tree, sorted iteration, O(log n), needs `operator<`, supports range queries. `unordered_map`: hash table, average O(1) (worst O(n) with many collisions), no order, needs a hash and `==`. Choose `unordered_map` for plain lookups and `map` when you need order."
      ],
+     "cards": [
+      "assoc-0",
+      "assoc-1",
+      "assoc-2"
+     ],
      "items": [
       "assoc:0",
       "assoc:1",
       "assoc:2",
       "assoc:3",
+      "b:assoc:0",
       "assoc:4",
       "assoc:5",
       "assoc:6"
@@ -416,6 +523,11 @@
       "**What is a hash collision and how is it handled?**\n\nTwo different keys hash to the same bucket. The standard library's unordered containers resolve it with chaining (a bucket holds a list of entries), so lookups in a heavily colliding bucket degrade toward O(n). A good hash function and a sensible load factor (`rehash`, `reserve`) keep it near O(1).",
       "**Why does `m[key]` on a missing key matter?**\n\n`operator[]` inserts a default-constructed value and returns a reference to it, so reading a missing key grows the map. To only look, use `find`, `count` or `contains` (C++20); `at()` throws instead of inserting.",
       "**How do you return several values from a function?**\n\nA `std::pair` or `std::tuple` read with structured bindings (`auto [lo, hi] = minmax(v)`) when the values are used right away; a small named `struct` when they travel further and deserve names."
+     ],
+     "cards": [
+      "assoc-3",
+      "assoc-4",
+      "assoc-5"
      ],
      "items": [
       "assoc:7",
@@ -434,10 +546,16 @@
       "**Why can't I `std::sort` a `std::list`?**\n\n`sort` needs random-access iterators (it jumps around by index). A list only provides bidirectional iterators, so it has its own member function `list::sort`.",
       "**What does `std::span` replace, and what is its danger?**\n\nIt replaces a `(pointer, count)` pair: a non-owning view of contiguous elements that remembers its size and accepts a vector, an array or a part of either, without copying. Like `string_view` it dangles if the data is destroyed or reallocated while the view is alive."
      ],
+     "cards": [
+      "iterators-0",
+      "iterators-1",
+      "iterators-2"
+     ],
      "items": [
       "iterators:0",
       "iterators:1",
       "iterators:2",
+      "b:iterators:0",
       "iterators:3",
       "iterators:4",
       "iterators:5"
@@ -449,6 +567,10 @@
      "intro": [
       "**What is iterator invalidation, and when does `push_back` cause it?**\n\nA change to the container can leave existing iterators, pointers and references pointing at memory that no longer holds the element: using them is undefined behavior. `vector::push_back` invalidates all of them when it reallocates, otherwise only `end()`. Node-based containers (`list`, `map`, `set`) keep them valid except for an erased element.",
       "**Why is a range written `[begin, end)`, and why compare with `!=`?**\n\n`end()` is one past the last element, so an empty range is simply `begin == end` and the length is `end - begin`. Only `!=` works for every container; `<` exists only for random-access iterators."
+     ],
+     "cards": [
+      "iterators-3",
+      "iterators-4"
      ],
      "items": [
       "iterators:6",
@@ -467,11 +589,17 @@
       "**What is the erase-remove idiom?**\n\n`std::remove`/`remove_if` only moves the elements to keep to the front and returns the new end; it cannot shrink the container. Pass that to the container's `erase` to actually delete the tail: `v.erase(std::remove_if(...), v.end())`. C++20 has `std::erase_if`.",
       "**Why must a comparator for `sort` be a strict weak ordering?**\n\nThe algorithm assumes that \"less\" is irreflexive (`comp(a, a)` is false) and transitive. A comparator such as `<=` is true for equal elements, so `sort` can run past the end of the range or crash. Use `<`, and `stable_sort` when equal elements must keep their order."
      ],
+     "cards": [
+      "algorithms-0",
+      "algorithms-1",
+      "algorithms-2"
+     ],
      "items": [
       "algorithms:0",
       "algorithms:1",
       "algorithms:2",
       "algorithms:3",
+      "b:algorithms:0",
       "algorithms:4",
       "algorithms:5",
       "algorithms:6",
@@ -484,6 +612,10 @@
      "intro": [
       "**Why does `lower_bound` need a sorted range?**\n\nIt is a binary search: it compares with the middle element and discards half the range each step. That is only correct if the elements are ordered by the same comparison. On unsorted data the answer is meaningless. It is O(log n) on random-access iterators.",
       "**Why use `<random>` instead of `rand() % n`?**\n\n`rand()` has poor quality, global state, and the modulo skews the distribution. An engine (`mt19937`) produces bits and a distribution (`uniform_int_distribution`) shapes them; one engine per thread, seeded from `random_device` or a fixed value for repeatable tests."
+     ],
+     "cards": [
+      "algorithms-3",
+      "algorithms-4"
      ],
      "items": [
       "algorithms:8",
@@ -503,10 +635,15 @@
       "**How are template arguments deduced?**\n\nFrom the arguments of the call, by the shape of the parameter. By value (`T x`): `const` and references are dropped and arrays decay to pointers. By reference (`T& x`): `const` and the array size are kept. `T&&` is a forwarding reference. No conversions take part, so `maxOf(3, 2.5)` fails; name `T` explicitly.",
       "**What happens when you use a function template?**\n\nThe compiler deduces the template arguments from the call, then **instantiates** a concrete function for that combination of types (once per distinct combination across the program), and compiles it like normal code. The template itself generates no code."
      ],
+     "cards": [
+      "templates-0",
+      "templates-1"
+     ],
      "items": [
       "templates:0",
       "templates:1",
       "templates:2",
+      "b:templates:0",
       "templates:3",
       "templates:4",
       "templates:5"
@@ -518,6 +655,10 @@
      "intro": [
       "**What is a forwarding reference?**\n\nA `T&&` parameter where `T` is deduced for that very function template (or `auto&&`). It binds to lvalues and rvalues alike: for an lvalue `T` becomes `X&` and reference collapsing makes the parameter `X&`; for an rvalue `T` is `X` and the parameter is `X&&`. `std::forward` then preserves that category.",
       "**What is a variadic template and how do you process the pack?**\n\nA template taking zero or more arguments via a parameter pack (`typename... Args`). Expand with `args...`. Process by recursion with a base case, or in C++17 with a fold expression like `(args + ...)`."
+     ],
+     "cards": [
+      "templates-2",
+      "templates-3"
      ],
      "items": [
       "templates:6",
@@ -533,6 +674,9 @@
      "title": "Function Templates (3/3)",
      "intro": [
       "**Templates vs inheritance for polymorphism?**\n\nTemplates give static (compile-time) polymorphism: no runtime cost and inlinable, but the type must be known when compiling and each type duplicates code. Inheritance with virtual functions gives dynamic (runtime) polymorphism: one code path and heterogeneous collections, at the cost of an indirection and heap-allocated objects."
+     ],
+     "cards": [
+      "templates-4"
      ],
      "items": [
       "templates:12",
@@ -550,10 +694,16 @@
       "**Full vs partial specialization?**\n\nFull: all template arguments fixed. Partial: a pattern with some parameters still free (`Foo<T*>`), allowed for class templates and variable templates but not for function templates (use overloading).",
       "**Why must template definitions be in headers?**\n\nThe compiler needs the body to instantiate it in each translation unit that uses a particular type. If only the declaration is visible, no instantiation happens and the linker cannot find the function. Alternative: explicit instantiation in one `.cpp`."
      ],
+     "cards": [
+      "classtemplates-0",
+      "classtemplates-1",
+      "classtemplates-2"
+     ],
      "items": [
       "classtemplates:0",
       "classtemplates:1",
       "classtemplates:2",
+      "b:classtemplates:0",
       "classtemplates:3",
       "classtemplates:4",
       "classtemplates:5"
@@ -565,6 +715,10 @@
      "intro": [
       "**What is a non-type template parameter?**\n\nA template parameter that is a compile-time value instead of a type, such as the `N` in `std::array<int, N>`. Each value gives a different type, which is why `Stack<int, 8>` and `Stack<int, 9>` are unrelated.",
       "**What is class template argument deduction?**\n\nSince C++17 the compiler can deduce the arguments of a class template from the constructor call: `std::vector v{1, 2, 3}` is a `vector<int>`. A deduction guide tells it how when the constructors alone are not enough."
+     ],
+     "cards": [
+      "classtemplates-3",
+      "classtemplates-4"
      ],
      "items": [
       "classtemplates:6",
@@ -582,11 +736,16 @@
       "**What does SFINAE stand for and why does it exist?**\n\nSubstitution Failure Is Not An Error: an invalid substitution while deducing a template removes that candidate from overload resolution instead of causing a hard error. It is what makes `enable_if` overload selection work.",
       "**`std::is_same_v<int, const int>`?**\n\nFalse. They are different types. `const` and references are part of the type, which is why traits like `std::decay_t` and `std::remove_cvref_t` exist."
      ],
+     "cards": [
+      "compiletime-0",
+      "compiletime-1"
+     ],
      "items": [
       "compiletime:0",
       "compiletime:1",
       "compiletime:2",
       "compiletime:3",
+      "b:compiletime:0",
       "compiletime:4",
       "compiletime:5",
       "compiletime:6"
@@ -598,6 +757,10 @@
      "intro": [
       "**`constexpr` function versus `consteval` function?**\n\n`constexpr` may run at compile time or run time. `consteval` must run at compile time and is a compile error otherwise.",
       "**Why is `if constexpr` better than `if` in a template?**\n\nThe discarded branch is not instantiated, so code that is invalid for some `T` does not break the build for that `T`."
+     ],
+     "cards": [
+      "compiletime-2",
+      "compiletime-3"
      ],
      "items": [
       "compiletime:7",
@@ -615,6 +778,10 @@
      "intro": [
       "**What is a concept, and why is it better than `enable_if`?**\n\nA concept is a named compile-time condition on template arguments (`std::integral<T>`, or your own with `requires`). It states the interface of a template in the signature and fails at the call site with a readable \"constraint not satisfied\" message, where `enable_if` gives pages of substitution errors.",
       "**How do you avoid writing the factorial struct by hand today?**\n\nWrite `constexpr int factorial(int n)` and use it in a `constexpr` context. It is shorter, readable and can also run at run time."
+     ],
+     "cards": [
+      "compiletime-4",
+      "compiletime-5"
      ],
      "items": [
       "compiletime:14",
@@ -641,6 +808,12 @@
       "**Why should destructors not throw?**\n\nDestructors run during unwinding. If one throws while another exception is active, `std::terminate` is called. Destructors are `noexcept` by default; catch and handle errors inside them.",
       "**What are the exception-safety guarantees?**\n\nNo-throw (never throws: destructors, swap, moves), strong (if it throws, the state is exactly as before: commit or rollback), and basic (nothing leaks and invariants hold, but values may have changed). Get the strong guarantee by doing the work on a copy and publishing with a non-throwing swap."
      ],
+     "cards": [
+      "core-0",
+      "core-1",
+      "core-2",
+      "core-3"
+     ],
      "items": [
       "core:0",
       "core:1",
@@ -659,6 +832,11 @@
       "**Why mark move operations `noexcept`?**\n\n`std::vector` moves its elements when it grows only if the move cannot throw; otherwise it copies them to keep the strong guarantee. A missing `noexcept` silently turns every reallocation into a round of copies.",
       "**What happens if a `noexcept` function throws?**\n\n`std::terminate` is called: the exception does not propagate. So only promise `noexcept` when it is true.",
       "**How do you run cleanup on every path without `finally`?**\n\nPut it in a destructor: a standard RAII wrapper (`lock_guard`, `unique_ptr`, `fstream`) or a small scope guard class. Release the guard on success to commit."
+     ],
+     "cards": [
+      "core-4",
+      "core-5",
+      "core-6"
      ],
      "items": [
       "core:8",
@@ -686,6 +864,12 @@
       "**What happens on `*opt`, `opt.value()` and `opt.value_or(x)` when it is empty?**\n\n`*opt` is undefined behaviour, `value()` throws `std::bad_optional_access`, and `value_or(x)` returns `x`. Test with `if (opt)` first when you can.",
       "**How does `std::variant` differ from a `union`?**\n\nA variant remembers which alternative is active (`index()`), destroys the old one and constructs the new one on assignment, works with non-trivial types such as `std::string`, and throws `bad_variant_access` if you read the wrong one. A raw union does none of that, and reading the wrong member is undefined behaviour."
      ],
+     "cards": [
+      "vocab-0",
+      "vocab-1",
+      "vocab-2",
+      "vocab-3"
+     ],
      "items": [
       "vocab:0",
       "vocab:1",
@@ -704,6 +888,12 @@
       "**`optional`, `expected`, exception or error code?**\n\n`optional` when \"no value\" needs no explanation. `expected<T, E>` (C++23) when the failure is normal and the reason matters. An exception for rare failures the local code cannot handle, and for constructors. An error code only at C boundaries.",
       "**Exceptions or error codes?**\n\nExceptions for rare failures the local code cannot handle (and constructors); return values (`optional`, error codes, `expected`) for expected failures and for hot paths where a throw's cost and unpredictability are unacceptable."
      ],
+     "cards": [
+      "vocab-4",
+      "vocab-5",
+      "vocab-6",
+      "vocab-7"
+     ],
      "items": [
       "vocab:6",
       "vocab:7",
@@ -718,6 +908,10 @@
      "intro": [
       "**What are lvalues, prvalues and xvalues?**\n\nAn lvalue is a named object with an address. A prvalue is an unnamed temporary (a literal, `a + b`, a call returning by value). An xvalue is an object marked as movable, such as `std::move(x)`. Rvalue means prvalue or xvalue. A named rvalue-reference parameter is still an lvalue inside the function.",
       "**What is the address test for lvalues and rvalues?**\n\nIf you can take the address of an expression with `&`, it is an lvalue. A literal, `a + b` or the result of a call that returns by value is an rvalue and has no address."
+     ],
+     "cards": [
+      "moves-0",
+      "moves-1"
      ],
      "items": [
       "moves:0",
@@ -734,6 +928,10 @@
      "intro": [
       "**Which reference types bind to an rvalue?**\n\n`const T&` and `T&&`. A plain `T&` binds only to lvalues. When both a `const T&` and a `T&&` overload exist, an rvalue chooses `T&&`.",
       "**Inside `void g(std::string&& s)`, is `s` an lvalue or an rvalue?**\n\nAn lvalue: it has a name and you can use it more than once. To pass it on as an rvalue you must write `std::move(s)`."
+     ],
+     "cards": [
+      "moves-2",
+      "moves-3"
      ],
      "items": [
       "moves:6",
@@ -752,6 +950,11 @@
       "**What state is a moved-from object in?**\n\nValid but unspecified: you may destroy it or assign a new value to it, but not rely on its contents. For standard types it is usually empty.",
       "**Why does `std::move` on a `const` object copy?**\n\nThe cast gives a `const T&&`, which cannot bind to the move constructor's `T&&` parameter, so overload resolution picks the copy constructor. No error, just a copy."
      ],
+     "cards": [
+      "copymove-0",
+      "copymove-1",
+      "copymove-2"
+     ],
      "items": [
       "copymove:0",
       "copymove:1",
@@ -766,6 +969,10 @@
      "intro": [
       "**When is moving not faster than copying?**\n\nFor types that own no resource: an `int` or a small struct is just copied. The gain is for types that own memory, handles or other resources.",
       "**Is it safe to use an object after `std::move`?**\n\nOnly to destroy it or assign a new value to it. Its contents are unspecified, so do not read them."
+     ],
+     "cards": [
+      "copymove-3",
+      "copymove-4"
      ],
      "items": [
       "copymove:5",
@@ -783,6 +990,11 @@
       "**What does a move constructor do to the source object?**\n\nIt steals the resources (pointers, handles) and resets the source to a safe empty state, for example with `std::exchange(o.p, nullptr)`, so the source destructor frees nothing.",
       "**What is copy-and-swap assignment?**\n\n`T& operator=(T o) { swap(*this, o); return *this; }`: the parameter is copied or moved depending on the argument, then swapped in. The old contents are destroyed with `o`. It handles self-assignment and gives the strong guarantee."
      ],
+     "cards": [
+      "writemoves-0",
+      "writemoves-1",
+      "writemoves-2"
+     ],
      "items": [
       "writemoves:0",
       "writemoves:1",
@@ -799,6 +1011,10 @@
       "**What does the Rule of Zero say?**\n\nDo not write special member functions when members like `vector`, `string` and `unique_ptr` already manage themselves; the compiler's copy and move are then correct.",
       "**Why can declaring a destructor make moves slower?**\n\nA user-declared destructor stops the compiler generating move operations, so moves silently fall back to the copy operations."
      ],
+     "cards": [
+      "writemoves-3",
+      "writemoves-4"
+     ],
      "items": [
       "writemoves:6",
       "writemoves:7",
@@ -813,6 +1029,10 @@
      "intro": [
       "**What is copy elision / RVO?**\n\nThe compiler constructs a returned object directly in the caller's storage, skipping the copy or move. In C++17 it is guaranteed when returning a temporary (prvalue). NRVO for a named local is allowed but not required. Do not write `return std::move(local)`: it prevents it and costs a move.",
       "**Why is `return std::move(local);` a mistake?**\n\nIt turns the returned expression into an xvalue, which blocks NRVO. The compiler then must move the object instead of building it in place: an extra move for nothing."
+     ],
+     "cards": [
+      "elision-0",
+      "elision-1"
      ],
      "items": [
       "elision:0",
@@ -830,6 +1050,10 @@
       "**What changed about elision in C++17?**\n\nReturning a prvalue (a temporary such as `return T();`) is guaranteed to build the object directly in the caller's storage, so the type does not even need a copy or move constructor. Elision of a named local (NRVO) is still optional.",
       "**When is `std::move` on a return correct?**\n\nWhen you return a member of an object that outlives the call, or a by-value parameter's member: it is not the local being named, so no elision applies and moving avoids a copy."
      ],
+     "cards": [
+      "elision-2",
+      "elision-3"
+     ],
      "items": [
       "elision:6",
       "elision:7",
@@ -844,6 +1068,10 @@
      "intro": [
       "**How do you write a class that stores a string argument efficiently?**\n\nTake the parameter by value and `std::move` it into the member. An lvalue costs one copy plus one move, an rvalue costs one move, and there is a single function to write.",
       "**What is the difference between `push_back` and `emplace_back`?**\n\n`push_back` takes an existing object (copied or moved into the container). `emplace_back` forwards its arguments and constructs the element in place, saving a temporary. Both reallocate the same way."
+     ],
+     "cards": [
+      "sinks-0",
+      "sinks-1"
      ],
      "items": [
       "sinks:0",
@@ -861,6 +1089,10 @@
       "**When should a sink parameter not be taken by value?**\n\nFor setters and other functions that assign into an existing object: assignment can reuse existing storage, while a by-value parameter always constructs a new object first. Also when the type is expensive to move, where two overloads are better.",
       "**List three traps that make a move silently a copy.**\n\n`std::move` on a `const` object, a type without move operations (or whose moves were suppressed by a user-declared destructor), and a forwarding reference passed on with `std::move` or without `std::forward`."
      ],
+     "cards": [
+      "sinks-2",
+      "sinks-3"
+     ],
      "items": [
       "sinks:6",
       "sinks:7",
@@ -875,6 +1107,10 @@
      "intro": [
       "**What is perfect forwarding, and why do we need it?**\n\nPassing arguments through a wrapper to another function without changing their value category or constness, so the callee can still choose copy vs move correctly. Without it you would need an overload per combination of lvalue/rvalue/const for every parameter.",
       "**What is the difference between `std::move` and `std::forward`?**\n\n`std::move` always casts to an rvalue. `std::forward<T>` casts to an rvalue only if the argument that was passed was an rvalue, and keeps an lvalue otherwise. Use `forward` only on a forwarding reference, once."
+     ],
+     "cards": [
+      "forwarding-0",
+      "forwarding-1"
      ],
      "items": [
       "forwarding:0",
@@ -891,6 +1127,10 @@
       "**What is reference collapsing?**\n\nThe rule that resolves a reference to a reference created by templates: `T& &&`, `T&& &` and `T& &` all become `T&`; only `T&& &&` stays `T&&`. It is why a forwarding reference can bind to both lvalues and rvalues.",
       "**Is every `T&&` a forwarding reference?**\n\nNo. It must be `T&&` where `T` is deduced for that very function template (or `auto&&`). `std::vector<T>&&`, a `const T&&` and the `T&&` of a class template's member function are plain rvalue references."
      ],
+     "cards": [
+      "forwarding-2",
+      "forwarding-3"
+     ],
      "items": [
       "forwarding:5",
       "forwarding:6",
@@ -906,6 +1146,11 @@
       "**What does `unique_ptr` guarantee?**\n\nExactly one owner at a time. When the owner is destroyed it deletes the object, so you cannot forget to free it or free it twice by accident.",
       "**Why can a `unique_ptr` not be copied?**\n\nTwo owners would delete the object twice. Ownership is transferred by moving instead, which leaves the source null.",
       "**How do you pass and return a `unique_ptr`?**\n\nReturn it by value from a factory (it moves out). Take it by value, with `std::move` at the call, to take ownership. If the function only uses the object, take `const T&` or `T*` instead."
+     ],
+     "cards": [
+      "uniqueptr-0",
+      "uniqueptr-1",
+      "uniqueptr-2"
      ],
      "items": [
       "uniqueptr:0",
@@ -924,6 +1169,10 @@
      "intro": [
       "**What is the overhead of `unique_ptr`?**\n\nNone with the default deleter: the same size as a raw pointer and the same cost to use. A function-pointer deleter doubles the size; a stateless lambda adds nothing.",
       "**`get()`, `release()` and `reset()`?**\n\n`get()` returns the raw pointer and keeps ownership. `release()` gives up ownership and returns the pointer, so you must delete it. `reset()` destroys the object now."
+     ],
+     "cards": [
+      "uniqueptr-3",
+      "uniqueptr-4"
      ],
      "items": [
       "uniqueptr:8",
@@ -944,6 +1193,11 @@
       "**Is `shared_ptr` thread-safe?**\n\nThe reference count is atomic, so copying and destroying `shared_ptr`s from different threads is safe. The pointed-to object is **not** protected: concurrent access to it still needs synchronization. Concurrently modifying the same `shared_ptr` variable is also a race.",
       "**Why prefer `make_unique` / `make_shared`?**\n\nNo naked `new`, less typing (and exception safe before C++17), and `make_shared` allocates the object and its control block once instead of twice."
      ],
+     "cards": [
+      "smartptr-0",
+      "smartptr-1",
+      "smartptr-2"
+     ],
      "items": [
       "smartptr:0",
       "smartptr:1",
@@ -960,6 +1214,11 @@
       "**How do you pass a smart pointer to a function?**\n\nIf the function only uses the object, pass a reference or raw pointer, not the smart pointer. To transfer ownership, take a `unique_ptr` by value and have the caller `std::move`. To share, take a `shared_ptr` by value. Return `unique_ptr` from factories.",
       "**Why can two `shared_ptr`s built from the same raw pointer crash?**\n\nEach creates its own control block and count, so the object is deleted twice. Copy an existing `shared_ptr`, or inherit `enable_shared_from_this` when an object must hand out a shared pointer to itself.",
       "**Does `unique_ptr` cost anything compared with a raw pointer?**\n\nNot with the default deleter: it is the same size and the destructor inlines to a `delete`. A stateful deleter (a capturing lambda, a function pointer) makes it larger."
+     ],
+     "cards": [
+      "smartptr-3",
+      "smartptr-4",
+      "smartptr-5"
      ],
      "items": [
       "smartptr:6",
@@ -978,6 +1237,11 @@
       "**Why must you call `lock()` instead of checking `expired()` first?**\n\nAnother thread can release the last owner between the check and the use. `lock()` atomically gives you an owner or an empty pointer, so test that result and use it.",
       "**What does a `weak_ptr` keep alive?**\n\nOnly the control block (the counts), never the object. That is what lets `expired()` answer after the object is gone."
      ],
+     "cards": [
+      "weakptr-0",
+      "weakptr-1",
+      "weakptr-2"
+     ],
      "items": [
       "weakptr:0",
       "weakptr:1",
@@ -993,6 +1257,10 @@
      "intro": [
       "**Why does `make_shared` delay freeing memory when a `weak_ptr` remains?**\n\nThe object and the control block share one allocation. The object is destroyed on time, but the block of memory is released only when the last weak reference goes.",
       "**Name three uses of `weak_ptr`.**\n\nParent back links in a tree, caches that must not keep unused entries alive, and observer lists that must not keep listeners alive."
+     ],
+     "cards": [
+      "weakptr-3",
+      "weakptr-4"
      ],
      "items": [
       "weakptr:6",
@@ -1017,6 +1285,10 @@
       "**What is the difference between a process and a thread?**\n\nA process has its own address space; threads of one process share memory but each has its own stack and registers. Thread creation and switching are cheaper, communication is easy (shared memory) but needs synchronization.",
       "**What happens if a `std::thread` is destroyed while still joinable, and why?**\n\n`std::terminate` is called. The alternatives are worse: an implicit `join` can hide long waits, and an implicit `detach` leaves a running thread using locals that may be gone (undefined behavior). So make the thread unjoinable on every path: join in an RAII guard, or use `std::jthread` (C++20), which joins automatically."
      ],
+     "cards": [
+      "threads-0",
+      "threads-1"
+     ],
      "items": [
       "threads:0",
       "threads:1",
@@ -1031,6 +1303,9 @@
      "title": "Threads: The Mental Model and Your First Thread (2/2)",
      "intro": [
       "**What happens if a `std::thread` is destroyed while still joinable, and why?**\n\n`std::terminate` is called. The alternatives are worse: an implicit `join` can hide long waits, and an implicit `detach` leaves a running thread using locals that may be gone (undefined behavior). So make the thread unjoinable on every path: join in an RAII guard, or use `std::jthread` (C++20), which joins automatically."
+     ],
+     "cards": [
+      "threads-2"
      ],
      "items": [
       "threads:6",
@@ -1048,6 +1323,10 @@
       "**What is a data race? Is it the same as a race condition?**\n\nA data race is unsynchronised concurrent access to the same memory with at least one write: undefined behavior in C++. A race condition is the wider class of bugs where correctness depends on timing, which can exist even without a data race (two correctly locked steps that needed to be one atomic operation).",
       "**Is a function-local `static` initialised thread-safely?**\n\nYes, since C++11 initialization happens exactly once even with concurrent callers (\"magic statics\"). That is why the Meyers Singleton is thread-safe. Using the object afterwards still needs its own synchronization."
      ],
+     "cards": [
+      "races-0",
+      "races-1"
+     ],
      "items": [
       "races:0",
       "races:1",
@@ -1064,6 +1343,10 @@
       "**Why is `++counter` not safe on two threads?**\n\nIt is three steps: load, add, store. If both threads load before either stores, one increment is lost. Use a mutex or `std::atomic`.",
       "**What are the three ways to share data safely?**\n\nDo not share (each thread owns its data and results are merged), share but never modify (`const` data), or share and protect with a mutex or an atomic."
      ],
+     "cards": [
+      "races-2",
+      "races-3"
+     ],
      "items": [
       "races:6",
       "races:7",
@@ -1078,6 +1361,10 @@
      "intro": [
       "**`lock_guard` vs `unique_lock` vs `scoped_lock`?**\n\n`lock_guard`: simplest RAII lock for a scope. `unique_lock`: flexible (unlock/relock, deferred, movable) and needed by condition variables. `scoped_lock` (C++17): locks multiple mutexes at once with deadlock avoidance.",
       "**My class locks a mutex in every method. Is it thread-safe?**\n\nNot necessarily. Each call is safe on its own, but a caller's sequence of calls is not atomic. The classic case is a shared stack: `if (!s.empty()) { v = s.top(); s.pop(); }` races, because another thread can pop between the check and the use. The cause is the interface (it is also true of a lock-free stack), so the fix is to provide whole operations such as `std::optional<T> try_pop()` that check and remove under one lock."
+     ],
+     "cards": [
+      "mutexes-0",
+      "mutexes-1"
      ],
      "items": [
       "mutexes:0",
@@ -1097,6 +1384,10 @@
       "**What does `std::scoped_lock` do?**\n\nIt locks several mutexes in one step with a deadlock-avoidance algorithm and unlocks them in its destructor. Use it whenever you need more than one lock.",
       "**When would you use `std::shared_mutex`?**\n\nFor read-mostly data: many readers take a `shared_lock` at the same time, a writer takes a `unique_lock` and excludes everyone. It only pays when reads greatly outnumber writes."
      ],
+     "cards": [
+      "mutexes-2",
+      "mutexes-3"
+     ],
      "items": [
       "mutexes:8",
       "mutexes:9",
@@ -1113,6 +1404,10 @@
      "intro": [
       "**What is a deadlock and how do you prevent it?**\n\nThreads wait for each other's locks forever. Needs mutual exclusion, hold-and-wait, no preemption and circular wait. Prevent with a consistent global lock order, `std::scoped_lock`/`std::lock` for multiple mutexes, short critical sections, no calls to foreign code under a lock, or `try_lock`.",
       "**Can threads deadlock without any mutex? What are the practical rules against deadlock?**\n\nYes: two threads that `join()` each other, or any cycle of waits on futures or condition variables. The rules all mean \"do not wait for a thread that might be waiting for you\": avoid nested locks (or take several with `scoped_lock`), never call user-supplied code or leak references to protected data while holding a lock, lock in a fixed order, and use a lock hierarchy so a wrong order is caught immediately at runtime."
+     ],
+     "cards": [
+      "deadlock-0",
+      "deadlock-1"
      ],
      "items": [
       "deadlock:0",
@@ -1131,6 +1426,10 @@
       "**What are the four Coffman conditions?**\n\nMutual exclusion, hold and wait, no preemption and circular wait. All four must hold for a deadlock; breaking any one prevents it. A global lock order breaks circular wait.",
       "**Why is `std::scoped_lock(a, b)` safe when two threads pass the mutexes in opposite orders?**\n\nIt takes the locks with a deadlock-avoidance algorithm (try-and-back-off or ordering), so the order of the arguments does not matter."
      ],
+     "cards": [
+      "deadlock-2",
+      "deadlock-3"
+     ],
      "items": [
       "deadlock:7",
       "deadlock:8",
@@ -1147,6 +1446,11 @@
       "**Why does `condition_variable::wait` need a predicate / a loop?**\n\nSpurious wakeups (a thread may wake without a notification) and because the state may change again between the notification and the thread reacquiring the lock. The predicate re-checks the real condition.",
       "**Why must the shared condition be modified under the mutex?**\n\nOtherwise the waiter could check the condition (false), then the notifier changes it and notifies, then the waiter goes to sleep: a lost wakeup. The mutex makes check-and-sleep atomic with respect to the update.",
       "**How would you find a data race in a large program?**\n\nBuild and run the tests with ThreadSanitizer (`-fsanitize=thread`), and Helgrind for lock-order problems; review shared state and make sure every access has a lock or is atomic; reduce sharing by design."
+     ],
+     "cards": [
+      "condvars-0",
+      "condvars-1",
+      "condvars-2"
      ],
      "items": [
       "condvars:0",
@@ -1165,6 +1469,10 @@
       "**What is a spurious wakeup?**\n\nA waiting thread can return from `wait` without anyone having notified it. That is why the wait is always paired with a predicate that is re-checked after each wakeup.",
       "**What does `wait` do with the mutex?**\n\nIt must be given a `unique_lock`. `wait` unlocks it while the thread sleeps and locks it again before returning, so the predicate is always checked under the lock."
      ],
+     "cards": [
+      "condvars-3",
+      "condvars-4"
+     ],
      "items": [
       "condvars:7",
       "condvars:8",
@@ -1181,6 +1489,11 @@
       "**`std::async` vs `std::thread`?**\n\n`async` returns a `future` carrying the result and any exception, and may use a pool or defer execution (use `launch::async` to force a thread). `thread` gives raw control with no result channel. A future from `async` blocks in its destructor.",
       "**What are `promise`, `future` and `packaged_task`?**\n\nA `promise` is the write end of a one-shot channel, a `future` the read end. A `packaged_task` wraps a callable and fulfils a future with its result or exception, which is how a pool returns results. A `shared_future` is a copyable read end for several waiters.",
       "**How would you signal several threads to start at the same moment?**\n\nA `promise<void>` whose `shared_future` every thread waits on, or a `std::latch`/`barrier`. The promise is one-shot; for repeated signals use a condition variable."
+     ],
+     "cards": [
+      "tasks-0",
+      "tasks-1",
+      "tasks-2"
      ],
      "items": [
       "tasks:0",
@@ -1199,6 +1512,10 @@
       "**Why does a discarded `std::async` future make the call synchronous?**\n\nThe future returned by `async` waits for its task in its destructor. A temporary is destroyed at the end of the statement, so the statement blocks until the task has finished.",
       "**How does an exception from a task reach the caller?**\n\nIt is caught inside the task, stored in the shared state, and rethrown by `future::get()`."
      ],
+     "cards": [
+      "tasks-3",
+      "tasks-4"
+     ],
      "items": [
       "tasks:7",
       "tasks:8",
@@ -1216,6 +1533,12 @@
       "**Why is the task run outside the lock in a thread-pool worker?**\n\nOtherwise only one task could run at a time, and the queue would stay locked while a task works. The worker takes the task under the lock, releases it, then runs the task.",
       "**How many threads should a pool have?**\n\nAbout `hardware_concurrency()` for CPU-bound work (more means oversubscription and context switches), more for I/O-bound or blocking work. Use separate pools for mixed workloads.",
       "**What is work stealing?**\n\nEach worker has its own deque of tasks and pops from it; an idle worker steals from the back of another's deque. Owners and thieves work at opposite ends, so contention is low and load balances automatically. It removes the single shared queue's lock as a bottleneck."
+     ],
+     "cards": [
+      "pools-0",
+      "pools-1",
+      "pools-2",
+      "pools-3"
      ],
      "items": [
       "pools:0",
@@ -1236,6 +1559,12 @@
       "**How do you stop a thread cleanly?**\n\nCooperatively: ask it to stop and let it return. C++20 `std::jthread` passes a `std::stop_token` that the loop checks, and its destructor requests the stop and joins. There is no safe forced kill.",
       "**When is a parallel algorithm worth using, and what must you watch?**\n\nFor large inputs and non-trivial work per element. The callback must be thread-safe, `reduce` needs an associative operation, and small ranges are slower because of thread overhead. Without a parallel backend the call runs serially."
      ],
+     "cards": [
+      "pools-4",
+      "pools-5",
+      "pools-6",
+      "pools-7"
+     ],
      "items": [
       "pools:7",
       "pools:8",
@@ -1254,6 +1583,11 @@
       "**Is `volatile` a substitute for `atomic`?**\n\nNo. `volatile` prevents some compiler optimisations but gives no atomicity and no inter-thread ordering. Using it for synchronization is a data race.",
       "**`compare_exchange_weak` vs `strong`?**\n\nBoth set a value only if it still equals the expected one. `weak` may fail spuriously, so it belongs in a retry loop and is cheaper on some CPUs; `strong` fails only on a real mismatch and suits a single attempt. On failure they load the current value into `expected`."
      ],
+     "cards": [
+      "atomics-0",
+      "atomics-1",
+      "atomics-2"
+     ],
      "items": [
       "atomics:0",
       "atomics:1",
@@ -1270,6 +1604,10 @@
      "intro": [
       "**What is the ABA problem?**\n\nA CAS succeeds because the value is A again, but it went A to B to A in between, and the structure around it changed (for example a node was freed and reused). Fix with a version counter beside the pointer, or hazard pointers or epoch reclamation.",
       "**When is a spinlock appropriate?**\n\nFor very short critical sections on dedicated cores where waiting is shorter than a context switch. It burns CPU while waiting and is dangerous if the holder can be descheduled. Otherwise use a mutex."
+     ],
+     "cards": [
+      "atomics-3",
+      "atomics-4"
      ],
      "items": [
       "atomics:7",
@@ -1289,6 +1627,11 @@
       "**What does release/acquire guarantee?**\n\nEverything the producer wrote before a release store is visible to a thread that reads the stored value with an acquire load. The pair synchronizes-with, which gives a happens-before edge, so the earlier plain writes are not a data race.",
       "**What does happens-before mean?**\n\nIf A happens-before B, then A's effects are visible to B. Within a thread it is program order; between threads it exists only through synchronization: atomics with matching orders, mutex unlock/lock, thread start and join, futures. Two conflicting accesses without a happens-before relation are a data race."
      ],
+     "cards": [
+      "memmodel-0",
+      "memmodel-1",
+      "memmodel-2"
+     ],
      "items": [
       "memmodel:0",
       "memmodel:1",
@@ -1305,6 +1648,10 @@
       "**When is `relaxed` enough?**\n\nWhen no other data depends on the atomic: a statistics counter, an id generator, a shutdown flag that carries no data. The final value is correct, but it orders nothing else.",
       "**Why can code with a wrong memory order work on x86 and fail on ARM?**\n\nx86's hardware already orders ordinary loads and stores like release/acquire, so missing orderings are hidden. ARM and POWER reorder far more, so the same code can read stale data there. The C++ model, not the PC you tested on, defines correctness."
      ],
+     "cards": [
+      "memmodel-3",
+      "memmodel-4"
+     ],
      "items": [
       "memmodel:6",
       "memmodel:7",
@@ -1320,6 +1667,10 @@
      "intro": [
       "**How is a reference count made thread-safe, and with which orders?**\n\nWith an atomic counter: increments can be relaxed, the decrement is `acq_rel` so the thread that drops it to zero sees all other threads' writes before it destroys the object. `shared_ptr`'s control block works this way.",
       "**Mutex, fine-grained locks or lock-free: how do you choose?**\n\nStart with one mutex and measure. Split locks if contention shows up and the structure has independent parts (head and tail of a queue, buckets of a table). Go lock-free only for a proven bottleneck and with a known-correct design, because memory reclamation and ABA make it hard; an SPSC ring buffer is the one case simple enough to write confidently."
+     ],
+     "cards": [
+      "memmodel-5",
+      "memmodel-6"
      ],
      "items": [
       "memmodel:12",
@@ -1346,6 +1697,12 @@
       "**How do you iterate over every match?**\n\n`std::sregex_iterator` (or `std::cregex_iterator` for C strings) over the range, compared with a default-constructed end iterator.",
       "**Which clock for a timeout, and why?**\n\n`steady_clock`, because it is monotonic and unaffected by changes to the system time."
      ],
+     "cards": [
+      "strings-0",
+      "strings-1",
+      "strings-2",
+      "strings-3"
+     ],
      "items": [
       "strings:0",
       "strings:1",
@@ -1365,6 +1722,11 @@
       "**What is the small string optimisation?**\n\nShort strings (about 15 characters in libstdc++) are stored inside the `std::string` object, so no heap allocation happens and copying is cheap. Longer strings keep a pointer to a heap block. `reserve` avoids repeated reallocations when you know the size.",
       "**`from_chars` versus `stoi`?**\n\n`from_chars` (C++17) returns an error code, never throws, never allocates and ignores the locale, so it suits hot paths and feed parsing; check that the end pointer reached the end of the token. `stoi` throws `invalid_argument` or `out_of_range` and is for ordinary code."
      ],
+     "cards": [
+      "strings-4",
+      "strings-5",
+      "strings-6"
+     ],
      "items": [
       "strings:8",
       "strings:9",
@@ -1383,6 +1745,11 @@
       "**`std::format` versus streams versus `printf`?**\n\n`std::format` (C++20) is type-safe, stateless and readable. Streams are extensible but keep state (`std::hex` sticks) and are verbose. `printf` has no type checking, so a wrong specifier is undefined behaviour.",
       "**Why is `while (!f.eof())` the wrong way to read a file?**\n\n`eof` becomes true only after a read has failed, so the loop body runs once more with a failed read. Loop on the read itself: `while (std::getline(f, line))`.",
       "**Output: what does this print? `std::string s = \"abc\"; std::cout << s.find('z') == std::string::npos;`**\n\nIt does not compile as intended: `<<` binds tighter than `==`, so it tries to compare the stream with `npos`. Parenthesise: `std::cout << (s.find('z') == std::string::npos);` prints 1."
+     ],
+     "cards": [
+      "strings-7",
+      "strings-8",
+      "strings-9"
      ],
      "items": [
       "strings:16",
@@ -8582,6 +8949,1338 @@
    ],
    "answer": 1,
    "explanation": "File streams are RAII objects: the destructor flushes and closes the file."
+  }
+ ],
+ "builds": [
+  {
+   "id": "b:callables:0",
+   "topic": "Function pointers",
+   "prompt": "Declare a **function pointer** `fp` to a function that takes an `int` and returns `bool`.",
+   "answer": [
+    "bool",
+    "(*fp)(int)",
+    ";"
+   ],
+   "extra": [
+    "*fp(int)",
+    "int"
+   ],
+   "explanation": "The pointer name goes inside parentheses with the `*`: `bool (*fp)(int);`. Without the parentheses, `bool *fp(int);` declares a function that returns `bool*`."
+  },
+  {
+   "id": "b:lambdas:0",
+   "topic": "Capture by value",
+   "prompt": "Write a lambda that **captures `base` by value** and returns its argument plus `base`.",
+   "answer": [
+    "[base]",
+    "(int n)",
+    "{ return n + base; }"
+   ],
+   "extra": [
+    "[&base]",
+    "[]",
+    "mutable"
+   ],
+   "explanation": "`[base]` copies `base` into the lambda. `[&base]` would capture a reference, and `[]` captures nothing, so `base` would not be visible in the body."
+  },
+  {
+   "id": "b:stl:0",
+   "topic": "Vector capacity",
+   "prompt": "Reserve room for 100 elements in the vector `v` first, **then** append the value 5.",
+   "answer": [
+    "v.reserve(100);",
+    "v.push_back(5);"
+   ],
+   "extra": [
+    "v.resize(100);",
+    "v.insert(5);"
+   ],
+   "explanation": "`reserve` only allocates capacity and leaves `size()` at 0. `resize(100)` would create 100 elements, so appending 5 afterwards makes the 101st."
+  },
+  {
+   "id": "b:assoc:0",
+   "topic": "Looking up a key",
+   "prompt": "Write a condition that is true when key `k` is present in the map `m`, **without inserting** anything.",
+   "answer": [
+    "m.find(k)",
+    "!=",
+    "m.end()"
+   ],
+   "extra": [
+    "m[k]",
+    "==",
+    "m.begin()"
+   ],
+   "explanation": "`find` returns `end()` when the key is missing. `m[k]` would insert a default value for a missing key, which is the classic surprise."
+  },
+  {
+   "id": "b:iterators:0",
+   "topic": "Iterator loop",
+   "prompt": "Write the header of a loop over the vector `v` using **iterators**.",
+   "answer": [
+    "for",
+    "(auto it = v.begin();",
+    "it != v.end();",
+    "++it)"
+   ],
+   "extra": [
+    "it < v.end();",
+    "it++)",
+    "v.end();"
+   ],
+   "explanation": "Compare with `!=` against `end()`, because only random-access iterators support `<`, and prefer `++it` over `it++`."
+  },
+  {
+   "id": "b:algorithms:0",
+   "topic": "Sorting",
+   "prompt": "Sort the vector `v` in **descending** order.",
+   "answer": [
+    "std::sort(v.begin(),",
+    "v.end(),",
+    "std::greater<>());"
+   ],
+   "extra": [
+    "std::less<>());",
+    "v.end());",
+    "std::reverse(v.begin(),"
+   ],
+   "explanation": "`std::sort` sorts ascending by default. Passing `std::greater<>()` as the comparison flips the order."
+  },
+  {
+   "id": "b:templates:0",
+   "topic": "Function template",
+   "prompt": "Declare a **function template** `maxOf` that returns the larger of two values of the same type.",
+   "answer": [
+    "template <typename T>",
+    "T",
+    "maxOf(T a, T b);"
+   ],
+   "extra": [
+    "template <T>",
+    "int",
+    "typename"
+   ],
+   "explanation": "A template parameter list starts with `template <typename T>` (or `class T`). `T` then replaces the concrete type in the signature."
+  },
+  {
+   "id": "b:classtemplates:0",
+   "topic": "Class template",
+   "prompt": "Declare a **class template** `Box` that holds one value of type `T`.",
+   "answer": [
+    "template <typename T>",
+    "class Box",
+    "{ T value; };"
+   ],
+   "extra": [
+    "template class Box",
+    "{ int value; };",
+    "typename"
+   ],
+   "explanation": "The template header comes first, then the class. The member uses `T`, so each `Box<int>` or `Box<std::string>` stores its own type."
+  },
+  {
+   "id": "b:compiletime:0",
+   "topic": "static_assert",
+   "prompt": "Make the compiler **check at compile time** that `int` is 4 bytes, with a message.",
+   "answer": [
+    "static_assert(sizeof(int) == 4,",
+    "\"int must be 4 bytes\");"
+   ],
+   "extra": [
+    "assert(sizeof(int) == 4,",
+    "#error"
+   ],
+   "explanation": "`static_assert(condition, message)` is evaluated by the compiler and stops the build when false. `assert` only checks at run time, and only in builds without `NDEBUG`."
+  }
+ ],
+ "cards": [
+  {
+   "id": "basics-0",
+   "lesson": "basics",
+   "q": "What is undefined behavior?",
+   "a": "Code the standard places no requirements on: the compiler may assume it never happens, so anything can occur (crash, wrong output, or apparently fine). Examples: out-of-bounds access, null dereference, signed overflow, reading uninitialized memory, data races."
+  },
+  {
+   "id": "basics-1",
+   "lesson": "basics",
+   "q": "How do you pass a large object to a function efficiently?",
+   "a": "By `const` reference if the function only reads it, to avoid a copy. By non-const reference if it must modify the caller's object."
+  },
+  {
+   "id": "pointers-0",
+   "lesson": "pointers",
+   "q": "Pointer vs reference?",
+   "a": "A pointer holds an address, can be null, can be re-pointed, and needs `*` to use. A reference is a permanent alias that must be initialized and cannot be null. Use references for parameters, pointers when \"nothing\" is a valid value or you need to re-point."
+  },
+  {
+   "id": "pointers-1",
+   "lesson": "pointers",
+   "q": "Stack vs heap?",
+   "a": "The stack holds locals and is freed automatically when the scope ends; it is fast but small. The heap holds `new`-allocated objects that live until you free them; it is large but slower and you must manage the lifetime (or let a smart pointer do it)."
+  },
+  {
+   "id": "pointers-2",
+   "lesson": "pointers",
+   "q": "What is a dangling pointer?",
+   "a": "A pointer to memory that has been freed or has gone out of scope. Dereferencing it is undefined behavior. Setting a pointer to `nullptr` after `delete` helps, and smart pointers avoid the problem."
+  },
+  {
+   "id": "pointers-3",
+   "lesson": "pointers",
+   "q": "`const int*` vs `int* const`?",
+   "a": "Read right to left. `const int*` is a pointer to a const int (data is read-only, pointer can move). `int* const` is a const pointer to an int (pointer is fixed, data can change)."
+  },
+  {
+   "id": "pointers-4",
+   "lesson": "pointers",
+   "q": "`delete` vs `delete[]`?",
+   "a": "Memory from `new` must be freed with `delete`; memory from `new[]` must be freed with `delete[]` so every element's destructor runs. Mixing them is undefined behavior. Deleting `nullptr` is safe and does nothing."
+  },
+  {
+   "id": "types-0",
+   "lesson": "types",
+   "q": "Difference between `const` and `constexpr`?",
+   "a": "`const` means read-only after initialization (the value may be determined at runtime). `constexpr` means the value or function can be evaluated at compile time and used in constant expressions."
+  },
+  {
+   "id": "types-1",
+   "lesson": "types",
+   "q": "What does `auto` deduce, and what are its traps?",
+   "a": "The type of the initializer with top-level `const` and references dropped. `auto x = {1,2,3}` is an `initializer_list`. `auto y = v[0]` copies; use `const auto&`. `decltype(expr)` keeps the exact type."
+  },
+  {
+   "id": "types-2",
+   "lesson": "types",
+   "q": "`std::vector<int> v{3, 7}` versus `v(3, 7)`?",
+   "a": "Braces prefer the `initializer_list` constructor: two elements, 3 and 7. Parentheses call the (count, value) constructor: three elements, each 7."
+  },
+  {
+   "id": "types-3",
+   "lesson": "types",
+   "q": "What are the three meanings of `static`?",
+   "a": "A local variable that lives for the whole program and keeps its value between calls; internal linkage for a global (visible only in this `.cpp`); a class member shared by all objects."
+  },
+  {
+   "id": "types-4",
+   "lesson": "types",
+   "q": "Which C++17 features do you use?",
+   "a": "`std::optional`, `std::variant`, `std::string_view`, structured bindings, `if constexpr`, `if` with initializer, fold expressions and `[[nodiscard]]`: vocabulary types and clearer code."
+  },
+  {
+   "id": "casts-0",
+   "lesson": "casts",
+   "q": "When would you use `dynamic_cast`?",
+   "a": "For a checked downcast from a polymorphic base to a derived type when you cannot express the need through a virtual function. It returns null (pointers) or throws `bad_cast` (references) on failure. Frequent use suggests a design problem."
+  },
+  {
+   "id": "casts-1",
+   "lesson": "casts",
+   "q": "The four named casts?",
+   "a": "`static_cast` for well-defined conversions, `dynamic_cast` for checked downcasts, `const_cast` to add or remove `const` (modifying a truly const object is UB), `reinterpret_cast` to reinterpret bits (rarely correct). Never a C cast: it can silently pick any of them."
+  },
+  {
+   "id": "casts-2",
+   "lesson": "casts",
+   "q": "What is wrong with `if (-1 < 1u)`?",
+   "a": "The signed operand is converted to unsigned, becoming a huge value, so the comparison is false. Avoid mixing signed and unsigned; compile with `-Wsign-compare`."
+  },
+  {
+   "id": "casts-3",
+   "lesson": "casts",
+   "q": "What does a C-style cast `(T)x` do?",
+   "a": "It tries `static_cast`, then `static_cast` plus `const_cast`, then `reinterpret_cast`, and uses the first that compiles. It can silently remove `const` or reinterpret bytes, and it never becomes `dynamic_cast`. Use the named casts so the intent is visible and searchable."
+  },
+  {
+   "id": "casts-4",
+   "lesson": "casts",
+   "q": "What is narrowing, and how do braces help?",
+   "a": "A conversion that can lose information, such as double to int or a value that does not fit. With `=` it compiles silently; with braces the compiler must diagnose it, for example `int b{3.7}` is an error."
+  },
+  {
+   "id": "casts-5",
+   "lesson": "casts",
+   "q": "How do you reinterpret the bits of a float as an integer safely?",
+   "a": "With `std::memcpy` or `std::bit_cast` (C++20). A `reinterpret_cast` of the pointer and a read through it as another type violates the aliasing rules."
+  },
+  {
+   "id": "oop-0",
+   "lesson": "oop",
+   "q": "What does `const` after a member function promise?",
+   "a": "That the function does not modify the object: inside it `this` is a `const T*`. Only such functions can be called on a `const` object, so make every getter `const`."
+  },
+  {
+   "id": "oop-1",
+   "lesson": "oop",
+   "q": "In what order are objects constructed and destroyed?",
+   "a": "Construction: base class first, then the members in declaration order, then the body of the constructor. Destruction runs in the exact reverse order."
+  },
+  {
+   "id": "oop-2",
+   "lesson": "oop",
+   "q": "Why use the member initializer list?",
+   "a": "It initializes members directly instead of default-constructing and then assigning. `const` and reference members can only be set there. Members are initialized in declaration order, whatever order the list is written in."
+  },
+  {
+   "id": "oop-3",
+   "lesson": "oop",
+   "q": "What is a class invariant?",
+   "a": "A condition that must hold for every valid object, such as \"the balance is never negative\". Keep the data private and let only the constructors and member functions change it, so the invariant cannot be broken from outside."
+  },
+  {
+   "id": "oop-4",
+   "lesson": "oop",
+   "q": "`struct` or `class`?",
+   "a": "Only the default access differs: `struct` is public, `class` is private. Use `struct` for plain data and `class` when there is an invariant to protect."
+  },
+  {
+   "id": "oop-5",
+   "lesson": "oop",
+   "q": "What is RAII in one sentence?",
+   "a": "Acquire a resource in the constructor and release it in the destructor, so the resource lives exactly as long as the object and is freed even when the function returns early or throws."
+  },
+  {
+   "id": "copying-0",
+   "lesson": "copying",
+   "q": "What is the Rule of Three / Five / Zero?",
+   "a": "Three: if you define a destructor, copy constructor or copy assignment, define all three. Five: add the move constructor and move assignment. Zero: design classes so none are needed by holding resources in self-managing members like `vector` and `unique_ptr`. Remember that declaring a destructor or a copy operation suppresses the move operations, so moves silently become copies."
+  },
+  {
+   "id": "copying-1",
+   "lesson": "copying",
+   "q": "What does `explicit` do on a constructor and on `operator bool`?",
+   "a": "On a constructor it forbids implicit conversions from the argument type (`Feet f = 3.0` fails). On `operator bool` it allows the conversion only in contexts such as `if` and `while`, not in arithmetic. Mark single-argument constructors `explicit` by default."
+  },
+  {
+   "id": "copying-2",
+   "lesson": "copying",
+   "q": "What is copy-and-swap?",
+   "a": "Write the copy constructor and a non-throwing `swap`, then implement `operator=(T other)` by value that swaps with the parameter. The copy happens before `*this` is modified, giving the strong exception guarantee and safe self-assignment with one function."
+  },
+  {
+   "id": "copying-3",
+   "lesson": "copying",
+   "q": "Member or non-member operator?",
+   "a": "Operators that change the left operand (`+=`) are members. Operators where both sides should convert (`+`, `==`) are non-members, built from the member ones. `operator<<` for printing must be a non-member because its left operand is the stream."
+  },
+  {
+   "id": "inherit-0",
+   "lesson": "inherit",
+   "q": "Why must a base class destructor be virtual?",
+   "a": "If you `delete` a derived object through a base pointer and the destructor is not virtual, only the base destructor runs: undefined behavior, and the derived part's resources leak. A virtual destructor makes `delete` dispatch to the most derived destructor first. Any class meant to be a polymorphic base needs one."
+  },
+  {
+   "id": "inherit-1",
+   "lesson": "inherit",
+   "q": "What is the difference between overloading and overriding?",
+   "a": "Overloading: several functions with the same name and different parameters in the same scope, chosen at compile time. Overriding: a derived class provides its own implementation of a base virtual function with the same signature, chosen at runtime."
+  },
+  {
+   "id": "inherit-2",
+   "lesson": "inherit",
+   "q": "What is a pure virtual function and an abstract class?",
+   "a": "A pure virtual function is declared `= 0` and has no required implementation. A class with at least one cannot be instantiated; it defines an interface that derived classes must implement."
+  },
+  {
+   "id": "inherit-3",
+   "lesson": "inherit",
+   "q": "What is object slicing?",
+   "a": "Copying a derived object into a base-class value discards the derived members and virtual behaviour. Avoid it by passing polymorphic objects by reference or pointer."
+  },
+  {
+   "id": "inherit-4",
+   "lesson": "inherit",
+   "q": "Can a constructor be virtual? Can a destructor be pure virtual?",
+   "a": "A constructor cannot be virtual: the vptr is set up by the constructor, so there is no dynamic type yet. A destructor can be pure virtual to make a class abstract, but it still needs a body because derived destructors call it."
+  },
+  {
+   "id": "inherit-5",
+   "lesson": "inherit",
+   "q": "Composition or inheritance?",
+   "a": "Prefer composition. Use public inheritance only for a true is-a relationship where you need runtime polymorphism, and make sure it satisfies Liskov substitution."
+  },
+  {
+   "id": "inherit-6",
+   "lesson": "inherit",
+   "q": "What is the diamond problem and how is it solved?",
+   "a": "A class inherits the same base through two paths, so the base's members are duplicated and access is ambiguous. Virtual inheritance (`class Left : virtual Base`) makes all paths share one base subobject, which the most derived class constructs first. It adds memory and indirection, so prefer interfaces without data or composition."
+  },
+  {
+   "id": "inherit-7",
+   "lesson": "inherit",
+   "q": "Why do `Reader*` and `Writer*` to the same `File` hold different addresses?",
+   "a": "With multiple inheritance the object contains each base subobject at its own offset, each with its own vptr. Converting to the second base adjusts the pointer to that subobject, which is why C casts and `reinterpret_cast` are wrong here."
+  },
+  {
+   "id": "inherit-8",
+   "lesson": "inherit",
+   "q": "What does `dynamic_cast` need and what does it cost?",
+   "a": "A polymorphic class (a virtual function) because it reads the type information next to the vtable. It checks the real type at run time: null for pointers, `std::bad_cast` for references. It is slower than a virtual call, so avoid it on hot paths; repeated use suggests a missing virtual function or a Visitor."
+  },
+  {
+   "id": "inherit-9",
+   "lesson": "inherit",
+   "q": "`typeid` on a polymorphic versus non-polymorphic type?",
+   "a": "On a polymorphic object `typeid(*p)` gives the dynamic type. On a type with no virtual function it gives the static type, known at compile time. `type_info::name()` is implementation-defined and only for diagnostics."
+  },
+  {
+   "id": "inherit-10",
+   "lesson": "inherit",
+   "q": "When is private inheritance appropriate?",
+   "a": "For \"implemented in terms of\": to override a virtual function of the base, access its protected members, or use the empty base optimisation. Otherwise prefer composition. It does not allow conversion to the base outside the class."
+  },
+  {
+   "id": "callables-0",
+   "lesson": "callables",
+   "q": "What is a function pointer, and what can it not do?",
+   "a": "The address of a function, 8 bytes, callable like the function. It cannot carry state: the function sees only its arguments and globals. The call goes through the pointer, so it is rarely inlined."
+  },
+  {
+   "id": "callables-1",
+   "lesson": "callables",
+   "q": "What is a functor?",
+   "a": "A class with an `operator()`. Its objects are called like functions and keep state in their members. Each class is its own type, so templates can inline the call."
+  },
+  {
+   "id": "callables-2",
+   "lesson": "callables",
+   "q": "Why can a plain function pointer not carry a \"limit\" value for a comparison?",
+   "a": "A function pointer is only an address. The function it points to receives its arguments and can read globals, nothing else. A functor or a lambda stores the limit as a member."
+  },
+  {
+   "id": "callables-3",
+   "lesson": "callables",
+   "q": "`std::function` vs a template parameter?",
+   "a": "A template parameter keeps the exact callable type, so the call is inlined and nothing allocates. `std::function` erases the type: one indirect call, possible allocation, but it can store different callables behind one type."
+  },
+  {
+   "id": "callables-4",
+   "lesson": "callables",
+   "q": "How do you call a member function through a pointer?",
+   "a": "With `std::invoke(&Account::balance, acct)`, or `(acct.*pmf)()` for a pointer-to-member `pmf`. `std::invoke` works for every kind of callable."
+  },
+  {
+   "id": "lambdas-0",
+   "lesson": "lambdas",
+   "q": "What is a lambda and what does the compiler generate?",
+   "a": "An unnamed function object: the compiler creates a unique class with the captured variables as members and the body as `operator()`. Because it has its own type, calls can be inlined."
+  },
+  {
+   "id": "lambdas-1",
+   "lesson": "lambdas",
+   "q": "Capture by value vs by reference?",
+   "a": "By value copies the variable when the lambda is created (const inside unless `mutable`). By reference stores a reference to the live variable and dangles if the lambda outlives it. Capture by value for lambdas that escape the scope or run on another thread."
+  },
+  {
+   "id": "lambdas-2",
+   "lesson": "lambdas",
+   "q": "How do you move a `unique_ptr` into a lambda?",
+   "a": "With a C++14 init-capture: `[p = std::move(ptr)] { ... }`. A plain capture would need a copy, which `unique_ptr` forbids."
+  },
+  {
+   "id": "lambdas-3",
+   "lesson": "lambdas",
+   "q": "What does `mutable` do on a lambda?",
+   "a": "It makes `operator()` non-const so the lambda can modify its by-value captures. The changes live in the lambda's own copy, not in the original variable."
+  },
+  {
+   "id": "lambdas-4",
+   "lesson": "lambdas",
+   "q": "What is a generic lambda?",
+   "a": "A lambda with `auto` parameters (C++14): its `operator()` is a template, so one lambda works for any argument type."
+  },
+  {
+   "id": "lambdas-5",
+   "lesson": "lambdas",
+   "q": "What is wrong with capturing `this` by `[=]`?",
+   "a": "`[=]` inside a member function captures the `this` pointer, not a copy of the object, so the lambda dangles if the object is destroyed first. It is deprecated in C++20: write `[=, this]` or `[*this]` to copy."
+  },
+  {
+   "id": "stl-0",
+   "lesson": "stl",
+   "q": "How does `std::vector` grow?",
+   "a": "When `size == capacity` it allocates a larger buffer (geometric growth, typically 1.5x to 2x, implementation-defined), moves or copies the elements, and frees the old buffer. This makes `push_back` amortised O(1), but it invalidates all iterators, pointers and references. `reserve` avoids the reallocations."
+  },
+  {
+   "id": "stl-1",
+   "lesson": "stl",
+   "q": "`push_back` vs `emplace_back`?",
+   "a": "`push_back` takes an existing object (a copy or move). `emplace_back` forwards its arguments to the element's constructor and builds it in place, avoiding a temporary. For simple types there is no difference; for objects with expensive construction `emplace_back` can save a move."
+  },
+  {
+   "id": "stl-2",
+   "lesson": "stl",
+   "q": "Which container for a task queue? For \"top K\" elements?",
+   "a": "A queue (`std::queue`, backed by `deque`) for FIFO tasks. A `priority_queue` (heap) for top K: keep a heap of size K and compare against its root: O(n log K)."
+  },
+  {
+   "id": "stl-3",
+   "lesson": "stl",
+   "q": "How do you return several values from a function?",
+   "a": "A `std::pair` or `std::tuple`, unpacked with structured bindings (`auto [a, b] = f();`), or a small named struct when the fields need names or the result travels. Not out-parameters, except where you want to reuse a buffer."
+  },
+  {
+   "id": "assoc-0",
+   "lesson": "assoc",
+   "q": "How do you use your own type as a key in `unordered_map`, and in `map`?",
+   "a": "`unordered_map`: provide `operator==` and a hash functor (or specialise `std::hash`) that combines all members; equal objects must hash equally. `map`: provide a strict weak ordering (`operator<` or a comparator type). Never `<=`, and never modify a key while it is stored."
+  },
+  {
+   "id": "assoc-1",
+   "lesson": "assoc",
+   "q": "Why use `try_emplace` instead of `emplace` or `insert`?",
+   "a": "If the key exists, `try_emplace` does nothing and does not touch its arguments, so a moved-in value is not lost. `emplace` and `insert` may already have built or moved from the value. It is the right call for \"insert if absent\" with expensive or move-only values."
+  },
+  {
+   "id": "assoc-2",
+   "lesson": "assoc",
+   "q": "`map` vs `unordered_map`?",
+   "a": "`map`: balanced tree, sorted iteration, O(log n), needs `operator<`, supports range queries. `unordered_map`: hash table, average O(1) (worst O(n) with many collisions), no order, needs a hash and `==`. Choose `unordered_map` for plain lookups and `map` when you need order."
+  },
+  {
+   "id": "assoc-3",
+   "lesson": "assoc",
+   "q": "What is a hash collision and how is it handled?",
+   "a": "Two different keys hash to the same bucket. The standard library's unordered containers resolve it with chaining (a bucket holds a list of entries), so lookups in a heavily colliding bucket degrade toward O(n). A good hash function and a sensible load factor (`rehash`, `reserve`) keep it near O(1)."
+  },
+  {
+   "id": "assoc-4",
+   "lesson": "assoc",
+   "q": "Why does `m[key]` on a missing key matter?",
+   "a": "`operator[]` inserts a default-constructed value and returns a reference to it, so reading a missing key grows the map. To only look, use `find`, `count` or `contains` (C++20); `at()` throws instead of inserting."
+  },
+  {
+   "id": "assoc-5",
+   "lesson": "assoc",
+   "q": "How do you return several values from a function?",
+   "a": "A `std::pair` or `std::tuple` read with structured bindings (`auto [lo, hi] = minmax(v)`) when the values are used right away; a small named `struct` when they travel further and deserve names."
+  },
+  {
+   "id": "iterators-0",
+   "lesson": "iterators",
+   "q": "What does `std::back_inserter` do and when do you need it?",
+   "a": "It is an output iterator whose assignment calls `push_back`. Algorithms such as `copy` and `transform` write through iterators and do not grow the destination, so with an empty target you would write past the end; `back_inserter` makes them grow it instead."
+  },
+  {
+   "id": "iterators-1",
+   "lesson": "iterators",
+   "q": "Why can't I `std::sort` a `std::list`?",
+   "a": "`sort` needs random-access iterators (it jumps around by index). A list only provides bidirectional iterators, so it has its own member function `list::sort`."
+  },
+  {
+   "id": "iterators-2",
+   "lesson": "iterators",
+   "q": "What does `std::span` replace, and what is its danger?",
+   "a": "It replaces a `(pointer, count)` pair: a non-owning view of contiguous elements that remembers its size and accepts a vector, an array or a part of either, without copying. Like `string_view` it dangles if the data is destroyed or reallocated while the view is alive."
+  },
+  {
+   "id": "iterators-3",
+   "lesson": "iterators",
+   "q": "What is iterator invalidation, and when does `push_back` cause it?",
+   "a": "A change to the container can leave existing iterators, pointers and references pointing at memory that no longer holds the element: using them is undefined behavior. `vector::push_back` invalidates all of them when it reallocates, otherwise only `end()`. Node-based containers (`list`, `map`, `set`) keep them valid except for an erased element."
+  },
+  {
+   "id": "iterators-4",
+   "lesson": "iterators",
+   "q": "Why is a range written `[begin, end)`, and why compare with `!=`?",
+   "a": "`end()` is one past the last element, so an empty range is simply `begin == end` and the length is `end - begin`. Only `!=` works for every container; `<` exists only for random-access iterators."
+  },
+  {
+   "id": "algorithms-0",
+   "lesson": "algorithms",
+   "q": "What are C++20 ranges and views?",
+   "a": "Ranges algorithms take a whole container (`std::ranges::sort(v)`) and support projections. Views are lazy, non-owning pipelines (`v | views::filter(f) | views::transform(g)`) that compute on demand without temporaries. Like `string_view`, a view dangles if its container dies."
+  },
+  {
+   "id": "algorithms-1",
+   "lesson": "algorithms",
+   "q": "What is the erase-remove idiom?",
+   "a": "`std::remove`/`remove_if` only moves the elements to keep to the front and returns the new end; it cannot shrink the container. Pass that to the container's `erase` to actually delete the tail: `v.erase(std::remove_if(...), v.end())`. C++20 has `std::erase_if`."
+  },
+  {
+   "id": "algorithms-2",
+   "lesson": "algorithms",
+   "q": "Why must a comparator for `sort` be a strict weak ordering?",
+   "a": "The algorithm assumes that \"less\" is irreflexive (`comp(a, a)` is false) and transitive. A comparator such as `<=` is true for equal elements, so `sort` can run past the end of the range or crash. Use `<`, and `stable_sort` when equal elements must keep their order."
+  },
+  {
+   "id": "algorithms-3",
+   "lesson": "algorithms",
+   "q": "Why does `lower_bound` need a sorted range?",
+   "a": "It is a binary search: it compares with the middle element and discards half the range each step. That is only correct if the elements are ordered by the same comparison. On unsorted data the answer is meaningless. It is O(log n) on random-access iterators."
+  },
+  {
+   "id": "algorithms-4",
+   "lesson": "algorithms",
+   "q": "Why use `<random>` instead of `rand() % n`?",
+   "a": "`rand()` has poor quality, global state, and the modulo skews the distribution. An engine (`mt19937`) produces bits and a distribution (`uniform_int_distribution`) shapes them; one engine per thread, seeded from `random_device` or a fixed value for repeatable tests."
+  },
+  {
+   "id": "templates-0",
+   "lesson": "templates",
+   "q": "How are template arguments deduced?",
+   "a": "From the arguments of the call, by the shape of the parameter. By value (`T x`): `const` and references are dropped and arrays decay to pointers. By reference (`T& x`): `const` and the array size are kept. `T&&` is a forwarding reference. No conversions take part, so `maxOf(3, 2.5)` fails; name `T` explicitly."
+  },
+  {
+   "id": "templates-1",
+   "lesson": "templates",
+   "q": "What happens when you use a function template?",
+   "a": "The compiler deduces the template arguments from the call, then **instantiates** a concrete function for that combination of types (once per distinct combination across the program), and compiles it like normal code. The template itself generates no code."
+  },
+  {
+   "id": "templates-2",
+   "lesson": "templates",
+   "q": "What is a forwarding reference?",
+   "a": "A `T&&` parameter where `T` is deduced for that very function template (or `auto&&`). It binds to lvalues and rvalues alike: for an lvalue `T` becomes `X&` and reference collapsing makes the parameter `X&`; for an rvalue `T` is `X` and the parameter is `X&&`. `std::forward` then preserves that category."
+  },
+  {
+   "id": "templates-3",
+   "lesson": "templates",
+   "q": "What is a variadic template and how do you process the pack?",
+   "a": "A template taking zero or more arguments via a parameter pack (`typename... Args`). Expand with `args...`. Process by recursion with a base case, or in C++17 with a fold expression like `(args + ...)`."
+  },
+  {
+   "id": "templates-4",
+   "lesson": "templates",
+   "q": "Templates vs inheritance for polymorphism?",
+   "a": "Templates give static (compile-time) polymorphism: no runtime cost and inlinable, but the type must be known when compiling and each type duplicates code. Inheritance with virtual functions gives dynamic (runtime) polymorphism: one code path and heterogeneous collections, at the cost of an indirection and heap-allocated objects."
+  },
+  {
+   "id": "classtemplates-0",
+   "lesson": "classtemplates",
+   "q": "What are alias templates and variable templates?",
+   "a": "An alias template is a parameterised `using` (`template<class T> using Vec = std::vector<T>;`), which a `typedef` cannot be. A variable template is a constant or variable per type (`template<class T> constexpr T zero = T{};`); `std::is_integral_v` is one."
+  },
+  {
+   "id": "classtemplates-1",
+   "lesson": "classtemplates",
+   "q": "Full vs partial specialization?",
+   "a": "Full: all template arguments fixed. Partial: a pattern with some parameters still free (`Foo<T*>`), allowed for class templates and variable templates but not for function templates (use overloading)."
+  },
+  {
+   "id": "classtemplates-2",
+   "lesson": "classtemplates",
+   "q": "Why must template definitions be in headers?",
+   "a": "The compiler needs the body to instantiate it in each translation unit that uses a particular type. If only the declaration is visible, no instantiation happens and the linker cannot find the function. Alternative: explicit instantiation in one `.cpp`."
+  },
+  {
+   "id": "classtemplates-3",
+   "lesson": "classtemplates",
+   "q": "What is a non-type template parameter?",
+   "a": "A template parameter that is a compile-time value instead of a type, such as the `N` in `std::array<int, N>`. Each value gives a different type, which is why `Stack<int, 8>` and `Stack<int, 9>` are unrelated."
+  },
+  {
+   "id": "classtemplates-4",
+   "lesson": "classtemplates",
+   "q": "What is class template argument deduction?",
+   "a": "Since C++17 the compiler can deduce the arguments of a class template from the constructor call: `std::vector v{1, 2, 3}` is a `vector<int>`. A deduction guide tells it how when the constructors alone are not enough."
+  },
+  {
+   "id": "compiletime-0",
+   "lesson": "compiletime",
+   "q": "What does SFINAE stand for and why does it exist?",
+   "a": "Substitution Failure Is Not An Error: an invalid substitution while deducing a template removes that candidate from overload resolution instead of causing a hard error. It is what makes `enable_if` overload selection work."
+  },
+  {
+   "id": "compiletime-1",
+   "lesson": "compiletime",
+   "q": "`std::is_same_v<int, const int>`?",
+   "a": "False. They are different types. `const` and references are part of the type, which is why traits like `std::decay_t` and `std::remove_cvref_t` exist."
+  },
+  {
+   "id": "compiletime-2",
+   "lesson": "compiletime",
+   "q": "`constexpr` function versus `consteval` function?",
+   "a": "`constexpr` may run at compile time or run time. `consteval` must run at compile time and is a compile error otherwise."
+  },
+  {
+   "id": "compiletime-3",
+   "lesson": "compiletime",
+   "q": "Why is `if constexpr` better than `if` in a template?",
+   "a": "The discarded branch is not instantiated, so code that is invalid for some `T` does not break the build for that `T`."
+  },
+  {
+   "id": "compiletime-4",
+   "lesson": "compiletime",
+   "q": "What is a concept, and why is it better than `enable_if`?",
+   "a": "A concept is a named compile-time condition on template arguments (`std::integral<T>`, or your own with `requires`). It states the interface of a template in the signature and fails at the call site with a readable \"constraint not satisfied\" message, where `enable_if` gives pages of substitution errors."
+  },
+  {
+   "id": "compiletime-5",
+   "lesson": "compiletime",
+   "q": "How do you avoid writing the factorial struct by hand today?",
+   "a": "Write `constexpr int factorial(int n)` and use it in a `constexpr` context. It is shorter, readable and can also run at run time."
+  },
+  {
+   "id": "core-0",
+   "lesson": "core",
+   "q": "What is RAII and why is it important?",
+   "a": "It binds a resource's lifetime to an object: acquire in the constructor, release in the destructor. Cleanup is automatic and exception-safe because destructors run on every exit path. It replaces `try/finally` and is why C++ needs no garbage collector."
+  },
+  {
+   "id": "core-1",
+   "lesson": "core",
+   "q": "What is stack unwinding?",
+   "a": "When an exception propagates, the runtime exits scopes up the call stack, calling the destructors of all fully constructed locals until a handler is found. It is what makes RAII exception-safe."
+  },
+  {
+   "id": "core-2",
+   "lesson": "core",
+   "q": "Why should destructors not throw?",
+   "a": "Destructors run during unwinding. If one throws while another exception is active, `std::terminate` is called. Destructors are `noexcept` by default; catch and handle errors inside them."
+  },
+  {
+   "id": "core-3",
+   "lesson": "core",
+   "q": "What are the exception-safety guarantees?",
+   "a": "No-throw (never throws: destructors, swap, moves), strong (if it throws, the state is exactly as before: commit or rollback), and basic (nothing leaks and invariants hold, but values may have changed). Get the strong guarantee by doing the work on a copy and publishing with a non-throwing swap."
+  },
+  {
+   "id": "core-4",
+   "lesson": "core",
+   "q": "Why mark move operations `noexcept`?",
+   "a": "`std::vector` moves its elements when it grows only if the move cannot throw; otherwise it copies them to keep the strong guarantee. A missing `noexcept` silently turns every reallocation into a round of copies."
+  },
+  {
+   "id": "core-5",
+   "lesson": "core",
+   "q": "What happens if a `noexcept` function throws?",
+   "a": "`std::terminate` is called: the exception does not propagate. So only promise `noexcept` when it is true."
+  },
+  {
+   "id": "core-6",
+   "lesson": "core",
+   "q": "How do you run cleanup on every path without `finally`?",
+   "a": "Put it in a destructor: a standard RAII wrapper (`lock_guard`, `unique_ptr`, `fstream`) or a small scope guard class. Release the guard on success to commit."
+  },
+  {
+   "id": "vocab-0",
+   "lesson": "vocab",
+   "q": "What is a vocabulary type?",
+   "a": "A small standard type that expresses a common idea in a signature: `optional` (maybe a value), `variant` (one of several types), `expected` (a value or an error), `span` and `string_view` (a non-owning view). They replace magic values, tagged unions and pointer-plus-count pairs, so the contract is visible and checked."
+  },
+  {
+   "id": "vocab-1",
+   "lesson": "vocab",
+   "q": "`optional` versus a pointer for \"may be absent\"?",
+   "a": "`optional<T>` holds the value itself (no heap allocation, no ownership question) and is empty when absent. A pointer means \"refers to something owned elsewhere\" and can be null. Use `optional` for a possibly missing value, a pointer for a possibly missing reference."
+  },
+  {
+   "id": "vocab-2",
+   "lesson": "vocab",
+   "q": "What happens on `*opt`, `opt.value()` and `opt.value_or(x)` when it is empty?",
+   "a": "`*opt` is undefined behaviour, `value()` throws `std::bad_optional_access`, and `value_or(x)` returns `x`. Test with `if (opt)` first when you can."
+  },
+  {
+   "id": "vocab-3",
+   "lesson": "vocab",
+   "q": "How does `std::variant` differ from a `union`?",
+   "a": "A variant remembers which alternative is active (`index()`), destroys the old one and constructs the new one on assignment, works with non-trivial types such as `std::string`, and throws `bad_variant_access` if you read the wrong one. A raw union does none of that, and reading the wrong member is undefined behaviour."
+  },
+  {
+   "id": "vocab-4",
+   "lesson": "vocab",
+   "q": "Why is `std::visit` safer than a chain of `if` / `get_if`?",
+   "a": "The visitor must handle every alternative, so adding a type to the variant makes every incomplete visitor a compile error instead of a silent missing case. It also reads the active alternative without a manual check."
+  },
+  {
+   "id": "vocab-5",
+   "lesson": "vocab",
+   "q": "Variant or virtual functions for a set of message or shape types?",
+   "a": "A variant when the set of types is closed and you keep adding operations: values are stored inline, there are no allocations or virtual calls, and the compiler checks completeness. Virtual functions when the set of types is open for others to extend and the operations are few."
+  },
+  {
+   "id": "vocab-6",
+   "lesson": "vocab",
+   "q": "`optional`, `expected`, exception or error code?",
+   "a": "`optional` when \"no value\" needs no explanation. `expected<T, E>` (C++23) when the failure is normal and the reason matters. An exception for rare failures the local code cannot handle, and for constructors. An error code only at C boundaries."
+  },
+  {
+   "id": "vocab-7",
+   "lesson": "vocab",
+   "q": "Exceptions or error codes?",
+   "a": "Exceptions for rare failures the local code cannot handle (and constructors); return values (`optional`, error codes, `expected`) for expected failures and for hot paths where a throw's cost and unpredictability are unacceptable."
+  },
+  {
+   "id": "moves-0",
+   "lesson": "moves",
+   "q": "What are lvalues, prvalues and xvalues?",
+   "a": "An lvalue is a named object with an address. A prvalue is an unnamed temporary (a literal, `a + b`, a call returning by value). An xvalue is an object marked as movable, such as `std::move(x)`. Rvalue means prvalue or xvalue. A named rvalue-reference parameter is still an lvalue inside the function."
+  },
+  {
+   "id": "moves-1",
+   "lesson": "moves",
+   "q": "What is the address test for lvalues and rvalues?",
+   "a": "If you can take the address of an expression with `&`, it is an lvalue. A literal, `a + b` or the result of a call that returns by value is an rvalue and has no address."
+  },
+  {
+   "id": "moves-2",
+   "lesson": "moves",
+   "q": "Which reference types bind to an rvalue?",
+   "a": "`const T&` and `T&&`. A plain `T&` binds only to lvalues. When both a `const T&` and a `T&&` overload exist, an rvalue chooses `T&&`."
+  },
+  {
+   "id": "moves-3",
+   "lesson": "moves",
+   "q": "Inside `void g(std::string&& s)`, is `s` an lvalue or an rvalue?",
+   "a": "An lvalue: it has a name and you can use it more than once. To pass it on as an rvalue you must write `std::move(s)`."
+  },
+  {
+   "id": "copymove-0",
+   "lesson": "copymove",
+   "q": "What does `std::move` actually do?",
+   "a": "Nothing at runtime: it is an unconditional cast to an rvalue reference. It enables the move constructor or move assignment to be chosen. The moved-from object stays valid but unspecified. On a `const` object it silently copies, because a `const` rvalue cannot bind to a move constructor."
+  },
+  {
+   "id": "copymove-1",
+   "lesson": "copymove",
+   "q": "What state is a moved-from object in?",
+   "a": "Valid but unspecified: you may destroy it or assign a new value to it, but not rely on its contents. For standard types it is usually empty."
+  },
+  {
+   "id": "copymove-2",
+   "lesson": "copymove",
+   "q": "Why does `std::move` on a `const` object copy?",
+   "a": "The cast gives a `const T&&`, which cannot bind to the move constructor's `T&&` parameter, so overload resolution picks the copy constructor. No error, just a copy."
+  },
+  {
+   "id": "copymove-3",
+   "lesson": "copymove",
+   "q": "When is moving not faster than copying?",
+   "a": "For types that own no resource: an `int` or a small struct is just copied. The gain is for types that own memory, handles or other resources."
+  },
+  {
+   "id": "copymove-4",
+   "lesson": "copymove",
+   "q": "Is it safe to use an object after `std::move`?",
+   "a": "Only to destroy it or assign a new value to it. Its contents are unspecified, so do not read them."
+  },
+  {
+   "id": "writemoves-0",
+   "lesson": "writemoves",
+   "q": "Why mark a move constructor `noexcept`?",
+   "a": "`std::vector` moves its elements on reallocation only if the move cannot throw; otherwise it copies them to keep the strong guarantee. Without `noexcept` every growth becomes a round of copies."
+  },
+  {
+   "id": "writemoves-1",
+   "lesson": "writemoves",
+   "q": "What does a move constructor do to the source object?",
+   "a": "It steals the resources (pointers, handles) and resets the source to a safe empty state, for example with `std::exchange(o.p, nullptr)`, so the source destructor frees nothing."
+  },
+  {
+   "id": "writemoves-2",
+   "lesson": "writemoves",
+   "q": "What is copy-and-swap assignment?",
+   "a": "`T& operator=(T o) { swap(*this, o); return *this; }`: the parameter is copied or moved depending on the argument, then swapped in. The old contents are destroyed with `o`. It handles self-assignment and gives the strong guarantee."
+  },
+  {
+   "id": "writemoves-3",
+   "lesson": "writemoves",
+   "q": "What does the Rule of Zero say?",
+   "a": "Do not write special member functions when members like `vector`, `string` and `unique_ptr` already manage themselves; the compiler's copy and move are then correct."
+  },
+  {
+   "id": "writemoves-4",
+   "lesson": "writemoves",
+   "q": "Why can declaring a destructor make moves slower?",
+   "a": "A user-declared destructor stops the compiler generating move operations, so moves silently fall back to the copy operations."
+  },
+  {
+   "id": "elision-0",
+   "lesson": "elision",
+   "q": "What is copy elision / RVO?",
+   "a": "The compiler constructs a returned object directly in the caller's storage, skipping the copy or move. In C++17 it is guaranteed when returning a temporary (prvalue). NRVO for a named local is allowed but not required. Do not write `return std::move(local)`: it prevents it and costs a move."
+  },
+  {
+   "id": "elision-1",
+   "lesson": "elision",
+   "q": "Why is `return std::move(local);` a mistake?",
+   "a": "It turns the returned expression into an xvalue, which blocks NRVO. The compiler then must move the object instead of building it in place: an extra move for nothing."
+  },
+  {
+   "id": "elision-2",
+   "lesson": "elision",
+   "q": "What changed about elision in C++17?",
+   "a": "Returning a prvalue (a temporary such as `return T();`) is guaranteed to build the object directly in the caller's storage, so the type does not even need a copy or move constructor. Elision of a named local (NRVO) is still optional."
+  },
+  {
+   "id": "elision-3",
+   "lesson": "elision",
+   "q": "When is `std::move` on a return correct?",
+   "a": "When you return a member of an object that outlives the call, or a by-value parameter's member: it is not the local being named, so no elision applies and moving avoids a copy."
+  },
+  {
+   "id": "sinks-0",
+   "lesson": "sinks",
+   "q": "How do you write a class that stores a string argument efficiently?",
+   "a": "Take the parameter by value and `std::move` it into the member. An lvalue costs one copy plus one move, an rvalue costs one move, and there is a single function to write."
+  },
+  {
+   "id": "sinks-1",
+   "lesson": "sinks",
+   "q": "What is the difference between `push_back` and `emplace_back`?",
+   "a": "`push_back` takes an existing object (copied or moved into the container). `emplace_back` forwards its arguments and constructs the element in place, saving a temporary. Both reallocate the same way."
+  },
+  {
+   "id": "sinks-2",
+   "lesson": "sinks",
+   "q": "When should a sink parameter not be taken by value?",
+   "a": "For setters and other functions that assign into an existing object: assignment can reuse existing storage, while a by-value parameter always constructs a new object first. Also when the type is expensive to move, where two overloads are better."
+  },
+  {
+   "id": "sinks-3",
+   "lesson": "sinks",
+   "q": "List three traps that make a move silently a copy.",
+   "a": "`std::move` on a `const` object, a type without move operations (or whose moves were suppressed by a user-declared destructor), and a forwarding reference passed on with `std::move` or without `std::forward`."
+  },
+  {
+   "id": "forwarding-0",
+   "lesson": "forwarding",
+   "q": "What is perfect forwarding, and why do we need it?",
+   "a": "Passing arguments through a wrapper to another function without changing their value category or constness, so the callee can still choose copy vs move correctly. Without it you would need an overload per combination of lvalue/rvalue/const for every parameter."
+  },
+  {
+   "id": "forwarding-1",
+   "lesson": "forwarding",
+   "q": "What is the difference between `std::move` and `std::forward`?",
+   "a": "`std::move` always casts to an rvalue. `std::forward<T>` casts to an rvalue only if the argument that was passed was an rvalue, and keeps an lvalue otherwise. Use `forward` only on a forwarding reference, once."
+  },
+  {
+   "id": "forwarding-2",
+   "lesson": "forwarding",
+   "q": "What is reference collapsing?",
+   "a": "The rule that resolves a reference to a reference created by templates: `T& &&`, `T&& &` and `T& &` all become `T&`; only `T&& &&` stays `T&&`. It is why a forwarding reference can bind to both lvalues and rvalues."
+  },
+  {
+   "id": "forwarding-3",
+   "lesson": "forwarding",
+   "q": "Is every `T&&` a forwarding reference?",
+   "a": "No. It must be `T&&` where `T` is deduced for that very function template (or `auto&&`). `std::vector<T>&&`, a `const T&&` and the `T&&` of a class template's member function are plain rvalue references."
+  },
+  {
+   "id": "uniqueptr-0",
+   "lesson": "uniqueptr",
+   "q": "What does `unique_ptr` guarantee?",
+   "a": "Exactly one owner at a time. When the owner is destroyed it deletes the object, so you cannot forget to free it or free it twice by accident."
+  },
+  {
+   "id": "uniqueptr-1",
+   "lesson": "uniqueptr",
+   "q": "Why can a `unique_ptr` not be copied?",
+   "a": "Two owners would delete the object twice. Ownership is transferred by moving instead, which leaves the source null."
+  },
+  {
+   "id": "uniqueptr-2",
+   "lesson": "uniqueptr",
+   "q": "How do you pass and return a `unique_ptr`?",
+   "a": "Return it by value from a factory (it moves out). Take it by value, with `std::move` at the call, to take ownership. If the function only uses the object, take `const T&` or `T*` instead."
+  },
+  {
+   "id": "uniqueptr-3",
+   "lesson": "uniqueptr",
+   "q": "What is the overhead of `unique_ptr`?",
+   "a": "None with the default deleter: the same size as a raw pointer and the same cost to use. A function-pointer deleter doubles the size; a stateless lambda adds nothing."
+  },
+  {
+   "id": "uniqueptr-4",
+   "lesson": "uniqueptr",
+   "q": "`get()`, `release()` and `reset()`?",
+   "a": "`get()` returns the raw pointer and keeps ownership. `release()` gives up ownership and returns the pointer, so you must delete it. `reset()` destroys the object now."
+  },
+  {
+   "id": "smartptr-0",
+   "lesson": "smartptr",
+   "q": "`unique_ptr` vs `shared_ptr` vs `weak_ptr`?",
+   "a": "`unique_ptr`: sole owner, move-only, zero overhead. `shared_ptr`: reference-counted shared ownership with a control block and atomic count. `weak_ptr`: non-owning observer used to break cycles and to check whether a shared object is still alive (`lock()`)."
+  },
+  {
+   "id": "smartptr-1",
+   "lesson": "smartptr",
+   "q": "Is `shared_ptr` thread-safe?",
+   "a": "The reference count is atomic, so copying and destroying `shared_ptr`s from different threads is safe. The pointed-to object is **not** protected: concurrent access to it still needs synchronization. Concurrently modifying the same `shared_ptr` variable is also a race."
+  },
+  {
+   "id": "smartptr-2",
+   "lesson": "smartptr",
+   "q": "Why prefer `make_unique` / `make_shared`?",
+   "a": "No naked `new`, less typing (and exception safe before C++17), and `make_shared` allocates the object and its control block once instead of twice."
+  },
+  {
+   "id": "smartptr-3",
+   "lesson": "smartptr",
+   "q": "How do you pass a smart pointer to a function?",
+   "a": "If the function only uses the object, pass a reference or raw pointer, not the smart pointer. To transfer ownership, take a `unique_ptr` by value and have the caller `std::move`. To share, take a `shared_ptr` by value. Return `unique_ptr` from factories."
+  },
+  {
+   "id": "smartptr-4",
+   "lesson": "smartptr",
+   "q": "Why can two `shared_ptr`s built from the same raw pointer crash?",
+   "a": "Each creates its own control block and count, so the object is deleted twice. Copy an existing `shared_ptr`, or inherit `enable_shared_from_this` when an object must hand out a shared pointer to itself."
+  },
+  {
+   "id": "smartptr-5",
+   "lesson": "smartptr",
+   "q": "Does `unique_ptr` cost anything compared with a raw pointer?",
+   "a": "Not with the default deleter: it is the same size and the destructor inlines to a `delete`. A stateful deleter (a capturing lambda, a function pointer) makes it larger."
+  },
+  {
+   "id": "weakptr-0",
+   "lesson": "weakptr",
+   "q": "How do you break a `shared_ptr` cycle?",
+   "a": "Make one direction (usually the child's link to its parent) a `weak_ptr`. It does not count toward ownership, so the objects can be destroyed; use `lock()` to get a temporary `shared_ptr` when needed."
+  },
+  {
+   "id": "weakptr-1",
+   "lesson": "weakptr",
+   "q": "Why must you call `lock()` instead of checking `expired()` first?",
+   "a": "Another thread can release the last owner between the check and the use. `lock()` atomically gives you an owner or an empty pointer, so test that result and use it."
+  },
+  {
+   "id": "weakptr-2",
+   "lesson": "weakptr",
+   "q": "What does a `weak_ptr` keep alive?",
+   "a": "Only the control block (the counts), never the object. That is what lets `expired()` answer after the object is gone."
+  },
+  {
+   "id": "weakptr-3",
+   "lesson": "weakptr",
+   "q": "Why does `make_shared` delay freeing memory when a `weak_ptr` remains?",
+   "a": "The object and the control block share one allocation. The object is destroyed on time, but the block of memory is released only when the last weak reference goes."
+  },
+  {
+   "id": "weakptr-4",
+   "lesson": "weakptr",
+   "q": "Name three uses of `weak_ptr`.",
+   "a": "Parent back links in a tree, caches that must not keep unused entries alive, and observer lists that must not keep listeners alive."
+  },
+  {
+   "id": "threads-0",
+   "lesson": "threads",
+   "q": "What is the difference between a process and a thread?",
+   "a": "A process has its own address space; threads of one process share memory but each has its own stack and registers. Thread creation and switching are cheaper, communication is easy (shared memory) but needs synchronization."
+  },
+  {
+   "id": "threads-1",
+   "lesson": "threads",
+   "q": "What happens if a `std::thread` is destroyed while still joinable, and why?",
+   "a": "`std::terminate` is called. The alternatives are worse: an implicit `join` can hide long waits, and an implicit `detach` leaves a running thread using locals that may be gone (undefined behavior). So make the thread unjoinable on every path: join in an RAII guard, or use `std::jthread` (C++20), which joins automatically."
+  },
+  {
+   "id": "threads-2",
+   "lesson": "threads",
+   "q": "What happens if a `std::thread` is destroyed while still joinable, and why?",
+   "a": "`std::terminate` is called. The alternatives are worse: an implicit `join` can hide long waits, and an implicit `detach` leaves a running thread using locals that may be gone (undefined behavior). So make the thread unjoinable on every path: join in an RAII guard, or use `std::jthread` (C++20), which joins automatically."
+  },
+  {
+   "id": "races-0",
+   "lesson": "races",
+   "q": "What is a data race? Is it the same as a race condition?",
+   "a": "A data race is unsynchronised concurrent access to the same memory with at least one write: undefined behavior in C++. A race condition is the wider class of bugs where correctness depends on timing, which can exist even without a data race (two correctly locked steps that needed to be one atomic operation)."
+  },
+  {
+   "id": "races-1",
+   "lesson": "races",
+   "q": "Is a function-local `static` initialised thread-safely?",
+   "a": "Yes, since C++11 initialization happens exactly once even with concurrent callers (\"magic statics\"). That is why the Meyers Singleton is thread-safe. Using the object afterwards still needs its own synchronization."
+  },
+  {
+   "id": "races-2",
+   "lesson": "races",
+   "q": "Why is `++counter` not safe on two threads?",
+   "a": "It is three steps: load, add, store. If both threads load before either stores, one increment is lost. Use a mutex or `std::atomic`."
+  },
+  {
+   "id": "races-3",
+   "lesson": "races",
+   "q": "What are the three ways to share data safely?",
+   "a": "Do not share (each thread owns its data and results are merged), share but never modify (`const` data), or share and protect with a mutex or an atomic."
+  },
+  {
+   "id": "mutexes-0",
+   "lesson": "mutexes",
+   "q": "`lock_guard` vs `unique_lock` vs `scoped_lock`?",
+   "a": "`lock_guard`: simplest RAII lock for a scope. `unique_lock`: flexible (unlock/relock, deferred, movable) and needed by condition variables. `scoped_lock` (C++17): locks multiple mutexes at once with deadlock avoidance."
+  },
+  {
+   "id": "mutexes-1",
+   "lesson": "mutexes",
+   "q": "My class locks a mutex in every method. Is it thread-safe?",
+   "a": "Not necessarily. Each call is safe on its own, but a caller's sequence of calls is not atomic. The classic case is a shared stack: `if (!s.empty()) { v = s.top(); s.pop(); }` races, because another thread can pop between the check and the use. The cause is the interface (it is also true of a lock-free stack), so the fix is to provide whole operations such as `std::optional<T> try_pop()` that check and remove under one lock."
+  },
+  {
+   "id": "mutexes-2",
+   "lesson": "mutexes",
+   "q": "What does `std::scoped_lock` do?",
+   "a": "It locks several mutexes in one step with a deadlock-avoidance algorithm and unlocks them in its destructor. Use it whenever you need more than one lock."
+  },
+  {
+   "id": "mutexes-3",
+   "lesson": "mutexes",
+   "q": "When would you use `std::shared_mutex`?",
+   "a": "For read-mostly data: many readers take a `shared_lock` at the same time, a writer takes a `unique_lock` and excludes everyone. It only pays when reads greatly outnumber writes."
+  },
+  {
+   "id": "deadlock-0",
+   "lesson": "deadlock",
+   "q": "What is a deadlock and how do you prevent it?",
+   "a": "Threads wait for each other's locks forever. Needs mutual exclusion, hold-and-wait, no preemption and circular wait. Prevent with a consistent global lock order, `std::scoped_lock`/`std::lock` for multiple mutexes, short critical sections, no calls to foreign code under a lock, or `try_lock`."
+  },
+  {
+   "id": "deadlock-1",
+   "lesson": "deadlock",
+   "q": "Can threads deadlock without any mutex? What are the practical rules against deadlock?",
+   "a": "Yes: two threads that `join()` each other, or any cycle of waits on futures or condition variables. The rules all mean \"do not wait for a thread that might be waiting for you\": avoid nested locks (or take several with `scoped_lock`), never call user-supplied code or leak references to protected data while holding a lock, lock in a fixed order, and use a lock hierarchy so a wrong order is caught immediately at runtime."
+  },
+  {
+   "id": "deadlock-2",
+   "lesson": "deadlock",
+   "q": "What are the four Coffman conditions?",
+   "a": "Mutual exclusion, hold and wait, no preemption and circular wait. All four must hold for a deadlock; breaking any one prevents it. A global lock order breaks circular wait."
+  },
+  {
+   "id": "deadlock-3",
+   "lesson": "deadlock",
+   "q": "Why is `std::scoped_lock(a, b)` safe when two threads pass the mutexes in opposite orders?",
+   "a": "It takes the locks with a deadlock-avoidance algorithm (try-and-back-off or ordering), so the order of the arguments does not matter."
+  },
+  {
+   "id": "condvars-0",
+   "lesson": "condvars",
+   "q": "Why does `condition_variable::wait` need a predicate / a loop?",
+   "a": "Spurious wakeups (a thread may wake without a notification) and because the state may change again between the notification and the thread reacquiring the lock. The predicate re-checks the real condition."
+  },
+  {
+   "id": "condvars-1",
+   "lesson": "condvars",
+   "q": "Why must the shared condition be modified under the mutex?",
+   "a": "Otherwise the waiter could check the condition (false), then the notifier changes it and notifies, then the waiter goes to sleep: a lost wakeup. The mutex makes check-and-sleep atomic with respect to the update."
+  },
+  {
+   "id": "condvars-2",
+   "lesson": "condvars",
+   "q": "How would you find a data race in a large program?",
+   "a": "Build and run the tests with ThreadSanitizer (`-fsanitize=thread`), and Helgrind for lock-order problems; review shared state and make sure every access has a lock or is atomic; reduce sharing by design."
+  },
+  {
+   "id": "condvars-3",
+   "lesson": "condvars",
+   "q": "What is a spurious wakeup?",
+   "a": "A waiting thread can return from `wait` without anyone having notified it. That is why the wait is always paired with a predicate that is re-checked after each wakeup."
+  },
+  {
+   "id": "condvars-4",
+   "lesson": "condvars",
+   "q": "What does `wait` do with the mutex?",
+   "a": "It must be given a `unique_lock`. `wait` unlocks it while the thread sleeps and locks it again before returning, so the predicate is always checked under the lock."
+  },
+  {
+   "id": "tasks-0",
+   "lesson": "tasks",
+   "q": "`std::async` vs `std::thread`?",
+   "a": "`async` returns a `future` carrying the result and any exception, and may use a pool or defer execution (use `launch::async` to force a thread). `thread` gives raw control with no result channel. A future from `async` blocks in its destructor."
+  },
+  {
+   "id": "tasks-1",
+   "lesson": "tasks",
+   "q": "What are `promise`, `future` and `packaged_task`?",
+   "a": "A `promise` is the write end of a one-shot channel, a `future` the read end. A `packaged_task` wraps a callable and fulfils a future with its result or exception, which is how a pool returns results. A `shared_future` is a copyable read end for several waiters."
+  },
+  {
+   "id": "tasks-2",
+   "lesson": "tasks",
+   "q": "How would you signal several threads to start at the same moment?",
+   "a": "A `promise<void>` whose `shared_future` every thread waits on, or a `std::latch`/`barrier`. The promise is one-shot; for repeated signals use a condition variable."
+  },
+  {
+   "id": "tasks-3",
+   "lesson": "tasks",
+   "q": "Why does a discarded `std::async` future make the call synchronous?",
+   "a": "The future returned by `async` waits for its task in its destructor. A temporary is destroyed at the end of the statement, so the statement blocks until the task has finished."
+  },
+  {
+   "id": "tasks-4",
+   "lesson": "tasks",
+   "q": "How does an exception from a task reach the caller?",
+   "a": "It is caught inside the task, stored in the shared state, and rethrown by `future::get()`."
+  },
+  {
+   "id": "pools-0",
+   "lesson": "pools",
+   "q": "How would you signal several threads to start at the same moment?",
+   "a": "A `promise<void>` whose `shared_future` every thread waits on, or a `std::latch`/`barrier`. The promise is one-shot; for repeated signals use a condition variable."
+  },
+  {
+   "id": "pools-1",
+   "lesson": "pools",
+   "q": "Why is the task run outside the lock in a thread-pool worker?",
+   "a": "Otherwise only one task could run at a time, and the queue would stay locked while a task works. The worker takes the task under the lock, releases it, then runs the task."
+  },
+  {
+   "id": "pools-2",
+   "lesson": "pools",
+   "q": "How many threads should a pool have?",
+   "a": "About `hardware_concurrency()` for CPU-bound work (more means oversubscription and context switches), more for I/O-bound or blocking work. Use separate pools for mixed workloads."
+  },
+  {
+   "id": "pools-3",
+   "lesson": "pools",
+   "q": "What is work stealing?",
+   "a": "Each worker has its own deque of tasks and pops from it; an idle worker steals from the back of another's deque. Owners and thieves work at opposite ends, so contention is low and load balances automatically. It removes the single shared queue's lock as a bottleneck."
+  },
+  {
+   "id": "pools-4",
+   "lesson": "pools",
+   "q": "What is the difference between `latch` and `barrier`?",
+   "a": "A `latch` is a one-shot countdown: threads count down and others wait until it reaches zero. A `barrier` is reusable: a fixed group of threads waits for each other at the end of each phase, then all continue together."
+  },
+  {
+   "id": "pools-5",
+   "lesson": "pools",
+   "q": "What does a semaphore do that a mutex does not?",
+   "a": "A counting semaphore allows up to k threads in at once (a permit counter) and can be released by a different thread than the one that acquired it. A mutex is one owner at a time and must be unlocked by its owner."
+  },
+  {
+   "id": "pools-6",
+   "lesson": "pools",
+   "q": "How do you stop a thread cleanly?",
+   "a": "Cooperatively: ask it to stop and let it return. C++20 `std::jthread` passes a `std::stop_token` that the loop checks, and its destructor requests the stop and joins. There is no safe forced kill."
+  },
+  {
+   "id": "pools-7",
+   "lesson": "pools",
+   "q": "When is a parallel algorithm worth using, and what must you watch?",
+   "a": "For large inputs and non-trivial work per element. The callback must be thread-safe, `reduce` needs an associative operation, and small ranges are slower because of thread overhead. Without a parallel backend the call runs serially."
+  },
+  {
+   "id": "atomics-0",
+   "lesson": "atomics",
+   "q": "`std::atomic` vs mutex?",
+   "a": "An atomic makes operations on a single variable indivisible, usually lock-free and cheap. A mutex protects any critical section, including invariants over several variables, but may block. Use atomics for counters and flags, mutexes for compound state."
+  },
+  {
+   "id": "atomics-1",
+   "lesson": "atomics",
+   "q": "Is `volatile` a substitute for `atomic`?",
+   "a": "No. `volatile` prevents some compiler optimisations but gives no atomicity and no inter-thread ordering. Using it for synchronization is a data race."
+  },
+  {
+   "id": "atomics-2",
+   "lesson": "atomics",
+   "q": "`compare_exchange_weak` vs `strong`?",
+   "a": "Both set a value only if it still equals the expected one. `weak` may fail spuriously, so it belongs in a retry loop and is cheaper on some CPUs; `strong` fails only on a real mismatch and suits a single attempt. On failure they load the current value into `expected`."
+  },
+  {
+   "id": "atomics-3",
+   "lesson": "atomics",
+   "q": "What is the ABA problem?",
+   "a": "A CAS succeeds because the value is A again, but it went A to B to A in between, and the structure around it changed (for example a node was freed and reused). Fix with a version counter beside the pointer, or hazard pointers or epoch reclamation."
+  },
+  {
+   "id": "atomics-4",
+   "lesson": "atomics",
+   "q": "When is a spinlock appropriate?",
+   "a": "For very short critical sections on dedicated cores where waiting is shorter than a context switch. It burns CPU while waiting and is dangerous if the holder can be descheduled. Otherwise use a mutex."
+  },
+  {
+   "id": "memmodel-0",
+   "lesson": "memmodel",
+   "q": "What are the memory orders?",
+   "a": "`seq_cst` (default, strongest, one global order), `acquire`/`release` (pair a release store with an acquire load to publish data), `acq_rel` for read-modify-write, and `relaxed` (atomicity only). Start with the default; weaken only with a reason and a clear happens-before argument."
+  },
+  {
+   "id": "memmodel-1",
+   "lesson": "memmodel",
+   "q": "What does release/acquire guarantee?",
+   "a": "Everything the producer wrote before a release store is visible to a thread that reads the stored value with an acquire load. The pair synchronizes-with, which gives a happens-before edge, so the earlier plain writes are not a data race."
+  },
+  {
+   "id": "memmodel-2",
+   "lesson": "memmodel",
+   "q": "What does happens-before mean?",
+   "a": "If A happens-before B, then A's effects are visible to B. Within a thread it is program order; between threads it exists only through synchronization: atomics with matching orders, mutex unlock/lock, thread start and join, futures. Two conflicting accesses without a happens-before relation are a data race."
+  },
+  {
+   "id": "memmodel-3",
+   "lesson": "memmodel",
+   "q": "When is `relaxed` enough?",
+   "a": "When no other data depends on the atomic: a statistics counter, an id generator, a shutdown flag that carries no data. The final value is correct, but it orders nothing else."
+  },
+  {
+   "id": "memmodel-4",
+   "lesson": "memmodel",
+   "q": "Why can code with a wrong memory order work on x86 and fail on ARM?",
+   "a": "x86's hardware already orders ordinary loads and stores like release/acquire, so missing orderings are hidden. ARM and POWER reorder far more, so the same code can read stale data there. The C++ model, not the PC you tested on, defines correctness."
+  },
+  {
+   "id": "memmodel-5",
+   "lesson": "memmodel",
+   "q": "How is a reference count made thread-safe, and with which orders?",
+   "a": "With an atomic counter: increments can be relaxed, the decrement is `acq_rel` so the thread that drops it to zero sees all other threads' writes before it destroys the object. `shared_ptr`'s control block works this way."
+  },
+  {
+   "id": "memmodel-6",
+   "lesson": "memmodel",
+   "q": "Mutex, fine-grained locks or lock-free: how do you choose?",
+   "a": "Start with one mutex and measure. Split locks if contention shows up and the structure has independent parts (head and tail of a queue, buckets of a table). Go lock-free only for a proven bottleneck and with a known-correct design, because memory reclamation and ABA make it hard; an SPSC ring buffer is the one case simple enough to write confidently."
+  },
+  {
+   "id": "strings-0",
+   "lesson": "strings",
+   "q": "When is a `string_view` dangerous?",
+   "a": "When it outlives the string it views: views of temporaries, of locals returned from a function, or of a string that is later modified or reallocated."
+  },
+  {
+   "id": "strings-1",
+   "lesson": "strings",
+   "q": "`regex_match` versus `regex_search`?",
+   "a": "`regex_match` must match the whole input. `regex_search` finds a match anywhere inside it."
+  },
+  {
+   "id": "strings-2",
+   "lesson": "strings",
+   "q": "How do you iterate over every match?",
+   "a": "`std::sregex_iterator` (or `std::cregex_iterator` for C strings) over the range, compared with a default-constructed end iterator."
+  },
+  {
+   "id": "strings-3",
+   "lesson": "strings",
+   "q": "Which clock for a timeout, and why?",
+   "a": "`steady_clock`, because it is monotonic and unaffected by changes to the system time."
+  },
+  {
+   "id": "strings-4",
+   "lesson": "strings",
+   "q": "Why can `seconds = milliseconds` not compile but `milliseconds = seconds` can?",
+   "a": "Converting to a coarser unit would truncate, so it requires an explicit `duration_cast`. Converting to a finer unit is lossless, so it is implicit."
+  },
+  {
+   "id": "strings-5",
+   "lesson": "strings",
+   "q": "What is the small string optimisation?",
+   "a": "Short strings (about 15 characters in libstdc++) are stored inside the `std::string` object, so no heap allocation happens and copying is cheap. Longer strings keep a pointer to a heap block. `reserve` avoids repeated reallocations when you know the size."
+  },
+  {
+   "id": "strings-6",
+   "lesson": "strings",
+   "q": "`from_chars` versus `stoi`?",
+   "a": "`from_chars` (C++17) returns an error code, never throws, never allocates and ignores the locale, so it suits hot paths and feed parsing; check that the end pointer reached the end of the token. `stoi` throws `invalid_argument` or `out_of_range` and is for ordinary code."
+  },
+  {
+   "id": "strings-7",
+   "lesson": "strings",
+   "q": "`std::format` versus streams versus `printf`?",
+   "a": "`std::format` (C++20) is type-safe, stateless and readable. Streams are extensible but keep state (`std::hex` sticks) and are verbose. `printf` has no type checking, so a wrong specifier is undefined behaviour."
+  },
+  {
+   "id": "strings-8",
+   "lesson": "strings",
+   "q": "Why is `while (!f.eof())` the wrong way to read a file?",
+   "a": "`eof` becomes true only after a read has failed, so the loop body runs once more with a failed read. Loop on the read itself: `while (std::getline(f, line))`."
+  },
+  {
+   "id": "strings-9",
+   "lesson": "strings",
+   "q": "Output: what does this print? `std::string s = \"abc\"; std::cout << s.find('z') == std::string::npos;`",
+   "a": "It does not compile as intended: `<<` binds tighter than `==`, so it tries to compare the stream with `npos`. Parenthesise: `std::cout << (s.find('z') == std::string::npos);` prints 1."
   }
  ]
 }

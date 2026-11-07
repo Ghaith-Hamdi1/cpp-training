@@ -1,0 +1,83 @@
+[
+  {
+    "id": "b:callables:0",
+    "node": "callables:n0",
+    "topic": "Function pointers",
+    "prompt": "Declare a **function pointer** `fp` to a function that takes an `int` and returns `bool`.",
+    "answer": ["bool", "(*fp)(int)", ";"],
+    "extra": ["*fp(int)", "int"],
+    "explanation": "The pointer name goes inside parentheses with the `*`: `bool (*fp)(int);`. Without the parentheses, `bool *fp(int);` declares a function that returns `bool*`."
+  },
+  {
+    "id": "b:lambdas:0",
+    "node": "lambdas:n0",
+    "topic": "Capture by value",
+    "prompt": "Write a lambda that **captures `base` by value** and returns its argument plus `base`.",
+    "answer": ["[base]", "(int n)", "{ return n + base; }"],
+    "extra": ["[&base]", "[]", "mutable"],
+    "explanation": "`[base]` copies `base` into the lambda. `[&base]` would capture a reference, and `[]` captures nothing, so `base` would not be visible in the body."
+  },
+  {
+    "id": "b:stl:0",
+    "node": "stl:n0",
+    "topic": "Vector capacity",
+    "prompt": "Reserve room for 100 elements in the vector `v` first, **then** append the value 5.",
+    "answer": ["v.reserve(100);", "v.push_back(5);"],
+    "extra": ["v.resize(100);", "v.insert(5);"],
+    "explanation": "`reserve` only allocates capacity and leaves `size()` at 0. `resize(100)` would create 100 elements, so appending 5 afterwards makes the 101st."
+  },
+  {
+    "id": "b:assoc:0",
+    "node": "assoc:n0",
+    "topic": "Looking up a key",
+    "prompt": "Write a condition that is true when key `k` is present in the map `m`, **without inserting** anything.",
+    "answer": ["m.find(k)", "!=", "m.end()"],
+    "extra": ["m[k]", "==", "m.begin()"],
+    "explanation": "`find` returns `end()` when the key is missing. `m[k]` would insert a default value for a missing key, which is the classic surprise."
+  },
+  {
+    "id": "b:iterators:0",
+    "node": "iterators:n0",
+    "topic": "Iterator loop",
+    "prompt": "Write the header of a loop over the vector `v` using **iterators**.",
+    "answer": ["for", "(auto it = v.begin();", "it != v.end();", "++it)"],
+    "extra": ["it < v.end();", "it++)", "v.end();"],
+    "explanation": "Compare with `!=` against `end()`, because only random-access iterators support `<`, and prefer `++it` over `it++`."
+  },
+  {
+    "id": "b:algorithms:0",
+    "node": "algorithms:n0",
+    "topic": "Sorting",
+    "prompt": "Sort the vector `v` in **descending** order.",
+    "answer": ["std::sort(v.begin(),", "v.end(),", "std::greater<>());"],
+    "extra": ["std::less<>());", "v.end());", "std::reverse(v.begin(),"],
+    "explanation": "`std::sort` sorts ascending by default. Passing `std::greater<>()` as the comparison flips the order."
+  },
+  {
+    "id": "b:templates:0",
+    "node": "templates:n0",
+    "topic": "Function template",
+    "prompt": "Declare a **function template** `maxOf` that returns the larger of two values of the same type.",
+    "answer": ["template <typename T>", "T", "maxOf(T a, T b);"],
+    "extra": ["template <T>", "int", "typename"],
+    "explanation": "A template parameter list starts with `template <typename T>` (or `class T`). `T` then replaces the concrete type in the signature."
+  },
+  {
+    "id": "b:classtemplates:0",
+    "node": "classtemplates:n0",
+    "topic": "Class template",
+    "prompt": "Declare a **class template** `Box` that holds one value of type `T`.",
+    "answer": ["template <typename T>", "class Box", "{ T value; };"],
+    "extra": ["template class Box", "{ int value; };", "typename"],
+    "explanation": "The template header comes first, then the class. The member uses `T`, so each `Box<int>` or `Box<std::string>` stores its own type."
+  },
+  {
+    "id": "b:compiletime:0",
+    "node": "compiletime:n0",
+    "topic": "static_assert",
+    "prompt": "Make the compiler **check at compile time** that `int` is 4 bytes, with a message.",
+    "answer": ["static_assert(sizeof(int) == 4,", "\"int must be 4 bytes\");"],
+    "extra": ["assert(sizeof(int) == 4,", "#error"],
+    "explanation": "`static_assert(condition, message)` is evaluated by the compiler and stops the build when false. `assert` only checks at run time, and only in builds without `NDEBUG`."
+  }
+]

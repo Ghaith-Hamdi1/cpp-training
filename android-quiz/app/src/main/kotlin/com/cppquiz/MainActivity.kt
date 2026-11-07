@@ -61,11 +61,17 @@ private fun App(store: Store) {
     var result by remember { mutableStateOf<List<Pair<String, Boolean>>?>(null) }
     var chapterDone by remember { mutableStateOf<Chapter?>(null) }
     var showChapter by remember { mutableStateOf<Chapter?>(null) }
+    var deck by remember { mutableStateOf<List<RecapCard>?>(null) }
 
     val s = session
     val r = result
     val sc = showChapter
+    val dk = deck
     when {
+        dk != null -> {
+            BackHandler { deck = null }
+            CardReview(dk, onGrade = { c, good -> store.gradeCard(c.id, good) }, onClose = { deck = null })
+        }
         sc != null -> {
             BackHandler { showChapter = null }
             val next = Content.chapters.getOrNull(Content.chapters.indexOf(sc) + 1)
@@ -109,6 +115,7 @@ private fun App(store: Store) {
                             session = reviewSession(store, Content.allReadyItems, Content.allReadyItems, 10)
                         },
                         onStartNode = { session = nodeSession(it) },
+                        onStartCards = { deck = store.dueCards().mapNotNull { Content.card(it) }.shuffled() },
                     )
                     else -> ProfileScreen(store)
                 }

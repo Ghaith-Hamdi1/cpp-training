@@ -18,7 +18,7 @@ const check = process.argv.includes('--check');
 const CHAPTERS = [
   { id: 'core', title: '1. Core language foundations', lessons: ['basics', 'pointers', 'types', 'casts'], ready: true },
   { id: 'classes', title: '2. Classes, memory and OOP', lessons: ['oop', 'copying', 'inherit'], ready: true },
-  { id: 'library', title: '3. Standard library and generic programming', lessons: ['callables', 'lambdas', 'stl', 'assoc', 'iterators', 'algorithms', 'templates', 'classtemplates', 'compiletime'], ready: false },
+  { id: 'library', title: '3. Standard library and generic programming', lessons: ['callables', 'lambdas', 'stl', 'assoc', 'iterators', 'algorithms', 'templates', 'classtemplates', 'compiletime'], ready: true },
   { id: 'raii', title: '4. RAII, exceptions and advanced tools', lessons: ['core'], ready: false },
   { id: 'modern', title: '5. Modern C++', lessons: ['vocab', 'moves', 'copymove', 'writemoves', 'elision', 'sinks', 'forwarding', 'uniqueptr', 'smartptr', 'weakptr'], ready: false },
   { id: 'concurrency', title: '6. Concurrency and the memory model', lessons: ['threads', 'races', 'mutexes', 'deadlock', 'condvars', 'tasks', 'pools', 'atomics', 'memmodel'], ready: false },
@@ -61,6 +61,7 @@ function questionType(q) {
 }
 
 const problems = [];
+const cardList = [];
 const questions = [];
 const chapters = [];
 const counts = { lessons: 0, questions: 0, cards: 0 };
@@ -92,8 +93,9 @@ for (const ch of CHAPTERS) {
 
     // 5 to 8 items per node: split a lesson into ceil(n / 8) nodes of near-equal size.
     const parts = Math.max(1, Math.ceil(ids.length / 8));
-    const cards = CT.mockBank.filter((c) => c.topic === lessonId)
-      .map((c) => `**${htmlToMarkup(c.q)}**\n\n${htmlToMarkup(c.a)}`);
+    const lessonCards = CT.mockBank.filter((c) => c.topic === lessonId);
+    for (const c of lessonCards) cardList.push({ id: c.id, lesson: lessonId, q: htmlToMarkup(c.q), a: htmlToMarkup(c.a) });
+    const cards = lessonCards.map((c) => `**${htmlToMarkup(c.q)}**\n\n${htmlToMarkup(c.a)}`);
     counts.cards += cards.length;
     let qi = 0;
     let ci = 0;
@@ -104,6 +106,7 @@ for (const ch of CHAPTERS) {
         id: `${lessonId}:n${p}`,
         title: parts > 1 ? `${lesson.title} (${p + 1}/${parts})` : lesson.title,
         intro: cards.slice(ci, ci + cardTake),
+        cards: lessonCards.slice(ci, ci + cardTake).map((c) => c.id),
         items: ids.slice(qi, qi + take),
       });
       qi += take;
@@ -111,6 +114,18 @@ for (const ch of CHAPTERS) {
     }
   }
   chapters.push({ id: ch.id, title: ch.title, ready: ch.ready, nodes });
+}
+
+// Hand-written tap-to-build exercises (tools/data/android-builds.json), placed in the middle of their node.
+const builds = JSON.parse(readFileSync(join(repo, 'tools', 'data', 'android-builds.json'), 'utf8'));
+const allNodes = chapters.flatMap((c) => c.nodes);
+for (const b of builds) {
+  const node = allNodes.find((n) => n.id === b.node);
+  if (!node) { problems.push(`${b.id}: unknown node ${b.node}`); continue; }
+  if (b.answer.length < 2 || new Set([...b.answer, ...b.extra]).size !== b.answer.length + b.extra.length) {
+    problems.push(`${b.id}: tiles must be unique and the answer needs 2 or more`);
+  }
+  node.items.splice(Math.ceil(node.items.length / 2), 0, b.id);
 }
 
 // Lint: long code lines and leftovers the app cannot show.
@@ -124,9 +139,9 @@ for (const q of questions) {
   }
 }
 
-const json = JSON.stringify({ chapters, questions }, null, 1) + '\n';
+const json = JSON.stringify({ chapters, questions, builds: builds.map(({ node, ...b }) => b), cards: cardList }, null, 1) + '\n';
 const nodeCount = chapters.reduce((n, c) => n + c.nodes.length, 0);
-console.log(`${counts.lessons} lessons, ${nodeCount} nodes, ${counts.questions} questions, ${counts.cards} recap cards`);
+console.log(`${counts.lessons} lessons, ${nodeCount} nodes, ${counts.questions} questions, ${builds.length} build exercises, ${counts.cards} recap cards`);
 const fatal = problems.filter((p) => !/the app shrinks the font/.test(p));
 for (const p of problems) console.log((fatal.includes(p) ? 'ERROR ' : 'note  ') + p);
 if (fatal.length) process.exit(1);

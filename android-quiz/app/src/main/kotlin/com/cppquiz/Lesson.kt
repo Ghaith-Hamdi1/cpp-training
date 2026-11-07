@@ -280,7 +280,7 @@ private fun BuildStep(
             scroll.animateScrollTo(scroll.maxValue)
         }
     }
-    val built = picked.joinToString(" ") { rb.tiles[it] }
+    val built = picked.joinToString(" ") { rb.tiles[it] }.replace(" ;", ";")
     Column(Modifier.fillMaxSize()) {
         Column(Modifier.weight(1f).verticalScroll(scroll).padding(horizontal = 20.dp, vertical = 16.dp)) {
             RetryTag(retry)

@@ -250,8 +250,9 @@ private fun ChapterHeader(course: String, title: String, progress: Float) {
 }
 
 @Composable
-fun PracticeScreen(store: Store, onStartMistakes: () -> Unit, onStartNode: (String) -> Unit) {
+fun PracticeScreen(store: Store, onStartMistakes: () -> Unit, onStartNode: (String) -> Unit, onStartCards: () -> Unit) {
     val n = store.missed.size
+    val due = store.dueCards().size
     val done = Content.readyNodes.filter { it.id in store.completed }
     Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState())) {
         Column(
@@ -269,6 +270,26 @@ fun PracticeScreen(store: Store, onStartMistakes: () -> Unit, onStartNode: (Stri
             Text("⚡ ${if (n > 0) minOf(n, 10) else 10} questions", color = Color(0xFF232846), fontSize = 16.sp)
             Spacer(Modifier.height(16.dp))
             Chunky("Start now", onClick = onStartMistakes)
+        }
+        Spacer(Modifier.height(20.dp))
+        Column(
+            Modifier.padding(horizontal = 20.dp).fillMaxWidth().background(C.Card, RoundedCornerShape(24.dp)).padding(18.dp),
+        ) {
+            Text("RECAP CARDS", color = C.Dim, fontSize = 13.sp, fontWeight = FontWeight.Bold)
+            Spacer(Modifier.height(6.dp))
+            Text(
+                if (due > 0) "$due card${if (due == 1) "" else "s"} due today" else "No cards due",
+                color = Color.White, fontSize = 22.sp, fontWeight = FontWeight.Bold,
+            )
+            Text(
+                if (store.cards.isEmpty()) "Finish a lesson and its cheat-sheet cards come back here 1, 3, 7, 14 and 30 days later."
+                else "${store.cards.size} cards in your review boxes.",
+                color = C.Dim, fontSize = 15.sp, modifier = Modifier.padding(top = 4.dp),
+            )
+            if (due > 0) {
+                Spacer(Modifier.height(14.dp))
+                Chunky("Review cards", onClick = onStartCards)
+            }
         }
         Spacer(Modifier.height(20.dp))
         Text("Practice past topics", color = Color.White, fontSize = 22.sp, fontWeight = FontWeight.Bold, modifier = Modifier.padding(horizontal = 20.dp))

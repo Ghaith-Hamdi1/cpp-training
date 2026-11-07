@@ -98,7 +98,7 @@ Each milestone ends with an installable APK and a working app. The order follows
 | # | Milestone | Contents |
 |---|---|---|
 | M1 | Pipeline and chapters 1 and 2 | Exporter and lint, data-driven path, store migration, chapter 1 and 2 nodes, the virtual deep-dive in the new format |
-| M2 | Chapter 3 | The largest chapter (129 questions), plus build exercises for templates and lambdas, and the spaced-repetition review |
+| M2 (done) | Chapter 3 | The largest chapter (129 questions), plus build exercises for templates and lambdas, and the spaced-repetition review |
 | M3 | Chapters 4 and 5 | Author new RAII and exceptions content, move semantics and smart pointer nodes, go-deeper cards |
 | M4 | Chapters 6 and 7 | Concurrency nodes, boss nodes for every chapter, attribution screen |
 | M5 | Polish | Placement test, daily goal and streak ring, hints, interview mode, reminder |

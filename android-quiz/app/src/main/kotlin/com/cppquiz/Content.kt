@@ -5,7 +5,13 @@ import org.json.JSONArray
 import org.json.JSONObject
 
 /** One lesson node on the path: info slides first, then the items (question or build exercise ids). */
-data class Node(val id: String, val title: String, val intro: List<String>, val items: List<String>)
+data class Node(
+    val id: String, val title: String, val intro: List<String>, val items: List<String>,
+    val cardIds: List<String> = emptyList(),
+)
+
+/** A recap flashcard from a lesson's cheat sheet. */
+data class RecapCard(val id: String, val question: String, val answer: String)
 
 data class Chapter(val id: String, val title: String, val nodes: List<Node>, val ready: Boolean)
 
@@ -18,6 +24,7 @@ object Content {
     var chapters: List<Chapter> = emptyList(); private set
     private var questionById: Map<String, Question> = emptyMap()
     private var buildById: Map<String, BuildExercise> = emptyMap()
+    private var cardById: Map<String, RecapCard> = emptyMap()
 
     val readyChapters: List<Chapter> get() = chapters.filter { it.ready }
     val readyNodes: List<Node> get() = readyChapters.flatMap { it.nodes }
@@ -25,6 +32,7 @@ object Content {
 
     fun question(id: String): Question = questionById.getValue(id)
     fun build(id: String): BuildExercise? = buildById[id]
+    fun card(id: String): RecapCard? = cardById[id]
     fun chapterOf(nodeId: String): Chapter? = chapters.firstOrNull { c -> c.nodes.any { it.id == nodeId } }
     fun node(nodeId: String): Node? = chapters.firstNotNullOfOrNull { c -> c.nodes.firstOrNull { it.id == nodeId } }
 
@@ -47,7 +55,21 @@ object Content {
         }
         virtualQuestions.forEachIndexed { i, q -> qs["v:$i"] = q }
         questionById = qs
-        buildById = virtualBuilds.mapIndexed { i, b -> "vb:$i" to b }.toMap()
+        val bs = HashMap<String, BuildExercise>()
+        virtualBuilds.forEachIndexed { i, b -> bs["vb:$i"] = b }
+        val barr = root.getJSONArray("builds")
+        for (i in 0 until barr.length()) {
+            val o = barr.getJSONObject(i)
+            bs[o.getString("id")] = BuildExercise(
+                o.getString("topic"), o.getString("prompt"),
+                o.getJSONArray("answer").strings(), o.getJSONArray("extra").strings(), o.getString("explanation"),
+            )
+        }
+        buildById = bs
+        val carr = root.getJSONArray("cards")
+        cardById = (0 until carr.length()).map { carr.getJSONObject(it) }.associate {
+            it.getString("id") to RecapCard(it.getString("id"), it.getString("q"), it.getString("a"))
+        }
 
         val chs = root.getJSONArray("chapters")
         chapters = (0 until chs.length()).map { ci ->
@@ -55,7 +77,10 @@ object Content {
             val nodes = c.getJSONArray("nodes")
             var list = (0 until nodes.length()).map { ni ->
                 val n = nodes.getJSONObject(ni)
-                Node(n.getString("id"), n.getString("title"), n.getJSONArray("intro").strings(), n.getJSONArray("items").strings())
+                Node(
+                    n.getString("id"), n.getString("title"), n.getJSONArray("intro").strings(),
+                    n.getJSONArray("items").strings(), n.getJSONArray("cards").strings(),
+                )
             }
             if (c.getString("id") == "classes") list = list + virtualNodes
             Chapter(c.getString("id"), c.getString("title"), list, c.getBoolean("ready"))
