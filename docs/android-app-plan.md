@@ -43,7 +43,7 @@ The 509 questions add up from the per-lesson counts above.
 
 ### From repo lessons to path nodes
 
-- A path node holds 5 to 8 items, like Mimo. A lesson with 14 or more questions splits into two nodes by its `sec` values, so about 60 nodes in total.
+- A path node holds 5 to 8 items, like Mimo. A lesson with more than 8 questions splits into ceil(n / 8) nodes of near-equal size, in quiz order, so 80 nodes in total.
 - Each node starts with 1 or 2 info slides built from that section's recap cards, then its questions, then a build exercise where the topic suits one.
 - The end of each chapter gets a "boss" node of 5 puzzles, picked by difficulty from the CppQuiz set.
 - Chapter 2 keeps the hand-written virtual deep-dive as its last five nodes. The repo's inheritance quiz is used in the node before it, with overlapping questions dropped.
@@ -72,7 +72,7 @@ The imported questions are mostly concept multiple-choice (450 of 509). The `vir
 | True / False | New, short | 4 to 6 |
 | Tap-to-build code | New | 1 per node, about 60 in total |
 
-That is roughly 20 new questions per chapter, about 140 in total, and about 55 more build exercises. Authoring is the largest cost in the plan. Write them in the same file format as the imports, so they are reviewable in the repo.
+That is roughly 20 new questions per chapter, about 140 in total, and about 75 more build exercises. Authoring is the largest cost in the plan. Write them in the same file format as the imports, so they are reviewable in the repo.
 
 ## App features still to build
 

@@ -9,9 +9,8 @@ data class BuildExercise(
     val explanation: String,
 )
 
-const val BUILD_BASE = 1000
 
-val builds: List<BuildExercise> = listOf(
+val virtualBuilds: List<BuildExercise> = listOf(
     BuildExercise(
         "Make it virtual",
         "Complete the declaration so `speak` is a **virtual** function in `Animal`.",

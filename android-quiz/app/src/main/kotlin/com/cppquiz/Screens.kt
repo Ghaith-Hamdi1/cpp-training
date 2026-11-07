@@ -1,13 +1,14 @@
 package com.cppquiz
 
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -19,7 +20,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -122,11 +123,10 @@ private val nodeFractions = floatArrayOf(0.5f, 1f, 0.5f, 0f)
 
 @Composable
 private fun ChapterPath(
-    chapter: Chapter, store: Store, onLesson: (Int) -> Unit, onPractice: () -> Unit,
+    chapter: Chapter, store: Store, firstOpen: String?, onNode: (String) -> Unit, onPractice: () -> Unit,
 ) {
-    val nodeCount = chapter.lessons.size + 1
+    val nodeCount = chapter.nodes.size + 1
     val step = 150.dp
-    val firstOpen = chapter.lessons.indices.firstOrNull { it !in store.completed } ?: -1
     BoxWithConstraints(Modifier.fillMaxWidth().height(step * (nodeCount - 1) + 96.dp + 56.dp)) {
         val density = LocalDensity.current
         val wPx = with(density) { maxWidth.toPx() }
@@ -162,15 +162,16 @@ private fun ChapterPath(
             }
         }
         for (i in 0 until nodeCount) {
-            val isPractice = i == chapter.lessons.size
+            val isPractice = i == chapter.nodes.size
+            val node = chapter.nodes.getOrNull(i)
             val kind = when {
                 isPractice -> NodeKind.PRACTICE
-                i in store.completed -> NodeKind.DONE
-                i == firstOpen -> NodeKind.OPEN
+                node!!.id in store.completed -> NodeKind.DONE
+                node.id == firstOpen -> NodeKind.OPEN
                 else -> NodeKind.LOCKED
             }
             Box(Modifier.offset { IntOffset((cx(i) - nodePx / 2).roundToInt(), (cy(i) - nodePx / 2).roundToInt()) }) {
-                PathNode(kind, current = i == firstOpen, onClick = { if (isPractice) onPractice() else onLesson(i) })
+                PathNode(kind, current = node != null && node.id == firstOpen, onClick = { if (node == null) onPractice() else onNode(node.id) })
             }
         }
     }
@@ -178,16 +179,21 @@ private fun ChapterPath(
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun LearnScreen(store: Store, onLesson: (Int) -> Unit, onPracticeChapter: () -> Unit) {
-    var sheet by remember { mutableStateOf(false) }
-    val ch = chapterOne
+fun LearnScreen(store: Store, onNode: (String) -> Unit, onPracticeChapter: (Chapter) -> Unit) {
+    var sheet by remember { mutableStateOf<Chapter?>(null) }
+    val firstOpen = Content.readyNodes.firstOrNull { it.id !in store.completed }?.id
     Box(Modifier.fillMaxSize()) {
         LazyColumn(Modifier.fillMaxSize()) {
-            stickyHeader {
-                ChapterHeader("C++", ch.title, store.completed.size / ch.lessons.size.toFloat())
+            for (ch in Content.readyChapters) {
+                stickyHeader(key = "h-" + ch.id) {
+                    val done = ch.nodes.count { it.id in store.completed }
+                    ChapterHeader("C++", ch.title, done / ch.nodes.size.toFloat())
+                }
+                item(key = "p-" + ch.id) {
+                    ChapterPath(ch, store, firstOpen, onNode, onPractice = { sheet = ch })
+                }
             }
-            item { ChapterPath(ch, store, onLesson, onPractice = { sheet = true }) }
-            itemsIndexed(lockedChapters) { _, name ->
+            items(Content.chapters.filter { !it.ready }, key = { "l-" + it.id }) { ch ->
                 Column(Modifier.padding(horizontal = 16.dp, vertical = 10.dp)) {
                     Box(Modifier.fillMaxWidth().background(C.CardDark, RoundedCornerShape(26.dp)).padding(2.dp)) {
                         Column(
@@ -195,15 +201,16 @@ fun LearnScreen(store: Store, onLesson: (Int) -> Unit, onPracticeChapter: () -> 
                         ) {
                             Text("Coming soon", color = C.Dim, fontSize = 14.sp)
                             Spacer(Modifier.height(6.dp))
-                            Text(name, color = Color(0xFF6A6C95), fontSize = 24.sp, fontWeight = FontWeight.Bold)
+                            Text(ch.title, color = Color(0xFF6A6C95), fontSize = 24.sp, fontWeight = FontWeight.Bold)
                         }
                     }
                 }
             }
             item { Spacer(Modifier.height(24.dp)) }
         }
-        if (sheet) {
-            Box(Modifier.fillMaxSize().background(Color(0xAA000000)).clickable { sheet = false }) {
+        sheet?.let { ch ->
+            val done = ch.nodes.count { it.id in store.completed }
+            Box(Modifier.fillMaxSize().background(Color(0xAA000000)).clickable { sheet = null }) {
                 Column(
                     Modifier.align(Alignment.Center).padding(24.dp).fillMaxWidth()
                         .background(Color(0xFF1B1D38), RoundedCornerShape(28.dp)).clickable(enabled = false) {}
@@ -214,11 +221,11 @@ fun LearnScreen(store: Store, onLesson: (Int) -> Unit, onPracticeChapter: () -> 
                     Text(ch.title.substringAfter(". "), color = Color.White, fontSize = 28.sp, fontWeight = FontWeight.Bold)
                     Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
                         Text("CHAPTER", color = Color.White, fontSize = 15.sp, fontWeight = FontWeight.SemiBold)
-                        Text("${store.completed.size}/${ch.lessons.size}", color = Color.White, fontSize = 15.sp, fontWeight = FontWeight.SemiBold)
+                        Text("$done/${ch.nodes.size}", color = Color.White, fontSize = 15.sp, fontWeight = FontWeight.SemiBold)
                     }
-                    ProgressPill(store.completed.size / ch.lessons.size.toFloat(), track = C.Bar)
+                    ProgressPill(done / ch.nodes.size.toFloat(), track = C.Bar)
                     Spacer(Modifier.height(4.dp))
-                    Chunky("Start practicing", onClick = { sheet = false; onPracticeChapter() })
+                    Chunky("Start practicing", onClick = { sheet = null; onPracticeChapter(ch) })
                 }
             }
         }
@@ -243,9 +250,9 @@ private fun ChapterHeader(course: String, title: String, progress: Float) {
 }
 
 @Composable
-fun PracticeScreen(store: Store, onStartMistakes: () -> Unit, onStartLesson: (Int) -> Unit) {
+fun PracticeScreen(store: Store, onStartMistakes: () -> Unit, onStartNode: (String) -> Unit) {
     val n = store.missed.size
-    val done = chapterOne.lessons.indices.filter { it in store.completed }
+    val done = Content.readyNodes.filter { it.id in store.completed }
     Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState())) {
         Column(
             Modifier.fillMaxWidth().background(Color(0xFFE9DDFF)).padding(20.dp),
@@ -269,15 +276,15 @@ fun PracticeScreen(store: Store, onStartMistakes: () -> Unit, onStartLesson: (In
         if (done.isEmpty()) {
             Text("Finish a lesson to unlock it here.", color = C.Dim, fontSize = 16.sp, modifier = Modifier.padding(horizontal = 20.dp))
         } else {
-            LazyRow(contentPadding = androidx.compose.foundation.layout.PaddingValues(horizontal = 20.dp), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                itemsIndexed(done) { _, i ->
+            LazyRow(contentPadding = PaddingValues(horizontal = 20.dp), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                items(done, key = { it.id }) { node ->
                     Column(
                         Modifier.width(170.dp).height(150.dp).background(C.Card, RoundedCornerShape(24.dp))
-                            .clickable { onStartLesson(i) }.padding(16.dp),
+                            .clickable { onStartNode(node.id) }.padding(16.dp),
                         verticalArrangement = Arrangement.SpaceBetween,
                     ) {
-                        Text("⚡ ${chapterOne.lessons[i].questionIds.size} questions", color = Color.White, fontSize = 14.sp)
-                        Text(chapterOne.lessons[i].title, color = Color.White, fontSize = 19.sp, fontWeight = FontWeight.Bold)
+                        Text("⚡ ${node.items.size} questions", color = Color.White, fontSize = 14.sp)
+                        Text(node.title, color = Color.White, fontSize = 19.sp, fontWeight = FontWeight.Bold)
                     }
                 }
             }
@@ -318,7 +325,7 @@ fun ProfileScreen(store: Store) {
         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
             ProfileStat("🔥", "${store.streak}", "DAYS STREAK", Modifier.weight(1f))
             ProfileStat("⚡", "${store.xp}", "XP", Modifier.weight(1f))
-            ProfileStat("✅", "${store.completed.size}/${chapterOne.lessons.size}", "LESSONS", Modifier.weight(1f))
+            ProfileStat("✅", "${store.completed.size}/${Content.readyNodes.size}", "LESSONS", Modifier.weight(1f))
         }
         Spacer(Modifier.height(32.dp))
         Text(

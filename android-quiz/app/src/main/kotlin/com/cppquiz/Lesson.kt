@@ -40,13 +40,13 @@ import kotlinx.coroutines.delay
 import kotlin.random.Random
 
 /** A question with its options shuffled for one run. */
-class RunQ(val id: Int, val q: Question, val options: List<String>, val correct: Int)
+class RunQ(val id: String, val q: Question, val options: List<String>, val correct: Int)
 
 /** A build exercise with its tiles shuffled for one run. */
-class RunB(val id: Int, val b: BuildExercise, val tiles: List<String>)
+class RunB(val id: String, val b: BuildExercise, val tiles: List<String>)
 
-fun runQuestion(id: Int, rnd: Random): RunQ {
-    val q = questions[id]
+fun runQuestion(id: String, rnd: Random): RunQ {
+    val q = Content.question(id)
     return if (q.type == QType.TRUE_FALSE) {
         RunQ(id, q, q.options, q.answer)
     } else {
@@ -56,11 +56,11 @@ fun runQuestion(id: Int, rnd: Random): RunQ {
 }
 
 sealed interface Step {
-    val id: Int
+    val id: String
     val retry: Boolean
 
     data class Info(val text: String) : Step {
-        override val id get() = -1
+        override val id get() = ""
         override val retry get() = false
     }
     data class Quiz(val rq: RunQ, override val retry: Boolean = false) : Step {
@@ -71,22 +71,21 @@ sealed interface Step {
     }
 }
 
-/** Builds the step for a question id (< BUILD_BASE) or build exercise id (>= BUILD_BASE). */
-fun stepFor(id: Int, rnd: Random, retry: Boolean = false): Step =
-    if (id >= BUILD_BASE) {
-        val b = builds[id - BUILD_BASE]
+/** Builds the step for an item id: a build exercise when Content knows it as one, else a quiz question. */
+fun stepFor(id: String, rnd: Random, retry: Boolean = false): Step {
+    val b = Content.build(id)
+    return if (b != null) {
         Step.Build(RunB(id, b, (b.answer + b.extra).shuffled(rnd)), retry)
     } else {
         Step.Quiz(runQuestion(id, rnd), retry)
     }
-
-val allStepIds: List<Int> = questions.indices.toList() + builds.indices.map { BUILD_BASE + it }
+}
 
 @Composable
 fun LessonRunner(
     steps: List<Step>,
     onQuit: () -> Unit,
-    onDone: (results: List<Pair<Int, Boolean>>, recovered: List<Int>) -> Unit,
+    onDone: (results: List<Pair<String, Boolean>>, recovered: List<String>) -> Unit,
 ) {
     val all = remember { mutableStateListOf<Step>().apply { addAll(steps) } }
     var idx by remember { mutableIntStateOf(0) }
@@ -96,9 +95,9 @@ fun LessonRunner(
     var lastOk by remember { mutableStateOf(false) }
     var confirmQuit by remember { mutableStateOf(false) }
     var retriesAdded by remember { mutableStateOf(false) }
-    val results = remember { mutableListOf<Pair<Int, Boolean>>() }
-    val recovered = remember { mutableListOf<Int>() }
-    val missedIds = remember { mutableListOf<Int>() }
+    val results = remember { mutableListOf<Pair<String, Boolean>>() }
+    val recovered = remember { mutableListOf<String>() }
+    val missedIds = remember { mutableListOf<String>() }
 
     fun record(step: Step, ok: Boolean) {
         lastOk = ok
@@ -161,7 +160,7 @@ private fun InfoStep(text: String, onContinue: () -> Unit) {
     Column(Modifier.fillMaxSize().padding(20.dp)) {
         Column(Modifier.weight(1f).verticalScroll(rememberScrollState()), horizontalAlignment = Alignment.CenterHorizontally) {
             Spacer(Modifier.height(32.dp))
-            Mascot(180.dp)
+            Mascot(if (text.length > 160) 110.dp else 180.dp)
             Spacer(Modifier.height(32.dp))
             Text(md(text), color = Color.White, fontSize = 20.sp, lineHeight = 30.sp, modifier = Modifier.fillMaxWidth())
         }
@@ -234,7 +233,7 @@ private fun QuizStep(
             RetryTag(retry)
             Text(rq.q.type.label + " · " + rq.q.topic, color = C.Dim, fontSize = 14.sp)
             Spacer(Modifier.height(6.dp))
-            Text(rq.q.prompt, color = Color.White, fontSize = 20.sp, lineHeight = 28.sp)
+            Text(md(rq.q.prompt), color = Color.White, fontSize = 20.sp, lineHeight = 28.sp)
             rq.q.code?.let { Spacer(Modifier.height(14.dp)); CodeBlock(it) }
             Spacer(Modifier.height(14.dp))
             rq.options.forEachIndexed { i, t ->
@@ -252,7 +251,7 @@ private fun QuizStep(
                         .padding(horizontal = 18.dp, vertical = 18.dp),
                 ) {
                     Text(
-                        t, color = Color.White, fontSize = 17.sp, lineHeight = 24.sp,
+                        md(t), color = Color.White, fontSize = 17.sp, lineHeight = 24.sp,
                         fontFamily = if (rq.q.type == QType.OUTPUT) FontFamily.Monospace else null,
                     )
                 }
@@ -361,7 +360,7 @@ private fun QuitSheet(onCancel: () -> Unit, onQuit: () -> Unit) {
 }
 
 @Composable
-fun LessonResult(results: List<Pair<Int, Boolean>>, onContinue: () -> Unit) {
+fun LessonResult(results: List<Pair<String, Boolean>>, onContinue: () -> Unit) {
     val correct = results.count { it.second }
     val pct = if (results.isEmpty()) 0 else correct * 100 / results.size
     Column(Modifier.fillMaxSize().background(C.Bg).padding(20.dp), horizontalAlignment = Alignment.CenterHorizontally) {
@@ -402,7 +401,7 @@ fun ChapterComplete(title: String, bonus: Int, next: String?, onContinue: () -> 
         }
         if (next != null) {
             Spacer(Modifier.height(16.dp))
-            Text("Next up: $next (coming soon)", color = C.Dim, fontSize = 16.sp, textAlign = TextAlign.Center)
+            Text("Next up: $next", color = C.Dim, fontSize = 16.sp, textAlign = TextAlign.Center)
         }
         Spacer(Modifier.weight(1f))
         Chunky("Continue", onClick = onContinue)

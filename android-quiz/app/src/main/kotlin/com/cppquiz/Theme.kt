@@ -4,6 +4,7 @@ import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -18,6 +19,7 @@ import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
@@ -130,11 +132,18 @@ fun ProgressPill(fraction: Float, modifier: Modifier = Modifier, height: Dp = 12
     }
 }
 
+/** Code with no sideways scroll: the font shrinks (down to 9sp) until the longest line fits, then long lines wrap. */
 @Composable
 fun CodeBlock(code: String) {
-    Column(
-        Modifier.fillMaxWidth().background(C.Code, RoundedCornerShape(12.dp)).padding(14.dp),
-    ) {
-        Text(code, fontFamily = FontFamily.Monospace, fontSize = 12.sp, lineHeight = 17.sp, color = Color(0xFFE6E6F0))
+    BoxWithConstraints(Modifier.fillMaxWidth().background(C.Code, RoundedCornerShape(12.dp)).padding(14.dp)) {
+        val longest = code.lines().maxOfOrNull { it.length }?.coerceAtLeast(1) ?: 1
+        val fontScale = LocalDensity.current.fontScale
+        // A monospace character is about 0.6 em wide.
+        val fit = maxWidth.value / (longest * 0.6f * fontScale)
+        val size = fit.coerceIn(9f, 13f)
+        Text(
+            code, fontFamily = FontFamily.Monospace, fontSize = size.sp,
+            lineHeight = (size * 1.4f).sp, color = Color(0xFFE6E6F0),
+        )
     }
 }

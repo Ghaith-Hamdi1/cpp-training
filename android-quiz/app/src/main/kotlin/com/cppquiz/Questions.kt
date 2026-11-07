@@ -39,7 +39,8 @@ private fun tf(topic: String, statement: String, isTrue: Boolean, why: String) =
         listOf("True", "False"), if (isTrue) 0 else 1, why,
     )
 
-val questions: List<Question> = listOf(
+/** The hand-written chapter on virtual functions; loaded as the last nodes of the OOP chapter. */
+val virtualQuestions: List<Question> = listOf(
     // ---------- Static vs dynamic binding ----------
     output(
         "Without virtual",

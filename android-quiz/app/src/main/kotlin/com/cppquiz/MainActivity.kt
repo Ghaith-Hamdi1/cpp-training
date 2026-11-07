@@ -24,6 +24,7 @@ import kotlin.random.Random
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        Content.load(applicationContext)
         val store = Store(applicationContext)
         setContent {
             MaterialTheme(colorScheme = darkColorScheme()) {
@@ -35,43 +36,47 @@ class MainActivity : ComponentActivity() {
     }
 }
 
-private class Session(val lessonIndex: Int?, val steps: List<Step>)
+private class Session(val nodeId: String?, val steps: List<Step>)
 
-private fun lessonSession(index: Int): Session {
-    val l = chapterOne.lessons[index]
+private fun nodeSession(nodeId: String): Session {
+    val node = Content.node(nodeId)!!
     val rnd = Random(System.nanoTime())
-    val steps = l.intro.map { Step.Info(it) } + l.questionIds.map { stepFor(it, rnd) }
-    return Session(index, steps)
+    val steps = node.intro.map { Step.Info(it) } + node.items.map { stepFor(it, rnd) }
+    return Session(nodeId, steps)
 }
 
-/** Practice from mistakes, or a mixed set when nothing is missed. */
-private fun reviewSession(store: Store): Session {
+/** A short review: missed items first, else items of lessons already finished, else anything in [fallback]. */
+private fun reviewSession(store: Store, scope: List<String>, fallback: List<String>, size: Int): Session {
     val rnd = Random(System.nanoTime())
-    val pool = if (store.missed.isNotEmpty()) store.missed.toList() else allStepIds
-    val ids = pool.shuffled(rnd).take(10)
-    return Session(null, ids.map { stepFor(it, rnd) })
+    val missed = scope.filter { it in store.missed }
+    val seen = scope.filter { id -> Content.readyNodes.any { it.id in store.completed && id in it.items } }
+    val pool = missed.ifEmpty { seen }.ifEmpty { fallback }
+    return Session(null, pool.shuffled(rnd).take(size).map { stepFor(it, rnd) })
 }
 
 @Composable
 private fun App(store: Store) {
     var tab by remember { mutableIntStateOf(0) }
     var session by remember { mutableStateOf<Session?>(null) }
-    var result by remember { mutableStateOf<List<Pair<Int, Boolean>>?>(null) }
-    var chapterDone by remember { mutableStateOf(false) }
-    var showChapter by remember { mutableStateOf(false) }
+    var result by remember { mutableStateOf<List<Pair<String, Boolean>>?>(null) }
+    var chapterDone by remember { mutableStateOf<Chapter?>(null) }
+    var showChapter by remember { mutableStateOf<Chapter?>(null) }
 
     val s = session
     val r = result
+    val sc = showChapter
     when {
-        showChapter -> {
-            BackHandler { showChapter = false }
-            ChapterComplete(chapterOne.title, CHAPTER_BONUS, lockedChapters.firstOrNull()) { showChapter = false }
+        sc != null -> {
+            BackHandler { showChapter = null }
+            val next = Content.chapters.getOrNull(Content.chapters.indexOf(sc) + 1)
+            val nextText = next?.let { it.title + if (it.ready) "" else " (coming soon)" }
+            ChapterComplete(sc.title, CHAPTER_BONUS, nextText) { showChapter = null }
         }
         r != null -> {
             BackHandler { result = null }
             LessonResult(r) {
                 result = null
-                if (chapterDone) { chapterDone = false; showChapter = true }
+                chapterDone?.let { showChapter = it; chapterDone = null }
             }
         }
         s != null -> {
@@ -80,7 +85,7 @@ private fun App(store: Store) {
                 steps = s.steps,
                 onQuit = { session = null },
                 onDone = { res, recovered ->
-                    chapterDone = store.finish(s.lessonIndex, res, recovered)
+                    chapterDone = store.finish(s.nodeId, res, recovered)
                     session = null
                     result = res
                 },
@@ -92,13 +97,18 @@ private fun App(store: Store) {
                 when (tab) {
                     0 -> LearnScreen(
                         store,
-                        onLesson = { session = lessonSession(it) },
-                        onPracticeChapter = { session = reviewSession(store) },
+                        onNode = { session = nodeSession(it) },
+                        onPracticeChapter = { ch ->
+                            val items = ch.nodes.flatMap { it.items }
+                            session = reviewSession(store, items, items, 8)
+                        },
                     )
                     1 -> PracticeScreen(
                         store,
-                        onStartMistakes = { session = reviewSession(store) },
-                        onStartLesson = { session = lessonSession(it) },
+                        onStartMistakes = {
+                            session = reviewSession(store, Content.allReadyItems, Content.allReadyItems, 10)
+                        },
+                        onStartNode = { session = nodeSession(it) },
                     )
                     else -> ProfileScreen(store)
                 }
