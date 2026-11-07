@@ -1,0 +1,361 @@
+package com.cppquiz
+
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.geometry.CornerRadius
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.PathEffect
+import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.graphics.StrokeJoin
+import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import kotlin.math.roundToInt
+
+@Composable
+fun StatChip(icon: String, value: String, modifier: Modifier = Modifier) {
+    Row(
+        modifier.background(C.Card, RoundedCornerShape(18.dp)).padding(vertical = 14.dp),
+        horizontalArrangement = Arrangement.Center, verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Text(icon, fontSize = 22.sp)
+        Spacer(Modifier.width(8.dp))
+        Text(value, color = Color.White, fontSize = 22.sp, fontWeight = FontWeight.Bold)
+    }
+}
+
+@Composable
+fun TopStats(store: Store) {
+    Row(
+        Modifier.fillMaxWidth().background(C.Bar).padding(horizontal = 16.dp, vertical = 12.dp),
+        horizontalArrangement = Arrangement.spacedBy(12.dp),
+    ) {
+        StatChip("⚡", "${store.xp}", Modifier.weight(1f))
+        StatChip("✅", "${store.completed.size}", Modifier.weight(1f))
+        StatChip("🔥", "${store.streak}", Modifier.weight(1f))
+    }
+}
+
+private enum class NodeKind { DONE, OPEN, LOCKED, PRACTICE }
+
+@Composable
+private fun PathNode(kind: NodeKind, current: Boolean, onClick: () -> Unit) {
+    val face = when (kind) {
+        NodeKind.DONE -> C.Purple
+        NodeKind.LOCKED -> Color(0xFF3A3C68)
+        else -> C.Card
+    }
+    val shape = if (kind == NodeKind.PRACTICE) CircleShape else RoundedCornerShape(26.dp)
+    val ring = Color(0xFF7A63B0)
+    Box(
+        Modifier.size(96.dp)
+            .drawBehind {
+                if (current) {
+                    val r = 16.dp.toPx()
+                    drawRoundRect(
+                        ring, Offset(-r, -r), Size(size.width + 2 * r, size.height + 2 * r),
+                        CornerRadius(40.dp.toPx()), style = Stroke(4.dp.toPx()),
+                    )
+                }
+            }
+            .background(C.CardDark, shape)
+            .clickable(enabled = kind != NodeKind.LOCKED, onClick = onClick),
+    ) {
+        Box(Modifier.size(96.dp, 90.dp).background(face, shape), contentAlignment = Alignment.Center) {
+            when (kind) {
+                NodeKind.DONE -> Text("✓", color = Color.White, fontSize = 44.sp, fontWeight = FontWeight.Bold)
+                NodeKind.LOCKED -> Text("🔒", fontSize = 34.sp)
+                NodeKind.PRACTICE -> Text("⚡", fontSize = 38.sp)
+                NodeKind.OPEN -> Canvas(Modifier.size(40.dp)) {
+                    val p = Path().apply {
+                        moveTo(size.width * .22f, size.height * .06f)
+                        lineTo(size.width * .94f, size.height * .5f)
+                        lineTo(size.width * .22f, size.height * .94f)
+                        close()
+                    }
+                    drawPath(p, Color.White)
+                }
+            }
+        }
+    }
+}
+
+private val nodeFractions = floatArrayOf(0.5f, 1f, 0.5f, 0f)
+
+@Composable
+private fun ChapterPath(
+    chapter: Chapter, store: Store, onLesson: (Int) -> Unit, onPractice: () -> Unit,
+) {
+    val nodeCount = chapter.lessons.size + 1
+    val step = 150.dp
+    val firstOpen = chapter.lessons.indices.firstOrNull { it !in store.completed } ?: -1
+    BoxWithConstraints(Modifier.fillMaxWidth().height(step * (nodeCount - 1) + 96.dp + 56.dp)) {
+        val density = LocalDensity.current
+        val wPx = with(density) { maxWidth.toPx() }
+        val nodePx = with(density) { 96.dp.toPx() }
+        val margin = with(density) { 20.dp.toPx() }
+        val stepPx = with(density) { step.toPx() }
+        val topPx = with(density) { 28.dp.toPx() }
+        val left = margin + nodePx / 2
+        val right = wPx - margin - nodePx / 2
+        fun cx(i: Int) = left + (right - left) * nodeFractions[i % nodeFractions.size]
+        fun cy(i: Int) = topPx + nodePx / 2 + stepPx * i
+
+        Canvas(Modifier.fillMaxSize()) {
+            val gap = 77.dp.toPx()
+            var y = gap / 2
+            while (y < size.height) {
+                var x = gap / 2
+                while (x < size.width) { drawCircle(C.Dot, 6.dp.toPx(), Offset(x, y)); x += gap }
+                y += gap
+            }
+            val stroke = Stroke(
+                10.dp.toPx(), cap = StrokeCap.Round, join = StrokeJoin.Round,
+                pathEffect = PathEffect.cornerPathEffect(60.dp.toPx()),
+            )
+            for (i in 0 until nodeCount - 1) {
+                val a = Offset(cx(i), cy(i)); val b = Offset(cx(i + 1), cy(i + 1))
+                val path = Path().apply {
+                    moveTo(a.x, a.y)
+                    if (i % 2 == 0) lineTo(b.x, a.y) else lineTo(a.x, b.y)
+                    lineTo(b.x, b.y)
+                }
+                drawPath(path, C.Path, style = stroke)
+            }
+        }
+        for (i in 0 until nodeCount) {
+            val isPractice = i == chapter.lessons.size
+            val kind = when {
+                isPractice -> NodeKind.PRACTICE
+                i in store.completed -> NodeKind.DONE
+                i == firstOpen -> NodeKind.OPEN
+                else -> NodeKind.LOCKED
+            }
+            Box(Modifier.offset { IntOffset((cx(i) - nodePx / 2).roundToInt(), (cy(i) - nodePx / 2).roundToInt()) }) {
+                PathNode(kind, current = i == firstOpen, onClick = { if (isPractice) onPractice() else onLesson(i) })
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalFoundationApi::class)
+@Composable
+fun LearnScreen(store: Store, onLesson: (Int) -> Unit, onPracticeChapter: () -> Unit) {
+    var sheet by remember { mutableStateOf(false) }
+    val ch = chapterOne
+    Box(Modifier.fillMaxSize()) {
+        LazyColumn(Modifier.fillMaxSize()) {
+            stickyHeader {
+                ChapterHeader("C++", ch.title, store.completed.size / ch.lessons.size.toFloat())
+            }
+            item { ChapterPath(ch, store, onLesson, onPractice = { sheet = true }) }
+            itemsIndexed(lockedChapters) { _, name ->
+                Column(Modifier.padding(horizontal = 16.dp, vertical = 10.dp)) {
+                    Box(Modifier.fillMaxWidth().background(C.CardDark, RoundedCornerShape(26.dp)).padding(2.dp)) {
+                        Column(
+                            Modifier.fillMaxWidth().background(Color(0xFF1B1D38), RoundedCornerShape(24.dp)).padding(20.dp),
+                        ) {
+                            Text("Coming soon", color = C.Dim, fontSize = 14.sp)
+                            Spacer(Modifier.height(6.dp))
+                            Text(name, color = Color(0xFF6A6C95), fontSize = 24.sp, fontWeight = FontWeight.Bold)
+                        }
+                    }
+                }
+            }
+            item { Spacer(Modifier.height(24.dp)) }
+        }
+        if (sheet) {
+            Box(Modifier.fillMaxSize().background(Color(0xAA000000)).clickable { sheet = false }) {
+                Column(
+                    Modifier.align(Alignment.Center).padding(24.dp).fillMaxWidth()
+                        .background(Color(0xFF1B1D38), RoundedCornerShape(28.dp)).clickable(enabled = false) {}
+                        .padding(22.dp),
+                    verticalArrangement = Arrangement.spacedBy(10.dp),
+                ) {
+                    Text("PRACTICE OPTIONAL", color = Color.White, fontSize = 15.sp, fontWeight = FontWeight.SemiBold)
+                    Text(ch.title.substringAfter(". "), color = Color.White, fontSize = 28.sp, fontWeight = FontWeight.Bold)
+                    Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                        Text("CHAPTER", color = Color.White, fontSize = 15.sp, fontWeight = FontWeight.SemiBold)
+                        Text("${store.completed.size}/${ch.lessons.size}", color = Color.White, fontSize = 15.sp, fontWeight = FontWeight.SemiBold)
+                    }
+                    ProgressPill(store.completed.size / ch.lessons.size.toFloat(), track = C.Bar)
+                    Spacer(Modifier.height(4.dp))
+                    Chunky("Start practicing", onClick = { sheet = false; onPracticeChapter() })
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun ChapterHeader(course: String, title: String, progress: Float) {
+    Box(Modifier.fillMaxWidth().background(C.Bg).padding(horizontal = 14.dp, vertical = 10.dp)) {
+        Box(Modifier.fillMaxWidth().background(C.CardDark, RoundedCornerShape(30.dp)).padding(bottom = 10.dp)) {
+            Column(
+                Modifier.fillMaxWidth().background(C.Card, RoundedCornerShape(30.dp)).padding(20.dp),
+            ) {
+                Text(course, color = C.Dim, fontSize = 20.sp)
+                Spacer(Modifier.height(4.dp))
+                Text(title, color = Color.White, fontSize = 26.sp, fontWeight = FontWeight.Bold)
+                Spacer(Modifier.height(18.dp))
+                ProgressPill(progress, height = 12.dp)
+            }
+        }
+    }
+}
+
+@Composable
+fun PracticeScreen(store: Store, onStartMistakes: () -> Unit, onStartLesson: (Int) -> Unit) {
+    val n = store.missed.size
+    val done = chapterOne.lessons.indices.filter { it in store.completed }
+    Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState())) {
+        Column(
+            Modifier.fillMaxWidth().background(Color(0xFFE9DDFF)).padding(20.dp),
+        ) {
+            Text(
+                "DAILY REVIEW", color = Color.White, fontSize = 13.sp, fontWeight = FontWeight.Bold,
+                modifier = Modifier.background(C.Bar, RoundedCornerShape(50)).padding(horizontal = 12.dp, vertical = 6.dp),
+            )
+            Spacer(Modifier.height(12.dp))
+            Text(
+                if (n > 0) "Fix your $n missed question${if (n == 1) "" else "s"}" else "Mixed review",
+                color = Color(0xFF232846), fontSize = 26.sp, fontWeight = FontWeight.Bold,
+            )
+            Text("⚡ ${if (n > 0) minOf(n, 10) else 10} questions", color = Color(0xFF232846), fontSize = 16.sp)
+            Spacer(Modifier.height(16.dp))
+            Chunky("Start now", onClick = onStartMistakes)
+        }
+        Spacer(Modifier.height(20.dp))
+        Text("Practice past topics", color = Color.White, fontSize = 22.sp, fontWeight = FontWeight.Bold, modifier = Modifier.padding(horizontal = 20.dp))
+        Spacer(Modifier.height(12.dp))
+        if (done.isEmpty()) {
+            Text("Finish a lesson to unlock it here.", color = C.Dim, fontSize = 16.sp, modifier = Modifier.padding(horizontal = 20.dp))
+        } else {
+            LazyRow(contentPadding = androidx.compose.foundation.layout.PaddingValues(horizontal = 20.dp), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                itemsIndexed(done) { _, i ->
+                    Column(
+                        Modifier.width(170.dp).height(150.dp).background(C.Card, RoundedCornerShape(24.dp))
+                            .clickable { onStartLesson(i) }.padding(16.dp),
+                        verticalArrangement = Arrangement.SpaceBetween,
+                    ) {
+                        Text("⚡ ${chapterOne.lessons[i].questionIds.size} questions", color = Color.White, fontSize = 14.sp)
+                        Text(chapterOne.lessons[i].title, color = Color.White, fontSize = 19.sp, fontWeight = FontWeight.Bold)
+                    }
+                }
+            }
+        }
+        Spacer(Modifier.height(24.dp))
+        Text("Your practice progress", color = Color.White, fontSize = 22.sp, fontWeight = FontWeight.Bold, modifier = Modifier.padding(horizontal = 20.dp))
+        Spacer(Modifier.height(12.dp))
+        Row(
+            Modifier.padding(horizontal = 20.dp).fillMaxWidth().background(C.Card, RoundedCornerShape(18.dp)).padding(18.dp),
+        ) {
+            Column(Modifier.weight(1f)) {
+                Text("${store.activities}", color = Color(0xFF7FB7FF), fontSize = 28.sp, fontWeight = FontWeight.Bold)
+                Text("Activities done", color = Color.White, fontSize = 15.sp)
+            }
+            Column(Modifier.weight(1f)) {
+                Text("${store.answered}", color = Color(0xFFB79CF2), fontSize = 28.sp, fontWeight = FontWeight.Bold)
+                Text("Questions answered", color = Color.White, fontSize = 15.sp)
+            }
+        }
+        Spacer(Modifier.height(24.dp))
+    }
+}
+
+@Composable
+fun ProfileScreen(store: Store) {
+    var armed by remember { mutableStateOf(false) }
+    Column(
+        Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(20.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+    ) {
+        Spacer(Modifier.height(12.dp))
+        Box(Modifier.size(130.dp).background(Color(0xFFC2185B), CircleShape), contentAlignment = Alignment.Center) {
+            Text("C++", color = Color.White, fontSize = 40.sp, fontWeight = FontWeight.Bold)
+        }
+        Spacer(Modifier.height(12.dp))
+        Text("C++ learner", color = Color.White, fontSize = 28.sp, fontWeight = FontWeight.Bold)
+        Spacer(Modifier.height(24.dp))
+        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+            ProfileStat("🔥", "${store.streak}", "DAYS STREAK", Modifier.weight(1f))
+            ProfileStat("⚡", "${store.xp}", "XP", Modifier.weight(1f))
+            ProfileStat("✅", "${store.completed.size}/${chapterOne.lessons.size}", "LESSONS", Modifier.weight(1f))
+        }
+        Spacer(Modifier.height(32.dp))
+        Text(
+            if (armed) "Tap again to erase all progress" else "Reset progress",
+            color = if (armed) C.Red else C.Dim, fontSize = 16.sp, textAlign = TextAlign.Center,
+            modifier = Modifier.clickable { if (armed) { store.reset(); armed = false } else armed = true }.padding(12.dp),
+        )
+    }
+}
+
+@Composable
+private fun ProfileStat(icon: String, value: String, label: String, modifier: Modifier) {
+    Column(
+        modifier.background(C.Card, RoundedCornerShape(18.dp)).padding(vertical = 18.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+    ) {
+        Text(icon, fontSize = 30.sp)
+        Text(value, color = Color.White, fontSize = 24.sp, fontWeight = FontWeight.Bold)
+        Text(label, color = Color.White, fontSize = 12.sp, fontWeight = FontWeight.Bold)
+    }
+}
+
+@Composable
+fun BottomNav(tab: Int, onTab: (Int) -> Unit) {
+    val items = listOf("🎓" to "Learn", "⚡" to "Practice", "👤" to "Profile")
+    Row(Modifier.fillMaxWidth().background(C.Bar).padding(vertical = 8.dp)) {
+        items.forEachIndexed { i, (icon, label) ->
+            Column(
+                Modifier.weight(1f).clickable { onTab(i) }.padding(vertical = 4.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
+            ) {
+                Text(icon, fontSize = 26.sp, color = if (i == tab) Color.White else C.Dim)
+                Text(
+                    label, fontSize = 14.sp, color = if (i == tab) Color.White else C.Dim,
+                    fontWeight = if (i == tab) FontWeight.Bold else FontWeight.Normal,
+                )
+            }
+        }
+    }
+}
