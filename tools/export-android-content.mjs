@@ -132,9 +132,7 @@ for (const p of problems) console.log((fatal.includes(p) ? 'ERROR ' : 'note  ') 
 if (fatal.length) process.exit(1);
 
 if (check) {
-  const same = existsSync(out) && readFileSync(out, 'utf8').replace(/
-/g, '
-') === json;
+  const same = existsSync(out) && readFileSync(out, 'utf8').replace(/\r\n/g, '\n') === json;
   if (!same) { console.log('content.json is out of date: run node tools/export-android-content.mjs'); process.exit(1); }
   console.log('content.json is up to date');
 } else {
