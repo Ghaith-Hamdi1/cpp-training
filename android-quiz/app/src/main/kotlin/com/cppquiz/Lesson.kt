@@ -34,6 +34,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
@@ -94,6 +95,7 @@ fun LessonRunner(
     steps: List<Step>,
     onQuit: () -> Unit,
     onDone: (results: List<Pair<String, Boolean>>, recovered: List<String>) -> Unit,
+    allowRetry: Boolean = true,
 ) {
     val all = remember { mutableStateListOf<Step>().apply { addAll(steps) } }
     var idx by remember { mutableIntStateOf(0) }
@@ -104,6 +106,8 @@ fun LessonRunner(
     var pcat by remember { mutableIntStateOf(-1) }
     var ptext by remember { mutableStateOf("") }
     var phint by remember { mutableStateOf(false) }
+    var removed by remember { mutableStateOf(setOf<Int>()) }
+    var bhint by remember { mutableStateOf(false) }
     var confirmQuit by remember { mutableStateOf(false) }
     var retriesAdded by remember { mutableStateOf(false) }
     val results = remember { mutableListOf<Pair<String, Boolean>>() }
@@ -123,14 +127,14 @@ fun LessonRunner(
     }
 
     fun next() {
-        if (idx + 1 >= all.size && !retriesAdded && missedIds.isNotEmpty()) {
+        if (allowRetry && idx + 1 >= all.size && !retriesAdded && missedIds.isNotEmpty()) {
             retriesAdded = true
             val rnd = Random(System.nanoTime())
             missedIds.forEach { all += stepFor(it, rnd, retry = true) }
         }
         if (idx + 1 < all.size) {
             idx++; selected = -1; picked = emptyList(); submitted = false
-            pcat = -1; ptext = ""; phint = false
+            pcat = -1; ptext = ""; phint = false; removed = emptySet(); bhint = false
         } else {
             onDone(results.toList(), recovered.toList())
         }
@@ -149,8 +153,12 @@ fun LessonRunner(
             when (step) {
                 is Step.Info -> InfoStep(step.text, onContinue = ::next)
                 is Step.Quiz -> QuizStep(
-                    rq = step.rq, retry = step.retry, selected = selected, submitted = submitted,
+                    rq = step.rq, retry = step.retry, selected = selected, submitted = submitted, removed = removed,
                     onSelect = { if (!submitted) selected = it },
+                    onHint = {
+                        removed = step.rq.options.indices.filter { it != step.rq.correct }.shuffled().take(2).toSet()
+                        if (selected in removed) selected = -1
+                    },
                     onSubmit = { record(step, selected == step.rq.correct) },
                     onContinue = ::next,
                 )
@@ -167,6 +175,7 @@ fun LessonRunner(
                 )
                 is Step.Build -> BuildStep(
                     rb = step.rb, retry = step.retry, picked = picked, submitted = submitted, ok = lastOk,
+                    hinted = bhint, onHint = { bhint = true },
                     onPick = { if (!submitted) picked = picked + it },
                     onUndo = { if (!submitted && picked.isNotEmpty()) picked = picked.dropLast(1) },
                     onClear = { if (!submitted) picked = emptyList() },
@@ -239,8 +248,8 @@ private fun BottomAction(submitted: Boolean, ok: Boolean, canSubmit: Boolean, on
 
 @Composable
 private fun QuizStep(
-    rq: RunQ, retry: Boolean, selected: Int, submitted: Boolean,
-    onSelect: (Int) -> Unit, onSubmit: () -> Unit, onContinue: () -> Unit,
+    rq: RunQ, retry: Boolean, selected: Int, submitted: Boolean, removed: Set<Int>,
+    onSelect: (Int) -> Unit, onHint: () -> Unit, onSubmit: () -> Unit, onContinue: () -> Unit,
 ) {
     val ok = selected == rq.correct
     val scroll = rememberScrollState()
@@ -268,10 +277,10 @@ private fun QuizStep(
                     else -> Color.Transparent
                 }
                 Box(
-                    Modifier.padding(vertical = 5.dp).fillMaxWidth()
+                    Modifier.padding(vertical = 5.dp).fillMaxWidth().alpha(if (i in removed) 0.3f else 1f)
                         .background(if (i == selected && !submitted) C.Card else C.Option, RoundedCornerShape(16.dp))
                         .border(2.dp, border, RoundedCornerShape(16.dp))
-                        .clickable { onSelect(i) }
+                        .clickable(enabled = i !in removed) { onSelect(i) }
                         .padding(horizontal = 18.dp, vertical = 18.dp),
                 ) {
                     Text(
@@ -279,6 +288,12 @@ private fun QuizStep(
                         fontFamily = if (rq.q.type == QType.OUTPUT) FontFamily.Monospace else null,
                     )
                 }
+            }
+            if (!submitted && removed.isEmpty() && rq.options.size >= 3 && rq.q.type != QType.TRUE_FALSE) {
+                Text(
+                    "Use a hint: remove two wrong answers", color = Color(0xFFB79CF2), fontSize = 16.sp,
+                    modifier = Modifier.clickable(onClick = onHint).padding(vertical = 10.dp),
+                )
             }
             if (submitted) {
                 Spacer(Modifier.height(14.dp))
@@ -293,7 +308,7 @@ private fun QuizStep(
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
 private fun BuildStep(
-    rb: RunB, retry: Boolean, picked: List<Int>, submitted: Boolean, ok: Boolean,
+    rb: RunB, retry: Boolean, picked: List<Int>, submitted: Boolean, ok: Boolean, hinted: Boolean, onHint: () -> Unit,
     onPick: (Int) -> Unit, onUndo: () -> Unit, onClear: () -> Unit,
     onSubmit: () -> Unit, onContinue: () -> Unit,
 ) {
@@ -345,10 +360,17 @@ private fun BuildStep(
                         color = if (used) Color(0xFF6A6C95) else Color.White,
                         modifier = Modifier
                             .background(if (used) Color(0xFF2C2F55) else C.Card, RoundedCornerShape(12.dp))
+                            .border(2.dp, if (hinted && !used && !submitted && t == rb.b.answer.first()) C.Cyan else Color.Transparent, RoundedCornerShape(12.dp))
                             .clickable(enabled = !used && !submitted) { onPick(i) }
                             .padding(horizontal = 16.dp, vertical = 12.dp),
                     )
                 }
+            }
+            if (!submitted && !hinted) {
+                Text(
+                    "Use a hint: mark the first tile", color = Color(0xFFB79CF2), fontSize = 16.sp,
+                    modifier = Modifier.clickable(onClick = onHint).padding(vertical = 14.dp),
+                )
             }
             if (submitted) {
                 Spacer(Modifier.height(18.dp))

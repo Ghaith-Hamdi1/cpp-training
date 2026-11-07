@@ -21,6 +21,33 @@ class Store(context: Context) {
     var completed by mutableStateOf<Set<String>>(emptySet()); private set
     var missed by mutableStateOf<Set<String>>(emptySet()); private set
 
+    /** Lessons per day that keep the streak alive (1 to 3), and how many were finished today. */
+    var goal by mutableIntStateOf(p.getInt("goal", 1)); private set
+    private var todayCount by mutableIntStateOf(p.getInt("todayCount", 0))
+    private var countDay by mutableStateOf(p.getLong("countDay", -1L))
+    var placementDone by mutableStateOf(p.getBoolean("placementDone", false)); private set
+
+    val doneToday: Int get() = if (countDay == today()) todayCount else 0
+
+    /** The streak as shown: it is over once a whole day has passed without meeting the goal. */
+    val liveStreak: Int get() = if (lastDay >= today() - 1) streak else 0
+
+    fun chooseGoal(g: Int) {
+        goal = g
+        p.edit().putInt("goal", g).apply()
+    }
+
+    fun setPlacementDone() {
+        placementDone = true
+        p.edit().putBoolean("placementDone", true).apply()
+    }
+
+    /** Marks lessons as done without playing them (the result of the placement test). */
+    fun markCompleted(ids: Collection<String>) {
+        completed = completed + ids
+        p.edit().putStringSet("completed", completed).apply()
+    }
+
     /** Recap cards in Leitner boxes: id to (box 0..4, day it is due). */
     var cards by mutableStateOf<Map<String, Pair<Int, Long>>>(emptyMap()); private set
 
@@ -86,13 +113,17 @@ class Store(context: Context) {
         val done = chapter != null && !wasDone && chapter.nodes.all { it.id in completed }
         if (done) xp += CHAPTER_BONUS
         val t = today()
-        if (lastDay != t) {
+        if (countDay != t) { countDay = t; todayCount = 0 }
+        todayCount += 1
+        // The streak grows on the first day the daily goal is met, not on any activity.
+        if (todayCount >= goal && lastDay != t) {
             streak = if (lastDay == t - 1) streak + 1 else 1
             lastDay = t
         }
         p.edit()
             .putInt("xp", xp).putInt("streak", streak).putInt("answered", answered)
             .putInt("activities", activities).putLong("lastDay", lastDay)
+            .putInt("todayCount", todayCount).putLong("countDay", countDay)
             .putStringSet("completed", completed).putStringSet("missed", missed)
             .apply()
         return if (done) chapter else null
@@ -101,6 +132,7 @@ class Store(context: Context) {
     fun reset() {
         p.edit().clear().putBoolean("ids2", true).apply()
         xp = 0; streak = 0; answered = 0; activities = 0; lastDay = -1L
+        goal = 1; todayCount = 0; countDay = -1L; placementDone = false
         completed = emptySet(); missed = emptySet(); cards = emptyMap()
     }
 }

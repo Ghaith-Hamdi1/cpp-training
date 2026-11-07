@@ -36,7 +36,17 @@ class MainActivity : ComponentActivity() {
     }
 }
 
-private class Session(val nodeId: String?, val steps: List<Step>)
+private class Session(
+    val nodeId: String?, val steps: List<Step>,
+    /** Set for the placement check: each tested chapter with the question ids asked for it. */
+    val placement: List<Pair<Chapter, List<String>>>? = null,
+)
+
+private fun placementSession(): Session {
+    val rnd = Random(System.nanoTime())
+    val parts = Placement.chapters.map { it to Placement.questionIds(it, rnd) }
+    return Session(null, parts.flatMap { (_, ids) -> ids.map { stepFor(it, rnd) } }, parts)
+}
 
 private fun nodeSession(nodeId: String): Session {
     val node = Content.node(nodeId)!!
@@ -62,12 +72,29 @@ private fun App(store: Store) {
     var chapterDone by remember { mutableStateOf<Chapter?>(null) }
     var showChapter by remember { mutableStateOf<Chapter?>(null) }
     var deck by remember { mutableStateOf<List<RecapCard>?>(null) }
+    var interview by remember { mutableStateOf<List<RecapCard>?>(null) }
+    var placementRows by remember { mutableStateOf<List<PlacementRow>?>(null) }
 
     val s = session
     val r = result
     val sc = showChapter
     val dk = deck
+    val iv = interview
+    val pr = placementRows
     when {
+        pr != null -> {
+            BackHandler { placementRows = null }
+            PlacementResult(pr) { placementRows = null; tab = 0 }
+        }
+        iv != null -> {
+            BackHandler { interview = null }
+            CardReview(
+                iv, onGrade = { _, _ -> }, onClose = { interview = null },
+                label = "Interview question", doneTitle = "Interview done!",
+                waitText = "Say your answer out loud first, then reveal.",
+                doneText = { t, a -> "$t questions, $a marked Again. Say them out loud once more before the real thing." },
+            )
+        }
         dk != null -> {
             BackHandler { deck = null }
             CardReview(dk, onGrade = { c, good -> store.gradeCard(c.id, good) }, onClose = { deck = null })
@@ -90,10 +117,28 @@ private fun App(store: Store) {
             LessonRunner(
                 steps = s.steps,
                 onQuit = { session = null },
+                allowRetry = s.placement == null,
                 onDone = { res, recovered ->
-                    chapterDone = store.finish(s.nodeId, res, recovered)
-                    session = null
-                    result = res
+                    val parts = s.placement
+                    if (parts != null) {
+                        // Placement: chapters passed in order are marked done; it earns no XP and no streak.
+                        val right = res.toMap()
+                        var passing = true
+                        val rows = parts.map { (ch, ids) ->
+                            val c = ids.count { right[it] == true }
+                            val skip = passing && c >= Placement.PASS
+                            if (!skip) passing = false
+                            PlacementRow(ch, c, ids.size, skip)
+                        }
+                        store.markCompleted(rows.filter { it.skipped }.flatMap { r -> r.chapter.nodes.map { it.id } })
+                        store.setPlacementDone()
+                        session = null
+                        placementRows = rows
+                    } else {
+                        chapterDone = store.finish(s.nodeId, res, recovered)
+                        session = null
+                        result = res
+                    }
                 },
             )
         }
@@ -108,6 +153,7 @@ private fun App(store: Store) {
                             val items = ch.nodes.flatMap { it.items }
                             session = reviewSession(store, items, items, 8)
                         },
+                        onPlacement = { session = placementSession() },
                     )
                     1 -> PracticeScreen(
                         store,
@@ -116,8 +162,9 @@ private fun App(store: Store) {
                         },
                         onStartNode = { session = nodeSession(it) },
                         onStartCards = { deck = store.dueCards().mapNotNull { Content.card(it) }.shuffled() },
+                        onInterview = { interview = Content.allCards().shuffled().take(10) },
                     )
-                    else -> ProfileScreen(store)
+                    else -> ProfileScreen(store, onPlacement = { tab = 0; session = placementSession() })
                 }
             }
             BottomNav(tab) { tab = it }

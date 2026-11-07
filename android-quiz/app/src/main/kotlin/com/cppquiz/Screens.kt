@@ -43,6 +43,13 @@ import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.StrokeJoin
 import androidx.compose.ui.graphics.drawscope.Stroke
+import android.Manifest
+import android.os.Build
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.material3.Switch
+import androidx.compose.material3.SwitchDefaults
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.text.style.TextDecoration
@@ -73,7 +80,7 @@ fun TopStats(store: Store) {
     ) {
         StatChip("⚡", "${store.xp}", Modifier.weight(1f))
         StatChip("✅", "${store.completed.size}", Modifier.weight(1f))
-        StatChip("🔥", "${store.streak}", Modifier.weight(1f))
+        StatChip("🔥", "${store.liveStreak}", Modifier.weight(1f))
     }
 }
 
@@ -181,11 +188,15 @@ private fun ChapterPath(
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun LearnScreen(store: Store, onNode: (String) -> Unit, onPracticeChapter: (Chapter) -> Unit) {
+fun LearnScreen(store: Store, onNode: (String) -> Unit, onPracticeChapter: (Chapter) -> Unit, onPlacement: () -> Unit) {
     var sheet by remember { mutableStateOf<Chapter?>(null) }
     val firstOpen = Content.readyNodes.firstOrNull { it.id !in store.completed }?.id
     Box(Modifier.fillMaxSize()) {
         LazyColumn(Modifier.fillMaxSize()) {
+            if (!store.placementDone && store.completed.isEmpty()) {
+                item(key = "placement") { PlacementBanner(onStart = onPlacement, onDismiss = { store.setPlacementDone() }) }
+            }
+            item(key = "goal") { DailyGoalCard(store) }
             for (ch in Content.readyChapters) {
                 stickyHeader(key = "h-" + ch.id) {
                     val done = ch.nodes.count { it.id in store.completed }
@@ -252,7 +263,10 @@ private fun ChapterHeader(course: String, title: String, progress: Float) {
 }
 
 @Composable
-fun PracticeScreen(store: Store, onStartMistakes: () -> Unit, onStartNode: (String) -> Unit, onStartCards: () -> Unit) {
+fun PracticeScreen(
+    store: Store, onStartMistakes: () -> Unit, onStartNode: (String) -> Unit, onStartCards: () -> Unit,
+    onInterview: () -> Unit,
+) {
     val n = store.missed.size
     val due = store.dueCards().size
     val done = Content.readyNodes.filter { it.id in store.completed }
@@ -294,6 +308,20 @@ fun PracticeScreen(store: Store, onStartMistakes: () -> Unit, onStartNode: (Stri
             }
         }
         Spacer(Modifier.height(20.dp))
+        Column(
+            Modifier.padding(horizontal = 20.dp).fillMaxWidth().background(C.Card, RoundedCornerShape(24.dp)).padding(18.dp),
+        ) {
+            Text("INTERVIEW MODE", color = C.Dim, fontSize = 13.sp, fontWeight = FontWeight.Bold)
+            Spacer(Modifier.height(6.dp))
+            Text("10 random questions, out loud", color = Color.White, fontSize = 22.sp, fontWeight = FontWeight.Bold)
+            Text(
+                "Read the question, answer aloud as in an interview, then check the cheat-sheet answer and grade yourself.",
+                color = C.Dim, fontSize = 15.sp, lineHeight = 21.sp, modifier = Modifier.padding(top = 4.dp),
+            )
+            Spacer(Modifier.height(14.dp))
+            Chunky("Start interview", onClick = onInterview)
+        }
+        Spacer(Modifier.height(20.dp))
         Text("Practice past topics", color = Color.White, fontSize = 22.sp, fontWeight = FontWeight.Bold, modifier = Modifier.padding(horizontal = 20.dp))
         Spacer(Modifier.height(12.dp))
         if (done.isEmpty()) {
@@ -332,7 +360,7 @@ fun PracticeScreen(store: Store, onStartMistakes: () -> Unit, onStartNode: (Stri
 }
 
 @Composable
-fun ProfileScreen(store: Store) {
+fun ProfileScreen(store: Store, onPlacement: () -> Unit) {
     var armed by remember { mutableStateOf(false) }
     Column(
         Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(20.dp),
@@ -346,11 +374,34 @@ fun ProfileScreen(store: Store) {
         Text("C++ learner", color = Color.White, fontSize = 28.sp, fontWeight = FontWeight.Bold)
         Spacer(Modifier.height(24.dp))
         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-            ProfileStat("🔥", "${store.streak}", "DAYS STREAK", Modifier.weight(1f))
+            ProfileStat("🔥", "${store.liveStreak}", "DAYS STREAK", Modifier.weight(1f))
             ProfileStat("⚡", "${store.xp}", "XP", Modifier.weight(1f))
             ProfileStat("✅", "${store.completed.size}/${Content.readyNodes.size}", "LESSONS", Modifier.weight(1f))
         }
-        Spacer(Modifier.height(32.dp))
+        Spacer(Modifier.height(24.dp))
+        Column(Modifier.fillMaxWidth().background(C.Card, RoundedCornerShape(18.dp)).padding(16.dp)) {
+            Text("DAILY GOAL", color = C.Dim, fontSize = 13.sp, fontWeight = FontWeight.Bold)
+            Text("Lessons to finish each day", color = Color.White, fontSize = 18.sp, modifier = Modifier.padding(top = 4.dp))
+            Spacer(Modifier.height(10.dp))
+            Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                for (g in 1..3) {
+                    Box(
+                        Modifier.weight(1f)
+                            .background(if (store.goal == g) C.Purple else C.Option, RoundedCornerShape(14.dp))
+                            .clickable { store.chooseGoal(g) }.padding(vertical = 12.dp),
+                        contentAlignment = Alignment.Center,
+                    ) { Text("$g", color = Color.White, fontSize = 20.sp, fontWeight = FontWeight.Bold) }
+                }
+            }
+        }
+        Spacer(Modifier.height(16.dp))
+        ReminderCard()
+        Spacer(Modifier.height(12.dp))
+        Text(
+            "Take the placement check", color = Color(0xFFB79CF2), fontSize = 16.sp, textAlign = TextAlign.Center,
+            modifier = Modifier.clickable(onClick = onPlacement).padding(vertical = 14.dp),
+        )
+        Spacer(Modifier.height(12.dp))
         Text(
             if (armed) "Tap again to erase all progress" else "Reset progress",
             color = if (armed) C.Red else C.Dim, fontSize = 16.sp, textAlign = TextAlign.Center,
@@ -413,6 +464,85 @@ fun BottomNav(tab: Int, onTab: (Int) -> Unit) {
                     label, fontSize = 14.sp, color = if (i == tab) Color.White else C.Dim,
                     fontWeight = if (i == tab) FontWeight.Bold else FontWeight.Normal,
                 )
+            }
+        }
+    }
+}
+
+/** The ring for today's lessons against the daily goal, with the streak it protects. */
+@Composable
+private fun DailyGoalCard(store: Store) {
+    val goal = store.goal
+    val done = minOf(store.doneToday, goal)
+    val met = done >= goal
+    Row(
+        Modifier.fillMaxWidth().padding(horizontal = 14.dp, vertical = 10.dp)
+            .background(C.Card, RoundedCornerShape(24.dp)).padding(16.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Box(Modifier.size(64.dp), contentAlignment = Alignment.Center) {
+            Canvas(Modifier.fillMaxSize()) {
+                val w = 8.dp.toPx()
+                val tl = Offset(w / 2, w / 2)
+                val sz = Size(size.width - w, size.height - w)
+                drawArc(C.CardDark, 0f, 360f, false, tl, sz, style = Stroke(w))
+                if (done > 0) drawArc(if (met) C.Green else Color(0xFFB79CF2), -90f, 360f * done / goal, false, tl, sz, style = Stroke(w, cap = StrokeCap.Round))
+            }
+            Text(if (met) "\u2713" else "$done/$goal", color = Color.White, fontSize = 18.sp, fontWeight = FontWeight.Bold)
+        }
+        Spacer(Modifier.width(16.dp))
+        Column {
+            Text("Daily goal", color = Color.White, fontSize = 20.sp, fontWeight = FontWeight.Bold)
+            Text(
+                if (met) "Goal met. Streak: ${store.liveStreak} day${if (store.liveStreak == 1) "" else "s"}"
+                else "Finish ${goal - done} more lesson${if (goal - done == 1) "" else "s"} today to keep your streak",
+                color = C.Dim, fontSize = 15.sp, lineHeight = 21.sp,
+            )
+        }
+    }
+}
+
+/** Switch and time for the daily reminder; asks for the notification permission when it is needed. */
+@Composable
+private fun ReminderCard() {
+    val ctx = LocalContext.current
+    var on by remember { mutableStateOf(Reminder.enabled(ctx) && Reminder.canNotify(ctx)) }
+    var hour by remember { mutableStateOf(Reminder.hour(ctx)) }
+    val ask = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
+        on = granted
+        Reminder.save(ctx, granted, hour)
+    }
+    Column(Modifier.fillMaxWidth().background(C.Card, RoundedCornerShape(18.dp)).padding(16.dp)) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Column(Modifier.weight(1f)) {
+                Text("DAILY REMINDER", color = C.Dim, fontSize = 13.sp, fontWeight = FontWeight.Bold)
+                Text("A nudge until you meet the goal", color = Color.White, fontSize = 18.sp, modifier = Modifier.padding(top = 4.dp))
+            }
+            Switch(
+                checked = on,
+                onCheckedChange = { want ->
+                    if (!want) {
+                        on = false; Reminder.save(ctx, false, hour)
+                    } else if (Reminder.canNotify(ctx)) {
+                        on = true; Reminder.save(ctx, true, hour)
+                    } else if (Build.VERSION.SDK_INT >= 33) {
+                        ask.launch(Manifest.permission.POST_NOTIFICATIONS)
+                    }
+                },
+                colors = SwitchDefaults.colors(checkedTrackColor = C.Purple),
+            )
+        }
+        if (on) {
+            Spacer(Modifier.height(12.dp))
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                for (h in listOf(8, 12, 18, 20)) {
+                    Box(
+                        Modifier.weight(1f)
+                            .background(if (hour == h) C.Purple else C.Option, RoundedCornerShape(12.dp))
+                            .clickable { hour = h; Reminder.save(ctx, true, h) }.padding(vertical = 10.dp),
+                        contentAlignment = Alignment.Center,
+                    ) { Text("%02d:00".format(h), color = Color.White, fontSize = 15.sp, fontWeight = FontWeight.SemiBold) }
+                }
             }
         }
     }

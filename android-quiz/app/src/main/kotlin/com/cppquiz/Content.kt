@@ -49,6 +49,7 @@ object Content {
     fun question(id: String): Question = questionById.getValue(id)
     fun build(id: String): BuildExercise? = buildById[id]
     fun card(id: String): RecapCard? = cardById[id]
+    fun allCards(): List<RecapCard> = cardById.values.toList()
     fun puzzle(id: String): Puzzle? = puzzleById[id]
     fun chapterOf(nodeId: String): Chapter? = chapters.firstOrNull { c -> c.nodes.any { it.id == nodeId } }
     fun node(nodeId: String): Node? = chapters.firstNotNullOfOrNull { c -> c.nodes.firstOrNull { it.id == nodeId } }

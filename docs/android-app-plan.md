@@ -101,7 +101,7 @@ Each milestone ends with an installable APK and a working app. The order follows
 | M2 (done) | Chapter 3 | The largest chapter (129 questions), plus build exercises for templates and lambdas, and the spaced-repetition review |
 | M3 (built, not yet checked on a phone) | Chapters 4 and 5 | Author new RAII and exceptions content, move semantics and smart pointer nodes, go-deeper cards |
 | M4 (done) | Chapters 6 and 7 | Concurrency nodes, boss nodes for every chapter, attribution screen |
-| M5 | Polish | Placement test, daily goal and streak ring, hints, interview mode, reminder |
+| M5 (done) | Polish | Placement test, daily goal and streak ring, hints, interview mode, reminder |
 
 ## Risks and decisions
 

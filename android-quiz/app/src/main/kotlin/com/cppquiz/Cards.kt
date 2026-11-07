@@ -34,13 +34,18 @@ import androidx.compose.ui.unit.sp
  * [onGrade] saves each answer; [onClose] ends the review (also used by the X before finishing).
  */
 @Composable
-fun CardReview(deck: List<RecapCard>, onGrade: (RecapCard, Boolean) -> Unit, onClose: () -> Unit) {
+fun CardReview(
+    deck: List<RecapCard>, onGrade: (RecapCard, Boolean) -> Unit, onClose: () -> Unit,
+    label: String = "Recap card", doneTitle: String = "Review done!",
+    waitText: String = "Answer in your head first, then reveal.",
+    doneText: (total: Int, again: Int) -> String = { t, a -> "$t card${if (t == 1) "" else "s"} reviewed, $a to see again tomorrow." },
+) {
     var idx by remember { mutableIntStateOf(0) }
     var revealed by remember { mutableStateOf(false) }
     var again by remember { mutableIntStateOf(0) }
 
     if (idx >= deck.size) {
-        CardsDone(deck.size, again, onClose)
+        CardsDone(doneTitle, doneText(deck.size, again), onClose)
         return
     }
     val card = deck[idx]
@@ -53,7 +58,7 @@ fun CardReview(deck: List<RecapCard>, onGrade: (RecapCard, Boolean) -> Unit, onC
             Box(Modifier.weight(1f)) { ProgressPill(idx / deck.size.toFloat()) }
         }
         Column(Modifier.weight(1f).verticalScroll(rememberScrollState()).padding(20.dp)) {
-            Text("Recap card ${idx + 1} of ${deck.size}", color = C.Dim, fontSize = 14.sp)
+            Text("$label ${idx + 1} of ${deck.size}", color = C.Dim, fontSize = 14.sp)
             Spacer(Modifier.height(10.dp))
             Text(md(card.question), color = Color.White, fontSize = 22.sp, lineHeight = 30.sp, fontWeight = FontWeight.SemiBold)
             Spacer(Modifier.height(20.dp))
@@ -62,7 +67,7 @@ fun CardReview(deck: List<RecapCard>, onGrade: (RecapCard, Boolean) -> Unit, onC
                     Text(md(card.answer), color = Color.White, fontSize = 17.sp, lineHeight = 26.sp)
                 }
             } else {
-                Text("Answer in your head first, then reveal.", color = C.Dim, fontSize = 16.sp)
+                Text(waitText, color = C.Dim, fontSize = 16.sp)
             }
         }
         Box(Modifier.fillMaxWidth().background(C.Bar).padding(16.dp)) {
@@ -85,15 +90,15 @@ fun CardReview(deck: List<RecapCard>, onGrade: (RecapCard, Boolean) -> Unit, onC
 }
 
 @Composable
-private fun CardsDone(total: Int, again: Int, onClose: () -> Unit) {
+private fun CardsDone(title: String, text: String, onClose: () -> Unit) {
     Column(Modifier.fillMaxSize().background(C.Bg).padding(20.dp), horizontalAlignment = Alignment.CenterHorizontally) {
         Spacer(Modifier.weight(1f))
         Mascot(170.dp, Mood.HAPPY)
         Spacer(Modifier.height(20.dp))
-        Text("Review done!", color = Color.White, fontSize = 30.sp, fontWeight = FontWeight.Bold)
+        Text(title, color = Color.White, fontSize = 30.sp, fontWeight = FontWeight.Bold)
         Spacer(Modifier.height(12.dp))
         Text(
-            "$total card${if (total == 1) "" else "s"} reviewed, $again to see again tomorrow.",
+            text,
             color = C.Dim, fontSize = 17.sp, textAlign = TextAlign.Center,
         )
         Spacer(Modifier.weight(1f))
