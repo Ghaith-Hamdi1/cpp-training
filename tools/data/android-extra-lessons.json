@@ -1,0 +1,271 @@
+[
+  {
+    "chapter": "raii",
+    "id": "raiiwrap",
+    "title": "Writing RAII Wrappers",
+    "intro": [
+      "An RAII wrapper **acquires the resource in its constructor and releases it in its destructor**. Destructors run on every way out of a scope, including an exception, so the resource cannot leak.",
+      "Make the wrapper **non-copyable** (or give it real copy semantics) and **movable**. A copy that shares a raw handle would release the same resource twice."
+    ],
+    "questions": [
+      {
+        "type": "BUG",
+        "prompt": "What is the main problem with this class?",
+        "code": "class File {\n    FILE* f_;\npublic:\n    File(const char* p)\n        : f_(fopen(p, \"r\")) {}\n    ~File() { fclose(f_); }\n};",
+        "options": [
+          "It can be copied, so two objects would fclose the same handle",
+          "fclose cannot be called from a destructor",
+          "The constructor has to be private",
+          "fopen allocates its result on the stack"
+        ],
+        "answer": 0,
+        "explanation": "The compiler-generated copy copies the pointer, so both objects close the same `FILE*`. Delete the copy operations (and add moves if needed), or hold the handle in a `std::unique_ptr` with a custom deleter."
+      },
+      {
+        "type": "OUTPUT",
+        "prompt": "What is the output?",
+        "code": "struct G {\n    char n;\n    G(char c) : n(c) {\n        std::cout << '+' << n;\n    }\n    ~G() { std::cout << '-' << n; }\n};\n\nint main() {\n    G a('A');\n    G b('B');\n}",
+        "options": ["+A+B-B-A", "+A+B-A-B", "+B+A-A-B", "+A-A+B-B"],
+        "answer": 0,
+        "explanation": "Locals are destroyed in the reverse order of construction, so `b` goes before `a`. This is why a guard declared later can safely rely on one declared earlier."
+      },
+      {
+        "type": "OUTPUT",
+        "prompt": "What is the output?",
+        "code": "struct G {\n    char n;\n    G(char c) : n(c) {\n        std::cout << '+' << n;\n    }\n    ~G() { std::cout << '-' << n; }\n};\n\nvoid f() {\n    G g('X');\n    throw 1;\n}\n\nint main() {\n    try { f(); }\n    catch (int) { std::cout << \"caught\"; }\n}",
+        "options": ["+X-Xcaught", "+Xcaught-X", "+Xcaught", "caught+X-X"],
+        "answer": 0,
+        "explanation": "While the exception travels up the stack, `g` is destroyed (stack unwinding). That happens before the handler's body runs, so `-X` comes before `caught`."
+      },
+      {
+        "type": "CONCEPT",
+        "prompt": "How should an RAII class that owns one unique resource handle copying?",
+        "options": [
+          "Delete the copy operations and provide move operations",
+          "Keep the compiler's copy so both objects share the handle",
+          "Copy the handle and let only the first destructor release it",
+          "Make the destructor virtual"
+        ],
+        "answer": 0,
+        "explanation": "One owner means one release. Deleting the copy and providing a move transfers ownership, which is how `std::unique_ptr` and `std::thread` behave."
+      },
+      {
+        "type": "BUG",
+        "prompt": "What is wrong with this function?",
+        "code": "void run() {\n    int* p = new int[100];\n    work();  // may throw\n    delete[] p;\n}",
+        "options": [
+          "If work() throws, delete[] never runs and the memory leaks",
+          "It must use delete instead of delete[]",
+          "new int[100] is not allowed inside a function",
+          "p has to be declared const"
+        ],
+        "answer": 0,
+        "explanation": "A manual `new` and `delete` pair breaks on any early exit. Use `std::vector<int>` or `std::unique_ptr<int[]>` so the destructor does the release."
+      },
+      {
+        "type": "OUTPUT",
+        "prompt": "What is the output?",
+        "code": "struct Closer {\n    void operator()(int* p) const {\n        std::cout << \"close\" << *p << ' ';\n        delete p;\n    }\n};\n\nint main() {\n    std::unique_ptr<int, Closer> a(new int(1));\n    std::unique_ptr<int, Closer> b(new int(2));\n    std::cout << \"work \";\n}",
+        "options": ["work close2 close1 ", "work close1 close2 ", "close1 close2 work ", "work "],
+        "answer": 0,
+        "explanation": "The deleter runs when each `unique_ptr` is destroyed, after `work` is printed. Locals are destroyed in reverse order, so `b` closes first."
+      },
+      {
+        "type": "TRUE_FALSE",
+        "prompt": "A destructor of a local object still runs when the scope is left by an exception.",
+        "options": ["True", "False"],
+        "answer": 0,
+        "explanation": "That is stack unwinding, and it is the reason RAII works. The one exception is a program that ends in `std::terminate`, where unwinding may not happen."
+      },
+      {
+        "type": "TRUE_FALSE",
+        "prompt": "`std::lock_guard` is an RAII type: it unlocks the mutex in its destructor.",
+        "options": ["True", "False"],
+        "answer": 0,
+        "explanation": "It locks in the constructor and unlocks in the destructor, so the mutex is released even if the code in between throws."
+      }
+    ]
+  },
+  {
+    "chapter": "raii",
+    "id": "exsafety",
+    "title": "Exception Safety in Practice",
+    "intro": [
+      "Code is exception safe at one of three levels: **basic** (no leaks, objects still valid), **strong** (all or nothing) and **nothrow** (never throws).",
+      "The usual route to the strong guarantee: do the risky work on a **copy or a temporary**, then **swap** it in with an operation that cannot throw."
+    ],
+    "questions": [
+      {
+        "type": "OUTPUT",
+        "prompt": "What is the output?",
+        "code": "try {\n    throw std::runtime_error(\"x\");\n} catch (const std::exception&) {\n    std::cout << \"base \";\n} catch (const std::runtime_error&) {\n    std::cout << \"derived \";\n}",
+        "options": ["base ", "derived ", "base derived ", "It does not compile"],
+        "answer": 0,
+        "explanation": "Handlers are tried in the order written and the first compatible one runs. `runtime_error` derives from `exception`, so the second handler is unreachable (compilers usually warn). Put the most derived handler first."
+      },
+      {
+        "type": "BUG",
+        "prompt": "What goes wrong if `new` throws inside this assignment operator?",
+        "code": "Buf& operator=(const Buf& o) {\n    delete[] data_;\n    data_ = new int[o.n_];\n    n_ = o.n_;\n    std::copy(o.data_,\n              o.data_ + n_, data_);\n    return *this;\n}",
+        "options": [
+          "data_ still points at the deleted array, so the object is broken",
+          "The old data is restored automatically",
+          "The program is guaranteed to terminate",
+          "n_ is reset to zero automatically"
+        ],
+        "answer": 0,
+        "explanation": "The old array was released before the new one existed. Allocate and copy first, then release the old data, or use copy-and-swap, to get the strong guarantee."
+      },
+      {
+        "type": "CONCEPT",
+        "prompt": "What does the copy-and-swap idiom give you?",
+        "options": [
+          "The strong guarantee, because the only step that can throw happens on the copy before anything changes",
+          "The nothrow guarantee for every operation",
+          "Faster assignment than copying in place",
+          "Automatic move semantics"
+        ],
+        "answer": 0,
+        "explanation": "If copying the argument throws, `*this` has not been touched yet. The final swap does not throw, so the assignment either fully succeeds or changes nothing."
+      },
+      {
+        "type": "OUTPUT",
+        "prompt": "What is the output?",
+        "code": "try {\n    try { throw 1; }\n    catch (int) {\n        std::cout << \"inner \";\n        throw;\n    }\n} catch (int) {\n    std::cout << \"outer \";\n}",
+        "options": ["inner outer ", "inner ", "outer ", "outer inner "],
+        "answer": 0,
+        "explanation": "`throw;` with no operand rethrows the exception currently being handled, so the outer handler gets the original `int`."
+      },
+      {
+        "type": "CONCEPT",
+        "prompt": "What happens if an exception is thrown and no handler catches it?",
+        "options": [
+          "std::terminate is called and the program aborts",
+          "main returns 1 and the program ends normally",
+          "The exception is silently ignored",
+          "The next function call in main handles it"
+        ],
+        "answer": 0,
+        "explanation": "With no matching handler, `std::terminate` runs. It is implementation-defined whether the stack is unwound first, so destructors may not run."
+      },
+      {
+        "type": "BUG",
+        "prompt": "What can go wrong here?",
+        "code": "std::mutex m;\n\nvoid f() {\n    m.lock();\n    work();  // may throw\n    m.unlock();\n}",
+        "options": [
+          "If work() throws, the mutex stays locked and later callers block forever",
+          "unlock must be called before lock",
+          "A mutex cannot be a global variable",
+          "work() cannot be called while locked"
+        ],
+        "answer": 0,
+        "explanation": "Use `std::lock_guard<std::mutex> lock(m);` so the unlock happens in a destructor on every path, including an exception."
+      },
+      {
+        "type": "CONCEPT",
+        "prompt": "Which operation must not throw for copy-and-swap to give the strong guarantee?",
+        "options": ["swap", "The copy constructor", "operator new", "The destructor of the copy's source"],
+        "answer": 0,
+        "explanation": "The swap is the commit step. Anything that can throw has to happen before it, on the copy. That is why swap functions are marked `noexcept`."
+      },
+      {
+        "type": "TRUE_FALSE",
+        "prompt": "A destructor should never let an exception escape.",
+        "options": ["True", "False"],
+        "answer": 0,
+        "explanation": "Destructors are `noexcept` by default. If one throws while the stack is already unwinding, the program calls `std::terminate`."
+      }
+    ]
+  },
+  {
+    "chapter": "raii",
+    "id": "noexcepts",
+    "title": "noexcept and Error Handling",
+    "intro": [
+      "`noexcept` is a **promise** that a function does not throw. If one does, `std::terminate` is called. Mark **moves, swap and destructors** `noexcept`: containers use that to stay fast and safe.",
+      "Throwing costs **nothing on the happy path** but is slow when it happens, so exceptions are for **rare failures**, not for ordinary control flow."
+    ],
+    "questions": [
+      {
+        "type": "OUTPUT",
+        "prompt": "What is the output?",
+        "code": "void f() noexcept {}\nvoid g() {}\n\nint main() {\n    std::cout << noexcept(f())\n              << noexcept(g());\n}",
+        "options": ["10", "11", "01", "00"],
+        "answer": 0,
+        "explanation": "The `noexcept(expr)` operator reports at compile time whether the expression is declared non-throwing. `f` is, `g` is not."
+      },
+      {
+        "type": "OUTPUT",
+        "prompt": "What happens when this program runs?",
+        "code": "void f() noexcept { throw 1; }\n\nint main() {\n    try { f(); }\n    catch (int) {\n        std::cout << \"caught\";\n    }\n}",
+        "options": [
+          "std::terminate is called and nothing is printed",
+          "caught",
+          "It does not compile",
+          "caught, then the program terminates"
+        ],
+        "answer": 0,
+        "explanation": "An exception that leaves a `noexcept` function calls `std::terminate`. The handler in `main` never gets a chance. Compilers usually warn about the throw."
+      },
+      {
+        "type": "CONCEPT",
+        "prompt": "When is `std::move_if_noexcept` useful?",
+        "options": [
+          "It moves only when the move constructor cannot throw, otherwise it copies, so the strong guarantee holds",
+          "It forces a move even if the move may throw",
+          "It makes a function noexcept",
+          "It catches exceptions thrown during a move"
+        ],
+        "answer": 0,
+        "explanation": "If a move could throw halfway, the source would already be damaged. `vector` growth uses this rule: it moves elements only when the move is `noexcept`, else it copies."
+      },
+      {
+        "type": "CONCEPT",
+        "prompt": "Which is the best use of an exception?",
+        "options": [
+          "Reporting that a file the program needs cannot be opened",
+          "Leaving a loop as soon as a value is found",
+          "Returning a second result from a function",
+          "Detecting the end of a file while reading lines"
+        ],
+        "answer": 0,
+        "explanation": "Exceptions fit rare failures that the caller cannot handle locally. Ordinary outcomes, like \"not found\" or \"end of input\", belong in return values, `std::optional` or `std::expected`."
+      },
+      {
+        "type": "CONCEPT",
+        "prompt": "This swap only exchanges a pointer and an integer. What should be added?",
+        "code": "void swap(Buf& a, Buf& b) {\n    std::swap(a.data_, b.data_);\n    std::swap(a.n_, b.n_);\n}",
+        "options": [
+          "noexcept, so copy-and-swap and containers can rely on it",
+          "virtual",
+          "const after the parameter list",
+          "static"
+        ],
+        "answer": 0,
+        "explanation": "A swap of pointers and integers cannot fail, so say so with `noexcept`. Generic code checks that promise to choose the faster, safer path."
+      },
+      {
+        "type": "OUTPUT",
+        "prompt": "What is the output?",
+        "code": "try {\n    throw std::logic_error(\"bad state\");\n} catch (const std::exception& e) {\n    std::cout << e.what();\n}",
+        "options": ["bad state", "std::exception", "logic_error", "Nothing is printed"],
+        "answer": 0,
+        "explanation": "Catching by const reference keeps the real type, so the virtual `what()` returns the message passed to the constructor."
+      },
+      {
+        "type": "TRUE_FALSE",
+        "prompt": "Destructors are implicitly noexcept in C++11 and later.",
+        "options": ["True", "False"],
+        "answer": 0,
+        "explanation": "Unless a member or base class has a potentially-throwing destructor, or you write `noexcept(false)`, a destructor is `noexcept` by default."
+      },
+      {
+        "type": "TRUE_FALSE",
+        "prompt": "A noexcept function is not allowed to call a function that may throw.",
+        "options": ["True", "False"],
+        "answer": 1,
+        "explanation": "It may, and the compiler accepts it. If the exception then escapes the `noexcept` function, `std::terminate` is called, so the function must handle it inside."
+      }
+    ]
+  }
+]

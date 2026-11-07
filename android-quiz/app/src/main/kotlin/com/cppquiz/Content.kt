@@ -10,6 +10,9 @@ data class Node(
     val cardIds: List<String> = emptyList(),
 )
 
+/** A book section to read for a lesson section the learner got wrong. */
+data class Deeper(val title: String, val rows: List<String>)
+
 /** A recap flashcard from a lesson's cheat sheet. */
 data class RecapCard(val id: String, val question: String, val answer: String)
 
@@ -25,6 +28,8 @@ object Content {
     private var questionById: Map<String, Question> = emptyMap()
     private var buildById: Map<String, BuildExercise> = emptyMap()
     private var cardById: Map<String, RecapCard> = emptyMap()
+    private var books: Map<String, String> = emptyMap()
+    private var sections: Map<String, Pair<String, List<Triple<String, String, String>>>> = emptyMap()
 
     val readyChapters: List<Chapter> get() = chapters.filter { it.ready }
     val readyNodes: List<Node> get() = readyChapters.flatMap { it.nodes }
@@ -51,6 +56,7 @@ object Content {
                 options = o.getJSONArray("options").strings(),
                 answer = o.getInt("answer"),
                 explanation = o.getString("explanation"),
+                sec = if (o.has("sec")) o.getString("sec") else null,
             )
         }
         virtualQuestions.forEachIndexed { i, q -> qs["v:$i"] = q }
@@ -71,6 +77,19 @@ object Content {
             it.getString("id") to RecapCard(it.getString("id"), it.getString("q"), it.getString("a"))
         }
 
+        val rm = root.getJSONObject("readMore")
+        val bk = rm.getJSONObject("books")
+        books = bk.keys().asSequence().associateWith { bk.getString(it) }
+        val sec = rm.getJSONObject("sections")
+        sections = sec.keys().asSequence().associateWith { key ->
+            val o = sec.getJSONObject(key)
+            val rows = o.getJSONArray("r")
+            o.getString("t") to (0 until rows.length()).map { i ->
+                val r = rows.getJSONArray(i)
+                Triple(r.getString(0), r.getString(1), r.getString(2))
+            }
+        }
+
         val chs = root.getJSONArray("chapters")
         chapters = (0 until chs.length()).map { ci ->
             val c = chs.getJSONObject(ci)
@@ -84,6 +103,21 @@ object Content {
             }
             if (c.getString("id") == "classes") list = list + virtualNodes
             Chapter(c.getString("id"), c.getString("title"), list, c.getBoolean("ready"))
+        }
+    }
+
+    /** Book sections for the lesson sections behind the wrongly answered items, at most [limit]. */
+    fun deeper(wrongIds: List<String>, limit: Int = 3): List<Deeper> {
+        val keys = wrongIds.mapNotNull { id ->
+            val s = questionById[id]?.sec ?: return@mapNotNull null
+            id.substringBefore(":") + ":" + s
+        }.distinct().filter { it in sections }.take(limit)
+        return keys.map { k ->
+            val (title, rows) = sections.getValue(k)
+            Deeper(title, rows.take(2).map { (book, label, pages) ->
+                val name = (books[book] ?: book).substringBefore(" (")
+                "$name: $label (PDF pages $pages)"
+            })
         }
     }
 

@@ -19,8 +19,8 @@ const CHAPTERS = [
   { id: 'core', title: '1. Core language foundations', lessons: ['basics', 'pointers', 'types', 'casts'], ready: true },
   { id: 'classes', title: '2. Classes, memory and OOP', lessons: ['oop', 'copying', 'inherit'], ready: true },
   { id: 'library', title: '3. Standard library and generic programming', lessons: ['callables', 'lambdas', 'stl', 'assoc', 'iterators', 'algorithms', 'templates', 'classtemplates', 'compiletime'], ready: true },
-  { id: 'raii', title: '4. RAII, exceptions and advanced tools', lessons: ['core'], ready: false },
-  { id: 'modern', title: '5. Modern C++', lessons: ['vocab', 'moves', 'copymove', 'writemoves', 'elision', 'sinks', 'forwarding', 'uniqueptr', 'smartptr', 'weakptr'], ready: false },
+  { id: 'raii', title: '4. RAII, exceptions and advanced tools', lessons: ['core'], ready: true },
+  { id: 'modern', title: '5. Modern C++', lessons: ['vocab', 'moves', 'copymove', 'writemoves', 'elision', 'sinks', 'forwarding', 'uniqueptr', 'smartptr', 'weakptr'], ready: true },
   { id: 'concurrency', title: '6. Concurrency and the memory model', lessons: ['threads', 'races', 'mutexes', 'deadlock', 'condvars', 'tasks', 'pools', 'atomics', 'memmodel'], ready: false },
   { id: 'further', title: '7. Further reading', lessons: ['strings'], ready: false },
 ];
@@ -34,6 +34,7 @@ run('lessons.js');
 ctx.CT.quizData = {};
 for (const f of readdirSync(dataDir).filter((f) => /^quiz-.*\.js$/.test(f))) run(f);
 run('mock-bank.js');
+run('read-more.js');
 const CT = ctx.CT;
 const lessonById = new Map(CT.lessons.map((l) => [l.id, l]));
 
@@ -65,6 +66,9 @@ const cardList = [];
 const questions = [];
 const chapters = [];
 const counts = { lessons: 0, questions: 0, cards: 0 };
+// Lessons written for the app only (tools/data/android-extra-lessons.json), added after a chapter's site lessons.
+const extras = JSON.parse(readFileSync(join(repo, 'tools', 'data', 'android-extra-lessons.json'), 'utf8'));
+const usedSections = new Set();
 
 for (const ch of CHAPTERS) {
   const nodes = [];
@@ -86,7 +90,9 @@ for (const ch of CHAPTERS) {
         options: q.opts.map((o) => o.trim()),
         answer: q.a,
         explanation: (q.why || '').trim(),
+        sec: q.sec,
       });
+      if (q.sec) usedSections.add(`${lessonId}:${q.sec}`);
       counts.questions++;
       return id;
     });
@@ -112,6 +118,17 @@ for (const ch of CHAPTERS) {
       qi += take;
       ci += cardTake;
     }
+  }
+  for (const ex of extras.filter((e) => e.chapter === ch.id)) {
+    counts.lessons++;
+    const ids = ex.questions.map((q, i) => {
+      const id = `${ex.id}:${i}`;
+      if (q.options.length < 2 || q.answer < 0 || q.answer >= q.options.length) problems.push(`${id}: bad options or answer index`);
+      questions.push({ id, type: q.type, topic: ex.title, prompt: q.prompt, code: q.code, options: q.options, answer: q.answer, explanation: q.explanation });
+      counts.questions++;
+      return id;
+    });
+    nodes.push({ id: `${ex.id}:n0`, title: ex.title, intro: ex.intro, cards: [], items: ids });
   }
   chapters.push({ id: ch.id, title: ch.title, ready: ch.ready, nodes });
 }
@@ -139,9 +156,18 @@ for (const q of questions) {
   }
 }
 
-const json = JSON.stringify({ chapters, questions, builds: builds.map(({ node, ...b }) => b), cards: cardList }, null, 1) + '\n';
+// "Go deeper" notes: the book sections behind the lesson sections that the questions come from.
+const sections = {};
+for (const key of usedSections) {
+  const [lessonId, sec] = key.split(':');
+  const note = CT.readMore.lessons[lessonId] && CT.readMore.lessons[lessonId][sec];
+  if (note && note.r.length) sections[key] = { t: note.t, r: note.r };
+}
+const readMore = { books: CT.readMore.books, sections };
+
+const json = JSON.stringify({ chapters, questions, builds: builds.map(({ node, ...b }) => b), cards: cardList, readMore }, null, 1) + '\n';
 const nodeCount = chapters.reduce((n, c) => n + c.nodes.length, 0);
-console.log(`${counts.lessons} lessons, ${nodeCount} nodes, ${counts.questions} questions, ${builds.length} build exercises, ${counts.cards} recap cards`);
+console.log(`${counts.lessons} lessons, ${nodeCount} nodes, ${counts.questions} questions, ${builds.length} build exercises, ${Object.keys(sections).length} reading notes, ${counts.cards} recap cards`);
 const fatal = problems.filter((p) => !/the app shrinks the font/.test(p));
 for (const p of problems) console.log((fatal.includes(p) ? 'ERROR ' : 'note  ') + p);
 if (fatal.length) process.exit(1);

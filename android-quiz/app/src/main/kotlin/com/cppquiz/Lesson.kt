@@ -363,18 +363,38 @@ private fun QuitSheet(onCancel: () -> Unit, onQuit: () -> Unit) {
 fun LessonResult(results: List<Pair<String, Boolean>>, onContinue: () -> Unit) {
     val correct = results.count { it.second }
     val pct = if (results.isEmpty()) 0 else correct * 100 / results.size
-    Column(Modifier.fillMaxSize().background(C.Bg).padding(20.dp), horizontalAlignment = Alignment.CenterHorizontally) {
-        Spacer(Modifier.weight(1f))
-        Mascot(170.dp, Mood.HAPPY)
-        Spacer(Modifier.height(20.dp))
-        Text("Lesson complete!", color = Color.White, fontSize = 30.sp, fontWeight = FontWeight.Bold)
-        Spacer(Modifier.height(24.dp))
-        Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-            ResultStat("XP", "+${correct * 10}", "⚡", Modifier.weight(1f))
-            ResultStat("Correct", "$correct/${results.size}", "✅", Modifier.weight(1f))
-            ResultStat("Accuracy", "$pct%", "🎯", Modifier.weight(1f))
+    val deeper = Content.deeper(results.filter { !it.second }.map { it.first })
+    Column(Modifier.fillMaxSize().background(C.Bg).padding(20.dp)) {
+        Column(
+            Modifier.weight(1f).verticalScroll(rememberScrollState()).fillMaxWidth(),
+            horizontalAlignment = Alignment.CenterHorizontally,
+        ) {
+            Spacer(Modifier.height(if (deeper.isEmpty()) 60.dp else 12.dp))
+            Mascot(if (deeper.isEmpty()) 170.dp else 110.dp, Mood.HAPPY)
+            Spacer(Modifier.height(16.dp))
+            Text("Lesson complete!", color = Color.White, fontSize = 30.sp, fontWeight = FontWeight.Bold)
+            Spacer(Modifier.height(20.dp))
+            Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                ResultStat("XP", "+${correct * 10}", "⚡", Modifier.weight(1f))
+                ResultStat("Correct", "$correct/${results.size}", "✅", Modifier.weight(1f))
+                ResultStat("Accuracy", "$pct%", "🎯", Modifier.weight(1f))
+            }
+            if (deeper.isNotEmpty()) {
+                Spacer(Modifier.height(20.dp))
+                Column(Modifier.fillMaxWidth().background(C.Bar, RoundedCornerShape(20.dp)).padding(16.dp)) {
+                    Text("GO DEEPER", color = C.Dim, fontSize = 13.sp, fontWeight = FontWeight.Bold)
+                    Text("Sections to read again", color = Color.White, fontSize = 20.sp, fontWeight = FontWeight.Bold)
+                    deeper.forEach { d ->
+                        Spacer(Modifier.height(12.dp))
+                        Text(d.title, color = Color(0xFFB79CF2), fontSize = 17.sp, fontWeight = FontWeight.SemiBold)
+                        d.rows.forEach { r ->
+                            Text(r, color = Color.White, fontSize = 14.sp, lineHeight = 20.sp, modifier = Modifier.padding(top = 3.dp))
+                        }
+                    }
+                }
+            }
+            Spacer(Modifier.height(12.dp))
         }
-        Spacer(Modifier.weight(1f))
         Chunky("Continue", onClick = onContinue)
     }
 }

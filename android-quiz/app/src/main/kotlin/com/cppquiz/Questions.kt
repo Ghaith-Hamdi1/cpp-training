@@ -16,6 +16,7 @@ data class Question(
     val options: List<String>,
     val answer: Int,
     val explanation: String,
+    val sec: String? = null,
 )
 
 private fun output(topic: String, code: String, answer: String, wrong: List<String>, why: String) =
