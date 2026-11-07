@@ -328,7 +328,7 @@ private fun BuildStep(
             }
             if (submitted) {
                 Spacer(Modifier.height(18.dp))
-                val shown = if (ok) rb.b.explanation else "Correct code: `${rb.b.answer.joinToString(" ")}`\n\n${rb.b.explanation}"
+                val shown = if (ok) rb.b.explanation else "Correct code: `${rb.b.answer.joinToString(" ").replace(" ;", ";")}`\n\n${rb.b.explanation}"
                 FeedbackCard(ok, shown)
                 Spacer(Modifier.height(8.dp))
             }
