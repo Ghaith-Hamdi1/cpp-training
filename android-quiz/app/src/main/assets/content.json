@@ -1888,7 +1888,7 @@
   },
   {
    "id": "basics:4",
-   "type": "BUG",
+   "type": "CONCEPT",
    "topic": "C++ Basics",
    "prompt": "Which line is rejected by the compiler?",
    "code": "int a{5};      // (1)\nint b{3.7};    // (2)\nint c = 3.7;   // (3)",
@@ -2055,7 +2055,7 @@
   },
   {
    "id": "pointers:2",
-   "type": "BUG",
+   "type": "CONCEPT",
    "topic": "Pointers and References",
    "prompt": "Which statement does NOT compile?",
    "code": "int a = 1, b = 2;\nconst int* p = &a;\n// (1)  p = &b;\n// (2)  *p = 3;\n// (3)  int c = *p;",
@@ -2118,7 +2118,7 @@
   },
   {
    "id": "pointers:6",
-   "type": "OUTPUT",
+   "type": "BUG",
    "topic": "Pointers and References",
    "prompt": "What is wrong with this code?",
    "code": "int* a = new int[10];\ndelete a;",
@@ -3135,7 +3135,7 @@
   },
   {
    "id": "inherit:2",
-   "type": "OUTPUT",
+   "type": "CONCEPT",
    "topic": "Inheritance, Virtual Functions and the Object Model",
    "prompt": "What is object slicing?",
    "code": "Dog d;\nAnimal a = d;",
@@ -3649,7 +3649,7 @@
   },
   {
    "id": "lambdas:4",
-   "type": "OUTPUT",
+   "type": "CONCEPT",
    "topic": "Lambdas",
    "prompt": "What is printed?",
    "code": "int n = 5;\nauto f = [n]() mutable { return ++n; };\nstd::cout << f() << f() << n;",
@@ -3815,7 +3815,7 @@
   },
   {
    "id": "stl:2",
-   "type": "OUTPUT",
+   "type": "BUG",
    "topic": "STL Containers",
    "prompt": "What is wrong with this code?",
    "code": "std::vector<int> v;\nv.reserve(10);\nv[5] = 1;",
@@ -3846,7 +3846,7 @@
   },
   {
    "id": "stl:4",
-   "type": "OUTPUT",
+   "type": "BUG",
    "topic": "STL Containers",
    "prompt": "What is the bug in this loop?",
    "code": "std::vector<int> v;   // empty\nfor (std::size_t i = 0; i < v.size() - 1; ++i) { /* ... */ }",
@@ -4256,7 +4256,7 @@
   },
   {
    "id": "iterators:5",
-   "type": "OUTPUT",
+   "type": "BUG",
    "topic": "Iterators",
    "prompt": "What is wrong here?",
    "code": "std::vector<int> v{1, 2, 3};\nstd::span<int> s = v;\nv.push_back(4);\nstd::cout << s[0];",
@@ -4875,7 +4875,7 @@
   },
   {
    "id": "classtemplates:1",
-   "type": "OUTPUT",
+   "type": "CONCEPT",
    "topic": "Class Templates",
    "prompt": "What is a non-type template parameter?",
    "code": "template <typename T, std::size_t N>\nstruct Buffer { T data[N]; };",
@@ -5480,7 +5480,7 @@
   },
   {
    "id": "core:9",
-   "type": "OUTPUT",
+   "type": "CONCEPT",
    "topic": "RAII and Exceptions",
    "prompt": "What is printed?",
    "code": "try { throw std::invalid_argument(\"x\"); }\ncatch (const std::exception&)        { std::cout << \"A\"; }\ncatch (const std::invalid_argument&) { std::cout << \"B\"; }",
@@ -6108,7 +6108,7 @@
   },
   {
    "id": "moves:2",
-   "type": "CONCEPT",
+   "type": "OUTPUT",
    "topic": "Lvalues and Rvalues",
    "prompt": "Which overload is called?",
    "code": "void h(const std::string&);\nvoid h(std::string&&);\nvoid g(std::string&& s) { h(s); }",
@@ -6424,7 +6424,7 @@
   },
   {
    "id": "writemoves:1",
-   "type": "OUTPUT",
+   "type": "BUG",
    "topic": "Writing Move Operations",
    "prompt": "What is wrong with this move constructor?",
    "code": "Buffer(Buffer&& o) noexcept : data_(o.data_), n_(o.n_) {}",
@@ -7313,7 +7313,7 @@
   },
   {
    "id": "smartptr:1",
-   "type": "OUTPUT",
+   "type": "BUG",
    "topic": "shared_ptr: Shared Ownership",
    "prompt": "What is wrong with this code?",
    "code": "auto raw = new Widget;\nstd::shared_ptr<Widget> a(raw);\nstd::shared_ptr<Widget> b(raw);",
@@ -7690,7 +7690,7 @@
   },
   {
    "id": "threads:2",
-   "type": "OUTPUT",
+   "type": "BUG",
    "topic": "Threads: The Mental Model and Your First Thread",
    "prompt": "What is the problem with this code?",
    "code": "void inc(int& n) { ++n; }\nint x = 0;\nstd::thread t(inc, x);\nt.join();",
@@ -7706,7 +7706,7 @@
   },
   {
    "id": "threads:3",
-   "type": "OUTPUT",
+   "type": "BUG",
    "topic": "Threads: The Mental Model and Your First Thread",
    "prompt": "What is the bug here?",
    "code": "void f() {\n    int local = 0;\n    std::thread t([&] { ++local; });\n    t.detach();\n}",
@@ -7722,7 +7722,7 @@
   },
   {
    "id": "threads:4",
-   "type": "OUTPUT",
+   "type": "BUG",
    "topic": "Threads: The Mental Model and Your First Thread",
    "prompt": "What is the problem with this code?",
    "code": "void f(int i, const std::string& s);\n\nvoid g() {\n    char buffer[64] = \"hi\";\n    std::thread t(f, 1, buffer);\n    t.detach();\n}",
@@ -7843,7 +7843,7 @@
   },
   {
    "id": "races:0",
-   "type": "OUTPUT",
+   "type": "CONCEPT",
    "topic": "Shared Data and Data Races",
    "prompt": "Two threads each execute the function below on the same global `counter`, then both are joined. What is true?",
    "code": "int counter = 0;\nvoid work() { for (int i = 0; i < 1000; ++i) ++counter; }",
@@ -9527,7 +9527,7 @@
   },
   {
    "id": "strings:1",
-   "type": "OUTPUT",
+   "type": "BUG",
    "topic": "Strings, Regex & Time",
    "prompt": "What is wrong with this code?",
    "code": "std::string_view name = std::string(\"temporary\");\nstd::cout << name;",
@@ -9693,7 +9693,7 @@
   },
   {
    "id": "strings:12",
-   "type": "BUG",
+   "type": "CONCEPT",
    "topic": "Strings, Regex & Time",
    "prompt": "Which line does NOT compile?",
    "code": "using namespace std::chrono;\nseconds s = 90s;\nmilliseconds ms = s;        // (A)\nseconds back = ms;          // (B)",

@@ -53,8 +53,9 @@ function htmlToMarkup(html) {
 function questionType(q) {
   const text = q.q;
   if (q.code) {
-    if (/print|output|result|what is|value|display|prints|outputs/i.test(text)) return 'OUTPUT';
-    if (/wrong|bug|mistake|fix|problem|fails|compil/i.test(text)) return 'BUG';
+    // "What is wrong ..." must not count as an output question, so the bug words are tested first.
+    if (/\b(wrong|bug|mistake|fix|problem|fails?)\b/i.test(text) && !/\b(print|prints|output|outputs)\b/i.test(text)) return 'BUG';
+    if (/\b(print|prints|output|outputs|displays?)\b|value of|what is `|result of|which overload/i.test(text)) return 'OUTPUT';
     return 'CONCEPT';
   }
   if (q.opts.length === 2 && /^true$/i.test(q.opts[0]) && /^false$/i.test(q.opts[1])) return 'TRUE_FALSE';
