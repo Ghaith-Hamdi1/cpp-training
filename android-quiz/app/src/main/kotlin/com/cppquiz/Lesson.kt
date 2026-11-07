@@ -19,7 +19,11 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -69,10 +73,14 @@ sealed interface Step {
     data class Build(val rb: RunB, override val retry: Boolean = false) : Step {
         override val id get() = rb.id
     }
+    data class PuzzleStep(val p: Puzzle, override val retry: Boolean = false) : Step {
+        override val id get() = p.id
+    }
 }
 
 /** Builds the step for an item id: a build exercise when Content knows it as one, else a quiz question. */
 fun stepFor(id: String, rnd: Random, retry: Boolean = false): Step {
+    Content.puzzle(id)?.let { return Step.PuzzleStep(it, retry) }
     val b = Content.build(id)
     return if (b != null) {
         Step.Build(RunB(id, b, (b.answer + b.extra).shuffled(rnd)), retry)
@@ -93,6 +101,9 @@ fun LessonRunner(
     var picked by remember { mutableStateOf(listOf<Int>()) }
     var submitted by remember { mutableStateOf(false) }
     var lastOk by remember { mutableStateOf(false) }
+    var pcat by remember { mutableIntStateOf(-1) }
+    var ptext by remember { mutableStateOf("") }
+    var phint by remember { mutableStateOf(false) }
     var confirmQuit by remember { mutableStateOf(false) }
     var retriesAdded by remember { mutableStateOf(false) }
     val results = remember { mutableListOf<Pair<String, Boolean>>() }
@@ -106,7 +117,8 @@ fun LessonRunner(
             if (ok) recovered += step.id
         } else {
             results += step.id to ok
-            if (!ok) missedIds += step.id
+            // A puzzle already shows its full explanation, so only the other items come back for a retry.
+            if (!ok && step !is Step.PuzzleStep) missedIds += step.id
         }
     }
 
@@ -118,6 +130,7 @@ fun LessonRunner(
         }
         if (idx + 1 < all.size) {
             idx++; selected = -1; picked = emptyList(); submitted = false
+            pcat = -1; ptext = ""; phint = false
         } else {
             onDone(results.toList(), recovered.toList())
         }
@@ -139,6 +152,17 @@ fun LessonRunner(
                     rq = step.rq, retry = step.retry, selected = selected, submitted = submitted,
                     onSelect = { if (!submitted) selected = it },
                     onSubmit = { record(step, selected == step.rq.correct) },
+                    onContinue = ::next,
+                )
+                is Step.PuzzleStep -> PuzzleView(
+                    p = step.p, cat = pcat, text = ptext, hint = phint, submitted = submitted, ok = lastOk,
+                    onCat = { if (!submitted) pcat = it },
+                    onText = { if (!submitted) ptext = it },
+                    onHint = { phint = true },
+                    onSubmit = {
+                        val code = PUZZLE_RESULTS[pcat].first
+                        record(step, code == step.p.result && (step.p.result != "OK" || ptext.trim() == step.p.answer.trim()))
+                    },
                     onContinue = ::next,
                 )
                 is Step.Build -> BuildStep(
@@ -334,6 +358,138 @@ private fun BuildStep(
             }
         }
         BottomAction(submitted, ok, picked.isNotEmpty(), onSubmit, onContinue)
+    }
+}
+
+val PUZZLE_RESULTS = listOf(
+    "OK" to "It prints:",
+    "CE" to "It does not compile",
+    "UD" to "Undefined behavior",
+    "US" to "Unspecified or implementation-defined",
+)
+
+/** Turns the few HTML bits and *italic* marks of the puzzle texts into plain text; code spans stay untouched. */
+private fun cleanInline(s: String): String {
+    val decoded = s.replace("&nbsp;", " ").replace("&lt;", "<").replace("&gt;", ">").replace("&amp;", "&")
+        .replace(Regex("<sup>(.*?)</sup>"), "^$1")
+    return decoded.split('`').mapIndexed { i, seg ->
+        if (i % 2 == 0) {
+            seg.replace(Regex("</?[a-z]+>"), "").replace(Regex("(?<![*\\w])\\*([^*\\n]+?)\\*(?![*\\w])"), "$1")
+        } else {
+            seg
+        }
+    }.joinToString("`")
+}
+
+/** The small Markdown the puzzle explanations use: paragraphs, lists, quotes, links and fenced code. */
+@Composable
+fun MarkdownBlock(src: String) {
+    val link = Regex("""\[([^\]]+)\]\([^)]*\)""")
+    val parts = src.replace("\r\n", "\n").split("```")
+    Column(Modifier.fillMaxWidth()) {
+        parts.forEachIndexed { i, part ->
+            if (i % 2 == 1) {
+                CodeBlock(part.substringAfter('\n').trimEnd())
+                Spacer(Modifier.height(10.dp))
+            } else {
+                part.trim().split(Regex("""\n\s*\n""")).filter { it.isNotBlank() }.forEach { para ->
+                    val text = para.lines().joinToString("\n") { line ->
+                        line.replace(Regex("^>\\s?"), "").replace(Regex("^\\s*[-*] "), "\u2022 ")
+                    }.let { cleanInline(link.replace(it, "$1")) }
+                    Text(md(text), color = Color.White, fontSize = 16.sp, lineHeight = 24.sp)
+                    Spacer(Modifier.height(10.dp))
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun PuzzleView(
+    p: Puzzle, cat: Int, text: String, hint: Boolean, submitted: Boolean, ok: Boolean,
+    onCat: (Int) -> Unit, onText: (String) -> Unit, onHint: () -> Unit,
+    onSubmit: () -> Unit, onContinue: () -> Unit,
+) {
+    val scroll = rememberScrollState()
+    LaunchedEffect(submitted) {
+        if (submitted) {
+            delay(80)
+            scroll.animateScrollTo(scroll.maxValue)
+        }
+    }
+    val prints = cat == 0
+    Column(Modifier.fillMaxSize()) {
+        Column(Modifier.weight(1f).verticalScroll(scroll).padding(horizontal = 20.dp, vertical = 16.dp)) {
+            Text("Boss puzzle \u00b7 difficulty ${p.difficulty} of 3", color = Color(0xFFFFD166), fontSize = 14.sp, fontWeight = FontWeight.Bold)
+            Spacer(Modifier.height(6.dp))
+            Text("According to the C++ standard, what happens when this program runs?", color = Color.White, fontSize = 20.sp, lineHeight = 28.sp)
+            Spacer(Modifier.height(14.dp))
+            CodeBlock(p.code)
+            Spacer(Modifier.height(14.dp))
+            PUZZLE_RESULTS.forEachIndexed { i, (code, label) ->
+                val border = when {
+                    submitted && code == p.result -> C.Green
+                    submitted && i == cat -> C.Red
+                    !submitted && i == cat -> C.Cyan
+                    else -> Color.Transparent
+                }
+                Box(
+                    Modifier.padding(vertical = 5.dp).fillMaxWidth()
+                        .background(if (i == cat && !submitted) C.Card else C.Option, RoundedCornerShape(16.dp))
+                        .border(2.dp, border, RoundedCornerShape(16.dp))
+                        .clickable { onCat(i) }
+                        .padding(horizontal = 18.dp, vertical = 16.dp),
+                ) { Text(label, color = Color.White, fontSize = 17.sp) }
+            }
+            if (prints && !submitted) {
+                Spacer(Modifier.height(8.dp))
+                OutlinedTextField(
+                    value = text, onValueChange = onText, singleLine = true,
+                    label = { Text("Type the exact output") },
+                    keyboardOptions = KeyboardOptions(autoCorrectEnabled = false, keyboardType = KeyboardType.Ascii),
+                    textStyle = androidx.compose.ui.text.TextStyle(fontFamily = FontFamily.Monospace, fontSize = 18.sp),
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedTextColor = Color.White, unfocusedTextColor = Color.White,
+                        focusedBorderColor = C.Cyan, unfocusedBorderColor = C.Dim,
+                        focusedLabelColor = C.Cyan, unfocusedLabelColor = C.Dim, cursorColor = C.Cyan,
+                    ),
+                )
+            }
+            if (!submitted) {
+                Spacer(Modifier.height(8.dp))
+                if (hint) {
+                    Text("Hint: " + p.hint, color = Color(0xFFFFD166), fontSize = 15.sp, lineHeight = 22.sp)
+                } else {
+                    Text("Show a hint", color = Color(0xFFB79CF2), fontSize = 16.sp, modifier = Modifier.clickable(onClick = onHint).padding(vertical = 8.dp))
+                }
+            } else {
+                Spacer(Modifier.height(14.dp))
+                Column(
+                    Modifier.fillMaxWidth()
+                        .background(C.Bar, RoundedCornerShape(20.dp))
+                        .border(2.dp, if (ok) C.Green else C.Red, RoundedCornerShape(20.dp))
+                        .padding(16.dp),
+                ) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Mascot(56.dp, if (ok) Mood.HAPPY else Mood.SAD)
+                        Spacer(Modifier.size(14.dp))
+                        Text(
+                            if (ok) "Well done!" else "Not quite",
+                            color = if (ok) C.Green else C.Red, fontSize = 24.sp, fontWeight = FontWeight.Bold,
+                        )
+                    }
+                    Spacer(Modifier.height(10.dp))
+                    val answer = if (p.result == "OK") "It prints `" + (p.answer.ifEmpty { "(nothing)" }) + "`." else PUZZLE_RESULTS.first { it.first == p.result }.second + "."
+                    Text(md("**Answer:** $answer"), color = Color.White, fontSize = 17.sp)
+                    Spacer(Modifier.height(10.dp))
+                    MarkdownBlock(p.explanation)
+                    Text("Puzzle from CppQuiz.org, CC BY-SA 4.0", color = C.Dim, fontSize = 12.sp)
+                }
+                Spacer(Modifier.height(8.dp))
+            }
+        }
+        BottomAction(submitted, ok, cat >= 0 && (cat != 0 || text.isNotBlank()), onSubmit, onContinue)
     }
 }
 

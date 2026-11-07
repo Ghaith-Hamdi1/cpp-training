@@ -6,7 +6,7 @@
 // the info slides in front. A chapter is "ready" when the app should show it; the others appear as "coming soon".
 // Usage: node tools/export-android-content.mjs [--check]
 import { mkdirSync, readFileSync, readdirSync, writeFileSync, existsSync } from 'node:fs';
-import { join, resolve } from 'node:path';
+import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import vm from 'node:vm';
 import { loadRegistry, root as interactive } from './lib/registry.mjs';
@@ -21,9 +21,21 @@ const CHAPTERS = [
   { id: 'library', title: '3. Standard library and generic programming', lessons: ['callables', 'lambdas', 'stl', 'assoc', 'iterators', 'algorithms', 'templates', 'classtemplates', 'compiletime'], ready: true },
   { id: 'raii', title: '4. RAII, exceptions and advanced tools', lessons: ['core'], ready: true },
   { id: 'modern', title: '5. Modern C++', lessons: ['vocab', 'moves', 'copymove', 'writemoves', 'elision', 'sinks', 'forwarding', 'uniqueptr', 'smartptr', 'weakptr'], ready: true },
-  { id: 'concurrency', title: '6. Concurrency and the memory model', lessons: ['threads', 'races', 'mutexes', 'deadlock', 'condvars', 'tasks', 'pools', 'atomics', 'memmodel'], ready: false },
-  { id: 'further', title: '7. Further reading', lessons: ['strings'], ready: false },
+  { id: 'concurrency', title: '6. Concurrency and the memory model', lessons: ['threads', 'races', 'mutexes', 'deadlock', 'condvars', 'tasks', 'pools', 'atomics', 'memmodel'], ready: true },
+  { id: 'further', title: '7. Further reading', lessons: ['strings'], ready: true },
 ];
+
+// The boss node at the end of each chapter: CppQuiz.org puzzles (CC BY-SA 4.0) that fit the chapter.
+// They go to their own file, puzzles.json, so the licence stays clearly separate from the rest of the content.
+const BOSS = {
+  core: [24, 26, 153, 288, 38],
+  classes: [8, 16, 160, 184, 29],
+  library: [35, 135, 207, 129, 158],
+  raii: [239, 33, 15, 323],
+  modern: [265, 281, 226, 112, 116],
+  concurrency: [339, 340, 48],
+  further: [261, 284, 287, 2],
+};
 
 const dataDir = join(interactive, 'assets', 'data');
 const ctx = {};
@@ -35,7 +47,10 @@ ctx.CT.quizData = {};
 for (const f of readdirSync(dataDir).filter((f) => /^quiz-.*\.js$/.test(f))) run(f);
 run('mock-bank.js');
 run('read-more.js');
+run('puzzles.js');
 const CT = ctx.CT;
+const puzzleById = new Map(CT.puzzleData.map((p) => [p.id, p]));
+const usedPuzzles = [];
 const lessonById = new Map(CT.lessons.map((l) => [l.id, l]));
 
 const decode = (s) => s.replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&quot;/g, '"').replace(/&amp;/g, '&');
@@ -131,6 +146,21 @@ for (const ch of CHAPTERS) {
     });
     nodes.push({ id: `${ex.id}:n0`, title: ex.title, intro: ex.intro, cards: [], items: ids });
   }
+  const boss = (BOSS[ch.id] || []).filter((id) => {
+    if (puzzleById.has(id)) return true;
+    problems.push(`boss puzzle ${id} of ${ch.id} does not exist`);
+    return false;
+  });
+  if (boss.length) {
+    for (const id of boss) usedPuzzles.push(puzzleById.get(id));
+    nodes.push({
+      id: `${ch.id}:boss`,
+      title: 'Boss puzzles',
+      intro: ['Ready for a challenge? These puzzles follow the C++ standard to the letter. Decide what the program does, and type the output when it prints something.'],
+      cards: [],
+      items: boss.map((id) => `pz:${id}`),
+    });
+  }
   chapters.push({ id: ch.id, title: ch.title, ready: ch.ready, nodes });
 }
 
@@ -167,18 +197,44 @@ for (const key of usedSections) {
 const readMore = { books: CT.readMore.books, sections };
 
 const json = JSON.stringify({ chapters, questions, builds: builds.map(({ node, ...b }) => b), cards: cardList, readMore }, null, 1) + '\n';
+
+// The puzzles of the boss nodes, with the licence that goes with them. The leading #include lines are dropped
+// from the code, since the app shows only the part that matters.
+const puzzlesOut = join(dirname(out), 'puzzles.json');
+const puzzlesJson = JSON.stringify({
+  license: {
+    name: 'CC BY-SA 4.0',
+    url: 'https://creativecommons.org/licenses/by-sa/4.0/',
+    credit: 'These questions come from CppQuiz.org by Anders Schau Knatten and contributors.',
+    source: 'https://github.com/knatten/cppquiz23',
+    changes: 'Reformatted into this data file; the leading #include lines are not shown. The text is otherwise unchanged.',
+  },
+  puzzles: usedPuzzles.map((p) => ({
+    id: p.id,
+    difficulty: p.d,
+    result: p.r,
+    answer: p.a,
+    code: p.code.replace(/^(#include[^\n]*\n)+\s*/, '').trimEnd(),
+    hint: p.hint,
+    explanation: p.ex,
+  })),
+}, null, 1) + '\n';
 const nodeCount = chapters.reduce((n, c) => n + c.nodes.length, 0);
 console.log(`${counts.lessons} lessons, ${nodeCount} nodes, ${counts.questions} questions, ${builds.length} build exercises, ${Object.keys(sections).length} reading notes, ${counts.cards} recap cards`);
 const fatal = problems.filter((p) => !/the app shrinks the font/.test(p));
 for (const p of problems) console.log((fatal.includes(p) ? 'ERROR ' : 'note  ') + p);
 if (fatal.length) process.exit(1);
 
+const norm = (f) => (existsSync(f) ? readFileSync(f, 'utf8').replace(/\r\n/g, '\n') : null);
 if (check) {
-  const same = existsSync(out) && readFileSync(out, 'utf8').replace(/\r\n/g, '\n') === json;
-  if (!same) { console.log('content.json is out of date: run node tools/export-android-content.mjs'); process.exit(1); }
-  console.log('content.json is up to date');
+  if (norm(out) !== json || norm(puzzlesOut) !== puzzlesJson) {
+    console.log('content.json or puzzles.json is out of date: run node tools/export-android-content.mjs');
+    process.exit(1);
+  }
+  console.log('content.json and puzzles.json are up to date');
 } else {
-  mkdirSync(join(repo, 'android-quiz', 'app', 'src', 'main', 'assets'), { recursive: true });
+  mkdirSync(dirname(out), { recursive: true });
   writeFileSync(out, json);
-  console.log('wrote ' + out);
+  writeFileSync(puzzlesOut, puzzlesJson);
+  console.log('wrote ' + out + ' and puzzles.json (' + usedPuzzles.length + ' puzzles)');
 }

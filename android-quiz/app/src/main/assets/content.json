@@ -189,6 +189,21 @@
       "casts:13",
       "casts:14"
      ]
+    },
+    {
+     "id": "core:boss",
+     "title": "Boss puzzles",
+     "intro": [
+      "Ready for a challenge? These puzzles follow the C++ standard to the letter. Decide what the program does, and type the output when it prints something."
+     ],
+     "cards": [],
+     "items": [
+      "pz:24",
+      "pz:26",
+      "pz:153",
+      "pz:288",
+      "pz:38"
+     ]
     }
    ]
   },
@@ -351,6 +366,21 @@
       "inherit:16",
       "inherit:17",
       "inherit:18"
+     ]
+    },
+    {
+     "id": "classes:boss",
+     "title": "Boss puzzles",
+     "intro": [
+      "Ready for a challenge? These puzzles follow the C++ standard to the letter. Decide what the program does, and type the output when it prints something."
+     ],
+     "cards": [],
+     "items": [
+      "pz:8",
+      "pz:16",
+      "pz:160",
+      "pz:184",
+      "pz:29"
      ]
     }
    ]
@@ -791,6 +821,21 @@
       "compiletime:18",
       "compiletime:19"
      ]
+    },
+    {
+     "id": "library:boss",
+     "title": "Boss puzzles",
+     "intro": [
+      "Ready for a challenge? These puzzles follow the C++ standard to the letter. Decide what the program does, and type the output when it prints something."
+     ],
+     "cards": [],
+     "items": [
+      "pz:35",
+      "pz:135",
+      "pz:207",
+      "pz:129",
+      "pz:158"
+     ]
     }
    ]
   },
@@ -906,6 +951,20 @@
       "noexcepts:5",
       "noexcepts:6",
       "noexcepts:7"
+     ]
+    },
+    {
+     "id": "raii:boss",
+     "title": "Boss puzzles",
+     "intro": [
+      "Ready for a challenge? These puzzles follow the C++ standard to the letter. Decide what the program does, and type the output when it prints something."
+     ],
+     "cards": [],
+     "items": [
+      "pz:239",
+      "pz:33",
+      "pz:15",
+      "pz:323"
      ]
     }
    ]
@@ -1330,13 +1389,28 @@
       "weakptr:10",
       "weakptr:11"
      ]
+    },
+    {
+     "id": "modern:boss",
+     "title": "Boss puzzles",
+     "intro": [
+      "Ready for a challenge? These puzzles follow the C++ standard to the letter. Decide what the program does, and type the output when it prints something."
+     ],
+     "cards": [],
+     "items": [
+      "pz:265",
+      "pz:281",
+      "pz:226",
+      "pz:112",
+      "pz:116"
+     ]
     }
    ]
   },
   {
    "id": "concurrency",
    "title": "6. Concurrency and the memory model",
-   "ready": false,
+   "ready": true,
    "nodes": [
     {
      "id": "threads:n0",
@@ -1353,6 +1427,7 @@
       "threads:0",
       "threads:1",
       "threads:2",
+      "b:threads:0",
       "threads:3",
       "threads:4",
       "threads:5"
@@ -1391,6 +1466,7 @@
       "races:0",
       "races:1",
       "races:2",
+      "b:races:0",
       "races:3",
       "races:4",
       "races:5"
@@ -1431,6 +1507,7 @@
       "mutexes:1",
       "mutexes:2",
       "mutexes:3",
+      "b:mutexes:0",
       "mutexes:4",
       "mutexes:5",
       "mutexes:6",
@@ -1474,6 +1551,7 @@
       "deadlock:1",
       "deadlock:2",
       "deadlock:3",
+      "b:deadlock:0",
       "deadlock:4",
       "deadlock:5",
       "deadlock:6"
@@ -1517,6 +1595,7 @@
       "condvars:1",
       "condvars:2",
       "condvars:3",
+      "b:condvars:0",
       "condvars:4",
       "condvars:5",
       "condvars:6"
@@ -1560,6 +1639,7 @@
       "tasks:1",
       "tasks:2",
       "tasks:3",
+      "b:tasks:0",
       "tasks:4",
       "tasks:5",
       "tasks:6"
@@ -1605,6 +1685,7 @@
       "pools:1",
       "pools:2",
       "pools:3",
+      "b:pools:0",
       "pools:4",
       "pools:5",
       "pools:6"
@@ -1653,6 +1734,7 @@
       "atomics:1",
       "atomics:2",
       "atomics:3",
+      "b:atomics:0",
       "atomics:4",
       "atomics:5",
       "atomics:6"
@@ -1696,6 +1778,7 @@
       "memmodel:0",
       "memmodel:1",
       "memmodel:2",
+      "b:memmodel:0",
       "memmodel:3",
       "memmodel:4",
       "memmodel:5"
@@ -1740,13 +1823,26 @@
       "memmodel:16",
       "memmodel:17"
      ]
+    },
+    {
+     "id": "concurrency:boss",
+     "title": "Boss puzzles",
+     "intro": [
+      "Ready for a challenge? These puzzles follow the C++ standard to the letter. Decide what the program does, and type the output when it prints something."
+     ],
+     "cards": [],
+     "items": [
+      "pz:339",
+      "pz:340",
+      "pz:48"
+     ]
     }
    ]
   },
   {
    "id": "further",
    "title": "7. Further reading",
-   "ready": false,
+   "ready": true,
    "nodes": [
     {
      "id": "strings:n0",
@@ -1768,6 +1864,7 @@
       "strings:1",
       "strings:2",
       "strings:3",
+      "b:strings:0",
       "strings:4",
       "strings:5",
       "strings:6",
@@ -1819,6 +1916,20 @@
       "strings:20",
       "strings:21",
       "strings:22"
+     ]
+    },
+    {
+     "id": "further:boss",
+     "title": "Boss puzzles",
+     "intro": [
+      "Ready for a challenge? These puzzles follow the C++ standard to the letter. Decide what the program does, and type the output when it prints something."
+     ],
+     "cards": [],
+     "items": [
+      "pz:261",
+      "pz:284",
+      "pz:287",
+      "pz:2"
      ]
     }
    ]
@@ -10047,6 +10158,152 @@
     "virtual"
    ],
    "explanation": "`noexcept` goes after the parameter list. Containers such as `std::vector` only move elements on reallocation when the move constructor is `noexcept`."
+  },
+  {
+   "id": "b:threads:0",
+   "topic": "Start and join",
+   "prompt": "Start a thread that runs `work`, then **wait for it to finish**.",
+   "answer": [
+    "std::thread t(work);",
+    "t.join();"
+   ],
+   "extra": [
+    "t.detach();",
+    "std::thread t = work;"
+   ],
+   "explanation": "`join()` blocks until the thread ends. A `std::thread` that is destroyed while still joinable calls `std::terminate`, so every thread must be joined or detached."
+  },
+  {
+   "id": "b:races:0",
+   "topic": "Atomic counter",
+   "prompt": "Declare `counter` as an **atomic int** that starts at 0, so two threads can increment it without a data race.",
+   "answer": [
+    "std::atomic<int>",
+    "counter{0};"
+   ],
+   "extra": [
+    "volatile int",
+    "std::mutex",
+    "counter(0);"
+   ],
+   "explanation": "`std::atomic<int>` makes each increment indivisible. `volatile` does not prevent data races in C++, and a `std::mutex` is not a counter."
+  },
+  {
+   "id": "b:mutexes:0",
+   "topic": "Scoped locking",
+   "prompt": "Lock the mutex `m` for the rest of the scope with an **RAII guard**.",
+   "answer": [
+    "std::lock_guard<std::mutex>",
+    "lock(m);"
+   ],
+   "extra": [
+    "m.lock();",
+    "std::unique_lock",
+    "std::mutex lock(m);"
+   ],
+   "explanation": "`std::lock_guard` locks in its constructor and unlocks in its destructor, so the mutex is released even if the code in the scope throws."
+  },
+  {
+   "id": "b:deadlock:0",
+   "topic": "Locking two mutexes",
+   "prompt": "Lock both mutexes `a` and `b` **at once**, in a way that cannot deadlock.",
+   "answer": [
+    "std::scoped_lock",
+    "lock(a, b);"
+   ],
+   "extra": [
+    "a.lock();",
+    "b.lock();",
+    "std::lock_guard"
+   ],
+   "explanation": "`std::scoped_lock` locks several mutexes with a deadlock-avoidance algorithm. Locking `a` then `b` by hand deadlocks if another thread locks them in the opposite order."
+  },
+  {
+   "id": "b:condvars:0",
+   "topic": "Waiting with a predicate",
+   "prompt": "Make a thread wait on `cv` (holding the lock `lk`) **until `ready` is true**.",
+   "answer": [
+    "cv.wait(lk,",
+    "[] { return ready; });"
+   ],
+   "extra": [
+    "cv.notify_one();",
+    "[] { ready = true; });"
+   ],
+   "explanation": "`wait(lk, pred)` re-checks the predicate after every wake-up, which protects against spurious wake-ups. `notify_one` is what the other thread calls."
+  },
+  {
+   "id": "b:tasks:0",
+   "topic": "async and future",
+   "prompt": "Run `compute` **asynchronously** and then fetch its result.",
+   "answer": [
+    "auto f = std::async(std::launch::async, compute);",
+    "int r = f.get();"
+   ],
+   "extra": [
+    "int r = f.wait();",
+    "std::thread f(compute);"
+   ],
+   "explanation": "`std::async` returns a `std::future`, and `get()` waits for and returns the value. `wait()` returns nothing, and a plain `std::thread` has no result to fetch."
+  },
+  {
+   "id": "b:pools:0",
+   "topic": "Parallel algorithm",
+   "prompt": "Add up all the elements of the vector `v` with a **parallel** algorithm.",
+   "answer": [
+    "std::reduce(std::execution::par,",
+    "v.begin(),",
+    "v.end());"
+   ],
+   "extra": [
+    "std::sort(std::execution::par,",
+    "std::execution::seq,"
+   ],
+   "explanation": "`std::reduce` with an execution policy may split the work across threads. `std::sort` would reorder the data instead of summing it."
+  },
+  {
+   "id": "b:atomics:0",
+   "topic": "Relaxed increment",
+   "prompt": "Atomically add 1 to `n`, using **relaxed** ordering (a plain statistics counter).",
+   "answer": [
+    "n.fetch_add(1,",
+    "std::memory_order_relaxed);"
+   ],
+   "extra": [
+    "std::memory_order_seq_cst);",
+    "n.store(1,",
+    "std::memory_order::relaxed);"
+   ],
+   "explanation": "`fetch_add` is the atomic read-modify-write. Relaxed ordering is enough when nobody else depends on the value to publish other data."
+  },
+  {
+   "id": "b:memmodel:0",
+   "topic": "Release store",
+   "prompt": "Publish the data written before this line: set the atomic flag `ready` to true with a **release** store.",
+   "answer": [
+    "ready.store(true,",
+    "std::memory_order_release);"
+   ],
+   "extra": [
+    "std::memory_order_acquire);",
+    "std::memory_order_relaxed);",
+    "ready.load("
+   ],
+   "explanation": "A release store pairs with an acquire load in the reader thread, so everything written before the store is visible once the reader sees `true`."
+  },
+  {
+   "id": "b:strings:0",
+   "topic": "string_view",
+   "prompt": "Make a **read-only view** `v` of the string `s` without copying it.",
+   "answer": [
+    "std::string_view",
+    "v = s;"
+   ],
+   "extra": [
+    "std::string",
+    "std::string_view&&"
+   ],
+   "explanation": "`std::string_view` refers to the characters of `s` without owning them, so it is cheap to pass around. It must not outlive `s`."
   }
  ],
  "cards": [

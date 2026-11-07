@@ -10,6 +10,15 @@ data class Node(
     val cardIds: List<String> = emptyList(),
 )
 
+/** A CppQuiz.org puzzle: [result] is OK (it prints [answer]), CE, UD (undefined) or US (unspecified). */
+data class Puzzle(
+    val id: String, val difficulty: Int, val result: String, val answer: String,
+    val code: String, val hint: String, val explanation: String,
+)
+
+/** The licence under which the puzzles are used. */
+data class PuzzleLicense(val name: String, val url: String, val credit: String, val source: String, val changes: String)
+
 /** A book section to read for a lesson section the learner got wrong. */
 data class Deeper(val title: String, val rows: List<String>)
 
@@ -29,6 +38,8 @@ object Content {
     private var buildById: Map<String, BuildExercise> = emptyMap()
     private var cardById: Map<String, RecapCard> = emptyMap()
     private var books: Map<String, String> = emptyMap()
+    private var puzzleById: Map<String, Puzzle> = emptyMap()
+    var puzzleLicense = PuzzleLicense("", "", "", "", ""); private set
     private var sections: Map<String, Pair<String, List<Triple<String, String, String>>>> = emptyMap()
 
     val readyChapters: List<Chapter> get() = chapters.filter { it.ready }
@@ -38,6 +49,7 @@ object Content {
     fun question(id: String): Question = questionById.getValue(id)
     fun build(id: String): BuildExercise? = buildById[id]
     fun card(id: String): RecapCard? = cardById[id]
+    fun puzzle(id: String): Puzzle? = puzzleById[id]
     fun chapterOf(nodeId: String): Chapter? = chapters.firstOrNull { c -> c.nodes.any { it.id == nodeId } }
     fun node(nodeId: String): Node? = chapters.firstNotNullOfOrNull { c -> c.nodes.firstOrNull { it.id == nodeId } }
 
@@ -75,6 +87,21 @@ object Content {
         val carr = root.getJSONArray("cards")
         cardById = (0 until carr.length()).map { carr.getJSONObject(it) }.associate {
             it.getString("id") to RecapCard(it.getString("id"), it.getString("q"), it.getString("a"))
+        }
+
+        val pz = JSONObject(context.assets.open("puzzles.json").bufferedReader().use { it.readText() })
+        val lic = pz.getJSONObject("license")
+        puzzleLicense = PuzzleLicense(
+            lic.getString("name"), lic.getString("url"), lic.getString("credit"),
+            lic.getString("source"), lic.getString("changes"),
+        )
+        val parr = pz.getJSONArray("puzzles")
+        puzzleById = (0 until parr.length()).map { parr.getJSONObject(it) }.associate {
+            val id = "pz:" + it.getInt("id")
+            id to Puzzle(
+                id, it.getInt("difficulty"), it.getString("result"), it.getString("answer"),
+                it.getString("code"), it.getString("hint"), it.getString("explanation"),
+            )
         }
 
         val rm = root.getJSONObject("readMore")

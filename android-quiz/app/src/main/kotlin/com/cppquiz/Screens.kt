@@ -44,6 +44,8 @@ import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.StrokeJoin
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalUriHandler
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.IntOffset
@@ -354,6 +356,34 @@ fun ProfileScreen(store: Store) {
             color = if (armed) C.Red else C.Dim, fontSize = 16.sp, textAlign = TextAlign.Center,
             modifier = Modifier.clickable { if (armed) { store.reset(); armed = false } else armed = true }.padding(12.dp),
         )
+        Spacer(Modifier.height(20.dp))
+        About()
+        Spacer(Modifier.height(24.dp))
+    }
+}
+
+/** Credit for the CppQuiz.org puzzles, as the CC BY-SA 4.0 licence requires. */
+@Composable
+private fun About() {
+    val uri = LocalUriHandler.current
+    val lic = Content.puzzleLicense
+    @Composable
+    fun Link(label: String, url: String) {
+        Text(
+            label, color = Color(0xFFB79CF2), fontSize = 15.sp, textDecoration = TextDecoration.Underline,
+            modifier = Modifier.clickable { uri.openUri(url) }.padding(vertical = 6.dp),
+        )
+    }
+    Column(Modifier.fillMaxWidth().background(C.Card, RoundedCornerShape(18.dp)).padding(16.dp)) {
+        Text("ABOUT AND LICENCES", color = C.Dim, fontSize = 13.sp, fontWeight = FontWeight.Bold)
+        Spacer(Modifier.height(8.dp))
+        Text(
+            lic.credit + " They are licensed under " + lic.name + ". " + lic.changes,
+            color = Color.White, fontSize = 15.sp, lineHeight = 22.sp,
+        )
+        Link("cppquiz.org", "https://cppquiz.org")
+        Link(lic.name + " licence", lic.url)
+        Link("Source of the questions", lic.source)
     }
 }
 

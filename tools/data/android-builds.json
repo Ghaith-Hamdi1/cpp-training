@@ -198,5 +198,161 @@
       "virtual"
     ],
     "explanation": "`noexcept` goes after the parameter list. Containers such as `std::vector` only move elements on reallocation when the move constructor is `noexcept`."
+  },
+  {
+    "id": "b:threads:0",
+    "node": "threads:n0",
+    "topic": "Start and join",
+    "prompt": "Start a thread that runs `work`, then **wait for it to finish**.",
+    "answer": [
+      "std::thread t(work);",
+      "t.join();"
+    ],
+    "extra": [
+      "t.detach();",
+      "std::thread t = work;"
+    ],
+    "explanation": "`join()` blocks until the thread ends. A `std::thread` that is destroyed while still joinable calls `std::terminate`, so every thread must be joined or detached."
+  },
+  {
+    "id": "b:races:0",
+    "node": "races:n0",
+    "topic": "Atomic counter",
+    "prompt": "Declare `counter` as an **atomic int** that starts at 0, so two threads can increment it without a data race.",
+    "answer": [
+      "std::atomic<int>",
+      "counter{0};"
+    ],
+    "extra": [
+      "volatile int",
+      "std::mutex",
+      "counter(0);"
+    ],
+    "explanation": "`std::atomic<int>` makes each increment indivisible. `volatile` does not prevent data races in C++, and a `std::mutex` is not a counter."
+  },
+  {
+    "id": "b:mutexes:0",
+    "node": "mutexes:n0",
+    "topic": "Scoped locking",
+    "prompt": "Lock the mutex `m` for the rest of the scope with an **RAII guard**.",
+    "answer": [
+      "std::lock_guard<std::mutex>",
+      "lock(m);"
+    ],
+    "extra": [
+      "m.lock();",
+      "std::unique_lock",
+      "std::mutex lock(m);"
+    ],
+    "explanation": "`std::lock_guard` locks in its constructor and unlocks in its destructor, so the mutex is released even if the code in the scope throws."
+  },
+  {
+    "id": "b:deadlock:0",
+    "node": "deadlock:n0",
+    "topic": "Locking two mutexes",
+    "prompt": "Lock both mutexes `a` and `b` **at once**, in a way that cannot deadlock.",
+    "answer": [
+      "std::scoped_lock",
+      "lock(a, b);"
+    ],
+    "extra": [
+      "a.lock();",
+      "b.lock();",
+      "std::lock_guard"
+    ],
+    "explanation": "`std::scoped_lock` locks several mutexes with a deadlock-avoidance algorithm. Locking `a` then `b` by hand deadlocks if another thread locks them in the opposite order."
+  },
+  {
+    "id": "b:condvars:0",
+    "node": "condvars:n0",
+    "topic": "Waiting with a predicate",
+    "prompt": "Make a thread wait on `cv` (holding the lock `lk`) **until `ready` is true**.",
+    "answer": [
+      "cv.wait(lk,",
+      "[] { return ready; });"
+    ],
+    "extra": [
+      "cv.notify_one();",
+      "[] { ready = true; });"
+    ],
+    "explanation": "`wait(lk, pred)` re-checks the predicate after every wake-up, which protects against spurious wake-ups. `notify_one` is what the other thread calls."
+  },
+  {
+    "id": "b:tasks:0",
+    "node": "tasks:n0",
+    "topic": "async and future",
+    "prompt": "Run `compute` **asynchronously** and then fetch its result.",
+    "answer": [
+      "auto f = std::async(std::launch::async, compute);",
+      "int r = f.get();"
+    ],
+    "extra": [
+      "int r = f.wait();",
+      "std::thread f(compute);"
+    ],
+    "explanation": "`std::async` returns a `std::future`, and `get()` waits for and returns the value. `wait()` returns nothing, and a plain `std::thread` has no result to fetch."
+  },
+  {
+    "id": "b:pools:0",
+    "node": "pools:n0",
+    "topic": "Parallel algorithm",
+    "prompt": "Add up all the elements of the vector `v` with a **parallel** algorithm.",
+    "answer": [
+      "std::reduce(std::execution::par,",
+      "v.begin(),",
+      "v.end());"
+    ],
+    "extra": [
+      "std::sort(std::execution::par,",
+      "std::execution::seq,"
+    ],
+    "explanation": "`std::reduce` with an execution policy may split the work across threads. `std::sort` would reorder the data instead of summing it."
+  },
+  {
+    "id": "b:atomics:0",
+    "node": "atomics:n0",
+    "topic": "Relaxed increment",
+    "prompt": "Atomically add 1 to `n`, using **relaxed** ordering (a plain statistics counter).",
+    "answer": [
+      "n.fetch_add(1,",
+      "std::memory_order_relaxed);"
+    ],
+    "extra": [
+      "std::memory_order_seq_cst);",
+      "n.store(1,",
+      "std::memory_order::relaxed);"
+    ],
+    "explanation": "`fetch_add` is the atomic read-modify-write. Relaxed ordering is enough when nobody else depends on the value to publish other data."
+  },
+  {
+    "id": "b:memmodel:0",
+    "node": "memmodel:n0",
+    "topic": "Release store",
+    "prompt": "Publish the data written before this line: set the atomic flag `ready` to true with a **release** store.",
+    "answer": [
+      "ready.store(true,",
+      "std::memory_order_release);"
+    ],
+    "extra": [
+      "std::memory_order_acquire);",
+      "std::memory_order_relaxed);",
+      "ready.load("
+    ],
+    "explanation": "A release store pairs with an acquire load in the reader thread, so everything written before the store is visible once the reader sees `true`."
+  },
+  {
+    "id": "b:strings:0",
+    "node": "strings:n0",
+    "topic": "string_view",
+    "prompt": "Make a **read-only view** `v` of the string `s` without copying it.",
+    "answer": [
+      "std::string_view",
+      "v = s;"
+    ],
+    "extra": [
+      "std::string",
+      "std::string_view&&"
+    ],
+    "explanation": "`std::string_view` refers to the characters of `s` without owning them, so it is cheap to pass around. It must not outlive `s`."
   }
 ]

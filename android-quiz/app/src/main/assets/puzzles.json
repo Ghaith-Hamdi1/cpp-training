@@ -1,0 +1,290 @@
+{
+ "license": {
+  "name": "CC BY-SA 4.0",
+  "url": "https://creativecommons.org/licenses/by-sa/4.0/",
+  "credit": "These questions come from CppQuiz.org by Anders Schau Knatten and contributors.",
+  "source": "https://github.com/knatten/cppquiz23",
+  "changes": "Reformatted into this data file; the leading #include lines are not shown. The text is otherwise unchanged."
+ },
+ "puzzles": [
+  {
+   "id": 24,
+   "difficulty": 1,
+   "result": "OK",
+   "answer": "0",
+   "code": "int main() {\n  unsigned int i = std::numeric_limits<unsigned int>::max();\n  std::cout << ++i;\n}",
+   "hint": "What happens when an unsigned integer overflows? Is it well-defined?",
+   "explanation": "Unsigned integers have well-defined behaviour when they overflow. When you go one above the largest representable unsigned int, you end up back at zero.\n\nAccording to §[basic.fundamental]¶2 in the C++ standard:\n\n> The range of representable values for the unsigned type is 0 to 2<sup>*N*</sup> − 1 (inclusive); arithmetic for the unsigned type is performed modulo 2<sup>*N*</sup>."
+  },
+  {
+   "id": 26,
+   "difficulty": 1,
+   "result": "UD",
+   "answer": "",
+   "code": "int main() {\n  int i = 42;\n  int j = 1;\n  std::cout << i / --j;\n}",
+   "hint": "What happens when you divide an integer by zero?",
+   "explanation": "Integer division by zero is undefined behaviour. According to §[expr.mul]¶4 in the standard:\n\n> If the second operand of `/` or `%` is zero the behavior is undefined."
+  },
+  {
+   "id": 153,
+   "difficulty": 1,
+   "result": "CE",
+   "answer": "",
+   "code": "int main() {\n    char* str = \"X\";\n    std::cout << str;\n}",
+   "hint": "What is the type of a string literal?",
+   "explanation": "According to §[tab:lex.string.literal] in the standard, an ordinary string literal has type “array of *n* `const char`”.\n\nThe array of *n* `const char` decays to a pointer to `const char`. That pointer to `const char` does not implicitly convert to a pointer to non-const `char`.\n\n§[conv.qual]¶note-3 extrapolates from the preceding normative passages:\n\n> A prvalue of type “pointer to *cv1* `T`” can be converted to a prvalue of type “pointer to *cv2* `T`” if “*cv2* `T`” is more cv-qualified than “*cv1* `T`”.\n\nIn this case however, `char*` is less cv-qualified than `const char *`, so the conversion is not allowed.\n\nNote: While most compilers still allow `char const[]` to `char*` conversion with just a warning, this is not a legal conversion since C++11.\n\nSee also <https://dev.krzaq.cc/stop-assigning-string-literals-to-char-star-already/>."
+  },
+  {
+   "id": 288,
+   "difficulty": 1,
+   "result": "OK",
+   "answer": "1211",
+   "code": "int main() {\n    int I = 1, J = 1, K = 1;\n    std::cout << (++I || ++J && ++K);\n    std::cout << I << J << K;\n}",
+   "hint": "`&&` has higher precedence than `||`. Also think about short-circuiting.",
+   "explanation": "The question is which of `I`, `J`, and `K` get incremented. This depends both on operator precedence, evaluation order and short-circuiting. All of these are defined in §[expr.log.or].\n\nFirst, precedence. Operator precedence is not actually spelled out anywhere, but you can infer from the syntax below that `&&` (*logical-and-expression*) has higher precedence than `||` (*logical-or-expression*).\n\n> *logical-or-expression*:\n>\n> &nbsp;&nbsp; *logical-and-expression*\n>\n> &nbsp;&nbsp; *logical-or-expression* || *logical-and-expression*\n\nSo `(++I || ++J && ++K)` will be equal to `(++I || (++J && ++K))`.\n\nNext, evaluation order and short-circuiting:\n\n> Unlike `|`, `||` guarantees left-to-right evaluation; moreover, the second operand is not evaluated if the first operand evaluates to `true`.\n\nSo we first evaluate `++I`, which is `2`. This evaluates to `true`, so the second operand (`++J && ++K`) is never evaluated, and `J` and `K` do not get incremented.\n\nThe result of that entire expression is `true`, and `1` is printed. We then print `I`, `J` and `K`, which now hold `2`, `1` and `1`, respectively."
+  },
+  {
+   "id": 38,
+   "difficulty": 2,
+   "result": "OK",
+   "answer": "11",
+   "code": "int main() {\n  int a = 0;\n  decltype((a)) b = a;\n  b++;\n  std::cout << a << b;\n}",
+   "hint": "`decltype((a))` is not the same as `decltype(a)`.",
+   "explanation": "According to §[dcl.type.decltype]¶1 in the standard:\n\n> For an expression `E`, the type denoted by `decltype(E)` is defined as follows:\n>\n> — if `E` is an unparenthesized *id-expression* naming a structured binding (§[dcl.struct.bind]), `decltype(E)` is the referenced type as given in the specification of the structured binding declaration;\n>\n> — otherwise, if `E` is an unparenthesized *id-expression* naming a non-type *template-parameter* (§[temp.param]), `decltype(E)` is the type of the *template-parameter* after performing any necessary type deduction (§[dcl.spec.auto], §[dcl.type.class.deduct]);\n>\n> — otherwise, if `E` is an unparenthesized *id-expression* or an unparenthesized class member access (§[expr.ref]), `decltype(E)` is the type of the entity named by `E`. If there is no such entity, the program is ill-formed;\n>\n> — otherwise, if `E` is an xvalue, `decltype(E)` is `T&&`, where `T` is the type of `E`;\n>\n> — otherwise, if `E` is an lvalue, `decltype(E)` is `T&`, where `T` is the type of `E`;\n>\n> — otherwise, `decltype(E)` is the type of `E`.\n\nBecause `a` is encapsulated in parentheses, it doesn't qualify for the first three cases, it is treated as an lvalue, therefore `b`'s type is `int&`, not `int`."
+  },
+  {
+   "id": 8,
+   "difficulty": 1,
+   "result": "OK",
+   "answer": "A",
+   "code": "class A {\npublic:\n  virtual void f() { std::cout << \"A\"; }\n};\n\nclass B : public A {\npublic:\n  void f() { std::cout << \"B\"; }\n};\n\nvoid g(A a) { a.f(); }\n\nint main() {\n  B b;\n  g(b);\n}",
+   "hint": "What is the dynamic type of `a` in `void g(A a)`?",
+   "explanation": "`g(A a)` takes an object of type `A` by value, not by reference or pointer. This means that `A`'s copy constructor is called on the object passed to `g()` (no matter if the object we passed was of type `B`), and we get a brand new object of type `A` inside `g()`. This is commonly referred to as slicing."
+  },
+  {
+   "id": 16,
+   "difficulty": 1,
+   "result": "OK",
+   "answer": "abBA",
+   "code": "class A {\npublic:\n  A() { std::cout << 'a'; }\n  ~A() { std::cout << 'A'; }\n};\n\nclass B {\npublic:\n  B() { std::cout << 'b'; }\n  ~B() { std::cout << 'B'; }\n  A a;\n};\n\nint main() { B b; }",
+   "hint": "When are member variables initialized and destroyed?",
+   "explanation": "Member variables are initialized before the constructor is called. The destructor is called before member variables are destroyed."
+  },
+  {
+   "id": 160,
+   "difficulty": 2,
+   "result": "OK",
+   "answer": "B1",
+   "code": "struct A {\n    virtual void foo (int a = 1) {\n        std::cout << \"A\" << a;\n    }\n};\n\nstruct B : A {\n    virtual void foo (int a = 2) {\n        std::cout << \"B\" << a;\n    }\n};\n\nint main () {\n    A *b = new B;\n    b->foo();\n}",
+   "hint": "Does an overriding function in a derived class acquire default arguments from the function it overrides?",
+   "explanation": "In the first line of `main`, we create a new `B` object, with an `A` pointer `b` pointing to it.\n\nOn the next line, we call `b->foo()`, where `b` has the static type `A`, and the dynamic type `B`. Since `foo()` is virtual, the dynamic type of `b` is used to ensure `B::foo()` gets called rather than `A::foo()`.\n\nHowever, which default argument is used for the `int a` parameter to `foo()`? §[dcl.fct.default]¶10 in the standard:\n\n> A virtual function call (§[class.virtual]) uses the default arguments in the declaration of the virtual function determined by the static type of the pointer or reference denoting the object. An overriding function in a derived class does not acquire default arguments from the function it overrides.\n\nSo `B::foo()` is called, but with the default argument from `A::foo()`, and the output is `B1`."
+  },
+  {
+   "id": 184,
+   "difficulty": 2,
+   "result": "OK",
+   "answer": "d",
+   "code": "struct Base {\n  void f(int) { std::cout << \"i\"; }\n};\n\nstruct Derived : Base {\n  void f(double) { std::cout << \"d\"; }\n};\n\nint main() {\n  Derived d;\n  int i = 0;\n  d.f(i);\n}",
+   "hint": "What are the scopes of the two names `f`?",
+   "explanation": "Why does overload resolution not pick the obviously better `void f(int)`, but instead `void f(double)` which requires a floating-integral conversion from `int` to `double`?\n\nIt turns out that `void f(int)` isn't even found by name lookup, and is not considered for overload resolution at all. When the name `f` is introduced in `Derived`, it hides the name `f` that was introduced in `Base`.\n\nLet's explore the details about how the name `f` is looked up in a class scope *C*:\n\n§[class.member.lookup]¶3:\n\n> The declaration set is the result of a single search in the scope of *C* for *N* from immediately after the *class-specifier* of *C* if *P* is in a complete-class context of *C* (...). If the resulting declaration set is not empty, the subobject set contains *C* itself, and calculation is complete.\n\nSo when looking for a declaration of `f` and finding `Derived::f`, the calculation is complete, and `Base` is not examined at all. If no `f` was found in `Derived`, we would continue with §[class.member.lookup]¶4:\n\n> Otherwise (...), *S*(*N*,*C*) is initially empty. Calculate the lookup set for *N* in each direct non-dependent (§[temp.dep.type]) base class subobject *B<sub>i</sub>*, and merge each such lookup set *S*(*N*,*B<sub>i</sub>*) in turn into *S*(*N*,*C*).\n\nBut since `Derived` does indeed contain a declaration of `f`, we never get around to looking at `Base`."
+  },
+  {
+   "id": 29,
+   "difficulty": 2,
+   "result": "OK",
+   "answer": "121",
+   "code": "struct A {\n  A() { foo(); }\n  virtual ~A() { foo(); }\n  virtual void foo() { std::cout << \"1\"; }\n  void bar() { foo(); }\n};\n\nstruct B : public A {\n  virtual void foo() { std::cout << \"2\"; }\n};\n\nint main() {\n  B b;\n  b.bar();\n}",
+   "hint": "Are there times when virtual functions are not considered virtual?",
+   "explanation": "Even though `foo()` is virtual, it is not considered to be so during the execution of constructors and destructors.\n\nRationale:\n\nIf an object of type `B` is being constructed, first the constructor of `A` is called, then the constructor of `B`. Thus, during `A`'s constructor, the \"`B` part\" of the object has not been constructed yet, and should not be used. One could easily imagine that `B::foo()` would use the \"`B` part\" of the object, so it would be dangerous for `A`'s constructor to call it.\n\nWhen the object is destroyed, `B`'s destructor is called first, then `A`'s destructor, leading to the same problem."
+  },
+  {
+   "id": 35,
+   "difficulty": 1,
+   "result": "OK",
+   "answer": "12",
+   "code": "int main() {\n  std::vector<int> v1(1, 2);\n  std::vector<int> v2{ 1, 2 };\n  std::cout << v1.size() << v2.size();\n}",
+   "hint": "Which constructors are invoked for `v1` and `v2`? How is a vector constructed from an initializer list?",
+   "explanation": "To answer this we need to look at overload resolution of vector's constructors:\n\n§[vector.cons]¶7 says:\n\n> ```\n> constexpr vector(size_type n, const T& value,\n>                  const Allocator& = Allocator());\n> ```\n>\n> *Effects*: Constructs a `vector` with `n` copies of `value`, using the specified allocator.\n\nSo `v1` contains one \"`2`\".\n\n§[over.match.list] says (in summary) that when non-aggregate classes (such as `vector`) are list-initialized<sup>†</sup> and have an initializer list constructor (again, like `vector`), that constructor is chosen, and the argument list consists of the initializer list as a single argument.\n(†: §[dcl.init.list]¶1: \"List-initialization is initialization of an object or reference from a braced-init-list\".)\n\nSo `v2` is initialized from the elements (aka initializer-clauses) in the braced-init-list, and contains the elements \"`1`\" and \"`2`\"."
+  },
+  {
+   "id": 135,
+   "difficulty": 1,
+   "result": "OK",
+   "answer": "13",
+   "code": "int main()\n{\n  std::map<bool,int> mb = {{1,2},{3,4},{5,0}};\n  std::cout << mb.size();\n  std::map<int,int> mi = {{1,2},{3,4},{5,0}};\n  std::cout << mi.size();\n}",
+   "hint": "What is the type of `mb`?",
+   "explanation": "`std::map` stores values based on a unique key. The keys for `mb` are boolean, and `1`, `3` and `5` all evaluate to the same key, `true`.\n\n§[map.overview]¶1 in the standard:\n\n> A `map` is an associative container that supports unique keys (contains at most one of each key value).\n\nThe type of `mb` is `map<bool,int>`. The key is bool, so the integers `1`, `3` and `5` used for initialization are first converted to bool, and they all evaluate to true.\n\n§[conv.bool]¶1 in the standard:\n\n> A prvalue of arithmetic, unscoped enumeration, pointer, or pointer to member type can be converted to a prvalue of type `bool`. A zero value, null pointer value, or null member pointer value is converted to `false`; any other value is converted to `true`."
+  },
+  {
+   "id": 207,
+   "difficulty": 1,
+   "result": "OK",
+   "answer": "0",
+   "code": "int main() {\n    std::map<int, int> m;\n    std::cout << m[42];\n}",
+   "hint": "What does the `[]` operator do if the key is not present?",
+   "explanation": "The `[]` operator inserts an element if the key is not present. For a simple `int`, it inserts `0`.\n\nAccording to §[map.access]¶2 in the standard:\n\n> ```\n> mapped_type& operator[](key_type&& x);\n> ```\n>\n> *Effects*: Equivalent to: `return try_emplace(move(x)).first->second;`\n\nwhere `try_emplace` is defined by §[map.modifiers]¶4:\n\n> ```\n> template<class... Args>\n>  pair<iterator, bool> try_emplace(const key_type& k, Args&&... args);\n> template<class... Args>\n>  iterator try_emplace(const_iterator hint, const key_type& k, Args&&... args);\n> ```\n>\n> *Effects*: If the map already contains an element whose key is equivalent to `k`, there is no effect. Otherwise inserts an object of type `value_type` constructed with `piecewise_construct, forward_as_tuple(k), forward_as_tuple(std::forward<Args>(args)...)`.\n\n`value_type` is just a `typedef` for `pair<const Key, T>`, which in our case is `pair<const int, int>`. So it inserts a `pair(42, int())`.\n\n`int()` is a *value-initialization*, which for non-class, non-array types means *zero-initialization* (see §[dcl.init]¶8). And according to §[dcl.init.general]¶6.1:\n\n> To *zero-initialize* an object or reference of type `T` means:\n>\n> — if `T` is a scalar type (§[basic.types.general]), the object is initialized to the value obtained by converting the integer literal `0` (zero) to `T`;\n\nSo setting the value for the key `42` to `T()` means setting it to `0`."
+  },
+  {
+   "id": 129,
+   "difficulty": 2,
+   "result": "UD",
+   "answer": "",
+   "code": "int main() {\n  std::vector<char> delimiters = { \",\", \";\" };\n  std::cout << delimiters[0];\n}",
+   "hint": "The type of `\",\"` is `const char[]`, not `char`.",
+   "explanation": "Here we are trying to initialize a `vector<char>` using two string literals, not two `char`s.\n\nThe initializer-list constructor for `template <class T>vector` is defined as `vector(initializer_list<T>)` by §[vector.overview] in the standard. In our case, `vector(initializer_list<char>)`.\n\nThe type of a string literal is \"array of `n` `const char`\" (§[lex.string]¶8), so clearly the initializer-list constructor is not a match.\n\nThis problem does however not result in a compiler error, since the compiler is able to find another constructor that matches!\n\n§[over.match.list]¶1 explains the rules very clearly:\n\n> When objects of non-aggregate class type `T` are list-initialized (...), overload resolution selects the constructor in two phases:\n>\n> — If the initializer list is not empty or `T` has no default constructor, overload resolution is first performed where the candidate functions are the initializer-list constructors (§[dcl.init.list]) of the class `T` and the argument list consists of the initializer list as a single argument. [which we have seen didn't match].\n>\n> — Otherwise, or if no viable initializer-list constructor is found, overload resolution is performed again, where the candidate functions are all the constructors of the class T and the argument list consists of the elements of the initializer list. [in our case, the two string literals `\",\"` and `\";\"` ].\n\nGoing back to §[vector.overview], we find this candidate:\n\n```\ntemplate <class InputIterator> vector(InputIterator first, InputIterator last)\n```\n\nNote that the type of `InputIterator` has no link to the type of `T` in the `vector<T>`. So even if we are initializing a `vector<char>`, the two arguments can be of arbitrary type. The only requirement is that they confirm to the concept of `InputIterator`, which `const char[]` happens to do.\n\nNow the constructor believes it has been passed two iterators to the same sequence, but it has actually been passed iterators to two completely different sequences, `\",\"` and `\";\"`. §[forward.iterators]¶2 says: \"The domain of `==` for forward iterators is that of iterators over the same underlying sequence.\". So the result of this program is undefined."
+  },
+  {
+   "id": 158,
+   "difficulty": 1,
+   "result": "OK",
+   "answer": "aaaaa",
+   "code": "struct Foo\n{\n    Foo() { std::cout<<\"a\"; }\n    Foo(const Foo&) { std::cout<<\"b\"; }\n};\n\nint main()\n{\n    std::vector<Foo> bar(5);\n}",
+   "hint": "Which vector constructor will be called?",
+   "explanation": "Since C++11, `std::vector` has a one parameter constructor (+ optional allocator). §[vector.cons]¶4 in the standard:\n\n> ```\n> constexpr explicit vector(size_type n, const Allocator& = Allocator());\n> ```\n>\n> *Effects*: Constructs a `vector` with `n` default-inserted elements using the specified allocator.\n\nDefault-insertion uses value-initialization, which calls the `Foo` default constructor, resulting in the output `aaaaa`.\n\nThe \"trick\" is, that before C++11, `std::vector` had a two parameter constructor (+ optional allocator), which constructed the container with `n` copies of the second parameter, which is defaulted to `T()`.\n\nSo this code before C++11 would output `abbbbb`, because the call would be equivalent to `std::vector<Foo> bar(5,Foo())`."
+  },
+  {
+   "id": 239,
+   "difficulty": 1,
+   "result": "OK",
+   "answer": "1",
+   "code": "int main() {\n    try {\n        throw std::out_of_range(\"\");\n    } catch (std::exception& e) {\n        std::cout << 1;\n    } catch (std::out_of_range& e) {\n        std::cout << 2;\n    }\n}",
+   "hint": "The handlers for a try block are tried in order of appearance.",
+   "explanation": "There are two exception handlers, `exception& e` and `out_of_range& e`. Both would be appropriate handlers for an `out_of_range` exception, since `out_of_range` inherits from `exception`.\n\nHow is the handler selected? §[except.handle]¶4:\n\n> The handlers for a try block are tried in order of appearance.\n>\n> [*Note 2*: This makes it possible to write handlers that can never be executed, for example by placing a handler for a final derived class after a handler for a corresponding unambiguous public base class. — *end note*]\n\nThe note in the standard hints at what's happening here: Even if `out_of_range& e` is a more specific match, `exception& e` matches before we even get to try it, and `1` is printed."
+  },
+  {
+   "id": 33,
+   "difficulty": 1,
+   "result": "OK",
+   "answer": "G",
+   "code": "struct GeneralException {\n  virtual void print() { std::cout << \"G\"; }\n};\n\nstruct SpecialException : public GeneralException {\n  void print() override { std::cout << \"S\"; }\n};\n\nvoid f() { throw SpecialException(); }\n\nint main() {\n  try {\n    f();\n  }\n  catch (GeneralException e) {\n    e.print();\n  }\n}",
+   "hint": "Pass by value vs pass by reference.",
+   "explanation": "We throw a `SpecialException`. It is derived from `GeneralException`, but is caught by value, so `e` will have the dynamic type `GeneralException`, not `SpecialException`. This is known as slicing.\n\nInstead, we should have caught it by reference `catch (GeneralException& e)`, then its dynamic type would be `SpecialException`, and the program would output `S`."
+  },
+  {
+   "id": 15,
+   "difficulty": 3,
+   "result": "OK",
+   "answer": "acabBA",
+   "code": "int x = 0;\n\nclass A {\npublic:\n  A() {\n    std::cout << 'a';\n    if (x++ == 0) {\n      throw std::exception();\n    }\n  }\n  ~A() { std::cout << 'A'; }\n};\n\nclass B {\npublic:\n  B() { std::cout << 'b'; }\n  ~B() { std::cout << 'B'; }\n  A a;\n};\n\nvoid foo() { static B b; }\n\nint main() {\n  try {\n    foo();\n  }\n  catch (std::exception &) {\n    std::cout << 'c';\n    foo();\n  }\n}",
+   "hint": "When are static local variables initialized?\nIf an exception is thrown in a constructor, is the object considered constructed? Will the destructor be called?",
+   "explanation": "Static local variables are initialized the first time control passes through their declaration. The first time `foo()` is called, `b` is attempted to be initialized. Its constructor is called, which first constructs all member variables. This means `A::A()` is called, resulting in the printing of 'a.' However, `A::A()` then throws an exception; consequently, the constructor is aborted, and neither `b` nor `B::a` are actually considered constructed. In the catch block, 'c' is printed, and then `foo()` is called again. Since `b` was never successfully initialized the first time, it tries again, this time succeeding, which leads to 'ab' being printed. When `main()` exits, the static variable `b` is destroyed. This process first calls the destructor, which prints 'B,' and then destroys the member variables, indicated by the printing of 'A'."
+  },
+  {
+   "id": 323,
+   "difficulty": 3,
+   "result": "OK",
+   "answer": "bcad",
+   "code": "struct A {\n    A(char c) : c_(c) {}\n    ~A() { std::cout << c_; }\n    char c_;\n};\n\nstruct Y { ~Y() noexcept(false) { throw std::runtime_error(\"\"); } };\n\nA f() {\n    try {\n        A a('a');\n        Y y;\n        A b('b');\n        return {'c'};\n    } catch (...) {\n    }\n    return {'d'};\n}\n\nint main()\n{\n    f();\n}",
+   "hint": "`c` is not destroyed as part of the regular exit from the try block, but as part of stack unwinding after the exception gets thrown. When stack unwinding starts, the not-yet-destroyed objects created in the try block are destroyed in the reverse order of their construction.",
+   "explanation": "This is taken from an example in §[except.ctor]¶2 in the standard about stack unwinding:\n\n> Each object with automatic storage duration is destroyed if it has been constructed, but not yet destroyed, since the try block was entered. If an exception is thrown during the destruction of temporaries or local variables for a `return` statement (§[stmt.return]), the destructor for the returned object (if any) is also invoked. The objects are destroyed in the reverse order of the completion of their construction.\n>\n> [*Example 1*:\n>\n> ```\n> struct A { };\n>\n> struct Y { ~Y() noexcept(false) { throw 0; } };\n>\n> A f() {\n>   try {\n>     A a;\n>     Y y;\n>     A b;\n>     return {};      // #1\n>   } catch (...) {\n>   }\n>   return {};        // #2\n> }\n> ```\n>\n> At #1, the returned object of type `A` is constructed. Then, the local variable `b` is destroyed (§[stmt.jump]). Next, the local variable `y` is destroyed, causing stack unwinding, resulting in the destruction of the returned object, followed by the destruction of the local variable `a`. Finally, the returned object is constructed again at #2. — *end example*]\n\nIt is worth noting that at the time of writing, neither GCC, Clang nor MSVC conform to the behaviour described in the standard, and instead print `bacd`, `bad` and `bad`, respectively."
+  },
+  {
+   "id": 265,
+   "difficulty": 1,
+   "result": "OK",
+   "answer": "1",
+   "code": "void f(char*&&) { std::cout << 1; }\nvoid f(char*&) { std::cout << 2; }\n\nint main() {\n    char c = 'a';\n    f(&c);\n}",
+   "hint": "`c` is an lvalue `char`. `&c` is a pointer to `c`, but is that pointer itself an lvalue or an rvalue?",
+   "explanation": "`c` is an lvalue `char`. `&c` returns a pointer to the lvalue `c`, but that pointer itself is an rvalue, since it's just a nameless temporary returned from `operator&`. §[expr.unary.op]¶3:\n\n> The operand of the unary `&` operator shall be an lvalue of some type T. The result is a prvalue.\n\nThe first overload of `f` takes an rvalue reference to `char *`, the second takes an lvalue reference to `char*`. Since the pointer is an rvalue, the first overload is selected, and `1` is printed."
+  },
+  {
+   "id": 281,
+   "difficulty": 1,
+   "result": "OK",
+   "answer": "ok",
+   "code": "class C\n{\npublic:\n    C(){}\n    C(const C&){} // User-declared, disables move constructor\n};\n\nint main()\n{\n    C c;\n    C c2(std::move(c));\n    std::cout << \"ok\";\n}",
+   "hint": "A move constructor will not be implicitly declared if the user declares a copy constructor. But do we need a move constructor to initialize `c2`?",
+   "explanation": "We're initializing `c2` from an rvalue, so it would be preferable to have a move constructor available. But since we declare a copy constructor, we do not get an implicit move constructor:\n\n§[class.copy.ctor]¶8.1:\n\n> If the definition of a class `X` does not explicitly declare a move constructor, a non-explicit one will be implicitly declared as defaulted if and only if\n>\n> — `X` does not have a user-declared copy constructor,\n\nSo we don't have a move constructor. But can we still initialize `c2`?\n\nWhen overload resolution looks for a constructor to use, the candidate functions are all the constructors of the class. If we had both a copy and a move constructor, the move constructor would be picked as the best viable function.\n\nHowever, in this case we only have a copy constructor. Is it too a viable function? For it to be viable, we need to be able to bind `const C&` to the xvalue `std::move(c)`.\n\n§[dcl.init.ref] has the details for initializing references. It first discusses binding to lvalues, which is not the case here, then it gets to §[dcl.init.ref]¶5.2:\n\n> — Otherwise, if the reference is an lvalue reference to a type that is not const-qualified or is volatile-qualified, the program is ill-formed.\n\nOur reference `const C&` is an lvalue reference to non-volatile const, so this clause doesn't apply here either. It continues:\n\n> — Otherwise, if the initializer expression (...) is an rvalue (...) then the initializer expression (...) is called the converted initializer. (...) In any case, the reference binds to the resulting glvalue (or to an appropriate base class subobject).\n\nWe won't explain value categories here (see [lvalues, rvalues, glvalues, prvalues, xvalues, help!](https://blog.knatten.org/2018/03/09/lvalues-rvalues-glvalues-prvalues-xvalues-help/) for an introduction), but the xvalue `std::move(c)` is *both* an rvalue and a glvalue. So the clause \"if [it] is an rvalue\" above applies, as does \"the resulting glvalue\".\n\nSo the `const C&` in the copy constructor is bound to the glvalue `std::move(c)`. The copy constructor is indeed a viable function, and is used to construct `c2`."
+  },
+  {
+   "id": 226,
+   "difficulty": 2,
+   "result": "OK",
+   "answer": "1255",
+   "code": "struct X {\n    X() { std::cout << \"1\"; }\n    X(X &) { std::cout << \"2\"; }\n    X(const X &) { std::cout << \"3\"; }\n    X(X &&) { std::cout << \"4\"; }\n    ~X() { std::cout << \"5\"; }\n};\n\nstruct Y {\n    mutable X x;\n    Y() = default;\n    Y(const Y &) = default;\n};\n\nint main() {\n    Y y1;\n    Y y2 = std::move(y1);\n}",
+   "hint": "What does `mutable` mean?",
+   "explanation": "First, the line\n\n```\nY y1;\n```\n\ncreates an instance of `Y`. `Y` has an `X` data member, which is default constructed, printing `1`.\n\nThen,\n\n```\nY y2 = std::move(y1);\n```\n\ncopy-initializes another `Y`. The `std::move` turns `y1` into an rvalue, but since `Y` has no move constructor, its copy constructor is called. The implicitly-defined copy-constructor performs a copy of `x`, as specified in §[class.copy.ctor]¶14:\n\n> The implicitly-defined copy/move constructor for a non-union class `X` performs a memberwise copy/move of its bases and members.\n\nNow the question is which copy constructor is used to initialize the copy of `x`. Will it pick `X(X &)` or `X(const X &)`? The `Y` inside the `Y(const Y &)` copy constructor is `const`, but `x` is marked mutable, and §[dcl.stc]¶note-5 says:\n\n> The `mutable` specifier on a class data member nullifies a `const` specifier applied to the containing class object and permits modification of the mutable class member even though the rest of the object is `const` (§[basic.type.qualifier], §[dcl.type.cv]).\n\nSo `x` is considered non-const, and `X(X &)` is a better match to overload resolution than `X(const X &)`, because in the latter case, a const conversion has to happen. So `X(X &)` is called, printing `2`.\n\nFinally, both `y1` and `y2` are destroyed at the end of `main`, printing `55`."
+  },
+  {
+   "id": 112,
+   "difficulty": 2,
+   "result": "OK",
+   "answer": "1426",
+   "code": "struct A\n{\n    A() { std::cout << \"1\"; }\n    A(const A&) { std::cout << \"2\"; }\n    A(A&&) { std::cout << \"3\"; }\n};\n\nstruct B\n{\n    A a;\n    B() { std::cout << \"4\"; }\n    B(const B& b) : a(b.a) { std::cout << \"5\"; }\n    B(B&& b) : a(b.a) { std::cout << \"6\"; }\n};\n\nint main()\n{\n    B b1;\n    B b2 = std::move(b1);\n}",
+   "hint": "When members are not mentioned in the member initializer list, when are they initialized?\n\nNote that the expression `b.a`, which names a data member of an rvalue reference, is an lvalue here.",
+   "explanation": "First, `b1` is default-initialized. All members are initialized before the body of the constructor, so `b1.a` is default-initialized first, and we get the output `14`.\n\n§[class.base.init]¶9 in the standard:\n\n> In a non-delegating constructor (...), if a given potentially constructed subobject is not designated by a *mem-initializer-id* (...), then\n>\n> — if the entity is a non-static data member that has a default member initializer (§[class.mem]) and (...);\n>\n> — otherwise, if the entity is an anonymous union or a variant member (§[class.union.anon]), (...);\n>\n> — otherwise, the entity is default-initialized (§[dcl.init]).\n\nThen, `b2` is initialized with the move constructor (since `std::move(b1)` converts `b1` to an xvalue, allowing it to be moved from). In `B`'s move constructor, `a` is initialized in the member initializer list. Even though `b` is of type rvalue reference to `B` (and bound to an rvalue), the expression `b.a` is an lvalue (§[expr.prim.id.unqual]¶3). Lvalues cannot be moved from, so `b2.a` is copy initialized, printing `2`. Finally, the body of `B`'s move constructor prints `6`.\n\n(If the concept of rvalue references being lvalues is confusing, read <https://isocpp.org/blog/2012/11/universal-references-in-c11-scott-meyers>. Search for \"In widget\".)"
+  },
+  {
+   "id": 116,
+   "difficulty": 2,
+   "result": "OK",
+   "answer": "112212",
+   "code": "int y(int &) { return 1; }\nint y(int &&) { return 2; }\n\ntemplate <class T> int f(T &&x) { return y(x); }\ntemplate <class T> int g(T &&x) { return y(std::move(x)); }\ntemplate <class T> int h(T &&x) { return y(std::forward<T>(x)); }\n\nint main() {\n  int i = 10;\n  std::cout << f(i) << f(20);\n  std::cout << g(i) << g(20);\n  std::cout << h(i) << h(20);\n  return 0;\n}",
+   "hint": "The `T&&` in the templated function doesn't necessarily result in an rvalue reference, it depends on the type that is used to instantiate the template. If instantiated with an lvalue, it collapses to an lvalue reference, if instantiated with an rvalue, it collapses to an rvalue reference.",
+   "explanation": "The `T&&` in the templated function doesn't necessarily result in an rvalue reference, it depends on the type that is used to instantiate the template. If instantiated with an lvalue, it collapses to an lvalue reference, if instantiated with an rvalue, it collapses to an rvalue reference. See note [1].\n\nScott Meyers has written a very good article about this, where he introduces the concept of \"universal references\" (the official term is \"forwarding reference\") <https://isocpp.org/blog/2012/11/universal-references-in-c11-scott-meyers>.\n\nIn this example, all three functions are called once with an lvalue and once with an rvalue. In all cases, calling with an lvalue (`i`) collapses `T&& x` to `int& x` (an lvalue reference), and calling with an rvalue (`20`) collapses `T&& x` to `int&& x` (an rvalue reference). Inside the functions, `x` itself is always an lvalue, no matter if its type is an rvalue reference or an lvalue reference.\n\n- For the first example, `y(int&)` is called for both cases. Output: `11`.\n- For the second example, `std::move(x)` obtains an rvalue reference, and `y(int&&)`is called for both cases. Output: `22`.\n- For the third example, `std::forward<T>(x)` obtains an lvalue reference when `x` is an lvalue reference, and an rvalue reference when `x` is an rvalue reference, resulting in first calling `y(int&)` and then calling `y(int&&)`. Output: `12`.\n\nNote [1]: §[dcl.ref]¶6 in the standard:\n\n> If a *typedef-name* (§[dcl.typedef], §[temp.param]) or a *decltype-specifier* (§[dcl.type.decltype]) denotes a type `TR` that is a reference to a type `T`, an attempt to create the type “lvalue reference to *cv* `TR`” creates the type “lvalue reference to `T`”, while an attempt to create the type “rvalue reference to *cv* `TR`” creates the type `TR`.\n\nThe example at the end of that paragraph is worth a look.\n\nNote from the contributor: This demonstrates Scott Meyers's advice to use `std::forward` for forwarding references, and `std::move` for rvalue references."
+  },
+  {
+   "id": 339,
+   "difficulty": 2,
+   "result": "UD",
+   "answer": "",
+   "code": "int main()\n{\n    std::promise<int> p;\n    std::future<int> f = p.get_future();\n    p.set_value(1);\n    std::cout << f.get();\n    std::cout << f.get();\n}",
+   "hint": "The first call to `get()` makes the state invalid.",
+   "explanation": "You can only `get` the value from a `future` once. It is undefined behaviour to call `get` multiple times, but implementations are encouraged to throw an exception, and most (such as GCC, Clang and MSVC) also [do so at the same of writing](https://www.godbolt.org/z/aWeWsvrM5).\n\nMore details:\n\nFirst, we call `get` for the first time. §[futures.unique.future]¶16:\n\n> ```\n> R future::get();\n> R& future<R&>::get();\n> void future<void>::get();\n> ```\n>\n> *Effects*:\n>\n> — `wait()`s until the shared state is ready, then retrieves the value stored in the shared state;\n>\n> — releases any shared state (§[futures.state]).\n\nSo the first call to `get` gets the value, and releases the shared state. What does it mean to release the shared state? §[futures.state]¶5:\n\n> When an asynchronous return object [the `future` in this case] (...) is said to release its shared state, it means:\n>\n> — (...)\n>\n> — the return object (...) gives up its reference to its shared state; (...)\n\nThen we try to call `get` again, but §[futures.unique.future]¶3 says:\n\n> The effect of calling any member function other than the destructor, the move-assignment operator, `share`, or `valid` on a `future` object for which `valid() == false` is undefined.\n>\n> (...)\n>\n> *Recommended practice*: Implementations should detect this case and throw an object of type `future_error` with an error condition of `future_errc::no_state`.\n\nSo if `valid() == false`, calling `get` a second time is UB (but an exception is usually thrown). What does `valid()` do? §[futures.unique.future]¶20:\n\n> ```\n> bool valid() const noexcept;\n> ```\n>\n> *Returns*: `true` only if `*this` refers to a shared state.\n\nThe first time we called `get`, we gave up our reference to the shared state, and from then on `*this` no longer refers to a shared state, `valid()` now returns `false`, and calling `get` again is UB."
+  },
+  {
+   "id": 340,
+   "difficulty": 1,
+   "result": "OK",
+   "answer": "2",
+   "code": "int main()\n{\n    try {\n        std::promise<int> p;\n        std::future<int> f1 = p.get_future();\n        std::future<int> f2 = p.get_future();\n        p.set_value(1);\n        std::cout << f1.get() << f2.get();\n    } catch(const std::exception& e)\n    {\n        std::cout << 2;\n    }\n}",
+   "hint": "Only in science fiction can one have multiple futures.",
+   "explanation": "You can only get a future from a promise once. Trying to get it again throws `future_error`.\n\n§[futures.promise]¶15:\n\n> ```\n> future<R> get_future();\n> ```\n>\n> *Throws*: `future_error` if `*this` has no shared state or if `get_future` has already been called on a promise with the same shared state as `*this`.\n\n`*this` of course has the same shared state as itself, so the second time we call `get_future`, an exception of type `future_error` is thrown. This exception is then caught, and we print `2`."
+  },
+  {
+   "id": 48,
+   "difficulty": 2,
+   "result": "OK",
+   "answer": "z",
+   "code": "int main() {\n  std::string x = \"x\";\n\n  std::async(std::launch::async, [&x]() {\n    x = \"y\";\n  });\n  std::async(std::launch::async, [&x]() {\n    x = \"z\";\n  });\n\n  std::cout << x;\n}",
+   "hint": "When we don't call `get()` on a `future` returned from `async()`, when is the asynchronous task guaranteed to complete?",
+   "explanation": "The destructor of a `future` returned from `async` is required to block until the `async` task has finished (see elaboration below). Since we don't assign the `future`s that are returned from `async()` to anything, they are destroyed at the end of the full expression (at the end of the line in this case). §[class.temporary]¶4 in the standard:\n\n> Temporary objects are destroyed as the last step in evaluating the full-expression §[intro.execution] that (lexically) contains the point where they were created.\n\nThis means that the first async call is guaranteed to finish execution before `async()` is called the second time, so, while the assignments themselves may happen in different threads, they are synchronized.\n\nElaboration on synchronization:\n\nAccording to §[futures.async]¶4 in the standard:\n\n> *Synchronization*: The invocation of `async` synchronizes with the invocation of `f`. The completion of the function `f` is sequenced before the shared state is made ready.\n>\n> [*Note 1*: These apply regardless of the provided `policy` argument (...). — *end note*]\n>\n> If the implementation chooses the `launch::async` policy,\n>\n> — (...)\n>\n> — the associated thread completion synchronizes with the return from the first function that successfully detects the ready status of the shared state or with the return from the last function that releases the shared state, whichever happens first.\n\nIn this case, the destructor of `std::future<>` returned by the `async()` call is \"the last function that releases the shared state\", therefore it synchronizes with (waits for) the thread completion.\n\nScott Meyers writes more about this <https://scottmeyers.blogspot.com/2013/03/stdfutures-from-stdasync-arent-special.html>."
+  },
+  {
+   "id": 261,
+   "difficulty": 1,
+   "result": "OK",
+   "answer": "ab",
+   "code": "int main() {\n  std::stringstream ss(\"a\");\n  std::cout << ss.str();\n  ss << \"b\";\n  std::cout << ss.str();\n}",
+   "hint": "The default open mode in the constructor does not set `std::ios_base::ate`, so where in the buffer will the next character be written when we call `operator<<`?",
+   "explanation": "#### Summary\n`stringstream` is backed by a character buffer. Initializing it with a string initializes the buffer with that string, in this case `a`. Calling `str()` returns the contents of the buffer, and we print `a`.\n\n`operator<<` writes to the next position in the buffer, in this case the beginning of the buffer, overwriting whatever is already there. A `b` is written, overwriting the `a` which was previously in the buffer.\n\nFinally, `str()` is called again, this time printing `b`.\n\nWe can change this behaviour by initializing `stringstream` like this:\n\n```\nstd::stringstream ss(\"a\", std::ios_base::out | std::ios_base::ate);\n```\n\nThen the `a` doesn't get overwritten, and the program instead outputs `aab`, where `a` comes from the first call to `str()`, and `ab` comes from the second call to `str()`.\n\n#### Detail\nA `stringstream` is an alias for `basic_stringstream<char>`. `basic_stringstream<char>` uses a `basic_stringbuf<char>` as storage for the characters in the stream:\n\n```\nusing stringstream = basic_stringstream<char>\n\n ------------------         ---------------\n|basic_stringstream|<>-----|basic_stringbuf|\n ------------------         ---------------\n```\n\nLet's have a look at the `basic_stringstream` constructor: §[stringstream.cons]¶2:\n\n> ```\n> explicit basic_stringstream(const basic_string<charT, traits, Allocator>& s, ios_base::openmode which = ios_base::out | ios_base::in);\n> ```\n>\n> *Effects*: Initializes the base class with `basic_iostream<charT, traits>(addressof(sb))` (§[iostream.cons]) and `sb` with `basic_stringbuf<charT, traits, Allocator>(s, which)`.\n\n`sb` here refers to the `basic_stringbuf` which backs the `basic_stringstream`. So this constructor initializes the buffer with \"a\", and sets its mode to `ios_base::out | ios_base::in`.\n\nThen we call `str()` on the `basic_stringstream`, which again calls `str()` on the `basic_stringbuf`, which according to §[stringbuf.members]¶6 and §[stringbuf.members]¶12:\n\n> *Returns*: (...) object referring to the `basic_stringbuf`'s underlying character sequence (...).\n\nSo we get out a copy of that, and `a` is printed. (Note that `str()` does not modify the buffer.)\n\nThen we stream \"b\" into the `basic_stringstream`. This operation is defined in terms of some of the `basic_stringstream` base classes, so here's (parts of) its inheritance diagram, for reference:\n\n```\n           ---------\n          |basic_ios|\n           ---------\n          /         \\\n -------------   -------------\n|basic_istream| |basic_ostream|\n -------------   -------------\n           \\       /\n         --------------\n        |basic_iostream|\n         --------------\n               |\n        ------------------\n       |basic_stringstream|\n        ------------------\n```\n\n`basic_stringstream` inherits `operator<<` from `ostream`, which according to §[ostream]¶2:\n\n> (...) generate[s] (or *insert*[s]) output *characters* by actions equivalent to calling `rdbuf()->sputc(int_type)`.\n\n`rdbuf()` here refers to our `basic_stringbuf`. `basic_stringbuf` inherits `sputc` from `basic_streambuf`. §[streambuf.pub.put]¶1:\n\n> ```\n> int_type sputc(char_type c);\n> ```\n>\n> *Effects*: (...) stores `c` at the next pointer for the output sequence, increments the pointer (...).\n\nSo when we stream into our `stringstream`, the characters get stored at the next pointer in the buffer, and the next pointer is incremented.\n\nSince the `basic_stringbuf` was constructed with `ios_base::out | ios_base::in`, the next pointer points to the beginning of the stream, and the `a` already in the stream gets overwritten. If we add the flag `io_base::ate`, we get a different result, §[tab:ios.openmode]:\n\n> `ate` open and seek to end immediately after opening\n\nThis will seek to the end of the stream, i.e. *after* the `a` which is already in the buffer, and the `b` will be appended rather than overwriting the `a`. So if we construct the `stringstream` like this:\n\n```\nstd::stringstream ss(\"a\", std::ios_base::out | std::ios_base::ate);\n```\n\nThe output changes to `aab`, where `a` comes from the first call to `str()`, and `ab` comes from the second call to `str()`."
+  },
+  {
+   "id": 284,
+   "difficulty": 2,
+   "result": "OK",
+   "answer": "1",
+   "code": "auto main() -> int {\n  std::string out{\"Hello world\"};\n  std::cout << (out[out.size()] == '\\0');\n}",
+   "hint": "In this regard, `std::string` does not behave like `std::vector`.",
+   "explanation": "Perhaps surprisingly, this program has no undefined behaviour. `std::string`'s `operator[](size_type pos)` must return a reference to the null character when `pos` equals the length of the string:\n\n§[string.access]¶2:\n\n> ```\n> constexpr const_reference operator[](size_type pos) const;\n> constexpr reference       operator[](size_type pos);\n> ```\n>\n> *Preconditions*: `pos <= size()`.\n>\n> *Returns*: `*(begin() + pos)` if `pos < size()`. Otherwise, returns a reference to an object of type `charT` with value `charT()`, where modifying the object to any value other than `charT()` leads to undefined behavior.\n\n`charT()` is `char()` in this case. The `char()` expression value-initializes a `char`, which initializes it to `0`.\n\nSo `out[out.size()] == '\\0'` compares a character with value `0` to a character literal `'\\0'`. Are they the same?\n\n§[lex.ccon]¶3.2.2:\n\n> A *character-literal* with a *c-char-sequence* consisting of a single *numeric-escape-sequence* has a value as follows:\n>\n> — Let *v* be the integer value represented by the octal number comprising the sequence of *octal-digit*s in an *octal-escape-sequence* (...).\n>\n> — If *v* does not exceed the range of representable values of the *character-literal*'s type, then the value is *v*.\n\nAccording to the grammar (§[lex.ccon]¶nt:octal-escape-sequence), `\\0` is an octal escape sequence, so the value of `'\\0'` is indeed `0`. The comparison is true, and `1` is printed."
+  },
+  {
+   "id": 287,
+   "difficulty": 2,
+   "result": "OK",
+   "answer": "hello world",
+   "code": "int main() {\n  using namespace std::string_literals;\n  std::string s1(\"hello world\",5);\n  std::string s2(\"hello world\"s,5);\n\n  std::cout << s1 << s2;\n}",
+   "hint": "The meaning of the second argument is different for the two constructors.",
+   "explanation": "Even though these constructor invocations look strikingly similar, the one that takes a C-style string and the one that takes a `basic_string` behave differently with respect to the second argument. For the former, it means \"until this position\", but for the latter it means \"from this position\".\n\n### Details:\n\nIn the constructor taking a C-style string (the `s1` case) the second argument is treated as how many characters to take from the start of the C-style string. §[string.cons]¶14:\n\n> ```\n> constexpr basic_string(const charT* s, size_type n, const Allocator& a = Allocator());\n> ```\n>\n> *Effects*: Constructs an object whose initial value is the range `[s, s + n)`.\n\nOn the other hand, in the constructor that takes `basic_string` (the `s2` case) the second argument is treated as the position to *start* copying the string from. §[string.cons]¶5:\n\n> ```\n> constexpr basic_string(const basic_string& str, size_type pos, const Allocator& a = Allocator());\n> ```\n>\n> (...)\n>\n> Let\n>\n> — `s` be the value of `str` prior to this call and\n>\n> — `rlen` be `pos + min(n, s.size() - pos)` for the overloads with parameter `n`, and `s.size()` otherwise.\n>\n> *Effects*: Constructs an object whose initial value is the range `[s.data() + pos, s.data() + rlen)`."
+  },
+  {
+   "id": 2,
+   "difficulty": 2,
+   "result": "OK",
+   "answer": "22",
+   "code": "void f(const std::string &) { std::cout << 1; }\n\nvoid f(const void *) { std::cout << 2; }\n\nint main() {\n  f(\"foo\");\n  const char *bar = \"bar\";\n  f(bar);\n}",
+   "hint": "What is the type of a string literal?\nDoes the compiler prefer standard or user defined conversions?",
+   "explanation": "A string literal is not a `std::string`, but a `const char[]` . If the compiler was to choose `f(const std::string&)`, it would have to go through a user defined conversion and create a temporary `std::string`. Instead, it prefers `f(const void*)`, which requires no user defined conversion."
+  }
+ ]
+}
